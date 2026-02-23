@@ -1,18 +1,20 @@
-dataDir: ~/.agent-orchestrator
-worktreeDir: ~/.worktrees
 port: 3000
+
 defaults:
   runtime: tmux
-  agent: claude-code
+  agent: aider
   workspace: worktree
-  notifiers:
-    - desktop
+  notifiers: [desktop]
+
 projects:
-  LongMuch:
+  longmuch:
     repo: jadecobra/haystack
-    path: /Users/johnnyblase/gym/haystack
+    path: .
     defaultBranch: main
-    sesionPrefix: longmuch
+    sessionPrefix: lm
+    agentConfig:
+      model: openrouter/arcee-ai/trinity-large-preview:free
+
 reactions:
   ci-failed:
     auto: true
