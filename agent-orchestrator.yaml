@@ -1,0 +1,27 @@
+dataDir: ~/.agent-orchestrator
+worktreeDir: ~/.worktrees
+port: 3000
+defaults:
+  runtime: tmux
+  agent: claude-code
+  workspace: worktree
+  notifiers:
+    - desktop
+projects:
+  LongMuch:
+    repo: jadecobra/haystack
+    path: /Users/johnnyblase/gym/haystack
+    defaultBranch: main
+    sesionPrefix: longmuch
+reactions:
+  ci-failed:
+    auto: true
+    action: send-to-agent
+    retries: 3
+  changes-requested:
+    auto: true
+    action: send-to-agent
+    escalateAfter: 25m
+  approved-and-green:
+    auto: false
+    action: notify
