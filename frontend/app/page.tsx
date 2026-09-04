@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, DataTable } from './components';
+
+import { useState } from 'react';
 
 type MetricRow = { metric: string; values: Record<string, string> };
 
@@ -86,12 +87,7 @@ export default function Home() {
       })
     : [];
 
-  const previousCloseLine =
-    data && data.previous_close != null
-      ? `Previous close: $${Number(data.previous_close).toFixed(2)}${
-          data.previous_close_as_of ? ` as of ${data.previous_close_as_of}` : ""
-        }`
-      : null;
+  const sourceLabel = (data?.source || "api").toUpperCase();
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex items-start sm:items-center justify-center overflow-x-hidden">
@@ -100,7 +96,7 @@ export default function Home() {
           LongMuch
         </h1>
         <p className="text-lg sm:text-2xl md:text-3xl text-zinc-400 mb-8 sm:mb-16">
-          Clean. Instant. Fundamental analysis.
+          Fundamental Analysis to answer two questions - How much? How long?
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-4xl mx-auto mb-8 sm:mb-16">
@@ -109,7 +105,7 @@ export default function Home() {
             value={ticker}
             onChange={(e) => setTicker(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="AAPL or TSLA"
+            placeholder="enter stock ticker e.g. AAPL"
             autoCapitalize="characters"
             autoCorrect="off"
             spellCheck={false}
@@ -132,19 +128,23 @@ export default function Home() {
 
         {data && (
           <Card className="overflow-hidden text-left p-4 sm:p-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-zinc-300 mb-3 sm:mb-4">
-              5-Year Financial Metrics
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 mb-2 break-words">
-              {data.ticker} · {data.rows.length} metrics · source {data.source || "api"}
-            </p>
-            {previousCloseLine ? (
-              <p className="text-2xl sm:text-3xl font-semibold text-white mb-4" data-testid="previous-close">
-                {previousCloseLine}
+            {data.previous_close != null ? (
+              <p
+                className="text-lg sm:text-xl text-zinc-300 mb-1"
+                data-testid="previous-close"
+              >
+                Previous close{" "}
+                <span className="font-semibold">
+                  ${Number(data.previous_close).toFixed(2)}
+                </span>
+                {data.previous_close_as_of
+                  ? ` as of ${data.previous_close_as_of}`
+                  : ""}
               </p>
-            ) : (
-              <div className="mb-4" />
-            )}
+            ) : null}
+            <h2 className="text-lg sm:text-xl text-zinc-300 mb-4 break-words">
+              {data.ticker} 5-Year Financial Metrics | source : {sourceLabel}
+            </h2>
             <DataTable headers={headers} rows={rows} />
           </Card>
         )}
