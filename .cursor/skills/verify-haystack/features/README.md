@@ -18,7 +18,9 @@ This directory is the maintained source for verifying the user-facing behavior o
 - Treat every command as literal.
 - HTTP via `helpers/http`. Browser via `node helpers/browser.cjs`. Both require launch first.
 - Table logic: `uv run longmuch analyze AAPL --local`. HTTP/UI: `helpers/http`. Do not invent a parallel verify skill.
-- Default `/analyze` is fixture (`?fixture=1`). Do not call live SEC EDGAR unless `VERIFY_EDGAR=1`.
+- Default `/analyze` is **live EDGAR** (no `?fixture=1`). Fixture only via `VERIFY_FIXTURE=1`, `helpers/http backend-analyze TICKER --fixture`, CLI `--local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1`.
+- After prove, leave servers up (`FRONTEND_ORIGIN`); run `helpers/cleanup` only when explicitly asked.
+- A visible Next.js `1 Issue` / `N Issues` badge fails prove/doctor. Ignoring it is invalid.
 
 ## Proof and skip reporting
 
@@ -45,5 +47,5 @@ Keep implementation details out of the map except where they change what the use
 - [Home search](./home-search.md) covers the LongMuch landing page: heading, ticker field, Analyze.
 - [Analyze results](./analyze-results.md) covers submitting a ticker and what actually appears (404, mock KPIs, hardcoded table).
 - [Backend health](./backend-health.md) covers GET `/health` on the isolated FastAPI origin.
-- [Backend analyze](./backend-analyze.md) maps GET `/analyze/{ticker}` (`?fixture=1`) plus `uv run longmuch analyze TICKER --local`.
+- [Backend analyze](./backend-analyze.md) maps GET `/analyze/{ticker}` (live EDGAR default; `?fixture=1` opt-in) plus `uv run longmuch analyze TICKER --local`.
 - [Empty ticker](./empty-ticker.md) covers Analyze disabled when the input is empty.

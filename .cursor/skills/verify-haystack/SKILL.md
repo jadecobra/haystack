@@ -10,7 +10,7 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show 5-ye
 ## Surfaces
 
 - Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle `Clean. Instant. Fundamental analysis.`, text input placeholder `AAPL or TSLA`, button `Analyze`. After client state `data` is set, KPI cards (Revenue / Net Income / EPS / FCF) and a table titled `5-Year Financial Metrics` appear. `frontend/app/layout.tsx` metadata title is still `Create Next App`.
-- Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). Optional `?fixture=1` on analyze for deterministic runs. Default analyze is fixture until EDGAR ships. No RPC, GraphQL, or agent-auth. Do not require a live SEC call for prove steps.
+- Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR** (omit `?fixture=1`). Fixture mode only when explicitly requested: `?fixture=1` on analyze URLs, CLI `uv run longmuch analyze TICKER --local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1` (launch must **not** set that env). No RPC, GraphQL, or agent-auth. Verify HTTP prove uses live analyze by default; use `VERIFY_FIXTURE=1` / `--fixture` for deterministic offline runs.
 - Frontend currently `fetch('/api/analyze/${ticker}')` on the Next origin. `frontend/app/api/analyze/[ticker].ts` is a loose `.ts` file, not App Router `route.ts`, so the Next API 404s. The file returns mock KPI JSON and reads `searchParams.ticker`, not the path param. Document the 404; do not pretend KPIs are live 10-K data.
 - Table rows in `page.tsx` are hardcoded sample billions (`$200B`). That is a fixture in the React tree, not live 10-K proof. Distinguish it from the mock KPI JSON (also not live, and currently not even served).
 - No Playwright/Cypress in the repo. Drive with curl against isolated origins. `helpers/browser.cjs` is an optional skill-local Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
@@ -41,8 +41,9 @@ What it does:
 6. Double-forks (`helpers/daemonize.py` plus setsid) so agent shells cannot reap the servers. Frontend: Next dev `--hostname 127.0.0.1 --port $FRONTEND_PORT` with CWD `frontend/`. Backend: uvicorn `app.main:app --host 127.0.0.1 --port $BACKEND_PORT` with CWD `backend/`.
 7. Ready when GET `$FRONTEND_ORIGIN/` is HTTP 200 and HTML contains `LongMuch`. Backend ready when GET `$BACKEND_ORIGIN/health` is HTTP 200. If backend fails, launch still succeeds for homepage proof (`BACKEND_OK=0`) but API features must skip.
 8. Records PIDs, PGIDs, origins in `/tmp/haystack-verify-$RUN_ID/run.env` and points `.cursor/skills/verify-haystack/.current-run` at that dir. Copies `run.env` and isolation snapshot into `artifacts/`.
+9. Does **not** set `HAYSTACK_PREFER_FIXTURE` (live EDGAR default). Leaves servers up for browse; does not call cleanup.
 
-Ready when the helper prints `verify-haystack launch ok` and `FRONTEND_ORIGIN=http://127.0.0.1:<port>`.
+Ready when the helper prints `verify-haystack launch ok` and `FRONTEND_ORIGIN=http://127.0.0.1:<port>`. Also prints `left up for browse: FRONTEND_ORIGIN=...` — run `helpers/cleanup` only when done.
 
 ## Doctor
 
@@ -52,7 +53,7 @@ Run before driving, and whenever anything looks off:
 .cursor/skills/verify-haystack/helpers/doctor
 ```
 
-Pass means: frontend port is not 3000, listen PID is one we started (or its descendant), GET `$FRONTEND_ORIGIN/` is HTTP 200, HTML contains `LongMuch`. If `BACKEND_OK=1`, backend port is not 8000, listen PID is ours, GET `$BACKEND_ORIGIN/health` is HTTP 200 with JSON `status=healthy` (live body also has a `message` field). Fail means do not drive.
+Pass means: frontend port is not 3000, listen PID is one we started (or its descendant), GET `$FRONTEND_ORIGIN/` is HTTP 200, HTML contains `LongMuch`. If `BACKEND_OK=1`, backend port is not 8000, listen PID is ours, GET `$BACKEND_ORIGIN/health` is HTTP 200 with JSON `status=healthy` (live body also has a `message` field). Also runs `browser.cjs check-issues`: a visible Next.js `1 Issue` / `N Issues` badge is **DOCTOR FAIL**. Missing Playwright is hard-flagged (`next_issues_status=skipped-no-playwright`); a prove that ignores that gate is invalid. Fail means do not drive.
 
 ## Drive
 
@@ -72,12 +73,13 @@ FEATURE=backend-contract .cursor/skills/verify-haystack/helpers/http backend-con
 FEATURE=empty-ticker .cursor/skills/verify-haystack/helpers/http empty-ticker
 ```
 
-`backend-analyze` GETs `/analyze/{ticker}?fixture=1` (deterministic). Live EDGAR is still optional (`VERIFY_EDGAR=1` without fixture).
+`backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture only when `VERIFY_FIXTURE=1`, `helpers/http backend-analyze TICKER --fixture` / `--local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1`. Launch never sets `HAYSTACK_PREFER_FIXTURE`.
 
-Optional browser (Analyze click / screenshot). If Playwright/Chromium is missing, `browser.cjs` writes `browser-skipped.txt` and exits 0 — that is not a failed HTTP proof:
+Optional browser (Analyze click / screenshot) **and required Next issues gate**. `browser.cjs snapshot|analyze|check-issues` fails if the Next.js Dev Tools badge shows a visible `1 Issue` / `N Issues` (`data-next-badge[data-error=true]`). A prove that ignores that badge is **invalid**. If Playwright/Chromium is missing, `snapshot`/`analyze` write `browser-skipped.txt` and exit 0 (HTTP proof still stands), but `check-issues` exits 2 (hard-flag: gate not run). Doctor and `helpers/http home` invoke `check-issues`.
 
 ```bash
 FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot
+FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs check-issues
 FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs analyze AAPL
 ```
 
@@ -91,7 +93,7 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - After `data` is set: KPI `h3` names Revenue / Net Income / EPS / FCF; table `h2` `5-Year Financial Metrics`
 - Document title `Create Next App` (layout metadata, not LongMuch)
 - Next API path `/api/analyze/:ticker` (currently 404)
-- FastAPI GET `/health`, GET `/analyze/{ticker}` (`?fixture=1` optional), GET `/contract` on the backend origin only
+- FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; `?fixture=1` only when explicitly requested), GET `/contract` on the backend origin only
 
 ## Evidence
 
@@ -107,17 +109,20 @@ Proof standards:
 - Exercise the real user path (browser or HTTP to the Next page). Do not treat `unittest` `TestClient` as the only proof of `/health`.
 - Capture the action and the resulting HTML, not only the final screen.
 - Homepage GET has no side effects (no writes, no EDGAR).
-- Mocks only at the EDGAR boundary. The hardcoded table is a fixture in the React tree — when proving `analyze-results`, distinguish mock KPI JSON (unserved, inside `[ticker].ts`) from that hardcoded table (only rendered after `data` is set). A 404 on `/api/analyze/AAPL` is the current real user path.
+- Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (`?fixture=1`, CLI `--local`, `VERIFY_FIXTURE=1`, or caller `HAYSTACK_PREFER_FIXTURE=1`). The hardcoded table in `page.tsx` is a separate React-tree fixture — when proving `analyze-results`, distinguish mock KPI JSON from that hardcoded table (only rendered after `data` is set).
+- **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`helpers/browser.cjs check-issues`); SSR/curl cannot see it.
 
 Feature recipes: `features/README.md` and one file per feature.
 
-## Cleanup
+## Leave-up / browse mode (default) + Cleanup (opt-in)
+
+After launch / prove, **servers stay up** so Jacob can open `FRONTEND_ORIGIN` in a browser. Do **not** run cleanup unless the user/agent explicitly asks. Launch prints `left up for browse: FRONTEND_ORIGIN=...` and reminds that cleanup is opt-in.
 
 ```bash
 .cursor/skills/verify-haystack/helpers/cleanup
 ```
 
-Kills only the process groups / PIDs this launch recorded. Refuses to kill anything listening on 3000/8000. Removes `/tmp/haystack-verify-$RUN_ID` and the scaffolding barrel if this run created it. Never deletes `artifacts/`. Never kills whatever is on 3000/8000 that we did not start.
+`helpers/cleanup` is **optional**. When requested, it kills only the process groups / PIDs this launch recorded. Refuses to kill anything listening on 3000/8000. Removes `/tmp/haystack-verify-$RUN_ID` and the scaffolding barrel if this run created it. Never deletes `artifacts/`. Never kills whatever is on 3000/8000 that we did not start. Isolated ports only — never touch 3000/8000.
 
 ## Helpers
 
@@ -127,7 +132,8 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 - `helpers/doctor` — read-only health plus isolation gate
 - `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker` — curl against isolated origins
 - `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
-- `helpers/cleanup` — teardown our instance
+- `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)
+- `node helpers/browser.cjs check-issues` — fail if Next.js shows a visible Issues badge
 - `python3 helpers/ensure-frontend.py` — restore Next toolchain if `node_modules` is missing (called by launch)
 
 `helpers/lib.sh`, `helpers/launch.py`, `helpers/ensure-frontend.py`, and `helpers/daemonize.py` are internals used by the scripts above.

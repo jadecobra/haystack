@@ -27,7 +27,8 @@ Preconditions:
 - **Confirm identity.** Read `artifacts/home-search/home.meta.txt`. `h1` is `LongMuch`. `placeholder` is `AAPL or TSLA`. `button` is `Analyze`. `title` is `Create Next App`.
 - **No side effects.** Repeat the GET. Status stays 200 and the HTML still has no `5-Year Financial Metrics` table (that block is client-only after `data` is set).
 - **Optional screenshot.** Run `FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot`. If Chromium is missing, `browser-skipped.txt` is enough; HTTP proof still stands.
-- **Proof.** Keep `artifacts/home-search/home.html`, `home.status`, and `home.meta.txt`. Cleanup must not delete them.
+- **Next issues gate.** `helpers/http home` and doctor run `browser.cjs check-issues`. A visible Next.js `1 Issue` / `N Issues` badge fails the prove. Ignoring it is invalid.
+- **Proof.** Keep `artifacts/home-search/home.html`, `home.status`, and `home.meta.txt`. Leave servers up after prove; run `helpers/cleanup` only when asked (artifacts survive cleanup).
 
 ## Gotchas
 

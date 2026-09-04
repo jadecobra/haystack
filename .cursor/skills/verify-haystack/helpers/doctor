@@ -99,4 +99,27 @@ else
 fi
 
 echo "  backend_status=$BACKEND_STATUS"
+
+# Next.js "1 Issue" / "N Issues" badge gate (Playwright). Ignoring a visible badge is invalid.
+NEXT_ISSUES_STATUS="unchecked"
+if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" == "1" ]]; then
+  NEXT_ISSUES_STATUS="skipped-by-env"
+  echo "  next_issues=SKIPPED (SKIP_NEXT_ISSUES_CHECK=1) — prove that ignores a visible Next issues badge is invalid"
+else
+  set +e
+  ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$SCRIPT_DIR/browser.cjs" check-issues 2>&1)"
+  ISSUE_RC=$?
+  set -e
+  echo "$ISSUE_OUT" | sed 's/^/  /'
+  if [[ "$ISSUE_RC" -eq 0 ]]; then
+    NEXT_ISSUES_STATUS="pass"
+  elif [[ "$ISSUE_RC" -eq 2 ]]; then
+    NEXT_ISSUES_STATUS="skipped-no-playwright"
+    echo "  next_issues=HARD-FLAG skipped (Playwright/Chromium missing). A prove that ignores this gate is invalid."
+  else
+    fail "Next.js issues badge visible (or check failed, rc=$ISSUE_RC). A prove that ignores a visible Next issues badge is invalid."
+  fi
+fi
+echo "  next_issues_status=$NEXT_ISSUES_STATUS"
+
 echo "DOCTOR PASS"

@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # Isolated-origin HTTP driver (curl). Never uses ports 3000 or 8000.
-# Never calls SEC EDGAR as a required step (backend-analyze is optional/skip).
 #
 # Usage:
 #   FEATURE=home-search helpers/http home
 #   FEATURE=analyze-results helpers/http analyze-api AAPL
 #   FEATURE=backend-health helpers/http backend-health
 #   FEATURE=backend-analyze helpers/http backend-analyze AAPL
+#   VERIFY_FIXTURE=1 FEATURE=backend-analyze helpers/http backend-analyze AAPL
+#   FEATURE=backend-analyze helpers/http backend-analyze AAPL --fixture
 #   FEATURE=backend-contract helpers/http backend-contract
 #   FEATURE=empty-ticker helpers/http empty-ticker
+#
+# backend-analyze defaults to live EDGAR (no ?fixture=1). Fixture only when
+# VERIFY_FIXTURE=1, --fixture/--local arg, or caller-exported HAYSTACK_PREFER_FIXTURE=1
+# (backend honors that env; this helper does not set it).
 #
 # Evidence lands in .cursor/skills/verify-haystack/artifacts/<feature>/
 
@@ -85,6 +90,21 @@ case "$cmd" in
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
     grep -q 'Clean. Instant. Fundamental analysis.' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
+    # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
+    if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" != "1" ]]; then
+      set +e
+      ISSUE_OUT="$(node "$SCRIPT_DIR/browser.cjs" check-issues 2>&1)"
+      ISSUE_RC=$?
+      set -e
+      echo "$ISSUE_OUT"
+      if [[ "$ISSUE_RC" -eq 1 ]]; then
+        die "home prove failed: visible Next issues badge. A prove that ignores it is invalid."
+      elif [[ "$ISSUE_RC" -eq 2 ]]; then
+        echo "NEXT_ISSUES_CHECK=hard-flag skipped (Playwright/Chromium missing). A prove that ignores this gate is invalid."
+      elif [[ "$ISSUE_RC" -ne 0 ]]; then
+        die "home prove Next issues check failed (rc=$ISSUE_RC)"
+      fi
+    fi
     ;;
   analyze-api)
     FEATURE="${FEATURE:-analyze-results}"
@@ -141,24 +161,63 @@ case "$cmd" in
     require_backend
     ticker="${1:-AAPL}"
     ticker="$(printf '%s' "$ticker" | tr '[:lower:]' '[:upper:]')"
-    url="$BACKEND_ORIGIN/analyze/${ticker}?fixture=1"
-    if [[ "${VERIFY_EDGAR:-0}" == "1" ]]; then
+    shift || true
+    use_fixture=0
+    if [[ "${VERIFY_FIXTURE:-0}" == "1" ]]; then
+      use_fixture=1
+    fi
+    case "${1:-}" in
+      --fixture|fixture|--local|local)
+        use_fixture=1
+        ;;
+    esac
+    # Caller-exported HAYSTACK_PREFER_FIXTURE=1 makes the backend prefer fixture even
+    # without ?fixture=1. We never set that env here (launch must not either).
+    ambient_prefer="${HAYSTACK_PREFER_FIXTURE:-}"
+    if [[ "$use_fixture" == "1" ]]; then
+      url="$BACKEND_ORIGIN/analyze/${ticker}?fixture=1"
+      mode="fixture-query"
+    else
       url="$BACKEND_ORIGIN/analyze/${ticker}"
+      mode="live-edgar"
     fi
     {
       echo "feature=$FEATURE"
       echo "url=$url"
-      echo "note=Default prove uses ?fixture=1 (deterministic). VERIFY_EDGAR=1 omits fixture for live companyfacts."
+      echo "mode=$mode"
+      echo "VERIFY_FIXTURE=${VERIFY_FIXTURE:-0}"
+      echo "HAYSTACK_PREFER_FIXTURE_ambient=${ambient_prefer:-}"
+      echo "note=Default is live EDGAR (no ?fixture=1). Fixture only via VERIFY_FIXTURE=1, --fixture/--local, or caller-exported HAYSTACK_PREFER_FIXTURE=1."
       echo "frontend_does_not_call_this=frontend fetch is /api/analyze/${ticker} on the Next origin"
     } > "$EVIDENCE/backend-analyze.meta.txt"
     body="$EVIDENCE/analyze.json"
-    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 30 "$url" || echo "000")"
+    # Live EDGAR can be slow on cold companyfacts fetch.
+    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 90 "$url" || echo "000")"
     echo "$code" > "$EVIDENCE/backend-analyze.status"
     echo "http_status=$code" >> "$EVIDENCE/backend-analyze.meta.txt"
     echo "body_preview=$(head -c 400 "$body" | tr '\n' ' ')" >> "$EVIDENCE/backend-analyze.meta.txt"
-    echo "GET $url -> HTTP $code"
-    [[ "$code" == "200" ]] || die "backend /analyze not 200 (got $code)"
+    echo "GET $url -> HTTP $code (mode=$mode)"
+    [[ "$code" == "200" ]] || die "backend /analyze not 200 (got $code; mode=$mode)"
     grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "analyze JSON missing treasury label"
+    if [[ "$use_fixture" == "1" ]]; then
+      python3 - "$body" <<'PY' || die "fixture mode expected source=fixture"
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+print(f"source={data.get('source')}")
+raise SystemExit(0 if data.get("source") == "fixture" else 1)
+PY
+    else
+      # Live path should report edgar unless ambient HAYSTACK_PREFER_FIXTURE forced fixture.
+      if [[ -z "${ambient_prefer}" ]]; then
+        python3 - "$body" <<'PY' || die "live mode expected source=edgar (got other; check HAYSTACK_PREFER_FIXTURE)"
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+src = data.get("source")
+print(f"source={src}")
+raise SystemExit(0 if src == "edgar" else 1)
+PY
+      fi
+    fi
     ;;
   backend-contract)
     FEATURE="${FEATURE:-backend-contract}"

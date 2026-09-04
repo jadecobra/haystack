@@ -213,6 +213,14 @@ def main() -> None:
     be_pidfile = run_dir / "backend.pid"
     be_logfile = run_dir / "backend.log"
     be_env = os.environ.copy()
+    # Live EDGAR is the default. Do NOT set HAYSTACK_PREFER_FIXTURE here.
+    # Fixture only if the caller already exported HAYSTACK_PREFER_FIXTURE=1,
+    # or later via ?fixture=1 / CLI --local / VERIFY_FIXTURE=1 on helpers/http.
+    if "HAYSTACK_PREFER_FIXTURE" in be_env:
+        print(
+            "verify-haystack: note: caller-exported HAYSTACK_PREFER_FIXTURE="
+            f"{be_env.get('HAYSTACK_PREFER_FIXTURE')!r} will force fixture analyze"
+        )
     subprocess.check_call(
         [
             sys.executable,
@@ -327,6 +335,10 @@ def main() -> None:
     print(f"RUN_DIR={run_dir}")
     print(f"3000_before={iso_3000}")
     print(f"8000_before={iso_8000}")
+    print(
+        f"left up for browse: FRONTEND_ORIGIN={fe_origin} "
+        "(run helpers/cleanup when done; cleanup is opt-in, not part of prove)"
+    )
 
 
 if __name__ == "__main__":
