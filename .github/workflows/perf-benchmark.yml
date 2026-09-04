@@ -1,0 +1,9 @@
+# Empty placeholder previously failed every push (invalid YAML).
+name: Perf benchmark
+on:
+  workflow_dispatch:
+jobs:
+  skip:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Perf benchmark not configured"

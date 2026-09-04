@@ -60,7 +60,6 @@ Set these repository secrets:
 | `VERCEL_TOKEN` | Vercel → Account → Tokens |
 | `VERCEL_ORG_ID` | Vercel project → Settings → General |
 | `VERCEL_PROJECT_ID` | same |
-| `RENDER_DEPLOY_HOOK` (optional) | Render → longmuch-api → Deploy Hook |
 
 In the Vercel project, set `BACKEND_ORIGIN` to the Render API URL (e.g. `https://longmuch-api.onrender.com`). The Vercel project root must be `frontend`.
 

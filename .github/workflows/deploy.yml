@@ -1,13 +1,10 @@
 # Production deploy for the Next.js site (frontend/) on every push to main.
 #
-# Required GitHub secrets (from Vercel → Project → Settings → General):
-#   VERCEL_TOKEN       — Account → Tokens
-#   VERCEL_ORG_ID      — Team / org id
-#   VERCEL_PROJECT_ID  — Project id
+# Required GitHub secrets:
+#   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
 #
 # Set BACKEND_ORIGIN (Render API URL) in the Vercel project env, not here.
-# Optional: RENDER_DEPLOY_HOOK — Render dashboard "Deploy Hook" URL to
-# redeploy longmuch-api on the same push.
+# Render longmuch-api already auto-deploys on commit (render.yaml).
 
 name: Deploy website
 
@@ -50,10 +47,3 @@ jobs:
       - name: Deploy
         working-directory: frontend
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-  deploy-api:
-    if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Render deploy hook
-        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
