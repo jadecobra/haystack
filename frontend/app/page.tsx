@@ -69,26 +69,31 @@ export default function Home() {
       : null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-      <div className="max-w-7xl mx-auto text-center px-6">
-        <h1 className="text-8xl font-bold tracking-tighter mb-6">LongMuch</h1>
-        <p className="text-3xl text-zinc-400 mb-16">
+    <main className="min-h-screen bg-zinc-950 text-white flex items-start sm:items-center justify-center overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 py-10 sm:py-16">
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tighter mb-3 sm:mb-6">
+          LongMuch
+        </h1>
+        <p className="text-lg sm:text-2xl md:text-3xl text-zinc-400 mb-8 sm:mb-16">
           Clean. Instant. Fundamental analysis.
         </p>
 
-        <div className="flex gap-4 max-w-4xl mx-auto mb-16">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-4xl mx-auto mb-8 sm:mb-16">
           <input
             type="text"
             value={ticker}
             onChange={(e) => setTicker(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="AAPL or TSLA"
-            className="flex-1 bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-5 text-2xl focus:outline-none focus:border-white placeholder-zinc-500"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            className="w-full sm:flex-1 min-w-0 bg-zinc-900 border border-zinc-700 rounded-2xl sm:rounded-3xl px-4 sm:px-8 py-3.5 sm:py-5 text-lg sm:text-2xl focus:outline-none focus:border-white placeholder-zinc-500"
           />
           <button
             onClick={handleSearch}
             disabled={loading || !ticker.trim()}
-            className="bg-white hover:bg-zinc-100 text-black px-12 rounded-3xl font-semibold text-xl transition-all disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+            className="w-full sm:w-auto bg-white hover:bg-zinc-100 text-black px-6 sm:px-12 py-3.5 sm:py-5 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-xl transition-all disabled:opacity-50 flex items-center justify-center sm:min-w-[160px] shrink-0"
           >
             {loading ? "Analyzing..." : "Analyze"}
           </button>
@@ -101,11 +106,11 @@ export default function Home() {
         )}
 
         {data && (
-          <Card className="overflow-x-auto text-left">
-            <h2 className="text-xl font-semibold text-zinc-300 mb-4">
+          <Card className="overflow-hidden text-left p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-zinc-300 mb-3 sm:mb-4">
               5-Year Financial Metrics
             </h2>
-            <p className="text-sm text-zinc-500 mb-2">
+            <p className="text-xs sm:text-sm text-zinc-500 mb-2 break-words">
               {data.ticker} · {data.rows.length} metrics · source {data.source || "api"}
             </p>
             {dgs30Line ? (
@@ -119,7 +124,7 @@ export default function Home() {
           </Card>
         )}
 
-        <p className="mt-12 text-zinc-500 text-lg">
+        <p className="mt-8 sm:mt-12 text-zinc-500 text-sm sm:text-lg px-1">
           Last 5 years of 10-K metrics. No login. No ads. No bloat.
         </p>
       </div>
