@@ -84,3 +84,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .aider*
+
+# verify-haystack local browser deps + prove run outputs
+.cursor/skills/verify-haystack/node_modules/
+.cursor/skills/verify-haystack/.current-run
+.cursor/skills/verify-haystack/artifacts/**
+!.cursor/skills/verify-haystack/artifacts/.gitkeep
+!.cursor/skills/verify-haystack/artifacts/README.md
