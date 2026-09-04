@@ -41,7 +41,7 @@ def _incomplete(payload: dict[str, Any]) -> str | None:
 def _get(base: str, path: str) -> tuple[int, Any]:
     url = base.rstrip("/") + path
     try:
-        response = httpx.get(url, timeout=30.0)
+        response = httpx.get(url, timeout=60.0)
     except httpx.HTTPError as exc:
         _dump({"error": str(exc), "url": url})
         return 1, None
@@ -65,7 +65,19 @@ def cmd_health(base: str) -> int:
     return 0
 
 
-def cmd_analyze(ticker: str, *, base: str | None, local: bool) -> int:
+def cmd_analyze(
+    ticker: str,
+    *,
+    base: str | None,
+    local: bool,
+    edgar: bool,
+) -> int:
+    # --local: in-process fixture (agents). --edgar: in-process live EDGAR+FRED.
+    # HTTP without --local/--edgar: ?fixture=1 so agent/offline path stays safe.
+    # Live HTTP: omit fixture query (or use --edgar for in-process).
+    if local and edgar:
+        _dump({"error": "use either --local (fixture) or --edgar (live), not both"})
+        return 1
     if local:
         try:
             payload = analyze_local(ticker, prefer_fixture=True)
@@ -74,6 +86,18 @@ def cmd_analyze(ticker: str, *, base: str | None, local: bool) -> int:
             return 1
         reason = _incomplete(payload)
         _dump(payload)
+        return 1 if reason else 0
+    if edgar:
+        try:
+            payload = analyze_local(ticker, prefer_fixture=False)
+        except ValueError as exc:
+            _dump({"error": str(exc)})
+            return 1
+        reason = _incomplete(payload)
+        _dump(payload)
+        # Live may have — cells; still exit 0 on success payload (incomplete soft).
+        # Keep strict incomplete check for agents; for edgar allow — via format.
+        # build_table always fills cells with "—" so _incomplete only fails on "".
         return 1 if reason else 0
     if not base:
         base = DEFAULT_BASE
@@ -120,7 +144,12 @@ def main(argv: list[str] | None = None) -> int:
     p_analyze.add_argument(
         "--local",
         action="store_true",
-        help="call analyze() in-process (no HTTP server)",
+        help="in-process fixture table (no HTTP; agent/offline path)",
+    )
+    p_analyze.add_argument(
+        "--edgar",
+        action="store_true",
+        help="in-process live SEC companyfacts + FRED (no HTTP)",
     )
 
     p_contract = sub.add_parser("contract")
@@ -130,7 +159,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "health":
         return cmd_health(args.base)
     if args.cmd == "analyze":
-        return cmd_analyze(args.ticker, base=args.base, local=args.local)
+        return cmd_analyze(
+            args.ticker,
+            base=args.base,
+            local=args.local,
+            edgar=args.edgar,
+        )
     if args.cmd == "contract":
         return cmd_contract(args.base)
     parser.error("unknown command")

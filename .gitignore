@@ -91,3 +91,6 @@ next-env.d.ts
 .cursor/skills/verify-haystack/artifacts/**
 !.cursor/skills/verify-haystack/artifacts/.gitkeep
 !.cursor/skills/verify-haystack/artifacts/README.md
+
+# haystack EDGAR/FRED disk cache
+backend/.cache/

@@ -36,6 +36,15 @@ class AnalysisResponse(pydantic.BaseModel):
     treasury_label: str
 
 
+def _env_prefer_fixture() -> bool:
+    return os.environ.get("HAYSTACK_PREFER_FIXTURE", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
 @app.get("/health")
 async def health():
     return {"status": "healthy", "message": "LongMuch API is running 🚀"}
@@ -63,10 +72,14 @@ async def analyze_ticker(
     ticker: str,
     fixture: int | None = fastapi.Query(
         default=None,
-        description="1 = deterministic fixture table (default until EDGAR ships)",
+        description="1 = deterministic fixture; omit = live EDGAR unless HAYSTACK_PREFER_FIXTURE=1",
     ),
 ):
-    prefer_fixture = True if fixture is None else bool(fixture)
+    # Omitted query → live (prefer_fixture False) unless env forces fixture.
+    if fixture is None:
+        prefer_fixture = _env_prefer_fixture()
+    else:
+        prefer_fixture = bool(fixture)
     try:
         payload = analyze(ticker, prefer_fixture=prefer_fixture)
     except ValueError as exc:

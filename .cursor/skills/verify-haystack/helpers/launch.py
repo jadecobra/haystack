@@ -212,6 +212,8 @@ def main() -> None:
 
     be_pidfile = run_dir / "backend.pid"
     be_logfile = run_dir / "backend.log"
+    be_env = os.environ.copy()
+    be_env.setdefault("HAYSTACK_PREFER_FIXTURE", "1")
     subprocess.check_call(
         [
             sys.executable,
@@ -227,7 +229,8 @@ def main() -> None:
             "127.0.0.1",
             "--port",
             str(be_port),
-        ]
+        ],
+        env=be_env,
     )
     be_pid = be_pidfile.read_text(encoding="utf-8").strip() if be_pidfile.exists() else ""
 

@@ -1,10 +1,13 @@
+import os
 import unittest
+from unittest import mock
 
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.cli import main as cli_main
 from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, build_table, compute_year
+from app.sources import analyze
 
 
 class TestMetrics(unittest.TestCase):
@@ -48,14 +51,35 @@ class TestAnalysis(unittest.TestCase):
         self.assertIn("message", body)
 
     def test_analyze_ticker_endpoint(self):
-        response = self.client.get("/analyze/AAPL")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertEqual(body["ticker"], "AAPL")
-        self.assertEqual(len(body["rows"]), 23)
-        self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
-        self.assertIn("FCF / 30 Year Treasury per Share", [r["metric"] for r in body["rows"]])
-        self.assertGreaterEqual(len(body["years"]), 5)
+        # Default path is live; mock so unit tests stay offline-safe.
+        fake = {
+            "ticker": "AAPL",
+            "years": ["2024", "2023", "2022", "2021", "2020"],
+            "rows": [
+                {
+                    "metric": m,
+                    "values": {
+                        y: ("1.0%" if i < 13 else "$1.00")
+                        for y in ["2024", "2023", "2022", "2021", "2020"]
+                    },
+                }
+                for i, m in enumerate(LOCKED_LABELS)
+            ],
+            "source": "edgar",
+            "status": "success",
+            "message": "mocked",
+            "treasury_label": "FCF / 30 Year Treasury per Share",
+        }
+        with mock.patch("app.main.analyze", return_value=fake) as mocked:
+            response = self.client.get("/analyze/AAPL")
+            self.assertEqual(response.status_code, 200)
+            body = response.json()
+            self.assertEqual(body["ticker"], "AAPL")
+            self.assertEqual(len(body["rows"]), 23)
+            self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
+            mocked.assert_called()
+            kwargs = mocked.call_args.kwargs
+            self.assertFalse(kwargs.get("prefer_fixture", True))
 
     def test_analyze_ticker_invalid_ticker(self):
         response = self.client.get("/analyze/!!!")
@@ -66,6 +90,14 @@ class TestAnalysis(unittest.TestCase):
         response = self.client.get("/analyze/AAPL?fixture=1")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["source"], "fixture")
+        self.assertEqual(len(response.json()["rows"]), 23)
+        self.assertGreaterEqual(len(response.json()["years"]), 5)
+
+    def test_analyze_env_force_fixture(self):
+        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):
+            response = self.client.get("/analyze/AAPL")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["source"], "fixture")
 
     def test_contract_endpoint(self):
         response = self.client.get("/contract")
@@ -74,6 +106,13 @@ class TestAnalysis(unittest.TestCase):
         self.assertEqual(body["schema_version"], SCHEMA_VERSION)
         self.assertEqual(body["labels"], LOCKED_LABELS)
         self.assertEqual(body["row_count"], 23)
+
+
+class TestSourcesFixture(unittest.TestCase):
+    def test_analyze_prefer_fixture(self):
+        payload = analyze("AAPL", prefer_fixture=True)
+        self.assertEqual(payload["source"], "fixture")
+        self.assertEqual(len(payload["rows"]), 23)
 
 
 class TestCli(unittest.TestCase):

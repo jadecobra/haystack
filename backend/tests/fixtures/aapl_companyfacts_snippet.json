@@ -1,0 +1,259 @@
+{
+  "cik": 320193,
+  "entityName": "Apple Inc.",
+  "facts": {
+    "us-gaap": {
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "label": "Revenue",
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 391035000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 383285000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            },
+            {
+              "end": "2024-06-29",
+              "val": 85777000000,
+              "fy": 2024,
+              "fp": "Q3",
+              "form": "10-Q",
+              "filed": "2024-08-02"
+            }
+          ]
+        }
+      },
+      "NetIncomeLoss": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 93736000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 96995000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "StockholdersEquity": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 56950000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 62146000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "Assets": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 364980000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 352583000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "Liabilities": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 308030000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 290437000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "LongTermDebt": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 96548000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 106512000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "CashAndCashEquivalentsAtCarryingValue": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 29943000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 29965000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "WeightedAverageNumberOfDilutedSharesOutstanding": {
+        "units": {
+          "shares": [
+            {
+              "end": "2024-09-28",
+              "val": 15340883000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 15812547000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "PaymentsOfDividends": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 15234000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 15025000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "NetCashProvidedByUsedInOperatingActivities": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 118254000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 110543000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      },
+      "PaymentsToAcquirePropertyPlantAndEquipment": {
+        "units": {
+          "USD": [
+            {
+              "end": "2024-09-28",
+              "val": 9447000000,
+              "fy": 2024,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2024-11-01"
+            },
+            {
+              "end": "2023-09-30",
+              "val": 10959000000,
+              "fy": 2023,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2023-11-03"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
