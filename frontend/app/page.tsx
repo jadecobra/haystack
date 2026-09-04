@@ -13,6 +13,8 @@ type Analysis = {
   status?: string;
   message?: string;
   error?: string;
+  treasury_dgs30_pct?: number | null;
+  treasury_dgs30_as_of?: string | null;
 };
 
 export default function Home() {
@@ -59,6 +61,13 @@ export default function Home() {
     ? data.rows.map((row) => [row.metric, ...data.years.map((y) => row.values[y] ?? '—')])
     : [];
 
+  const dgs30Line =
+    data &&
+    data.treasury_dgs30_pct != null &&
+    data.treasury_dgs30_as_of
+      ? `30Y Treasury (DGS30): ${Number(data.treasury_dgs30_pct).toFixed(2)}% as of ${data.treasury_dgs30_as_of}`
+      : null;
+
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
       <div className="max-w-7xl mx-auto text-center px-6">
@@ -96,9 +105,16 @@ export default function Home() {
             <h2 className="text-xl font-semibold text-zinc-300 mb-4">
               5-Year Financial Metrics
             </h2>
-            <p className="text-sm text-zinc-500 mb-4">
+            <p className="text-sm text-zinc-500 mb-2">
               {data.ticker} · {data.rows.length} metrics · source {data.source || "api"}
             </p>
+            {dgs30Line ? (
+              <p className="text-sm text-zinc-500 mb-4" data-testid="dgs30-as-of">
+                {dgs30Line}
+              </p>
+            ) : (
+              <div className="mb-4" />
+            )}
             <DataTable headers={headers} rows={rows} />
           </Card>
         )}

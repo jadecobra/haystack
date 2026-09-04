@@ -22,6 +22,15 @@ def _env_force_fixture() -> bool:
     }
 
 
+def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str | None]:
+    """Display pct + year-end as_of from last fixture treasury year."""
+    if not treasury:
+        return None, None
+    last_y = max(treasury.keys())
+    rate = float(treasury[last_y])
+    return round(rate * 100.0, 2), f"{last_y}-12-31"
+
+
 def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     ticker = ticker.upper().strip()
     if not ticker or len(ticker) > 8 or not ticker.replace(".", "").isalnum():
@@ -31,6 +40,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     if use_fixture:
         years, statements, treasury = fixture.statements_for(ticker)
         rows = build_table(years, statements, treasury)
+        pct, as_of = _fixture_dgs30_meta(treasury)
         return {
             "ticker": ticker,
             "years": [str(y) for y in years],
@@ -39,6 +49,8 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "status": "success",
             "message": f"{len(LOCKED_LABELS)} locked metrics, {len(years)} years (fixture)",
             "treasury_label": "FCF / 30 Year Treasury per Share",
+            "treasury_dgs30_pct": pct,
+            "treasury_dgs30_as_of": as_of,
         }
 
     from app import edgar, fred
@@ -71,6 +83,15 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     if missing_ty:
         gap_note += f"; treasury missing: {','.join(missing_ty)}"
 
+    dgs30_pct: float | None = None
+    dgs30_as_of: str | None = None
+    try:
+        latest = fred.latest_dgs30()
+        dgs30_pct = float(latest["pct"])
+        dgs30_as_of = str(latest["as_of"])
+    except Exception:
+        pass
+
     return {
         "ticker": ticker,
         "years": [str(y) for y in years],
@@ -82,4 +103,6 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             f"(edgar CIK {cik}){gap_note}"
         ),
         "treasury_label": "FCF / 30 Year Treasury per Share",
+        "treasury_dgs30_pct": dgs30_pct,
+        "treasury_dgs30_as_of": dgs30_as_of,
     }

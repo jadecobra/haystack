@@ -1,0 +1,23 @@
+# Render Blueprint — LongMuch API (free/sleep web service)
+# Env vars (set in Render dashboard; do NOT set HAYSTACK_PREFER_FIXTURE):
+#   EDGAR_IDENTITY or HAYSTACK_SEC_USER_AGENT  — required for live SEC
+#   FRED_API_KEY                              — optional (CSV fallback without it)
+#   CORS_ORIGINS                              — optional comma-separated extra origins
+#   PORT                                      — provided by Render
+services:
+  - type: web
+    name: longmuch-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: uv sync
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: EDGAR_IDENTITY
+        sync: false
+      - key: HAYSTACK_SEC_USER_AGENT
+        sync: false
+      - key: FRED_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

@@ -8,6 +8,7 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import Any
 
 import httpx
 
@@ -15,7 +16,8 @@ _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "fred"
 _CACHE_PATH = _CACHE_DIR / "DGS30.json"
 _CACHE_TTL_S = 24 * 3600  # daily
 
-_mem: tuple[float, dict[int, float]] | None = None
+# (mtime, by_year, daily_latest | None)
+_mem: tuple[float, dict[int, float], dict[str, Any] | None] | None = None
 
 
 def _parse_yield(raw: str) -> float | None:
@@ -43,6 +45,42 @@ def _year_end_or_avg(daily: dict[str, float]) -> dict[int, float]:
         pts.sort(key=lambda t: t[0])
         out[year] = pts[-1][1]
     return out
+
+
+def _daily_latest_from(daily: dict[str, float]) -> dict[str, Any] | None:
+    if not daily:
+        return None
+    date = max(daily.keys())
+    return {"date": date, "rate": float(daily[date])}
+
+
+def _parse_cache_raw(raw: Any) -> tuple[dict[int, float], dict[str, Any] | None]:
+    """Accept legacy flat {year: rate} or {"by_year":..., "daily_latest":...}."""
+    if not isinstance(raw, dict) or not raw:
+        raise ValueError("empty cache")
+    if "by_year" in raw:
+        by_year = {int(k): float(v) for k, v in dict(raw["by_year"]).items()}
+        latest = raw.get("daily_latest")
+        daily_latest: dict[str, Any] | None = None
+        if isinstance(latest, dict) and latest.get("date") is not None and latest.get("rate") is not None:
+            daily_latest = {"date": str(latest["date"]), "rate": float(latest["rate"])}
+        return by_year, daily_latest
+    # Legacy flat map of year -> rate
+    by_year = {int(k): float(v) for k, v in raw.items()}
+    return by_year, None
+
+
+def _write_cache(by_year: dict[int, float], daily_latest: dict[str, Any] | None) -> None:
+    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    payload: dict[str, Any] = {
+        "by_year": {str(k): v for k, v in sorted(by_year.items())},
+    }
+    if daily_latest is not None:
+        payload["daily_latest"] = {
+            "date": str(daily_latest["date"]),
+            "rate": float(daily_latest["rate"]),
+        }
+    _CACHE_PATH.write_text(json.dumps(payload), encoding="utf-8")
 
 
 def _fetch_fred_api(api_key: str) -> dict[str, float]:
@@ -90,20 +128,25 @@ def _fetch_fred_csv() -> dict[str, float]:
     return daily
 
 
-def fetch_dgs30_by_year(*, force: bool = False) -> dict[int, float]:
-    """Return {calendar_year: decimal yield} using daily cache."""
+def _ensure_series(*, force: bool = False, need_latest: bool = False) -> tuple[dict[int, float], dict[str, Any] | None]:
+    """Load or refresh DGS30 by_year (+ daily_latest when available)."""
     global _mem
     now = time.time()
     if not force and _mem and now - _mem[0] < _CACHE_TTL_S:
-        return dict(_mem[1])
+        by_year, daily_latest = _mem[1], _mem[2]
+        if not need_latest or daily_latest is not None:
+            return dict(by_year), (dict(daily_latest) if daily_latest else None)
+
     if not force and _CACHE_PATH.is_file():
         age = now - _CACHE_PATH.stat().st_mtime
         if age < _CACHE_TTL_S:
             try:
                 raw = json.loads(_CACHE_PATH.read_text(encoding="utf-8"))
-                data = {int(k): float(v) for k, v in raw.items()}
-                _mem = (now, data)
-                return dict(data)
+                by_year, daily_latest = _parse_cache_raw(raw)
+                if not need_latest or daily_latest is not None:
+                    _mem = (now, by_year, daily_latest)
+                    return dict(by_year), (dict(daily_latest) if daily_latest else None)
+                # Legacy by_year-only cache: fall through to refresh for real as_of.
             except (json.JSONDecodeError, OSError, TypeError, ValueError):
                 pass
 
@@ -113,13 +156,29 @@ def fetch_dgs30_by_year(*, force: bool = False) -> dict[int, float]:
     else:
         daily = _fetch_fred_csv()
     by_year = _year_end_or_avg(daily)
-    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    _CACHE_PATH.write_text(
-        json.dumps({str(k): v for k, v in sorted(by_year.items())}),
-        encoding="utf-8",
-    )
-    _mem = (time.time(), by_year)
-    return dict(by_year)
+    daily_latest = _daily_latest_from(daily)
+    _write_cache(by_year, daily_latest)
+    _mem = (time.time(), by_year, daily_latest)
+    return dict(by_year), (dict(daily_latest) if daily_latest else None)
+
+
+def fetch_dgs30_by_year(*, force: bool = False) -> dict[int, float]:
+    """Return {calendar_year: decimal yield} using daily cache."""
+    by_year, _ = _ensure_series(force=force, need_latest=False)
+    return by_year
+
+
+def latest_dgs30() -> dict[str, Any]:
+    """Latest DGS30 observation: rate (decimal), pct (display %), as_of (YYYY-MM-DD)."""
+    _, daily_latest = _ensure_series(force=False, need_latest=True)
+    if not daily_latest:
+        raise ValueError("DGS30 daily_latest unavailable")
+    rate = float(daily_latest["rate"])
+    return {
+        "rate": rate,
+        "pct": round(rate * 100.0, 2),
+        "as_of": str(daily_latest["date"]),
+    }
 
 
 def treasury_for_years(years: list[int]) -> dict[int, float]:

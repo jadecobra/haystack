@@ -12,9 +12,31 @@ dotenv.load_dotenv()
 
 app = fastapi.FastAPI(title="LongMuch API", version="1.0.0")
 
+_PROD_ORIGINS = [
+    "https://longmuch.com",
+    "https://www.longmuch.com",
+]
+_LOCAL_VERIFY_ORIGINS = [
+    *(f"http://127.0.0.1:{p}" for p in range(3457, 3465)),
+    *(f"http://localhost:{p}" for p in range(3457, 3465)),
+]
+
+
+def _cors_origins() -> list[str]:
+    """Prod + local verify ports; CORS_ORIGINS adds comma-separated extras."""
+    origins = list(_PROD_ORIGINS) + list(_LOCAL_VERIFY_ORIGINS)
+    extra = (os.environ.get("CORS_ORIGINS") or "").strip()
+    if extra:
+        for part in extra.split(","):
+            origin = part.strip()
+            if origin and origin not in origins:
+                origins.append(origin)
+    return origins
+
+
 app.add_middleware(
     fastapi.middleware.cors.CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +56,8 @@ class AnalysisResponse(pydantic.BaseModel):
     status: str
     message: str
     treasury_label: str
+    treasury_dgs30_pct: float | None = None
+    treasury_dgs30_as_of: str | None = None
 
 
 def _env_prefer_fixture() -> bool:
