@@ -148,7 +148,7 @@ case "$cmd" in
     {
       echo "feature=$FEATURE"
       echo "url=$url"
-      echo "note=Default prove uses fixture=1. VERIFY_EDGAR=1 omits fixture (live EDGAR not shipped)."
+      echo "note=Default prove uses ?fixture=1 (deterministic). VERIFY_EDGAR=1 omits fixture for live companyfacts."
       echo "frontend_does_not_call_this=frontend fetch is /api/analyze/${ticker} on the Next origin"
     } > "$EVIDENCE/backend-analyze.meta.txt"
     body="$EVIDENCE/analyze.json"
