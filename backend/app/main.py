@@ -1,9 +1,12 @@
+import os
+
 import dotenv
-import edgar
 import fastapi
 import fastapi.middleware.cors
 import pydantic
-import os
+
+from app.metrics import LOCKED_LABELS, SCHEMA_VERSION
+from app.sources import analyze
 
 dotenv.load_dotenv()
 
@@ -17,32 +20,65 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class MetricRow(pydantic.BaseModel):
+    metric: str
+    values: dict[str, str]
+
+
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
-    data: dict
+    years: list[str]
+    rows: list[MetricRow]
+    source: str
     status: str
     message: str
+    treasury_label: str
+
 
 @app.get("/health")
 async def health():
     return {"status": "healthy", "message": "LongMuch API is running 🚀"}
 
+
+class ContractResponse(pydantic.BaseModel):
+    schema_version: str
+    labels: list[str]
+    row_count: int
+    treasury_label: str
+
+
+@app.get("/contract", response_model=ContractResponse)
+async def contract():
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "labels": list(LOCKED_LABELS),
+        "row_count": len(LOCKED_LABELS),
+        "treasury_label": "FCF / 30 Year Treasury per Share",
+    }
+
+
 @app.get("/analyze/{ticker}", response_model=AnalysisResponse)
-async def analyze_ticker(ticker: str):
-    ticker = ticker.upper().strip()
+async def analyze_ticker(
+    ticker: str,
+    fixture: int | None = fastapi.Query(
+        default=None,
+        description="1 = deterministic fixture table (default until EDGAR ships)",
+    ),
+):
+    prefer_fixture = True if fixture is None else bool(fixture)
     try:
-        # Real edgar call - agents will expand this into full 5yr ratios
-        company = edgar.Company(ticker)
-        facts = company.get_facts()  # or companyfacts JSON API for max speed
-        return {
-            "ticker": ticker,
-            "data": {"facts_count": len(facts) if facts else 0, "raw": facts[:5]},  # placeholder
-            "status": "success",
-            "message": "Analysis stub ready for full ratio calculations"
-        }
-    except Exception as e:
-        raise fastapi.HTTPException(status_code=500, detail=str(e))
+        payload = analyze(ticker, prefer_fixture=prefer_fixture)
+    except ValueError as exc:
+        raise fastapi.HTTPException(status_code=400, detail=str(exc)) from exc
+    if len(payload["rows"]) != len(LOCKED_LABELS):
+        raise fastapi.HTTPException(status_code=500, detail="metric table incomplete")
+    if [r["metric"] for r in payload["rows"]] != list(LOCKED_LABELS):
+        raise fastapi.HTTPException(status_code=500, detail="metric labels drifted")
+    return payload
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))

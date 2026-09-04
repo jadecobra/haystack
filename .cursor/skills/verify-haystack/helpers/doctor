@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# Read-only check: is this isolated LongMuch instance worth driving?
+# Usage: .cursor/skills/verify-haystack/helpers/doctor
+# Exit 0 = pass. Exit 1 = refuse (print why).
+
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib.sh"
+
+load_run
+
+fail() { echo "DOCTOR FAIL: $*" >&2; exit 1; }
+
+echo "verify-haystack doctor"
+echo "  RUN_ID=$RUN_ID"
+echo "  FRONTEND_ORIGIN=$FRONTEND_ORIGIN"
+echo "  FRONTEND_PORT=$FRONTEND_PORT"
+echo "  FRONTEND_PID=${FRONTEND_PID:-}"
+echo "  FRONTEND_LISTEN_PID=${FRONTEND_LISTEN_PID:-}"
+echo "  BACKEND_ORIGIN=${BACKEND_ORIGIN:-}"
+echo "  BACKEND_PORT=${BACKEND_PORT:-}"
+echo "  BACKEND_PID=${BACKEND_PID:-}"
+echo "  BACKEND_OK=${BACKEND_OK:-0}"
+
+[[ "$FRONTEND_PORT" != "3000" ]] || fail "frontend port is 3000 (forbidden shared Next/ao default)"
+refuse_frontend_origin "$FRONTEND_ORIGIN"
+
+NOW_FE="$(lsof_listen_pid "$FRONTEND_PORT" || true)"
+[[ -n "$NOW_FE" ]] || fail "nothing listening on isolated frontend port $FRONTEND_PORT"
+if ! listen_owned_by "$NOW_FE" "$FRONTEND_LISTEN_PID"; then
+  if ! listen_owned_by "$NOW_FE" "$FRONTEND_PID"; then
+    fail "frontend listen PID $NOW_FE is not ours (recorded LISTEN_PID=$FRONTEND_LISTEN_PID PID=$FRONTEND_PID). Refusing to drive a foreign process."
+  fi
+fi
+
+if [[ -n "${FRONTEND_PID:-}" ]] && ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
+  fail "recorded FRONTEND_PID $FRONTEND_PID is not running"
+fi
+
+NOW_3000="$(lsof_listen_pid 3000 || true)"
+NOW_8000="$(lsof_listen_pid 8000 || true)"
+echo "  3000_now=${NOW_3000:-none} (before=${USER_3000_PID_BEFORE:-none})"
+echo "  8000_now=${NOW_8000:-none} (before=${USER_8000_PID_BEFORE:-none})"
+if [[ -n "$NOW_3000" && "$NOW_3000" == "$NOW_FE" ]]; then
+  fail "isolated frontend listen PID is also bound to 3000"
+fi
+
+body="/tmp/haystack-doctor-body-$$.html"
+code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 10 "$FRONTEND_ORIGIN/")" || fail "curl $FRONTEND_ORIGIN/ failed"
+[[ "$code" == "200" ]] || fail "GET $FRONTEND_ORIGIN/ -> HTTP $code (want 200)"
+grep -q 'LongMuch' "$body" || fail "home HTML missing 'LongMuch'"
+title="$(html_title "$body")"
+h1="$(html_h1 "$body")"
+placeholder="$(html_placeholder "$body")"
+button="$(html_button_text "$body")"
+disabled="$(button_is_disabled "$body")"
+rm -f "$body"
+
+echo "  http_home=200"
+echo "  title=$title"
+echo "  h1=$h1"
+echo "  placeholder=$placeholder"
+echo "  button=$button"
+echo "  analyze_disabled=$disabled"
+
+BACKEND_STATUS="not-running"
+if [[ "${BACKEND_OK:-0}" == "1" && -n "${BACKEND_PORT:-}" ]]; then
+  [[ "$BACKEND_PORT" != "8000" ]] || fail "backend port is 8000 (forbidden shared uvicorn default)"
+  refuse_backend_origin "$BACKEND_ORIGIN"
+  NOW_BE="$(lsof_listen_pid "$BACKEND_PORT" || true)"
+  [[ -n "$NOW_BE" ]] || fail "nothing listening on isolated backend port $BACKEND_PORT (BACKEND_OK=1)"
+  if ! listen_owned_by "$NOW_BE" "${BACKEND_LISTEN_PID:-}" && ! listen_owned_by "$NOW_BE" "${BACKEND_PID:-}"; then
+    fail "backend listen PID $NOW_BE is not ours (recorded ${BACKEND_LISTEN_PID:-none} / ${BACKEND_PID:-none})"
+  fi
+  if [[ -n "$NOW_8000" && "$NOW_8000" == "$NOW_BE" ]]; then
+    fail "isolated backend listen PID is also bound to 8000"
+  fi
+  hz_body="/tmp/haystack-doctor-health-$$.json"
+  hz_code="$(curl -sS -o "$hz_body" -w '%{http_code}' --max-time 8 "$BACKEND_ORIGIN/health")" || fail "curl $BACKEND_ORIGIN/health failed"
+  [[ "$hz_code" == "200" ]] || fail "GET $BACKEND_ORIGIN/health -> HTTP $hz_code (want 200)"
+  grep -q '"status"' "$hz_body" || fail "health JSON missing status field"
+  # Live body is {"status":"healthy","message":"LongMuch API is running ..."} —
+  # unittest TestClient expects {"status":"healthy"} only. Doctor checks the live field, not the unittest dict equality.
+  python3 - "$hz_body" <<'PY' || fail "health JSON status is not healthy"
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+status = data.get("status")
+if status != "healthy":
+    raise SystemExit(1)
+print(status)
+PY
+  BACKEND_STATUS="healthy"
+  echo "  http_health=200"
+  echo "  health_body=$(tr -d '\n' < "$hz_body")"
+  rm -f "$hz_body"
+else
+  echo "  backend=skipped (BACKEND_OK=${BACKEND_OK:-0}; homepage proof still valid)"
+fi
+
+echo "  backend_status=$BACKEND_STATUS"
+echo "DOCTOR PASS"

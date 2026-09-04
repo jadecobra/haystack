@@ -1,0 +1,24 @@
+[project]
+name = "longmuch"
+version = "0.1.0"
+description = "LongMuch CLI and API (haystack repo)"
+requires-python = ">=3.12"
+dependencies = [
+    "LongMuch-backend",
+]
+
+[project.scripts]
+longmuch = "app.cli:main"
+
+[tool.uv.sources]
+LongMuch-backend = { workspace = true }
+
+[tool.uv.workspace]
+members = ["backend"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["longmuch"]

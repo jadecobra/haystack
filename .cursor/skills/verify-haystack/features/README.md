@@ -1,0 +1,49 @@
+# LongMuch / haystack verification map
+
+This directory is the maintained source for verifying the user-facing behavior of LongMuch (haystack). Read the index before driving the app, then use the matching feature file as the recipe.
+
+## Baseline preconditions
+
+- Launch with `.cursor/skills/verify-haystack/helpers/launch` (isolated Next origin on 3457-3464 and FastAPI origin on 8015-8022).
+- Run `.cursor/skills/verify-haystack/helpers/doctor` and require `DOCTOR PASS`.
+- Drive only `FRONTEND_ORIGIN` / `BACKEND_ORIGIN` printed by launch. Helpers refuse ports 3000 and 8000.
+- No login. No seed database.
+- Never drive an instance that was not started by this verification run.
+- Homepage GET is enough for `home-search`. Do not treat unittest `TestClient` as the user path.
+
+## Driving conventions
+
+- Start every recipe from the baseline state unless its preconditions say otherwise.
+- Prefer `h1` LongMuch, `input[placeholder="AAPL or TSLA"]`, and the `Analyze` button over coordinates.
+- Treat every command as literal.
+- HTTP via `helpers/http`. Browser via `node helpers/browser.cjs`. Both require launch first.
+- Table logic: `uv run longmuch analyze AAPL --local`. HTTP/UI: `helpers/http`. Do not invent a parallel verify skill.
+- Default `/analyze` is fixture (`?fixture=1`). Do not call live SEC EDGAR unless `VERIFY_EDGAR=1`.
+
+## Proof and skip reporting
+
+- Capture the user action and the resulting state, not only the final screen.
+- UI proof includes HTML snapshot (title, h1, placeholder, Analyze) and a screenshot when Chromium is installed.
+- Record the feature ID and entry point used with every artifact under `.cursor/skills/verify-haystack/artifacts/`.
+- Report an unreachable path with the attempted command and the unmet precondition.
+- Do not report a skipped entry point as verified through a different path.
+- A Next `/api/analyze/:ticker` 404 is the current real behavior; record it, do not paper over it.
+
+## Feature entry contract
+
+Each feature file starts with an H1 title and one paragraph describing the user-visible behavior. It then uses exactly four H2 sections in this order.
+
+1. `Sub-features` lists short IDs with one line for each behavior.
+2. `How to get to it (user POV)` lists every user entry point.
+3. `Driving it with verify-haystack` starts with `Preconditions:` and uses labeled bullets that pair each user action with an exact command and observable result.
+4. `Gotchas` lists traps that can waste or invalidate a verification run.
+
+Keep implementation details out of the map except where they change what the user can observe (404 vs mock KPIs vs hardcoded table).
+
+## Features
+
+- [Home search](./home-search.md) covers the LongMuch landing page: heading, ticker field, Analyze.
+- [Analyze results](./analyze-results.md) covers submitting a ticker and what actually appears (404, mock KPIs, hardcoded table).
+- [Backend health](./backend-health.md) covers GET `/health` on the isolated FastAPI origin.
+- [Backend analyze](./backend-analyze.md) maps GET `/analyze/{ticker}` (`?fixture=1`) plus `uv run longmuch analyze TICKER --local`.
+- [Empty ticker](./empty-ticker.md) covers Analyze disabled when the input is empty.

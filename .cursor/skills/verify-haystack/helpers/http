@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+# Isolated-origin HTTP driver (curl). Never uses ports 3000 or 8000.
+# Never calls SEC EDGAR as a required step (backend-analyze is optional/skip).
+#
+# Usage:
+#   FEATURE=home-search helpers/http home
+#   FEATURE=analyze-results helpers/http analyze-api AAPL
+#   FEATURE=backend-health helpers/http backend-health
+#   FEATURE=backend-analyze helpers/http backend-analyze AAPL
+#   FEATURE=backend-contract helpers/http backend-contract
+#   FEATURE=empty-ticker helpers/http empty-ticker
+#
+# Evidence lands in .cursor/skills/verify-haystack/artifacts/<feature>/
+
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib.sh"
+
+load_run
+refuse_frontend_origin "$FRONTEND_ORIGIN"
+
+FEATURE="${FEATURE:-adhoc}"
+EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+mkdir -p "$EVIDENCE"
+
+save_meta() {
+  local name="$1" code="$2" url="$3" body="$4"
+  {
+    echo "feature=$FEATURE"
+    echo "origin_frontend=$FRONTEND_ORIGIN"
+    echo "origin_backend=${BACKEND_ORIGIN:-}"
+    echo "url=$url"
+    echo "http_status=$code"
+    echo "title=$(html_title "$body")"
+    echo "h1=$(html_h1 "$body")"
+    echo "placeholder=$(html_placeholder "$body")"
+    echo "button=$(html_button_text "$body")"
+    echo "button_disabled=$(button_is_disabled "$body")"
+    echo "longmuch_count=$(html_count "$body" 'LongMuch')"
+    echo "subtitle_count=$(html_count "$body" 'Clean. Instant. Fundamental analysis.')"
+    echo "analyze_count=$(html_count "$body" 'Analyze')"
+    echo "placeholder_count=$(html_count "$body" 'AAPL or TSLA')"
+    echo "table_title_count=$(html_count "$body" '5-Year Financial Metrics')"
+    echo "hardcoded_200B_count=$(html_count "$body" '$200B')"
+    echo "kpi_revenue_count=$(html_count "$body" 'Revenue')"
+    echo "create_next_app_count=$(html_count "$body" 'Create Next App')"
+  } > "$EVIDENCE/${name}.meta.txt"
+}
+
+http_get() {
+  local origin="$1"
+  local path="$2"
+  local name="${3:-get}"
+  local url="${origin}${path}"
+  local body="$EVIDENCE/${name}.html"
+  local code
+  code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 20 "$url" || echo "000")"
+  echo "$code" > "$EVIDENCE/${name}.status"
+  save_meta "$name" "$code" "$url" "$body"
+  echo "GET $url -> HTTP $code"
+  echo "  title=$(html_title "$body")"
+  echo "  h1=$(html_h1 "$body")"
+  echo "  saved=$body"
+  echo "$code"
+}
+
+require_backend() {
+  [[ "${BACKEND_OK:-0}" == "1" && -n "${BACKEND_ORIGIN:-}" ]] || die "backend not running (BACKEND_OK=${BACKEND_OK:-0}). Re-launch or skip API features."
+  refuse_backend_origin "$BACKEND_ORIGIN"
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  home)
+    FEATURE="${FEATURE:-home-search}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    code="$(http_get "$FRONTEND_ORIGIN" / home | tail -n 1)"
+    [[ "$code" == "200" ]] || die "home GET not 200 (got $code)"
+    grep -q 'LongMuch' "$EVIDENCE/home.html" || die "home HTML missing h1 text LongMuch"
+    grep -q 'AAPL or TSLA' "$EVIDENCE/home.html" || die "home HTML missing placeholder AAPL or TSLA"
+    grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
+    grep -q 'Clean. Instant. Fundamental analysis.' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
+    echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
+    ;;
+  analyze-api)
+    FEATURE="${FEATURE:-analyze-results}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    ticker="${1:-AAPL}"
+    ticker="$(printf '%s' "$ticker" | tr '[:lower:]' '[:upper:]')"
+    path="/api/analyze/${ticker}"
+    url="${FRONTEND_ORIGIN}${path}"
+    body="$EVIDENCE/analyze-api.json"
+    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 20 "$url" || echo "000")"
+    echo "$code" > "$EVIDENCE/analyze-api.status"
+    {
+      echo "feature=$FEATURE"
+      echo "url=$url"
+      echo "http_status=$code"
+      echo "note=Proxies to FastAPI GET /analyze/:ticker via frontend/app/api/analyze/[ticker]/route.ts using BACKEND_ORIGIN."
+      echo "body_preview=$(head -c 600 "$body" | tr '\n' ' ')"
+    } > "$EVIDENCE/analyze-api.meta.txt"
+    echo "GET $url -> HTTP $code"
+    echo "  body=$(head -c 200 "$body")"
+    [[ "$code" == "200" ]] || die "analyze-api not 200 (got $code)"
+    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "analyze JSON missing FCF / 30 Year Treasury per Share"
+    grep -q '"rows"' "$body" || die "analyze JSON missing rows"
+    http_get "$FRONTEND_ORIGIN" / home-after-api >/dev/null
+    table_count="$(html_count "$EVIDENCE/home-after-api.html" '5-Year Financial Metrics')"
+    echo "  homepage_table_after_api_get=$table_count (SSR never includes the table; it is client-state after JSON)"
+    echo "$code"
+    ;;
+  backend-health)
+    FEATURE="${FEATURE:-backend-health}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    require_backend
+    url="$BACKEND_ORIGIN/health"
+    body="$EVIDENCE/health.json"
+    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 10 "$url" || echo "000")"
+    echo "$code" > "$EVIDENCE/health.status"
+    {
+      echo "feature=$FEATURE"
+      echo "url=$url"
+      echo "http_status=$code"
+      echo "body=$(tr -d '\n' < "$body")"
+      echo "note=Live JSON includes message field. unittest TestClient in backend/tests/test_analysis.py asserts {status: healthy} only — dict equality would fail against live /health."
+    } > "$EVIDENCE/health.meta.txt"
+    echo "GET $url -> HTTP $code"
+    echo "  body=$(cat "$body")"
+    [[ "$code" == "200" ]] || die "backend /health not 200"
+    ;;
+  backend-analyze)
+    FEATURE="${FEATURE:-backend-analyze}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    require_backend
+    ticker="${1:-AAPL}"
+    ticker="$(printf '%s' "$ticker" | tr '[:lower:]' '[:upper:]')"
+    url="$BACKEND_ORIGIN/analyze/${ticker}?fixture=1"
+    if [[ "${VERIFY_EDGAR:-0}" == "1" ]]; then
+      url="$BACKEND_ORIGIN/analyze/${ticker}"
+    fi
+    {
+      echo "feature=$FEATURE"
+      echo "url=$url"
+      echo "note=Default prove uses fixture=1. VERIFY_EDGAR=1 omits fixture (live EDGAR not shipped)."
+      echo "frontend_does_not_call_this=frontend fetch is /api/analyze/${ticker} on the Next origin"
+    } > "$EVIDENCE/backend-analyze.meta.txt"
+    body="$EVIDENCE/analyze.json"
+    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 30 "$url" || echo "000")"
+    echo "$code" > "$EVIDENCE/backend-analyze.status"
+    echo "http_status=$code" >> "$EVIDENCE/backend-analyze.meta.txt"
+    echo "body_preview=$(head -c 400 "$body" | tr '\n' ' ')" >> "$EVIDENCE/backend-analyze.meta.txt"
+    echo "GET $url -> HTTP $code"
+    [[ "$code" == "200" ]] || die "backend /analyze not 200 (got $code)"
+    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "analyze JSON missing treasury label"
+    ;;
+  backend-contract)
+    FEATURE="${FEATURE:-backend-contract}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    require_backend
+    url="$BACKEND_ORIGIN/contract"
+    body="$EVIDENCE/contract.json"
+    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 10 "$url" || echo "000")"
+    echo "$code" > "$EVIDENCE/backend-contract.status"
+    {
+      echo "feature=$FEATURE"
+      echo "url=$url"
+      echo "http_status=$code"
+      echo "body=$(tr -d '\n' < "$body")"
+    } > "$EVIDENCE/backend-contract.meta.txt"
+    echo "GET $url -> HTTP $code"
+    [[ "$code" == "200" ]] || die "backend /contract not 200"
+    grep -q 'schema_version' "$body" || die "contract JSON missing schema_version"
+    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
+    ;;
+  empty-ticker)
+    FEATURE="${FEATURE:-empty-ticker}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    code="$(http_get "$FRONTEND_ORIGIN" / home | tail -n 1)"
+    [[ "$code" == "200" ]] || die "home GET not 200"
+    disabled="$(button_is_disabled "$EVIDENCE/home.html")"
+    [[ "$disabled" == "yes" ]] || die "Analyze button is not disabled on empty ticker SSR HTML (got $disabled)"
+    echo "empty-ticker ok: Analyze disabled=$disabled on empty input"
+    ;;
+  "")
+    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker"
+    ;;
+  *)
+    die "unknown http subcommand: $cmd"
+    ;;
+esac

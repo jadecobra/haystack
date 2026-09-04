@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# Tear down only the isolated LongMuch instance this run started.
+# Never kills 3000/8000. Never deletes artifacts. Never kills PIDs we did not start.
+# Usage: .cursor/skills/verify-haystack/helpers/cleanup
+
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib.sh"
+
+if [[ -z "${RUN_ID:-}" && ! -f "$CURRENT_RUN_FILE" ]]; then
+  echo "verify-haystack cleanup: nothing to do (no current run)"
+  exit 0
+fi
+
+load_run
+
+echo "verify-haystack cleanup RUN_ID=$RUN_ID FE_PORT=$FRONTEND_PORT BE_PORT=${BACKEND_PORT:-none} FE_PID=${FRONTEND_PID:-} BE_PID=${BACKEND_PID:-}"
+
+AFTER_3000_PID="$(lsof_listen_pid 3000 || true)"
+AFTER_8000_PID="$(lsof_listen_pid 8000 || true)"
+echo "3000_before=${USER_3000_PID_BEFORE:-none}"
+echo "3000_after=${AFTER_3000_PID:-none}"
+echo "8000_before=${USER_8000_PID_BEFORE:-none}"
+echo "8000_after=${AFTER_8000_PID:-none}"
+
+pid_listens_forbidden() {
+  local pid="$1"
+  local ports
+  ports="$(lsof -nP -a -p "$pid" -iTCP -sTCP:LISTEN 2>/dev/null | awk 'NR>1 {print $9}' || true)"
+  echo "$ports" | grep -Eq ':3000|:8000'
+}
+
+kill_pid() {
+  local pid="$1"
+  [[ -n "$pid" && "$pid" != "none" ]] || return 0
+  if ! kill -0 "$pid" 2>/dev/null; then
+    return 0
+  fi
+  if pid_listens_forbidden "$pid"; then
+    echo "refusing to kill pid $pid because it listens on 3000/8000" >&2
+    return 1
+  fi
+  kill "$pid" 2>/dev/null || true
+}
+
+kill_group() {
+  local pgid="$1"
+  [[ -n "$pgid" && "$pgid" != "none" ]] || return 0
+  if [[ "${USER_3000_PID_BEFORE:-none}" != "none" && "$pgid" == "$USER_3000_PID_BEFORE" ]]; then
+    echo "refusing to kill PGID $pgid (matches user's 3000 pid)" >&2
+    return 1
+  fi
+  if [[ "${USER_8000_PID_BEFORE:-none}" != "none" && "$pgid" == "$USER_8000_PID_BEFORE" ]]; then
+    echo "refusing to kill PGID $pgid (matches user's 8000 pid)" >&2
+    return 1
+  fi
+  kill -- "-$pgid" 2>/dev/null || true
+}
+
+kill_group "${FRONTEND_PGID:-}" || true
+kill_group "${BACKEND_PGID:-}" || true
+kill_pid "${FRONTEND_LISTEN_PID:-}" || true
+kill_pid "${FRONTEND_PID:-}" || true
+kill_pid "${BACKEND_LISTEN_PID:-}" || true
+kill_pid "${BACKEND_PID:-}" || true
+
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  fe_free=1
+  be_free=1
+  port_is_free "$FRONTEND_PORT" || fe_free=0
+  if [[ -n "${BACKEND_PORT:-}" ]]; then
+    port_is_free "$BACKEND_PORT" || be_free=0
+  fi
+  if [[ "$fe_free" == 1 && "$be_free" == 1 ]]; then
+    break
+  fi
+  sleep 0.3
+done
+
+force_drop_our_port() {
+  local port="$1"
+  local recorded="$2"
+  if port_is_free "$port"; then
+    return 0
+  fi
+  leftover="$(lsof_listen_pid "$port" || true)"
+  if [[ -n "$leftover" && "$leftover" == "$recorded" ]]; then
+    if ! pid_listens_forbidden "$leftover"; then
+      kill -9 "$leftover" 2>/dev/null || true
+    fi
+  elif [[ -n "$leftover" ]]; then
+    echo "port $port still held by pid $leftover which is not ours; leaving it" >&2
+  fi
+}
+
+force_drop_our_port "$FRONTEND_PORT" "${FRONTEND_LISTEN_PID:-}"
+if [[ -n "${BACKEND_PORT:-}" ]]; then
+  force_drop_our_port "$BACKEND_PORT" "${BACKEND_LISTEN_PID:-}"
+fi
+
+# Remove verification scaffolding barrel if we created it.
+if [[ "${SCAFFOLD_COMPONENTS_INDEX:-0}" == "1" && -n "${COMPONENTS_INDEX:-}" ]]; then
+  if [[ -f "$COMPONENTS_INDEX" ]] && grep -q 'verify-haystack scaffolding' "$COMPONENTS_INDEX"; then
+    rm -f "$COMPONENTS_INDEX"
+    echo "removed scaffolding $COMPONENTS_INDEX"
+  fi
+fi
+
+if [[ "$RUN_DIR" == /tmp/haystack-verify-* ]]; then
+  rm -rf "$RUN_DIR"
+else
+  die "refusing to rm unexpected RUN_DIR=$RUN_DIR"
+fi
+
+if [[ -f "$CURRENT_RUN_FILE" ]]; then
+  cur="$(cat "$CURRENT_RUN_FILE")"
+  if [[ "$cur" == "/tmp/haystack-verify-$RUN_ID" ]]; then
+    rm -f "$CURRENT_RUN_FILE"
+  fi
+fi
+
+STILL_3000="$(lsof_listen_pid 3000 || true)"
+STILL_8000="$(lsof_listen_pid 8000 || true)"
+echo "3000_final=${STILL_3000:-none}"
+echo "8000_final=${STILL_8000:-none}"
+if [[ "${USER_3000_PID_BEFORE:-none}" != "none" && "${STILL_3000:-none}" != "${USER_3000_PID_BEFORE}" ]]; then
+  echo "warning: 3000 pid changed during this run (before=$USER_3000_PID_BEFORE after=${STILL_3000:-none})" >&2
+fi
+if [[ "${USER_8000_PID_BEFORE:-none}" != "none" && "${STILL_8000:-none}" != "${USER_8000_PID_BEFORE}" ]]; then
+  echo "warning: 8000 pid changed during this run (before=$USER_8000_PID_BEFORE after=${STILL_8000:-none})" >&2
+fi
+
+echo "artifacts retained at $ARTIFACTS_DIR"
+echo "verify-haystack cleanup ok"

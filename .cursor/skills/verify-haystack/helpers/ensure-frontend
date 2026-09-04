@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "$DIR/lib.sh"
+cd "$FRONTEND_DIR"
+if [[ -x "$FRONTEND_DIR/node_modules/.bin/next" ]]; then
+  echo "verify-haystack: next already present"
+  exit 0
+fi
+if [[ -f "$DIR/ensure-frontend.py" ]]; then
+  exec python3 "$DIR/ensure-frontend.py"
+fi
+die "frontend next binary missing at $FRONTEND_DIR/node_modules/.bin/next"

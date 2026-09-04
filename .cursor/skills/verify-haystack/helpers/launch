@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Start isolated LongMuch frontend (Next.js) and backend (FastAPI) for verification.
+# Usage: .cursor/skills/verify-haystack/helpers/launch
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$DIR/launch.py" "$@"

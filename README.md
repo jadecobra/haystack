@@ -42,3 +42,8 @@ cd frontend && npm run dev
 
 # Terminal 3 — Agent Orchestrator
 ao start   # opens dashboard at http://localhost:3000
+
+# CLI (JSON on stdout)
+uv run longmuch health --base http://127.0.0.1:8000
+uv run longmuch analyze AAPL --local
+uv run longmuch contract

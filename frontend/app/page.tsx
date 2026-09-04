@@ -1,23 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, DataTable, Sparkline } from './components';
-import { cn } from './utils/cn';
+import { useState } from 'react';
+import { Card, DataTable } from './components';
+
+type MetricRow = { metric: string; values: Record<string, string> };
+
+type Analysis = {
+  ticker: string;
+  years: string[];
+  rows: MetricRow[];
+  source?: string;
+  status?: string;
+  message?: string;
+  error?: string;
+};
 
 export default function Home() {
   const [ticker, setTicker] = useState('');
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<Analysis | null>(null);
 
   const handleSearch = async () => {
     if (!ticker.trim()) return;
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(`/api/analyze/${ticker.toUpperCase().trim()}`);
-      const result = await response.json();
+      const result = (await response.json()) as Analysis;
+      if (!response.ok) {
+        setData(null);
+        setError(result.error || result.message || `Analyze failed (${response.status})`);
+        return;
+      }
+      if (!result.rows?.length || !result.years?.length) {
+        setData(null);
+        setError('Backend returned no metric table');
+        return;
+      }
       setData(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setData(null);
+      setError('Could not reach /api/analyze');
     } finally {
       setLoading(false);
     }
@@ -29,20 +54,10 @@ export default function Home() {
     }
   };
 
-  const kpiData = [
-    { name: 'Revenue', value: data?.revenue?.growth || 0, change: data?.revenue?.change || 0 },
-    { name: 'Net Income', value: data?.netIncome?.growth || 0, change: data?.netIncome?.change || 0 },
-    { name: 'EPS', value: data?.eps?.growth || 0, change: data?.eps?.change || 0 },
-    { name: 'FCF', value: data?.fcf?.growth || 0, change: data?.fcf?.change || 0 },
-  ];
-
-  const sparklineData = [
-    { name: '2019', value: 100 },
-    { name: '2020', value: 120 },
-    { name: '2021', value: 150 },
-    { name: '2022', value: 180 },
-    { name: '2023', value: 200 },
-  ];
+  const headers = data ? ['Metric', ...data.years] : [];
+  const rows = data
+    ? data.rows.map((row) => [row.metric, ...data.years.map((y) => row.values[y] ?? '—')])
+    : [];
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
@@ -70,51 +85,22 @@ export default function Home() {
           </button>
         </div>
 
-        {data && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {kpiData.map((kpi, index) => (
-                <Card key={index} className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-zinc-300">
-                      {kpi.name}
-                    </h3>
-                    <span
-                      className={cn(
-                        "px-2 py-1 rounded-full text-xs font-medium",
-                        kpi.change > 0
-                          ? "bg-green-500 text-white"
-                          : "bg-red-500 text-white"
-                      )}
-                    >
-                      {kpi.change > 0 ? '+' : ''}
-                      {kpi.change}%
-                    </span>
-                  </div>
-                  <div className="text-3xl font-bold text-zinc-100">
-                    {kpi.value}%
-                  </div>
-                  <Sparkline data={sparklineData} />
-                </Card>
-              ))}
-            </div>
+        {error && (
+          <p className="text-red-400 mb-8" role="alert">
+            {error}
+          </p>
+        )}
 
-            <Card className="overflow-x-auto">
-              <h2 className="text-xl font-semibold text-zinc-300 mb-4">
-                5-Year Financial Metrics
-              </h2>
-              <DataTable
-                headers={['Year', 'Revenue', 'Net Income', 'EPS', 'FCF']}
-                rows={[
-                  ['2023', '$200B', '$50B', '$5.00', '$30B'],
-                  ['2022', '$180B', '$45B', '$4.50', '$28B'],
-                  ['2021', '$150B', '$40B', '$4.00', '$25B'],
-                  ['2020', '$120B', '$35B', '$3.50', '$22B'],
-                  ['2019', '$100B', '$30B', '$3.00', '$20B'],
-                ]}
-              />
-            </Card>
-          </div>
+        {data && (
+          <Card className="overflow-x-auto text-left">
+            <h2 className="text-xl font-semibold text-zinc-300 mb-4">
+              5-Year Financial Metrics
+            </h2>
+            <p className="text-sm text-zinc-500 mb-4">
+              {data.ticker} · {data.rows.length} metrics · source {data.source || "api"}
+            </p>
+            <DataTable headers={headers} rows={rows} />
+          </Card>
         )}
 
         <p className="mt-12 text-zinc-500 text-lg">
