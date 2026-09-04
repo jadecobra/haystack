@@ -4,7 +4,7 @@ import { cn } from "../utils/cn";
 export interface DataTableProps {
   className?: string;
   headers: string[];
-  rows: string[][];
+  rows: React.ReactNode[][];
 }
 
 const DataTable = ({ className, headers, rows }: DataTableProps) => {
@@ -41,7 +41,10 @@ const DataTable = ({ className, headers, rows }: DataTableProps) => {
                 <td
                   key={cellIndex}
                   className={cn(
-                    "py-2 sm:py-3 px-2 text-zinc-300 whitespace-nowrap",
+                    "py-2 sm:py-3 px-2 text-zinc-300",
+                    cellIndex === 0
+                      ? "whitespace-normal max-w-[16rem] sm:max-w-xs"
+                      : "whitespace-nowrap",
                     cellIndex === 0 &&
                       (rowIndex % 2 === 0
                         ? "sticky left-0 bg-zinc-950 z-10"

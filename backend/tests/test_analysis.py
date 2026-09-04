@@ -13,8 +13,10 @@ from app.sources import analyze
 
 class TestMetrics(unittest.TestCase):
     def test_locked_labels_include_treasury(self):
-        self.assertEqual(len(LOCKED_LABELS), 23)
+        self.assertEqual(len(LOCKED_LABELS), 25)
+        self.assertIn("Shares Outstanding", LOCKED_LABELS)
         self.assertIn("FCF / 30 Year Treasury per Share", LOCKED_LABELS)
+        self.assertEqual(LOCKED_LABELS[-1], "30 Year Treasury (DGS30)")
 
     def test_compute_and_table(self):
         stmt = {
@@ -31,13 +33,19 @@ class TestMetrics(unittest.TestCase):
         }
         year = compute_year(stmt, 0.05)
         self.assertAlmostEqual(year["Net Income / Revenue"], 0.1)
+        self.assertAlmostEqual(year["Shares Outstanding"], 10)
         self.assertAlmostEqual(year["FCF per Share"], 2.0)
         self.assertAlmostEqual(year["FCF / 30 Year Treasury per Share"], 40.0)
+        self.assertAlmostEqual(year["30 Year Treasury (DGS30)"], 0.05)
         rows = build_table([2024], {2024: stmt}, {2024: 0.05})
-        self.assertEqual(len(rows), 23)
+        self.assertEqual(len(rows), 25)
         self.assertEqual(rows[0]["values"]["2024"], "10.0%")
+        shares_row = next(r for r in rows if r["metric"] == "Shares Outstanding")
+        self.assertEqual(shares_row["values"]["2024"], "10")
         treasury = next(r for r in rows if r["metric"] == "FCF / 30 Year Treasury per Share")
         self.assertTrue(treasury["values"]["2024"].startswith("$"))
+        dgs30 = next(r for r in rows if r["metric"] == "30 Year Treasury (DGS30)")
+        self.assertEqual(dgs30["values"]["2024"], "5.00%")
 
 
 class TestAnalysis(unittest.TestCase):
@@ -76,7 +84,7 @@ class TestAnalysis(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             body = response.json()
             self.assertEqual(body["ticker"], "AAPL")
-            self.assertEqual(len(body["rows"]), 23)
+            self.assertEqual(len(body["rows"]), 25)
             self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
             mocked.assert_called()
             kwargs = mocked.call_args.kwargs
@@ -91,7 +99,7 @@ class TestAnalysis(unittest.TestCase):
         response = self.client.get("/analyze/AAPL?fixture=1")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["source"], "fixture")
-        self.assertEqual(len(response.json()["rows"]), 23)
+        self.assertEqual(len(response.json()["rows"]), 25)
         self.assertGreaterEqual(len(response.json()["years"]), 5)
 
     def test_analyze_env_force_fixture(self):
@@ -106,14 +114,14 @@ class TestAnalysis(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["schema_version"], SCHEMA_VERSION)
         self.assertEqual(body["labels"], LOCKED_LABELS)
-        self.assertEqual(body["row_count"], 23)
+        self.assertEqual(body["row_count"], 25)
 
 
 class TestSourcesFixture(unittest.TestCase):
     def test_analyze_prefer_fixture(self):
         payload = analyze("AAPL", prefer_fixture=True)
         self.assertEqual(payload["source"], "fixture")
-        self.assertEqual(len(payload["rows"]), 23)
+        self.assertEqual(len(payload["rows"]), 25)
         self.assertEqual(payload["previous_close"], 100.0)
 
 
