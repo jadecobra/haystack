@@ -51,6 +51,8 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "treasury_label": "FCF / 30 Year Treasury per Share",
             "treasury_dgs30_pct": pct,
             "treasury_dgs30_as_of": as_of,
+            "previous_close": 100.0,
+            "previous_close_as_of": None,
         }
 
     from app import edgar, fred
@@ -92,6 +94,19 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     except Exception:
         pass
 
+    prev_close: float | None = None
+    prev_close_as_of: str | None = None
+    try:
+        from app.quote import previous_close as fetch_previous_close
+
+        quote = fetch_previous_close(ticker)
+        if quote:
+            prev_close = float(quote["price"])
+            as_of_q = quote.get("as_of")
+            prev_close_as_of = str(as_of_q) if as_of_q else None
+    except Exception:
+        pass
+
     return {
         "ticker": ticker,
         "years": [str(y) for y in years],
@@ -105,4 +120,6 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         "treasury_label": "FCF / 30 Year Treasury per Share",
         "treasury_dgs30_pct": dgs30_pct,
         "treasury_dgs30_as_of": dgs30_as_of,
+        "previous_close": prev_close,
+        "previous_close_as_of": prev_close_as_of,
     }

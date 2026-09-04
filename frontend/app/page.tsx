@@ -15,6 +15,8 @@ type Analysis = {
   error?: string;
   treasury_dgs30_pct?: number | null;
   treasury_dgs30_as_of?: string | null;
+  previous_close?: number | null;
+  previous_close_as_of?: string | null;
 };
 
 export default function Home() {
@@ -68,6 +70,13 @@ export default function Home() {
       ? `30Y Treasury (DGS30): ${Number(data.treasury_dgs30_pct).toFixed(2)}% as of ${data.treasury_dgs30_as_of}`
       : null;
 
+  const previousCloseLine =
+    data && data.previous_close != null
+      ? `Previous close: $${Number(data.previous_close).toFixed(2)}${
+          data.previous_close_as_of ? ` as of ${data.previous_close_as_of}` : ""
+        }`
+      : null;
+
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex items-start sm:items-center justify-center overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 py-10 sm:py-16">
@@ -113,6 +122,11 @@ export default function Home() {
             <p className="text-xs sm:text-sm text-zinc-500 mb-2 break-words">
               {data.ticker} · {data.rows.length} metrics · source {data.source || "api"}
             </p>
+            {previousCloseLine ? (
+              <p className="text-2xl sm:text-3xl font-semibold text-white mb-3" data-testid="previous-close">
+                {previousCloseLine}
+              </p>
+            ) : null}
             {dgs30Line ? (
               <p className="text-sm text-zinc-500 mb-4" data-testid="dgs30-as-of">
                 {dgs30Line}

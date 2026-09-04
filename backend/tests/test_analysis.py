@@ -1,5 +1,6 @@
 import os
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from fastapi.testclient import TestClient
@@ -113,6 +114,87 @@ class TestSourcesFixture(unittest.TestCase):
         payload = analyze("AAPL", prefer_fixture=True)
         self.assertEqual(payload["source"], "fixture")
         self.assertEqual(len(payload["rows"]), 23)
+        self.assertEqual(payload["previous_close"], 100.0)
+
+
+class TestQuote(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+
+        from app import quote as quote_mod
+
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmpdir.cleanup)
+        self._orig_dir = quote_mod._CACHE_DIR
+        quote_mod._CACHE_DIR = Path(self._tmpdir.name)
+        quote_mod._mem.clear()
+        quote_mod._inflight.clear()
+        self.addCleanup(self._restore)
+
+    def _restore(self):
+        from app import quote as quote_mod
+
+        quote_mod._CACHE_DIR = self._orig_dir
+        quote_mod._mem.clear()
+        quote_mod._inflight.clear()
+
+    def _yahoo_client(self, price: float, *, calls: list):
+        fake = {
+            "chart": {
+                "result": [
+                    {
+                        "meta": {
+                            "previousClose": price,
+                            "regularMarketTime": 1757001600,
+                        }
+                    }
+                ]
+            }
+        }
+
+        class _Resp:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return fake
+
+        class _Client:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, *args, **kwargs):
+                calls.append(1)
+                return _Resp()
+
+        return _Client
+
+    def test_previous_close_parses_yahoo_meta(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch("app.quote.httpx.Client", self._yahoo_client(227.16, calls=calls)):
+            quote = previous_close("AAPL")
+        self.assertIsNotNone(quote)
+        self.assertEqual(quote["price"], 227.16)
+        self.assertEqual(quote["as_of"], "2025-09-04")
+        self.assertEqual(len(calls), 1)
+
+    def test_previous_close_cached_second_call_skips_yahoo(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch("app.quote.httpx.Client", self._yahoo_client(227.16, calls=calls)):
+            first = previous_close("AAPL")
+            second = previous_close("AAPL")
+        self.assertEqual(first, second)
+        self.assertEqual(len(calls), 1)
 
 
 class TestCli(unittest.TestCase):

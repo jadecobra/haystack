@@ -58,6 +58,8 @@ class AnalysisResponse(pydantic.BaseModel):
     treasury_label: str
     treasury_dgs30_pct: float | None = None
     treasury_dgs30_as_of: str | None = None
+    previous_close: float | None = None
+    previous_close_as_of: str | None = None
 
 
 def _env_prefer_fixture() -> bool:
