@@ -4,8 +4,8 @@ The LongMuch landing page is a ticker search: a large heading, a subtitle, one t
 
 ## Sub-features
 
-- `home-heading` shows `h1` LongMuch and subtitle `Clean. Instant. Fundamental analysis.`
-- `home-ticker` shows a text input with placeholder `AAPL or TSLA`.
+- `home-heading` shows `h1` LongMuch and subtitle including `How much? How long?`
+- `home-ticker` shows a text input with placeholder `enter stock ticker e.g. AAPL`.
 - `home-analyze` shows a button whose idle label is `Analyze`.
 - `home-footer` shows `Last 5 years of 10-K metrics. No login. No ads. No bloat.`
 - `home-title` document title is still `Create Next App` (layout metadata).
@@ -23,8 +23,8 @@ Preconditions:
 - `helpers/doctor` reports `DOCTOR PASS`.
 - Do not use `http://127.0.0.1:3000`.
 
-- **Open landing.** Visit `/`. Run `FEATURE=home-search .cursor/skills/verify-haystack/helpers/http home`. HTTP 200. HTML contains `LongMuch`, `AAPL or TSLA`, `Analyze`, and `Clean. Instant. Fundamental analysis.`
-- **Confirm identity.** Read `artifacts/home-search/home.meta.txt`. `h1` is `LongMuch`. `placeholder` is `AAPL or TSLA`. `button` is `Analyze`. `title` is `Create Next App`.
+- **Open landing.** Visit `/`. Run `FEATURE=home-search .cursor/skills/verify-haystack/helpers/http home`. HTTP 200. HTML contains `LongMuch`, `enter stock ticker e.g. AAPL`, `Analyze`, and `How much? How long?`
+- **Confirm identity.** Read `artifacts/home-search/home.meta.txt`. `h1` is `LongMuch`. `placeholder` is `enter stock ticker e.g. AAPL`. `button` is `Analyze`. `title` is `Create Next App`.
 - **No side effects.** Repeat the GET. Status stays 200 and the HTML still has no `5-Year Financial Metrics` table (that block is client-only after `data` is set).
 - **Optional screenshot.** Run `FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot`. If Chromium is missing, `browser-skipped.txt` is enough; HTTP proof still stands.
 - **Next issues gate.** `helpers/http home` and doctor run `browser.cjs check-issues`. A visible Next.js `1 Issue` / `N Issues` badge fails the prove. Ignoring it is invalid.

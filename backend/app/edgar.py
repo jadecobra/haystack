@@ -307,6 +307,109 @@ def _merge_sum_series(a: dict[int, float], b: dict[int, float]) -> dict[int, flo
     return out
 
 
+def _abs_series(series: dict[int, float]) -> dict[int, float]:
+    return {y: abs(v) for y, v in series.items()}
+
+
+def _compose_capex(us_gaap: dict[str, Any]) -> dict[int, float]:
+    """Operating reinvestment cash outflow. Combined tag wins; no PPE+productive double count."""
+    combined = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["capex_combined"]))
+    ppe = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["capex_ppe"]))
+    productive = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["capex_productive"]))
+    software = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["capex_software"]))
+    years = set(combined) | set(ppe) | set(productive) | set(software)
+    out: dict[int, float] = {}
+    for y in years:
+        if y in combined:
+            out[y] = combined[y]
+            continue
+        parts: list[float] = []
+        if y in ppe:
+            parts.append(ppe[y])
+        elif y in productive:
+            parts.append(productive[y])
+        if y in software:
+            parts.append(software[y])
+        if parts:
+            out[y] = sum(parts)
+    return out
+
+
+def _delta_nwc(
+    year: int,
+    ar: dict[int, float],
+    inventory: dict[int, float],
+    ap: dict[int, float],
+) -> float | None:
+    prev = year - 1
+    terms: list[float] = []
+    if year in ar and prev in ar:
+        terms.append(ar[year] - ar[prev])
+    if year in inventory and prev in inventory:
+        terms.append(inventory[year] - inventory[prev])
+    if year in ap and prev in ap:
+        terms.append(-(ap[year] - ap[prev]))
+    if not terms:
+        return None
+    return sum(terms)
+
+
+def _resolve_ocf(
+    us_gaap: dict[str, Any],
+    net_income: dict[int, float],
+    da: dict[int, float],
+) -> dict[int, float]:
+    """Reported OCF, then cash-identity, then NI+D&A−ΔNWC when WC pairs exist."""
+    ocf = dict(_series_for_tags(us_gaap, TAG_PREFS["operating_cf"]))
+    d_cash = _series_for_tags(us_gaap, TAG_PREFS["change_in_cash"])
+    cfi = _series_for_tags(us_gaap, TAG_PREFS["investing_cf"])
+    cff = _series_for_tags(us_gaap, TAG_PREFS["financing_cf"])
+    fx = _series_for_tags(us_gaap, TAG_PREFS["fx_effect"])
+    ar = _series_for_tags(us_gaap, TAG_PREFS["accounts_receivable"])
+    inventory = _series_for_tags(us_gaap, TAG_PREFS["inventory"])
+    ap = _series_for_tags(us_gaap, TAG_PREFS["accounts_payable"])
+
+    years = (
+        set(ocf)
+        | set(d_cash)
+        | set(cfi)
+        | set(cff)
+        | set(net_income)
+        | set(da)
+        | set(ar)
+        | set(inventory)
+        | set(ap)
+    )
+    for y in years:
+        if y in ocf:
+            continue
+        if y in d_cash and y in cfi and y in cff:
+            ocf[y] = d_cash[y] - cfi[y] - cff[y] - fx.get(y, 0.0)
+            continue
+        if y in net_income and y in da:
+            dnwc = _delta_nwc(y, ar, inventory, ap)
+            if dnwc is not None:
+                ocf[y] = net_income[y] + da[y] - dnwc
+    return ocf
+
+
+def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int, float]) -> dict[int, float]:
+    out: dict[int, float] = {}
+    for y in ocf:
+        has_capex = y in capex
+        has_da = y in da
+        if not has_capex and not has_da:
+            continue
+        if has_capex and has_da:
+            maint = min(capex[y], da[y])
+        elif has_capex:
+            maint = capex[y]
+        else:
+            maint = da[y]
+        out[y] = ocf[y] - maint
+    return out
+
+
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
     *,
@@ -355,16 +458,10 @@ def map_companyfacts_to_statements(
         if dcur or dlt:
             debt = _merge_sum_series(dcur, dlt)
 
-    ocf = _series_for_tags(us_gaap, TAG_PREFS["operating_cf"])
-    capex = _series_for_tags(us_gaap, TAG_PREFS["capex"])
-    fcf: dict[int, float] = {}
-    for y in set(ocf) | set(capex):
-        if y in ocf and y in capex:
-            # Capex tags are cash outflows; usually positive in companyfacts.
-            fcf[y] = ocf[y] - abs(capex[y])
-        elif y in ocf:
-            # Cannot invent FCF without capex — leave missing (null later)
-            pass
+    da = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["da"]))
+    ocf = _resolve_ocf(us_gaap, net_income, da)
+    capex = _compose_capex(us_gaap)
+    fcf = _owner_earnings(ocf, capex, da)
 
     all_years = sorted(
         set(revenue)

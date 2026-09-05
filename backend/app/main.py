@@ -5,7 +5,7 @@ import fastapi
 import fastapi.middleware.cors
 import pydantic
 
-from app.metrics import LOCKED_LABELS, SCHEMA_VERSION
+from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL
 from app.sources import analyze
 
 dotenv.load_dotenv()
@@ -89,7 +89,7 @@ async def contract():
         "schema_version": SCHEMA_VERSION,
         "labels": list(LOCKED_LABELS),
         "row_count": len(LOCKED_LABELS),
-        "treasury_label": "FCF / 30 Year Treasury per Share",
+        "treasury_label": TREASURY_LABEL,
     }
 
 

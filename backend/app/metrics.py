@@ -10,13 +10,13 @@ RATIO_LABELS = [
     "Net Income / Assets",
     "Net Income / Total Liabilities",
     "Net Income / Debt",
-    "FCF / Revenue",
-    "FCF / Equity",
-    "FCF / Assets",
-    "FCF / Total Liabilities",
-    "FCF / Debt",
+    "Owner Earnings / Revenue",
+    "Owner Earnings / Equity",
+    "Owner Earnings / Assets",
+    "Owner Earnings / Total Liabilities",
+    "Owner Earnings / Debt",
     "Dividends / Net Income",
-    "Dividends / FCF",
+    "Dividends / Owner Earnings",
     "Dividends / Equity",
 ]
 
@@ -25,20 +25,21 @@ PER_SHARE_LABELS = [
     "Debt per Share",
     "Revenue per Share",
     "Net Income per Share",
-    "FCF per Share",
+    "Owner Earnings per Share",
     "Dividends per Share",
     "Equity per Share",
     "Assets per Share",
     "Cash per Share",
     "Liabilities per Share",
-    "FCF / 30 Year Treasury per Share",
+    "Owner Earnings / 30 Year Treasury per Share",
     "30 Year Treasury (DGS30)",
 ]
 
 LOCKED_LABELS = RATIO_LABELS + PER_SHARE_LABELS
+TREASURY_LABEL = "Owner Earnings / 30 Year Treasury per Share"
 
 # Bump when AnalysisResponse fields or row shape change. GET /contract exposes this.
-SCHEMA_VERSION = "3"
+SCHEMA_VERSION = "4"
 
 FIELDS = (
     "revenue",
@@ -113,25 +114,25 @@ def compute_year(stmt: dict[str, Any], treasury_yield: float | None) -> dict[str
         "Net Income / Assets": _ratio(ni, s["assets"]),
         "Net Income / Total Liabilities": _ratio(ni, s["total_liabilities"]),
         "Net Income / Debt": _ratio(ni, s["debt"]),
-        "FCF / Revenue": _ratio(fcf, s["revenue"]),
-        "FCF / Equity": _ratio(fcf, s["equity"]),
-        "FCF / Assets": _ratio(fcf, s["assets"]),
-        "FCF / Total Liabilities": _ratio(fcf, s["total_liabilities"]),
-        "FCF / Debt": _ratio(fcf, s["debt"]),
+        "Owner Earnings / Revenue": _ratio(fcf, s["revenue"]),
+        "Owner Earnings / Equity": _ratio(fcf, s["equity"]),
+        "Owner Earnings / Assets": _ratio(fcf, s["assets"]),
+        "Owner Earnings / Total Liabilities": _ratio(fcf, s["total_liabilities"]),
+        "Owner Earnings / Debt": _ratio(fcf, s["debt"]),
         "Dividends / Net Income": _ratio(div, ni),
-        "Dividends / FCF": _ratio(div, fcf),
+        "Dividends / Owner Earnings": _ratio(div, fcf),
         "Dividends / Equity": _ratio(div, s["equity"]),
         "Shares Outstanding": shares,
         "Debt per Share": _ratio(s["debt"], shares),
         "Revenue per Share": _ratio(s["revenue"], shares),
         "Net Income per Share": _ratio(ni, shares),
-        "FCF per Share": fcf_ps,
+        "Owner Earnings per Share": fcf_ps,
         "Dividends per Share": _ratio(div, shares),
         "Equity per Share": _ratio(s["equity"], shares),
         "Assets per Share": _ratio(s["assets"], shares),
         "Cash per Share": _ratio(s["cash"], shares),
         "Liabilities per Share": _ratio(s["total_liabilities"], shares),
-        "FCF / 30 Year Treasury per Share": _ratio(fcf_ps, ty),
+        TREASURY_LABEL: _ratio(fcf_ps, ty),
         "30 Year Treasury (DGS30)": ty,
     }
 

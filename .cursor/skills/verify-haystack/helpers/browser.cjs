@@ -226,7 +226,7 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
 
     if (cmd === 'analyze') {
       const ticker = (process.argv[3] || 'AAPL').toUpperCase();
-      await page.locator('input[placeholder="AAPL or TSLA"]').fill(ticker);
+      await page.locator('input[placeholder="enter stock ticker e.g. AAPL"]').fill(ticker);
       await page.locator('button', { hasText: 'Analyze' }).click();
       await page.waitForTimeout(2000);
       const html = await page.content();

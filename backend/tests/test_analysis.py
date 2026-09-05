@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.cli import main as cli_main
-from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, build_table, compute_year
+from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL, build_table, compute_year
 from app.sources import analyze
 
 
@@ -15,7 +15,7 @@ class TestMetrics(unittest.TestCase):
     def test_locked_labels_include_treasury(self):
         self.assertEqual(len(LOCKED_LABELS), 25)
         self.assertIn("Shares Outstanding", LOCKED_LABELS)
-        self.assertIn("FCF / 30 Year Treasury per Share", LOCKED_LABELS)
+        self.assertIn(TREASURY_LABEL, LOCKED_LABELS)
         self.assertEqual(LOCKED_LABELS[-1], "30 Year Treasury (DGS30)")
 
     def test_compute_and_table(self):
@@ -34,15 +34,15 @@ class TestMetrics(unittest.TestCase):
         year = compute_year(stmt, 0.05)
         self.assertAlmostEqual(year["Net Income / Revenue"], 0.1)
         self.assertAlmostEqual(year["Shares Outstanding"], 10)
-        self.assertAlmostEqual(year["FCF per Share"], 2.0)
-        self.assertAlmostEqual(year["FCF / 30 Year Treasury per Share"], 40.0)
+        self.assertAlmostEqual(year["Owner Earnings per Share"], 2.0)
+        self.assertAlmostEqual(year[TREASURY_LABEL], 40.0)
         self.assertAlmostEqual(year["30 Year Treasury (DGS30)"], 0.05)
         rows = build_table([2024], {2024: stmt}, {2024: 0.05})
         self.assertEqual(len(rows), 25)
         self.assertEqual(rows[0]["values"]["2024"], "10.0%")
         shares_row = next(r for r in rows if r["metric"] == "Shares Outstanding")
         self.assertEqual(shares_row["values"]["2024"], "10")
-        treasury = next(r for r in rows if r["metric"] == "FCF / 30 Year Treasury per Share")
+        treasury = next(r for r in rows if r["metric"] == TREASURY_LABEL)
         self.assertTrue(treasury["values"]["2024"].startswith("$"))
         dgs30 = next(r for r in rows if r["metric"] == "30 Year Treasury (DGS30)")
         self.assertEqual(dgs30["values"]["2024"], "5.00%")
@@ -77,7 +77,7 @@ class TestAnalysis(unittest.TestCase):
             "source": "edgar",
             "status": "success",
             "message": "mocked",
-            "treasury_label": "FCF / 30 Year Treasury per Share",
+            "treasury_label": TREASURY_LABEL,
         }
         with mock.patch("app.main.analyze", return_value=fake) as mocked:
             response = self.client.get("/analyze/AAPL")

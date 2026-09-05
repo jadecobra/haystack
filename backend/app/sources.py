@@ -10,7 +10,7 @@ import os
 from typing import Any
 
 from app import fixture
-from app.metrics import FIELDS, LOCKED_LABELS, build_table
+from app.metrics import FIELDS, LOCKED_LABELS, TREASURY_LABEL, build_table
 
 
 def _env_force_fixture() -> bool:
@@ -48,7 +48,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "source": "fixture",
             "status": "success",
             "message": f"{len(LOCKED_LABELS)} locked metrics, {len(years)} years (fixture)",
-            "treasury_label": "FCF / 30 Year Treasury per Share",
+            "treasury_label": TREASURY_LABEL,
             "treasury_dgs30_pct": pct,
             "treasury_dgs30_as_of": as_of,
             "previous_close": 100.0,
@@ -117,7 +117,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             f"{len(LOCKED_LABELS)} locked metrics, {len(years)} years "
             f"(edgar CIK {cik}){gap_note}"
         ),
-        "treasury_label": "FCF / 30 Year Treasury per Share",
+        "treasury_label": TREASURY_LABEL,
         "treasury_dgs30_pct": dgs30_pct,
         "treasury_dgs30_as_of": dgs30_as_of,
         "previous_close": prev_close,

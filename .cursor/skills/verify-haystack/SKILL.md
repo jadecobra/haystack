@@ -9,7 +9,7 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show 5-ye
 
 ## Surfaces
 
-- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle `Clean. Instant. Fundamental analysis.`, text input placeholder `AAPL or TSLA`, button `Analyze`. After client state `data` is set, KPI cards (Revenue / Net Income / EPS / FCF) and a table titled `5-Year Financial Metrics` appear. `frontend/app/layout.tsx` metadata title is still `Create Next App`.
+- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle includes `How much? How long?`, text input placeholder `enter stock ticker e.g. AAPL`, button `Analyze`. After client state `data` is set, a table titled `5-Year Financial Metrics` appears. `frontend/app/layout.tsx` metadata title is still `Create Next App`.
 - Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR** (omit `?fixture=1`). Fixture mode only when explicitly requested: `?fixture=1` on analyze URLs, CLI `uv run longmuch analyze TICKER --local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1` (launch must **not** set that env). No RPC, GraphQL, or agent-auth. Verify HTTP prove uses live analyze by default; use `VERIFY_FIXTURE=1` / `--fixture` for deterministic offline runs.
 - Frontend currently `fetch('/api/analyze/${ticker}')` on the Next origin. `frontend/app/api/analyze/[ticker].ts` is a loose `.ts` file, not App Router `route.ts`, so the Next API 404s. The file returns mock KPI JSON and reads `searchParams.ticker`, not the path param. Document the 404; do not pretend KPIs are live 10-K data.
 - Table rows in `page.tsx` are hardcoded sample billions (`$200B`). That is a fixture in the React tree, not live 10-K proof. Distinguish it from the mock KPI JSON (also not live, and currently not even served).
@@ -86,11 +86,11 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 ### Stable handles (from `frontend/app/page.tsx` and `layout.tsx`)
 
 - `h1` text `LongMuch`
-- subtitle `Clean. Instant. Fundamental analysis.`
-- `input[placeholder="AAPL or TSLA"]`
+- subtitle `Fundamental Analysis to answer two questions - How much? How long?`
+- `input[placeholder="enter stock ticker e.g. AAPL"]`
 - `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
 - footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.`
-- After `data` is set: KPI `h3` names Revenue / Net Income / EPS / FCF; table `h2` `5-Year Financial Metrics`
+- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 4)
 - Document title `Create Next App` (layout metadata, not LongMuch)
 - Next API path `/api/analyze/:ticker` (currently 404)
 - FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; `?fixture=1` only when explicitly requested), GET `/contract` on the backend origin only

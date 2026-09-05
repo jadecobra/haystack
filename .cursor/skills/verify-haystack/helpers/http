@@ -43,9 +43,9 @@ save_meta() {
     echo "button=$(html_button_text "$body")"
     echo "button_disabled=$(button_is_disabled "$body")"
     echo "longmuch_count=$(html_count "$body" 'LongMuch')"
-    echo "subtitle_count=$(html_count "$body" 'Clean. Instant. Fundamental analysis.')"
+    echo "subtitle_count=$(html_count "$body" 'How much? How long?')"
     echo "analyze_count=$(html_count "$body" 'Analyze')"
-    echo "placeholder_count=$(html_count "$body" 'AAPL or TSLA')"
+    echo "placeholder_count=$(html_count "$body" 'enter stock ticker e.g. AAPL')"
     echo "table_title_count=$(html_count "$body" '5-Year Financial Metrics')"
     echo "hardcoded_200B_count=$(html_count "$body" '$200B')"
     echo "kpi_revenue_count=$(html_count "$body" 'Revenue')"
@@ -86,9 +86,9 @@ case "$cmd" in
     code="$(http_get "$FRONTEND_ORIGIN" / home | tail -n 1)"
     [[ "$code" == "200" ]] || die "home GET not 200 (got $code)"
     grep -q 'LongMuch' "$EVIDENCE/home.html" || die "home HTML missing h1 text LongMuch"
-    grep -q 'AAPL or TSLA' "$EVIDENCE/home.html" || die "home HTML missing placeholder AAPL or TSLA"
+    grep -q 'enter stock ticker e.g. AAPL' "$EVIDENCE/home.html" || die "home HTML missing ticker placeholder"
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
-    grep -q 'Clean. Instant. Fundamental analysis.' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
+    grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
     if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" != "1" ]]; then
@@ -127,7 +127,7 @@ case "$cmd" in
     echo "GET $url -> HTTP $code"
     echo "  body=$(head -c 200 "$body")"
     [[ "$code" == "200" ]] || die "analyze-api not 200 (got $code)"
-    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "analyze JSON missing FCF / 30 Year Treasury per Share"
+    grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "analyze JSON missing Owner Earnings / 30 Year Treasury per Share"
     grep -q '"rows"' "$body" || die "analyze JSON missing rows"
     http_get "$FRONTEND_ORIGIN" / home-after-api >/dev/null
     table_count="$(html_count "$EVIDENCE/home-after-api.html" '5-Year Financial Metrics')"
@@ -198,7 +198,7 @@ case "$cmd" in
     echo "body_preview=$(head -c 400 "$body" | tr '\n' ' ')" >> "$EVIDENCE/backend-analyze.meta.txt"
     echo "GET $url -> HTTP $code (mode=$mode)"
     [[ "$code" == "200" ]] || die "backend /analyze not 200 (got $code; mode=$mode)"
-    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "analyze JSON missing treasury label"
+    grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "analyze JSON missing treasury label"
     if [[ "$use_fixture" == "1" ]]; then
       python3 - "$body" <<'PY' || die "fixture mode expected source=fixture"
 import json, sys
@@ -237,7 +237,7 @@ PY
     echo "GET $url -> HTTP $code"
     [[ "$code" == "200" ]] || die "backend /contract not 200"
     grep -q 'schema_version' "$body" || die "contract JSON missing schema_version"
-    grep -q 'FCF / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
+    grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
     ;;
   empty-ticker)
     FEATURE="${FEATURE:-empty-ticker}"

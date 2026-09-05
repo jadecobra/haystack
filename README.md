@@ -10,26 +10,26 @@ Instant 5-year 10-K metrics. No paywall. No bloat.
         - Net Income/Assets
         - Net Income/Total Liabilities
         - Net Income/Debt
-        - Free Cash Flow/Revenue
-        - Free Cash Flow/Equity
-        - Free Cash Flow/Assets
-        - Free Cash Flow/Total Liabilities
-        - Free Cash Flow/Debt
+        - Owner Earnings/Revenue
+        - Owner Earnings/Equity
+        - Owner Earnings/Assets
+        - Owner Earnings/Total Liabilities
+        - Owner Earnings/Debt
         - Dividends/Net Income
-        - Dividends/Free Cash Flow
+        - Dividends/Owner Earnings
         - Dividends/Equity
 
     * **Per Share Metrics:**
         - Debt per Share
         - Revenue per Share
         - Net Income per Share
-        - Free Cash Flow per Share
+        - Owner Earnings per Share
         - Dividends per Share
         - Equity per Share
         - Assets per Share
         - Cash per Share
         - Liabilities per Share
-        - Free Cash Flow/30 yr Treasury per Share
+        - Owner Earnings/30 yr Treasury per Share
 
 ## Quick Start
 

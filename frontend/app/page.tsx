@@ -70,9 +70,9 @@ export default function Home() {
   const rows = data
     ? data.rows.map((row) => {
         const metricLabel =
-          row.metric === "FCF / 30 Year Treasury per Share" && dgs30Line ? (
+          row.metric === "Owner Earnings / 30 Year Treasury per Share" && dgs30Line ? (
             <>
-              <div>FCF / 30 Year Treasury per Share</div>
+              <div>Owner Earnings / 30 Year Treasury per Share</div>
               <div
                 className="text-xs text-zinc-500 font-normal mt-0.5 whitespace-normal"
                 data-testid="dgs30-as-of"

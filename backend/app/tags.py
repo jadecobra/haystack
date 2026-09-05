@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-# Keys align with app.metrics.FIELDS (plus FCF component tags).
+# Keys align with app.metrics.FIELDS (plus owner-earnings component tags).
 TAG_PREFS: dict[str, list[str]] = {
     "revenue": [
         "Revenues",
@@ -48,15 +48,59 @@ TAG_PREFS: dict[str, list[str]] = {
         "Dividends",
         "PaymentsOfDividendsCommonStockAndPreferredStockAndUnits",
     ],
-    # FCF components — not FIELDS keys; edgar composes fcf from these.
+    # Owner earnings components — not FIELDS keys; edgar composes fcf from these.
     "operating_cf": [
         "NetCashProvidedByUsedInOperatingActivities",
         "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations",
     ],
-    "capex": [
-        "PaymentsToAcquirePropertyPlantAndEquipment",
-        "PaymentsToAcquireProductiveAssets",
+    "capex_combined": [
         "PaymentsToAcquirePropertyPlantAndEquipmentAndIntangibleAssets",
+    ],
+    "capex_ppe": [
+        "PaymentsToAcquirePropertyPlantAndEquipment",
+    ],
+    "capex_productive": [
+        "PaymentsToAcquireProductiveAssets",
+    ],
+    "capex_software": [
+        "PaymentsToDevelopSoftware",
+        "PaymentsToAcquireSoftware",
+        "PaymentsForSoftware",
+    ],
+    "da": [
+        "DepreciationDepletionAndAmortization",
+        "DepreciationAndAmortization",
+        "Depreciation",
+    ],
+    "change_in_cash": [
+        "CashAndCashEquivalentsPeriodIncreaseDecrease",
+        "IncreaseDecreaseInCashAndCashEquivalents",
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseIncludingExchangeRateEffect",
+    ],
+    "investing_cf": [
+        "NetCashProvidedByUsedInInvestingActivities",
+        "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations",
+    ],
+    "financing_cf": [
+        "NetCashProvidedByUsedInFinancingActivities",
+        "NetCashProvidedByUsedInFinancingActivitiesContinuingOperations",
+    ],
+    "fx_effect": [
+        "EffectOfExchangeRateOnCashAndCashEquivalents",
+        "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+    ],
+    "accounts_receivable": [
+        "AccountsReceivableNetCurrent",
+        "AccountsReceivableNet",
+        "AccountsReceivableGrossCurrent",
+    ],
+    "inventory": [
+        "InventoryNet",
+        "InventoryFinishedGoods",
+    ],
+    "accounts_payable": [
+        "AccountsPayableCurrent",
+        "AccountsPayable",
     ],
     # Helpers for liabilities / debt composition
     "liabilities_and_equity": [

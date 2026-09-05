@@ -19,7 +19,7 @@ To build a robust and cost-effective web application that allows users to quickl
 **2.2. Data Retrieval & Parsing:**
 * Upon submission, the system will fetch the latest 5 years of 10-K annual reports for the provided ticker from the SEC EDGAR database.
 * **Constraint:** Only 10-K filings available in **XBRL format** will be processed for the MVP. Older formats (HTML, TXT) are out of scope for the initial phase.
-* The system will extract relevant financial data points from the XBRL filings (e.g., Net Income, Revenue, Equity, Assets, Total Liabilities, Debt, Free Cash Flow (FCF), Dividends, Shares Outstanding). Specific XBRL tags will need to be identified and mapped to these concepts.
+* The system will extract relevant financial data points from the XBRL filings (e.g., Net Income, Revenue, Equity, Assets, Total Liabilities, Debt, Owner Earnings, Dividends, Shares Outstanding). Specific XBRL tags will need to be identified and mapped to these concepts.
 * **Error Handling:** Graceful handling of invalid tickers, no 10-K filings found, or parsing errors.
 
 **2.3. Financial Metric Calculation:**
@@ -31,25 +31,33 @@ The following metrics will be calculated year-over-year for the available 5 year
     * Net Income / Assets
     * Net Income / Total Liabilities
     * Net Income / Debt
-    * FCF / Revenue
-    * FCF / Equity
-    * FCF / Assets
-    * FCF / Total Liabilities
-    * FCF / Debt
+    * Owner Earnings / Revenue
+    * Owner Earnings / Equity
+    * Owner Earnings / Assets
+    * Owner Earnings / Total Liabilities
+    * Owner Earnings / Debt
     * Dividends / Net Income
-    * Dividends / FCF
+    * Dividends / Owner Earnings
     * Dividends / Equity
 * **Per Share Metrics:**
     * Debt per Share
     * Revenue per Share
     * Net Income per Share
-    * FCF per Share
+    * Owner Earnings per Share
     * Dividends per Share
     * Equity per Share
     * Assets per Share
     * Cash per Share
     * Liabilities per Share
-    * FCF / 30 Year Treasury per Share (Requires fetching 30-year U.S. Treasury yield data from an external API, e.g., FRED. This will be the only external non-SEC data source for the MVP.)
+    * Owner Earnings / 30 Year Treasury per Share (Requires fetching 30-year U.S. Treasury yield data from an external API, e.g., FRED. This will be the only external non-SEC data source for the MVP.)
+
+**Owner earnings.** Cash the business generated after maintenance reinvestment, before allocation (dividends, buybacks, M&A, growth capex above D&A, net debt). Internal field name remains `fcf`.
+
+```
+OE = OCF − min(|capex|, D&A)
+```
+
+OCF is the reported operating-cash tag when present. If missing: `ΔCash − CFI − CFF − FX` (FX = 0 if absent). If still missing: `NI + D&A − ΔNWC` using AR / inventory / AP pairs that exist in both the year and the prior year. Do not use NI + D&A with no working-capital pair. Capex is PPE (or the combined PPE+intangibles tag if present), plus capitalized software, without double-counting ProductiveAssets on top of PPE. If OCF cannot be resolved, or both capex and D&A are missing, owner earnings is null.
 
 **2.4. Data Display (MVP UI):**
 * A responsive HTML table displaying the calculated metrics.
