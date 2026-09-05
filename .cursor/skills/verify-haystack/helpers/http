@@ -11,9 +11,11 @@
 #   FEATURE=backend-contract helpers/http backend-contract
 #   FEATURE=empty-ticker helpers/http empty-ticker
 #
-# backend-analyze defaults to live EDGAR (no ?fixture=1). Fixture only when
-# VERIFY_FIXTURE=1, --fixture/--local arg, or caller-exported HAYSTACK_PREFER_FIXTURE=1
-# (backend honors that env; this helper does not set it).
+# backend-analyze defaults to live EDGAR. Fixture only when VERIFY_FIXTURE=1
+# or --fixture/--local (runs `uv run longmuch analyze TICKER --local`).
+# Curl-local HAYSTACK_PREFER_FIXTURE does not affect the already-running uvicorn.
+# The ?fixture= query is ignored. Server-env HAYSTACK_PREFER_FIXTURE still works
+# if the backend process was started with it.
 #
 # Evidence lands in .cursor/skills/verify-haystack/artifacts/<feature>/
 
@@ -50,6 +52,7 @@ save_meta() {
     echo "hardcoded_200B_count=$(html_count "$body" '$200B')"
     echo "kpi_revenue_count=$(html_count "$body" 'Revenue')"
     echo "create_next_app_count=$(html_count "$body" 'Create Next App')"
+    echo "longmuch_title_count=$(html_count "$body" 'LongMuch - How much? How long?')"
   } > "$EVIDENCE/${name}.meta.txt"
 }
 
@@ -171,14 +174,11 @@ case "$cmd" in
         use_fixture=1
         ;;
     esac
-    # Caller-exported HAYSTACK_PREFER_FIXTURE=1 makes the backend prefer fixture even
-    # without ?fixture=1. We never set that env here (launch must not either).
     ambient_prefer="${HAYSTACK_PREFER_FIXTURE:-}"
+    url="$BACKEND_ORIGIN/analyze/${ticker}"
     if [[ "$use_fixture" == "1" ]]; then
-      url="$BACKEND_ORIGIN/analyze/${ticker}?fixture=1"
-      mode="fixture-query"
+      mode="fixture-cli"
     else
-      url="$BACKEND_ORIGIN/analyze/${ticker}"
       mode="live-edgar"
     fi
     {
@@ -187,12 +187,20 @@ case "$cmd" in
       echo "mode=$mode"
       echo "VERIFY_FIXTURE=${VERIFY_FIXTURE:-0}"
       echo "HAYSTACK_PREFER_FIXTURE_ambient=${ambient_prefer:-}"
-      echo "note=Default is live EDGAR (no ?fixture=1). Fixture only via VERIFY_FIXTURE=1, --fixture/--local, or caller-exported HAYSTACK_PREFER_FIXTURE=1."
+      echo "note=Default is live EDGAR. Fixture via VERIFY_FIXTURE=1 / --fixture runs CLI --local (in-process). Curl-local env cannot switch the running uvicorn. ?fixture= query is ignored."
       echo "frontend_does_not_call_this=frontend fetch is /api/analyze/${ticker} on the Next origin"
     } > "$EVIDENCE/backend-analyze.meta.txt"
     body="$EVIDENCE/analyze.json"
-    # Live EDGAR can be slow on cold companyfacts fetch.
-    code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 90 "$url" || echo "000")"
+    repo_root="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+    if [[ "$use_fixture" == "1" ]]; then
+      if (cd "$repo_root" && uv run longmuch analyze "$ticker" --local >"$body" 2>"$EVIDENCE/analyze.cli.err"); then
+        code="200"
+      else
+        code="000"
+      fi
+    else
+      code="$(curl -sS -o "$body" -w '%{http_code}' --max-time 90 "$url" || echo "000")"
+    fi
     echo "$code" > "$EVIDENCE/backend-analyze.status"
     echo "http_status=$code" >> "$EVIDENCE/backend-analyze.meta.txt"
     echo "body_preview=$(head -c 400 "$body" | tr '\n' ' ')" >> "$EVIDENCE/backend-analyze.meta.txt"

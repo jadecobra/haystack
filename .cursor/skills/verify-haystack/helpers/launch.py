@@ -134,6 +134,83 @@ def wait_pidfile(path: Path, seconds: float = 2.0) -> str:
     raise SystemExit(1)
 
 
+def load_current_run_env() -> dict[str, str]:
+    if not CURRENT_RUN_FILE.is_file():
+        return {}
+    pointer = CURRENT_RUN_FILE.read_text(encoding="utf-8").strip()
+    env_path = Path(pointer) / "run.env"
+    if not env_path.is_file():
+        return {}
+    out: dict[str, str] = {}
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        if "=" in line:
+            key, _, val = line.partition("=")
+            out[key] = val
+    return out
+
+
+def reuse_current_run() -> bool:
+    env = load_current_run_env()
+    if not env.get("FRONTEND_ORIGIN"):
+        return False
+    doctor = HELPERS / "doctor"
+    proc = subprocess.run([str(doctor)], cwd=str(REPO_ROOT))
+    if proc.returncode != 0:
+        return False
+    print("verify-haystack launch ok (reused .current-run)")
+    for key in (
+        "RUN_ID",
+        "FRONTEND_ORIGIN",
+        "FRONTEND_PORT",
+        "FRONTEND_PID",
+        "FRONTEND_LISTEN_PID",
+        "FRONTEND_PGID",
+        "BACKEND_ORIGIN",
+        "BACKEND_PORT",
+        "BACKEND_PID",
+        "BACKEND_LISTEN_PID",
+        "BACKEND_PGID",
+        "BACKEND_OK",
+        "RUN_DIR",
+    ):
+        if key in env:
+            print(f"{key}={env[key]}")
+    origin = env["FRONTEND_ORIGIN"]
+    print(f"left up for browse: FRONTEND_ORIGIN={origin} (run helpers/cleanup when done; cleanup is opt-in, not part of prove)")
+    return True
+
+
+def next_dev_lock_pid() -> str:
+    lock = FRONTEND_DIR / ".next" / "dev" / "lock"
+    if not lock.is_file():
+        return ""
+    try:
+        out = subprocess.check_output(
+            ["lsof", "-t", str(lock)],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return ""
+    return (out.splitlines() or [""])[0].strip()
+
+
+def cleanup_prior_verify_if_lock_held() -> None:
+    holder = next_dev_lock_pid()
+    if not holder:
+        return
+    env = load_current_run_env()
+    ours = {env.get("FRONTEND_PID", ""), env.get("FRONTEND_LISTEN_PID", "")}
+    if holder not in ours:
+        die(
+            f"frontend/.next/dev/lock is held by pid {holder}, which is not this skill's "
+            f".current-run frontend. One next dev per frontend/ tree. Cleanup that process "
+            f"or wait; do not start a second isolated Next."
+        )
+    print("verify-haystack: prior verify frontend holds .next/dev/lock; running helpers/cleanup")
+    subprocess.check_call([str(HELPERS / "cleanup")], cwd=str(REPO_ROOT))
+
+
 def write_barrel() -> tuple[int, Path]:
     index = FRONTEND_DIR / "app" / "components" / "index.ts"
     if index.exists():
@@ -155,6 +232,10 @@ def main() -> None:
         die(f"not the haystack repo (missing frontend/package.json): {REPO_ROOT}")
     if not (BACKEND_DIR / "app" / "main.py").is_file():
         die(f"not the haystack repo (missing backend/app/main.py): {REPO_ROOT}")
+
+    if reuse_current_run():
+        return
+    cleanup_prior_verify_if_lock_held()
 
     run_id = os.environ.get("RUN_ID") or time.strftime("%Y%m%d%H%M%S") + f"-{os.getpid()}"
     run_dir = Path(f"/tmp/haystack-verify-{run_id}")
@@ -215,7 +296,7 @@ def main() -> None:
     be_env = os.environ.copy()
     # Live EDGAR is the default. Do NOT set HAYSTACK_PREFER_FIXTURE here.
     # Fixture only if the caller already exported HAYSTACK_PREFER_FIXTURE=1,
-    # or later via ?fixture=1 / CLI --local / VERIFY_FIXTURE=1 on helpers/http.
+    # or later via CLI --local / VERIFY_FIXTURE=1 / HAYSTACK_PREFER_FIXTURE on helpers/http.
     if "HAYSTACK_PREFER_FIXTURE" in be_env:
         print(
             "verify-haystack: note: caller-exported HAYSTACK_PREFER_FIXTURE="
