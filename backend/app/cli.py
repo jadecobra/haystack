@@ -72,9 +72,6 @@ def cmd_analyze(
     local: bool,
     edgar: bool,
 ) -> int:
-    # --local: in-process fixture (agents). --edgar: in-process live EDGAR+FRED.
-    # HTTP without --local/--edgar: ?fixture=1 so agent/offline path stays safe.
-    # Live HTTP: omit fixture query (or use --edgar for in-process).
     if local and edgar:
         _dump({"error": "use either --local (fixture) or --edgar (live), not both"})
         return 1
@@ -95,13 +92,10 @@ def cmd_analyze(
             return 1
         reason = _incomplete(payload)
         _dump(payload)
-        # Live may have — cells; still exit 0 on success payload (incomplete soft).
-        # Keep strict incomplete check for agents; for edgar allow — via format.
-        # build_table always fills cells with "—" so _incomplete only fails on "".
         return 1 if reason else 0
     if not base:
         base = DEFAULT_BASE
-    code, body = _get(base, f"/analyze/{ticker.upper()}?fixture=1")
+    code, body = _get(base, f"/analyze/{ticker.upper()}")
     if code != 0:
         return 1
     reason = _incomplete(body) if isinstance(body, dict) else "invalid response"

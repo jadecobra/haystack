@@ -38,8 +38,7 @@ PER_SHARE_LABELS = [
 LOCKED_LABELS = RATIO_LABELS + PER_SHARE_LABELS
 TREASURY_LABEL = "Owner Earnings / 30 Year Treasury per Share"
 
-# Bump when AnalysisResponse fields or row shape change. GET /contract exposes this.
-SCHEMA_VERSION = "4"
+SCHEMA_VERSION = "5"
 
 FIELDS = (
     "revenue",
@@ -164,6 +163,7 @@ def build_table(
         computed[year] = compute_year(statements.get(year, {}), treasury_by_year.get(year))
     rows = []
     for label in LOCKED_LABELS:
-        values = {str(year): format_cell(label, computed[year].get(label)) for year in years}
-        rows.append({"metric": label, "values": values})
+        raw = {str(year): computed[year].get(label) for year in years}
+        values = {str(year): format_cell(label, raw[str(year)]) for year in years}
+        rows.append({"metric": label, "values": values, "raw": raw})
     return rows

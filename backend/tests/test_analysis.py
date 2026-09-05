@@ -40,12 +40,16 @@ class TestMetrics(unittest.TestCase):
         rows = build_table([2024], {2024: stmt}, {2024: 0.05})
         self.assertEqual(len(rows), 25)
         self.assertEqual(rows[0]["values"]["2024"], "10.0%")
+        self.assertAlmostEqual(rows[0]["raw"]["2024"], 0.1)
         shares_row = next(r for r in rows if r["metric"] == "Shares Outstanding")
         self.assertEqual(shares_row["values"]["2024"], "10")
+        self.assertAlmostEqual(shares_row["raw"]["2024"], 10)
         treasury = next(r for r in rows if r["metric"] == TREASURY_LABEL)
         self.assertTrue(treasury["values"]["2024"].startswith("$"))
+        self.assertAlmostEqual(treasury["raw"]["2024"], 40.0)
         dgs30 = next(r for r in rows if r["metric"] == "30 Year Treasury (DGS30)")
         self.assertEqual(dgs30["values"]["2024"], "5.00%")
+        self.assertAlmostEqual(dgs30["raw"]["2024"], 0.05)
 
 
 class TestAnalysis(unittest.TestCase):
@@ -60,17 +64,17 @@ class TestAnalysis(unittest.TestCase):
         self.assertIn("message", body)
 
     def test_analyze_ticker_endpoint(self):
-        # Default path is live; mock so unit tests stay offline-safe.
+        years = ["2024", "2023", "2022", "2021", "2020"]
         fake = {
             "ticker": "AAPL",
-            "years": ["2024", "2023", "2022", "2021", "2020"],
+            "years": years,
             "rows": [
                 {
                     "metric": m,
                     "values": {
-                        y: ("1.0%" if i < 13 else "$1.00")
-                        for y in ["2024", "2023", "2022", "2021", "2020"]
+                        y: ("1.0%" if i < 13 else "$1.00") for y in years
                     },
+                    "raw": {y: (0.01 if i < 13 else 1.0) for y in years},
                 }
                 for i, m in enumerate(LOCKED_LABELS)
             ],
@@ -86,9 +90,8 @@ class TestAnalysis(unittest.TestCase):
             self.assertEqual(body["ticker"], "AAPL")
             self.assertEqual(len(body["rows"]), 25)
             self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
-            mocked.assert_called()
-            kwargs = mocked.call_args.kwargs
-            self.assertFalse(kwargs.get("prefer_fixture", True))
+            self.assertIn("raw", body["rows"][0])
+            mocked.assert_called_once_with("AAPL")
 
     def test_analyze_ticker_invalid_ticker(self):
         response = self.client.get("/analyze/!!!")
@@ -96,17 +99,35 @@ class TestAnalysis(unittest.TestCase):
         self.assertIn("detail", response.json())
 
     def test_analyze_fixture_query(self):
-        response = self.client.get("/analyze/AAPL?fixture=1")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["source"], "fixture")
-        self.assertEqual(len(response.json()["rows"]), 25)
-        self.assertGreaterEqual(len(response.json()["years"]), 5)
+        fake = {
+            "ticker": "AAPL",
+            "years": ["2024"],
+            "rows": [
+                {
+                    "metric": m,
+                    "values": {"2024": "1.0%"},
+                    "raw": {"2024": 0.01},
+                }
+                for m in LOCKED_LABELS
+            ],
+            "source": "edgar",
+            "status": "success",
+            "message": "mocked live",
+            "treasury_label": TREASURY_LABEL,
+        }
+        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": ""}, clear=False):
+            with mock.patch("app.main.analyze", return_value=fake) as mocked:
+                response = self.client.get("/analyze/AAPL?fixture=1")
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()["source"], "edgar")
+                mocked.assert_called_once_with("AAPL")
 
     def test_analyze_env_force_fixture(self):
         with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):
             response = self.client.get("/analyze/AAPL")
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["source"], "fixture")
+            self.assertIn("raw", response.json()["rows"][0])
 
     def test_contract_endpoint(self):
         response = self.client.get("/contract")
@@ -123,6 +144,7 @@ class TestSourcesFixture(unittest.TestCase):
         self.assertEqual(payload["source"], "fixture")
         self.assertEqual(len(payload["rows"]), 25)
         self.assertEqual(payload["previous_close"], 100.0)
+        self.assertIn("raw", payload["rows"][0])
 
 
 class TestQuote(unittest.TestCase):

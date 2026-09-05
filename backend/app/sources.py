@@ -1,8 +1,4 @@
-"""Statement source for the locked ratio table.
-
-Prod default: live SEC companyfacts + FRED DGS30 (prefer_fixture=False).
-Agents / verify: ?fixture=1, CLI --local, or HAYSTACK_PREFER_FIXTURE=1.
-"""
+"""Statement source for the locked ratio table."""
 
 from __future__ import annotations
 
@@ -23,7 +19,6 @@ def _env_force_fixture() -> bool:
 
 
 def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str | None]:
-    """Display pct + year-end as_of from last fixture treasury year."""
     if not treasury:
         return None, None
     last_y = max(treasury.keys())
