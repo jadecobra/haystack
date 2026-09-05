@@ -9,10 +9,10 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show 5-ye
 
 ## Surfaces
 
-- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle includes `How much? How long?`, text input placeholder `enter stock ticker e.g. AAPL`, button `Analyze`. After client state `data` is set, a table titled `5-Year Financial Metrics` appears. `frontend/app/layout.tsx` metadata title is still `Create Next App`.
-- Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR** (omit `?fixture=1`). Fixture mode only when explicitly requested: `?fixture=1` on analyze URLs, CLI `uv run longmuch analyze TICKER --local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1` (launch must **not** set that env). No RPC, GraphQL, or agent-auth. Verify HTTP prove uses live analyze by default; use `VERIFY_FIXTURE=1` / `--fixture` for deterministic offline runs.
-- Frontend currently `fetch('/api/analyze/${ticker}')` on the Next origin. `frontend/app/api/analyze/[ticker].ts` is a loose `.ts` file, not App Router `route.ts`, so the Next API 404s. The file returns mock KPI JSON and reads `searchParams.ticker`, not the path param. Document the 404; do not pretend KPIs are live 10-K data.
-- Table rows in `page.tsx` are hardcoded sample billions (`$200B`). That is a fixture in the React tree, not live 10-K proof. Distinguish it from the mock KPI JSON (also not live, and currently not even served).
+- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle includes `How much? How long?`, text input placeholder `enter stock ticker e.g. AAPL`, button `Analyze`. After client state `data` is set, a table titled `5-Year Financial Metrics` appears. `frontend/app/layout.tsx` metadata title is `LongMuch - How much? How long?`.
+- Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR**. Fixture mode only via CLI `uv run longmuch analyze TICKER --local`, or `HAYSTACK_PREFER_FIXTURE=1` on the **backend process**. The `?fixture=` query param is ignored. Curl-local env does not switch a running uvicorn. Verify HTTP prove uses live analyze by default; `VERIFY_FIXTURE=1` / `--fixture` runs CLI `--local`.
+- Frontend `fetch('/api/analyze/${ticker}')` on the Next origin. Prove that path; do not document a 404 or mock KPI payload unless the live helper still returns one.
+- The metrics table is client-rendered from analyze JSON after `data` is set. SSR homepage HTML has no table. Do not treat leftover sample rows in docs as live proof.
 - No Playwright/Cypress in the repo. Drive with curl against isolated origins. `helpers/browser.cjs` is an optional skill-local Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
 - `ao start` / agent-orchestrator.yaml port 3000 is out of scope.
 
@@ -20,7 +20,9 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show 5-ye
 
 - Dedicated ports only. Bind `127.0.0.1`. Never attach to existing 3000 (Next default / `ao start`) or 8000 (README uvicorn; other gym projects already listen there).
 - `helpers/lib.sh` FORBIDDEN_FRONTEND_PORTS=`3000`, FORBIDDEN_BACKEND_PORTS=`8000`. Doctor refuses those ports and any listen PID this run did not start.
-- Two instances are OK if ports differ. No shared DB (this app has none).
+- One `next dev` per `frontend/` tree. Turbopack's `.next/dev/lock` is shared; a second isolated port still fails to acquire the lock.
+- If `.current-run` doctor-passes, **reuse it**. Do not launch another frontend.
+- If the lock is held by a prior verify frontend, run `helpers/cleanup` for that run, then launch. Do not kill listeners on 3000 or 8000.
 - Snapshot whatever is on 3000/8000 before launch; leave those PIDs alone.
 
 ## Launch
@@ -33,6 +35,7 @@ From the haystack repo root:
 
 What it does:
 
+0. Reuses `.current-run` when doctor would pass. Otherwise, if `.next/dev/lock` is held by a prior verify frontend, cleans that run first.
 1. Picks the first free frontend port in 3457-3464 and backend port in 8015-8022 (`lsof` listen check). Refuses 3000 and 8000.
 2. Snapshots listeners on 3000 and 8000 for isolation proof. Does not touch those processes.
 3. Restores the frontend toolchain when `frontend/node_modules/.bin/next` is missing (`helpers/ensure-frontend.py`).
@@ -73,7 +76,7 @@ FEATURE=backend-contract .cursor/skills/verify-haystack/helpers/http backend-con
 FEATURE=empty-ticker .cursor/skills/verify-haystack/helpers/http empty-ticker
 ```
 
-`backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture only when `VERIFY_FIXTURE=1`, `helpers/http backend-analyze TICKER --fixture` / `--local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1`. Launch never sets `HAYSTACK_PREFER_FIXTURE`.
+`backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture when `VERIFY_FIXTURE=1` or `helpers/http backend-analyze TICKER --fixture` / `--local` (CLI `--local`). Launch never sets `HAYSTACK_PREFER_FIXTURE`.
 
 Optional browser (Analyze click / screenshot) **and required Next issues gate**. `browser.cjs snapshot|analyze|check-issues` fails if the Next.js Dev Tools badge shows a visible `1 Issue` / `N Issues` (`data-next-badge[data-error=true]`). A prove that ignores that badge is **invalid**. If Playwright/Chromium is missing, `snapshot`/`analyze` write `browser-skipped.txt` and exit 0 (HTTP proof still stands), but `check-issues` exits 2 (hard-flag: gate not run). Doctor and `helpers/http home` invoke `check-issues`.
 
@@ -90,10 +93,10 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - `input[placeholder="enter stock ticker e.g. AAPL"]`
 - `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
 - footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.`
-- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 4)
-- Document title `Create Next App` (layout metadata, not LongMuch)
-- Next API path `/api/analyze/:ticker` (currently 404)
-- FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; `?fixture=1` only when explicitly requested), GET `/contract` on the backend origin only
+- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 5)
+- Document title `LongMuch - How much? How long?` (layout metadata)
+- Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
+- FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; fixture via `HAYSTACK_PREFER_FIXTURE` or CLI `--local` only), GET `/contract` on the backend origin only
 
 ## Evidence
 
@@ -109,7 +112,7 @@ Proof standards:
 - Exercise the real user path (browser or HTTP to the Next page). Do not treat `unittest` `TestClient` as the only proof of `/health`.
 - Capture the action and the resulting HTML, not only the final screen.
 - Homepage GET has no side effects (no writes, no EDGAR).
-- Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (`?fixture=1`, CLI `--local`, `VERIFY_FIXTURE=1`, or caller `HAYSTACK_PREFER_FIXTURE=1`). The hardcoded table in `page.tsx` is a separate React-tree fixture — when proving `analyze-results`, distinguish mock KPI JSON from that hardcoded table (only rendered after `data` is set).
+- Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (CLI `--local`, `VERIFY_FIXTURE=1` / helper `--fixture` via CLI, or backend-process `HAYSTACK_PREFER_FIXTURE=1`). The `?fixture=` query is ignored. The table appears only after client `data` is set; SSR `/` has no metric rows.
 - **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`helpers/browser.cjs check-issues`); SSR/curl cannot see it.
 
 Feature recipes: `features/README.md` and one file per feature.
@@ -141,3 +144,5 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 ## Maintenance
 
 Keep the map honest with `/maintain-verification-skill` as the UI changes.
+
+If an implementation change alters copy, placeholders, locked labels, schema version, or contract fields that helpers grep, update `helpers/http`, `helpers/browser.cjs`, Stable handles above, and the matching `features/*.md` **in that same change**. Do not wait for `/verify-haystack` to discover drift.

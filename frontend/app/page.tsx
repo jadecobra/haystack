@@ -4,7 +4,11 @@ import { Card, DataTable } from './components';
 
 import { useState } from 'react';
 
-type MetricRow = { metric: string; values: Record<string, string> };
+type MetricRow = {
+  metric: string;
+  values: Record<string, string>;
+  raw?: Record<string, number | null>;
+};
 
 type Analysis = {
   ticker: string;
@@ -14,6 +18,7 @@ type Analysis = {
   status?: string;
   message?: string;
   error?: string;
+  treasury_label?: string;
   treasury_dgs30_pct?: number | null;
   treasury_dgs30_as_of?: string | null;
   previous_close?: number | null;
@@ -66,13 +71,14 @@ export default function Home() {
       ? `30Y Treasury (DGS30): ${Number(data.treasury_dgs30_pct).toFixed(2)}% as of ${data.treasury_dgs30_as_of}`
       : null;
 
+  const treasuryLabel = data?.treasury_label;
   const headers = data ? ['Metric', ...data.years] : [];
   const rows = data
     ? data.rows.map((row) => {
         const metricLabel =
-          row.metric === "Owner Earnings / 30 Year Treasury per Share" && dgs30Line ? (
+          treasuryLabel && row.metric === treasuryLabel && dgs30Line ? (
             <>
-              <div>Owner Earnings / 30 Year Treasury per Share</div>
+              <div>{treasuryLabel}</div>
               <div
                 className="text-xs text-zinc-500 font-normal mt-0.5 whitespace-normal"
                 data-testid="dgs30-as-of"
