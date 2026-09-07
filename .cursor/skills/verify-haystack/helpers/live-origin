@@ -25,9 +25,10 @@ mkdir -p "$EVIDENCE"
 
 http_code() {
   local out="$1" url="$2"
+  local limit="${3:-25}"
   local code
   set +e
-  code="$(curl -sS -o "$out" -w '%{http_code}' --max-time 25 "$url")"
+  code="$(curl -sS -o "$out" -w '%{http_code}' --max-time "$limit" "$url")"
   local rc=$?
   set -e
   if [[ "$rc" -ne 0 || -z "$code" ]]; then
@@ -57,10 +58,14 @@ if grep -q 'Create Next App' "$web_html"; then
 fi
 
 contract_body="$EVIDENCE/contract.json"
-api_code="$(http_code "$contract_body" "$LIVE_API/contract")"
+# Render free sleeps. Cold /contract often exceeds 25s.
+api_code="$(http_code "$contract_body" "$LIVE_API/contract" 90)"
+if [[ "$api_code" != "200" ]]; then
+  api_code="$(http_code "$contract_body" "$LIVE_API/contract" 90)"
+fi
 echo "$api_code" > "$EVIDENCE/contract.status"
 echo "GET $LIVE_API/contract -> HTTP $api_code"
-[[ "$api_code" == "200" ]] || die "live API /contract not 200 (got $api_code). Frontend 200 is not enough."
+[[ "$api_code" == "200" ]] || die "live API /contract not 200 (got $api_code). Frontend 200 is not enough. Render may still be asleep."
 grep -q 'schema_version' "$contract_body" || die "live /contract missing schema_version"
 
 local_contract="$(cd "$REPO_ROOT" && uv run longmuch contract 2>/dev/null)" || die "uv run longmuch contract failed"
