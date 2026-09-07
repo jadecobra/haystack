@@ -30,6 +30,7 @@ This directory is the maintained source for verifying the user-facing behavior o
 - Report an unreachable path with the attempted command and the unmet precondition.
 - Do not report a skipped entry point as verified through a different path.
 - Prove Next `/api/analyze/:ticker` against the live response. If it 404s, record that; if it returns the locked table, prove the labels from GET `/contract`.
+- Isolated doctor is not www.longmuch.com. After merge, `helpers/live-origin` must pass (public title + Render `/contract` vs this checkout) before calling the product shipped.
 
 ## Feature entry contract
 

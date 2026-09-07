@@ -32,7 +32,7 @@ Preconditions:
 
 ## Gotchas
 
-- Document title and `h1` both say LongMuch. Prefer `h1` for identity; `<title>` should match `LongMuch - How much? How long?`.
+- Document title and `h1` both say LongMuch. Prefer `h1` for identity; `<title>` should match `LongMuch - How much? How long?`. Isolated `helpers/http home` does not prove www.longmuch.com. Use `helpers/live-origin` for that.
 - Homepage is `'use client'`. SSR still emits the heading, placeholder, and Analyze button; KPI cards and the 5-year table are not in the first HTML.
 - Agent orchestrator `ao start` also wants :3000. This skill never uses that origin.
 - Analyze is disabled while the ticker is empty, so the SSR button has a `disabled` attribute. That is expected on first paint.

@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Production ship gate. Isolated helpers/http is not this.
+# Default origins: https://www.longmuch.com and https://longmuch-api.onrender.com
+# Override with LIVE_WEB and LIVE_API.
+#
+# Usage:
+#   FEATURE=live-origin helpers/live-origin
+#
+# Pass when public HTML title matches layout metadata AND public /contract
+# schema_version matches `uv run longmuch contract`. Isolated doctor green
+# is not enough to call the product shipped.
+
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib.sh"
+
+LIVE_WEB="${LIVE_WEB:-https://www.longmuch.com}"
+LIVE_API="${LIVE_API:-https://longmuch-api.onrender.com}"
+EXPECTED_TITLE="LongMuch - How much? How long?"
+
+FEATURE="${FEATURE:-live-origin}"
+EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+mkdir -p "$EVIDENCE"
+
+http_code() {
+  local out="$1" url="$2"
+  local code
+  set +e
+  code="$(curl -sS -o "$out" -w '%{http_code}' --max-time 25 "$url")"
+  local rc=$?
+  set -e
+  if [[ "$rc" -ne 0 || -z "$code" ]]; then
+    echo "000"
+  else
+    echo "$code"
+  fi
+}
+
+web_html="$EVIDENCE/home.html"
+web_code="$(http_code "$web_html" "$LIVE_WEB/")"
+echo "$web_code" > "$EVIDENCE/home.status"
+title="$(html_title "$web_html")"
+{
+  echo "feature=$FEATURE"
+  echo "url=$LIVE_WEB/"
+  echo "http_status=$web_code"
+  echo "title=$title"
+  echo "create_next_app_count=$(html_count "$web_html" 'Create Next App')"
+  echo "longmuch_title_count=$(html_count "$web_html" "$EXPECTED_TITLE")"
+} > "$EVIDENCE/home.meta.txt"
+echo "GET $LIVE_WEB/ -> HTTP $web_code title=$title"
+[[ "$web_code" == "200" ]] || die "live web GET not 200 (got $web_code)"
+[[ "$title" == "$EXPECTED_TITLE" ]] || die "live title is not $EXPECTED_TITLE (got $title). Isolated prove is not production."
+if grep -q 'Create Next App' "$web_html"; then
+  die "live HTML still contains Create Next App"
+fi
+
+contract_body="$EVIDENCE/contract.json"
+api_code="$(http_code "$contract_body" "$LIVE_API/contract")"
+echo "$api_code" > "$EVIDENCE/contract.status"
+echo "GET $LIVE_API/contract -> HTTP $api_code"
+[[ "$api_code" == "200" ]] || die "live API /contract not 200 (got $api_code). Frontend 200 is not enough."
+grep -q 'schema_version' "$contract_body" || die "live /contract missing schema_version"
+
+local_contract="$(cd "$REPO_ROOT" && uv run longmuch contract 2>/dev/null)" || die "uv run longmuch contract failed"
+python3 - "$contract_body" "$local_contract" <<'PY' || die "live /contract schema_version does not match this checkout"
+import json, sys
+live = json.load(open(sys.argv[1], encoding="utf-8"))
+local = json.loads(sys.argv[2])
+lv = live.get("schema_version")
+lc = local.get("schema_version")
+print(f"live_schema={lv} local_schema={lc}")
+raise SystemExit(0 if lv == lc and lv is not None else 1)
+PY
+
+echo "live-origin ok title=$title schema matches checkout"

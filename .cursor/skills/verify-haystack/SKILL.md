@@ -1,6 +1,6 @@
 ---
 name: verify-haystack
-description: "Drive LongMuch / haystack Next.js web UI (ticker search, 5-year 10-K metrics) plus FastAPI sidecar on isolated ports. Use when proving homepage Analyze, KPI/table rendering, GET /health, or GET /analyze without attaching to :3000 or :8000."
+description: "Drive LongMuch / haystack Next.js web UI (ticker search, 5-year 10-K metrics) plus FastAPI sidecar on isolated ports, or prove www.longmuch.com is shipped. Use when proving homepage Analyze, KPI/table rendering, GET /health, GET /analyze, or production title+/contract after merge, without attaching to :3000 or :8000."
 ---
 
 # Verify haystack (LongMuch)
@@ -114,6 +114,7 @@ Proof standards:
 - Homepage GET has no side effects (no writes, no EDGAR).
 - Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (CLI `--local`, `VERIFY_FIXTURE=1` / helper `--fixture` via CLI, or backend-process `HAYSTACK_PREFER_FIXTURE=1`). The `?fixture=` query is ignored. The table appears only after client `data` is set; SSR `/` has no metric rows.
 - **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`helpers/browser.cjs check-issues`); SSR/curl cannot see it.
+- **Live origin (ship).** Isolated doctor on 3457–3464 / 8015–8022 is not production. Merged `main` is git, not runtime. Vercel HTML and Render `/contract` deploy independently. Do not call the product shipped until `helpers/live-origin` passes: public HTML `<title>` is `LongMuch - How much? How long?` (no `Create Next App`) **and** `GET {LIVE_API}/contract` `schema_version` matches `uv run longmuch contract` from this checkout. Frontend 200 with an `h1` of LongMuch is not enough. Defaults: `LIVE_WEB=https://www.longmuch.com`, `LIVE_API=https://longmuch-api.onrender.com`. If live lags the checkout, inspect the deploy job. Do not treat isolated `helpers/http home` as that gate.
 
 Feature recipes: `features/README.md` and one file per feature.
 
@@ -134,6 +135,7 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 - `helpers/launch` — isolated frontend + backend
 - `helpers/doctor` — read-only health plus isolation gate
 - `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker` — curl against isolated origins
+- `helpers/live-origin` — production ship gate (www.longmuch.com title + Render `/contract` vs local schema)
 - `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
 - `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)
 - `node helpers/browser.cjs check-issues` — fail if Next.js shows a visible Issues badge
