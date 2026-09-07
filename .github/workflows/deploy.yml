@@ -1,10 +1,12 @@
-# Production deploy for the Next.js site (frontend/) on every push to main.
+# Production: Vercel frontend then live-origin gate (title + Render /contract).
+# deploy-frontend success is not ship. prove-live must pass.
 #
 # Required GitHub secrets:
 #   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
 #
 # Set BACKEND_ORIGIN (Render API URL) in the Vercel project env, not here.
-# Render longmuch-api already auto-deploys on commit (render.yaml).
+# Render longmuch-api is a separate host. Trigger it (CLI or dashboard)
+# so /contract matches this checkout before calling the job done.
 
 name: Deploy website
 
@@ -47,3 +49,12 @@ jobs:
       - name: Deploy
         working-directory: frontend
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  prove-live:
+    needs: deploy-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: Live origin gate
+        run: FEATURE=live-origin .cursor/skills/verify-haystack/helpers/live-origin
