@@ -96,8 +96,8 @@ export default function Home() {
   const sourceLabel = (data?.source || "api").toUpperCase();
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white flex items-start sm:items-center justify-center overflow-x-hidden">
-      <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 py-10 sm:py-16">
+    <main className="min-h-dvh bg-zinc-950 text-white flex items-center justify-center overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 py-8 sm:py-16">
         <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tighter mb-3 sm:mb-6">
           LongMuch
         </h1>
