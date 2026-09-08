@@ -3,6 +3,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import httpx
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -204,6 +206,134 @@ class TestQuote(unittest.TestCase):
                 return _Resp()
 
         return _Client
+
+    def _client_by_url(self, *, yahoo, nasdaq, calls: list):
+        class _Yahoo403:
+            def raise_for_status(self):
+                raise httpx.HTTPStatusError(
+                    "forbidden",
+                    request=httpx.Request("GET", "https://query1.finance.yahoo.com"),
+                    response=httpx.Response(403),
+                )
+
+            def json(self):
+                return {}
+
+        class _YahooEmpty:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {"chart": {"result": []}}
+
+        class _YahooNullPrevious:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {
+                    "chart": {
+                        "result": [
+                            {
+                                "meta": {
+                                    "previousClose": None,
+                                    "chartPreviousClose": 319.97,
+                                    "regularMarketTime": 1757001600,
+                                }
+                            }
+                        ]
+                    }
+                }
+
+        class _NasdaqOk:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {
+                    "data": {
+                        "summaryData": {
+                            "PreviousClose": {"value": "$319.97"}
+                        }
+                    }
+                }
+
+        yahoo_map = {
+            "403": _Yahoo403,
+            "empty": _YahooEmpty,
+            "chartPreviousClose": _YahooNullPrevious,
+        }
+        nasdaq_map = {"ok": _NasdaqOk}
+
+        class _Client:
+            def __init__(self, *args, **kwargs):
+                self.headers = kwargs.get("headers") or {}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, url, *args, **kwargs):
+                calls.append((url, dict(self.headers)))
+                if "yahoo.com" in url:
+                    return yahoo_map[yahoo]()
+                if "nasdaq.com" in url:
+                    return nasdaq_map[nasdaq]()
+                raise AssertionError(url)
+
+        return _Client
+
+    def test_previous_close_yahoo_403_falls_back_to_nasdaq(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch(
+            "app.quote.httpx.Client",
+            self._client_by_url(yahoo="403", nasdaq="ok", calls=calls),
+        ):
+            quote = previous_close("AAPL")
+        self.assertIsNotNone(quote)
+        self.assertEqual(quote["price"], 319.97)
+        self.assertIsNone(quote["as_of"])
+        self.assertTrue(any("yahoo.com" in c[0] for c in calls))
+        nasdaq_calls = [c for c in calls if "nasdaq.com" in c[0]]
+        self.assertEqual(len(nasdaq_calls), 1)
+        headers = nasdaq_calls[0][1]
+        self.assertIn("Mozilla", headers.get("User-Agent", ""))
+        self.assertEqual(headers.get("Accept"), "application/json")
+        self.assertEqual(headers.get("Origin"), "https://www.nasdaq.com")
+        self.assertEqual(headers.get("Referer"), "https://www.nasdaq.com")
+
+    def test_previous_close_yahoo_empty_falls_back_to_nasdaq(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch(
+            "app.quote.httpx.Client",
+            self._client_by_url(yahoo="empty", nasdaq="ok", calls=calls),
+        ):
+            quote = previous_close("AAPL")
+        self.assertIsNotNone(quote)
+        self.assertEqual(quote["price"], 319.97)
+        self.assertIsNone(quote["as_of"])
+
+    def test_previous_close_parses_chart_previous_close_when_previous_close_null(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch(
+            "app.quote.httpx.Client",
+            self._client_by_url(
+                yahoo="chartPreviousClose", nasdaq="ok", calls=calls
+            ),
+        ):
+            quote = previous_close("AAPL")
+        self.assertIsNotNone(quote)
+        self.assertEqual(quote["price"], 319.97)
+        self.assertEqual(quote["as_of"], "2025-09-04")
+        self.assertTrue(all("nasdaq.com" not in c[0] for c in calls))
 
     def test_previous_close_parses_yahoo_meta(self):
         from app.quote import previous_close
