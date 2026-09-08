@@ -1,8 +1,8 @@
-"""Previous-close quote via Yahoo Finance chart (no API key).
+"""Previous-close quote (no API key).
 
-Previous close is a daily figure. Cache 24h (memory + disk) so repeat Analyze
-hits for the same ticker do not call Yahoo. In-flight requests coalesce.
-Stale disk is used only if Yahoo fails.
+Yahoo chart first. NASDAQ summary if Yahoo fails or returns nothing.
+Cache 24h (memory + disk). In-flight requests coalesce.
+Stale disk is used only if both fetches fail.
 """
 
 from __future__ import annotations
@@ -79,10 +79,55 @@ def _parse_yahoo(payload: dict[str, Any]) -> dict[str, Any] | None:
 def _fetch_yahoo(ticker: str) -> dict[str, Any] | None:
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
     with httpx.Client(timeout=10.0, headers={"User-Agent": _UA}) as client:
-        # 1d range: previousClose is in chart meta; no extra history needed.
         resp = client.get(url, params={"range": "1d", "interval": "1d"})
         resp.raise_for_status()
         return _parse_yahoo(resp.json())
+
+
+def _parse_nasdaq(payload: dict[str, Any]) -> dict[str, Any] | None:
+    data = payload.get("data") or {}
+    summary = data.get("summaryData") or {}
+    raw = (summary.get("PreviousClose") or {}).get("value")
+    if raw is None:
+        return None
+    text = str(raw).replace("$", "").replace(",", "").strip()
+    if not text:
+        return None
+    try:
+        price = round(float(text), 2)
+    except (TypeError, ValueError):
+        return None
+    return {"price": price, "as_of": None}
+
+
+def _fetch_nasdaq(ticker: str) -> dict[str, Any] | None:
+    url = f"https://api.nasdaq.com/api/quote/{ticker}/summary"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json",
+        "Origin": "https://www.nasdaq.com",
+        "Referer": "https://www.nasdaq.com",
+    }
+    with httpx.Client(timeout=10.0, headers=headers) as client:
+        resp = client.get(url, params={"assetclass": "stocks"})
+        resp.raise_for_status()
+        return _parse_nasdaq(resp.json())
+
+
+def _fetch_quote(ticker: str) -> dict[str, Any] | None:
+    try:
+        yahoo = _fetch_yahoo(ticker)
+    except Exception:
+        yahoo = None
+    if yahoo is not None:
+        return yahoo
+    try:
+        return _fetch_nasdaq(ticker)
+    except Exception:
+        return None
 
 
 def previous_close(ticker: str) -> dict[str, Any] | None:
@@ -119,7 +164,7 @@ def previous_close(ticker: str) -> dict[str, Any] | None:
             future.set_result(fresh)
             return dict(fresh)
 
-        fetched = _fetch_yahoo(symbol)
+        fetched = _fetch_quote(symbol)
         if fetched is not None:
             _write_disk(symbol, fetched)
             with _lock:
