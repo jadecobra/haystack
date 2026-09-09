@@ -2,34 +2,7 @@
 
 Instant 5-year 10-K metrics. No paywall. No bloat.
 
-* **Comprehensive Metric Calculation:** Calculates and displays a wide array of financial ratios and per-share metrics, including:
-
-    * **Ratios:**
-        - Net Income/Revenue
-        - Net Income/Equity
-        - Net Income/Assets
-        - Net Income/Total Liabilities
-        - Net Income/Debt
-        - Owner Earnings/Revenue
-        - Owner Earnings/Equity
-        - Owner Earnings/Assets
-        - Owner Earnings/Total Liabilities
-        - Owner Earnings/Debt
-        - Dividends/Net Income
-        - Dividends/Owner Earnings
-        - Dividends/Equity
-
-    * **Per Share Metrics:**
-        - Debt per Share
-        - Revenue per Share
-        - Net Income per Share
-        - Owner Earnings per Share
-        - Dividends per Share
-        - Equity per Share
-        - Assets per Share
-        - Cash per Share
-        - Liabilities per Share
-        - Owner Earnings/30 yr Treasury per Share
+Row names and order live in `backend/app/metrics.py` (`LOCKED_LABELS`). `uv run longmuch contract` prints them. `spec.md` must list the same strings.
 
 ## Quick Start
 
@@ -38,10 +11,7 @@ Instant 5-year 10-K metrics. No paywall. No bloat.
 cd backend && uv sync && uv run uvicorn app.main:app --reload --port 8000
 
 # Terminal 2 — Frontend
-cd frontend && npm run dev
-
-# Terminal 3 — Agent Orchestrator
-ao start   # opens dashboard at http://localhost:3000
+cd frontend && pnpm install && pnpm dev
 
 # CLI (JSON on stdout)
 uv run longmuch health --base http://127.0.0.1:8000
