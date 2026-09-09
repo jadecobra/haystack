@@ -264,7 +264,10 @@ PY
     grep -q 'Owner Earnings / Last Close Price' "$EVIDENCE/docs.html" || die "docs HTML missing OE/close label"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$EVIDENCE/docs.html" || die "docs HTML missing treasury label"
     grep -q '30 Year Treasury (DGS30)' "$EVIDENCE/docs.html" || die "docs HTML missing DGS30 row"
-    grep -q 'Two DGS30 clocks' "$EVIDENCE/docs.html" || die "docs HTML missing DGS30 primer"
+    grep -q 'Federal Reserve Economic Data' "$EVIDENCE/docs.html" || die "docs HTML missing FRED spelling"
+    grep -q 'Electronic Data Gathering, Analysis, and Retrieval' "$EVIDENCE/docs.html" || die "docs HTML missing EDGAR spelling"
+    grep -q 'Generally Accepted Accounting Principles' "$EVIDENCE/docs.html" || die "docs HTML missing US-GAAP spelling"
+    grep -q 'NASDAQ Stock Market' "$EVIDENCE/docs.html" || die "docs HTML missing NASDAQ spelling"
     echo "metrics-docs ok h1=$(html_h1 "$EVIDENCE/docs.html") title=$(html_title "$EVIDENCE/docs.html")"
     ;;
   empty-ticker)

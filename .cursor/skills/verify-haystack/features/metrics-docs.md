@@ -5,7 +5,7 @@ The public `/docs` page explains how locked table metrics are calculated and how
 ## Sub-features
 
 - `docs-heading` shows `h1` `How metrics are calculated`.
-- `docs-primer` covers owner earnings, sources, table contract, two DGS30 clocks, and last close.
+- `docs-primer` covers owner earnings, sources, and last close in plain English bullets.
 - `docs-catalog` lists all 26 locked labels in contract order.
 - `docs-home-link` is reachable from `/` via `How metrics are calculated`.
 
@@ -22,7 +22,7 @@ Preconditions:
 - `helpers/doctor` reports `DOCTOR PASS`.
 - Do not use `http://127.0.0.1:3000`.
 
-- **Open docs.** Run `FEATURE=metrics-docs .cursor/skills/verify-haystack/helpers/http docs`. HTTP 200. HTML contains `How metrics are calculated`, `Owner Earnings / Last Close Price`, `Owner Earnings / 30 Year Treasury per Share`, `30 Year Treasury (DGS30)`, and `Two DGS30 clocks`.
+- **Open docs.** Run `FEATURE=metrics-docs .cursor/skills/verify-haystack/helpers/http docs`. HTTP 200. HTML contains `How metrics are calculated`, spelled-out EDGAR / US-GAAP / FRED / NASDAQ, `Owner Earnings / Last Close Price`, `Owner Earnings / 30 Year Treasury per Share`, and `30 Year Treasury (DGS30)`. No Table contract or Two DGS30 clocks copy.
 - **Home still links.** Run `FEATURE=home-search .cursor/skills/verify-haystack/helpers/http home`. HTML contains `How metrics are calculated`.
 - **Proof.** Keep `artifacts/metrics-docs/docs.html` and `docs.status`.
 

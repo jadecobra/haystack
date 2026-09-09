@@ -6,7 +6,7 @@ import { resolveDocsModel } from "@/lib/metrics-catalog";
 
 export const metadata = {
   title: "How metrics are calculated - LongMuch",
-  description: "Formulas and display rules for LongMuch locked metrics.",
+  description: "How LongMuch metrics are calculated and what they mean.",
 };
 
 export default function DocsPage() {
@@ -28,8 +28,7 @@ export default function DocsPage() {
           {model.title}
         </h1>
         <p className="text-zinc-400 mb-10 sm:mb-12 text-base sm:text-lg">
-          Reference for the Analyze table. Display strings come from the
-          backend. This page explains them.
+          What each row on the Analyze table means.
         </p>
 
         <section className="space-y-4 mb-12 sm:mb-16">
@@ -47,9 +46,11 @@ export default function DocsPage() {
               >
                 {block.heading}
               </h3>
-              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                {block.body}
-              </p>
+              <ul className="list-disc pl-5 space-y-2 text-zinc-400 text-sm sm:text-base leading-relaxed">
+                {block.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </Card>
           ))}
         </section>
@@ -79,10 +80,6 @@ export default function DocsPage() {
                 <div>
                   <dt className="text-zinc-500">Meaning</dt>
                   <dd className="text-zinc-300 mt-0.5">{entry.meaning}</dd>
-                </div>
-                <div>
-                  <dt className="text-zinc-500">Display</dt>
-                  <dd className="text-zinc-300 mt-0.5">{entry.formatNote}</dd>
                 </div>
               </dl>
             </Card>
