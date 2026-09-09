@@ -131,6 +131,7 @@ case "$cmd" in
     echo "  body=$(head -c 200 "$body")"
     [[ "$code" == "200" ]] || die "analyze-api not 200 (got $code)"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "analyze JSON missing Owner Earnings / 30 Year Treasury per Share"
+    grep -q 'Owner Earnings Yield' "$body" || die "analyze JSON missing Owner Earnings Yield"
     grep -q '"rows"' "$body" || die "analyze JSON missing rows"
     http_get "$FRONTEND_ORIGIN" / home-after-api >/dev/null
     table_count="$(html_count "$EVIDENCE/home-after-api.html" '5-Year Financial Metrics')"
@@ -207,6 +208,7 @@ case "$cmd" in
     echo "GET $url -> HTTP $code (mode=$mode)"
     [[ "$code" == "200" ]] || die "backend /analyze not 200 (got $code; mode=$mode)"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "analyze JSON missing treasury label"
+    grep -q 'Owner Earnings Yield' "$body" || die "analyze JSON missing Owner Earnings Yield"
     if [[ "$use_fixture" == "1" ]]; then
       python3 - "$body" <<'PY' || die "fixture mode expected source=fixture"
 import json, sys
@@ -245,7 +247,10 @@ PY
     echo "GET $url -> HTTP $code"
     [[ "$code" == "200" ]] || die "backend /contract not 200"
     grep -q 'schema_version' "$body" || die "contract JSON missing schema_version"
+    grep -q '"schema_version":"6"' "$body" || die "contract JSON schema_version is not 6"
+    grep -q '"row_count":26' "$body" || die "contract JSON row_count is not 26"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
+    grep -q 'Owner Earnings Yield' "$body" || die "contract JSON missing Owner Earnings Yield"
     ;;
   empty-ticker)
     FEATURE="${FEATURE:-empty-ticker}"

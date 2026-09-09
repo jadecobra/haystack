@@ -36,6 +36,7 @@ The following metrics will be calculated year-over-year for the available 5 year
     * Owner Earnings / Assets
     * Owner Earnings / Total Liabilities
     * Owner Earnings / Debt
+    * Owner Earnings Yield (Owner Earnings per Share / last close; same last close for all years in the 5-year table)
     * Dividends / Net Income
     * Dividends / Owner Earnings
     * Dividends / Equity

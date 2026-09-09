@@ -34,7 +34,8 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     use_fixture = prefer_fixture or _env_force_fixture()
     if use_fixture:
         years, statements, treasury = fixture.statements_for(ticker)
-        rows = build_table(years, statements, treasury)
+        prev_close = 100.0
+        rows = build_table(years, statements, treasury, previous_close=prev_close)
         pct, as_of = _fixture_dgs30_meta(treasury)
         return {
             "ticker": ticker,
@@ -46,7 +47,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "treasury_label": TREASURY_LABEL,
             "treasury_dgs30_pct": pct,
             "treasury_dgs30_as_of": as_of,
-            "previous_close": 100.0,
+            "previous_close": prev_close,
             "previous_close_as_of": None,
         }
 
@@ -66,8 +67,6 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         treasury = fred.treasury_for_years(years)
     except Exception:
         treasury = {}
-
-    rows = build_table(years, statements, treasury)
 
     gaps: list[str] = []
     for y in years:
@@ -101,6 +100,8 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             prev_close_as_of = str(as_of_q) if as_of_q else None
     except Exception:
         pass
+
+    rows = build_table(years, statements, treasury, previous_close=prev_close)
 
     return {
         "ticker": ticker,

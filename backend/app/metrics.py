@@ -15,6 +15,7 @@ RATIO_LABELS = [
     "Owner Earnings / Assets",
     "Owner Earnings / Total Liabilities",
     "Owner Earnings / Debt",
+    "Owner Earnings Yield",
     "Dividends / Net Income",
     "Dividends / Owner Earnings",
     "Dividends / Equity",
@@ -38,7 +39,7 @@ PER_SHARE_LABELS = [
 LOCKED_LABELS = RATIO_LABELS + PER_SHARE_LABELS
 TREASURY_LABEL = "Owner Earnings / 30 Year Treasury per Share"
 
-SCHEMA_VERSION = "5"
+SCHEMA_VERSION = "6"
 
 FIELDS = (
     "revenue",
@@ -99,7 +100,11 @@ def _fmt_shares(value: float | None) -> str:
     return f"{sign}{abs_v:,.0f}"
 
 
-def compute_year(stmt: dict[str, Any], treasury_yield: float | None) -> dict[str, float | None]:
+def compute_year(
+    stmt: dict[str, Any],
+    treasury_yield: float | None,
+    previous_close: float | None = None,
+) -> dict[str, float | None]:
     s = {k: _num(stmt.get(k)) for k in FIELDS}
     shares = s["shares"]
     ni = s["net_income"]
@@ -107,6 +112,7 @@ def compute_year(stmt: dict[str, Any], treasury_yield: float | None) -> dict[str
     div = s["dividends"]
     fcf_ps = _ratio(fcf, shares)
     ty = _num(treasury_yield)
+    close = _num(previous_close)
     return {
         "Net Income / Revenue": _ratio(ni, s["revenue"]),
         "Net Income / Equity": _ratio(ni, s["equity"]),
@@ -118,6 +124,7 @@ def compute_year(stmt: dict[str, Any], treasury_yield: float | None) -> dict[str
         "Owner Earnings / Assets": _ratio(fcf, s["assets"]),
         "Owner Earnings / Total Liabilities": _ratio(fcf, s["total_liabilities"]),
         "Owner Earnings / Debt": _ratio(fcf, s["debt"]),
+        "Owner Earnings Yield": _ratio(fcf_ps, close),
         "Dividends / Net Income": _ratio(div, ni),
         "Dividends / Owner Earnings": _ratio(div, fcf),
         "Dividends / Equity": _ratio(div, s["equity"]),
@@ -143,6 +150,8 @@ def _fmt_yield(value: float | None) -> str:
 
 
 def format_cell(label: str, value: float | None) -> str:
+    if label == "Owner Earnings Yield":
+        return _fmt_yield(value)
     if label in RATIO_LABELS:
         return _fmt_pct(value)
     if label == "Shares Outstanding":
@@ -156,11 +165,16 @@ def build_table(
     years: list[int],
     statements: dict[int, dict[str, Any]],
     treasury_by_year: dict[int, float] | None = None,
+    previous_close: float | None = None,
 ) -> list[dict[str, Any]]:
     treasury_by_year = treasury_by_year or {}
     computed: dict[int, dict[str, float | None]] = {}
     for year in years:
-        computed[year] = compute_year(statements.get(year, {}), treasury_by_year.get(year))
+        computed[year] = compute_year(
+            statements.get(year, {}),
+            treasury_by_year.get(year),
+            previous_close,
+        )
     rows = []
     for label in LOCKED_LABELS:
         raw = {str(year): computed[year].get(label) for year in years}
