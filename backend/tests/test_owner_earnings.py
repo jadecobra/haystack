@@ -121,7 +121,7 @@ class TestOcfFallbacks(unittest.TestCase):
     def test_map_null_without_ocf_or_maint(self):
         payload = _facts(NetIncomeLoss=[_usd(2024, 100)])
         years, statements = map_companyfacts_to_statements(payload)
-        self.assertIsNone(statements[2024]["fcf"])
+        self.assertIsNone(statements[2024]["owner_earnings"])
 
     def test_map_end_to_end_reported(self):
         payload = _facts(
@@ -132,7 +132,7 @@ class TestOcfFallbacks(unittest.TestCase):
             DepreciationAndAmortization=[_usd(2024, 10)],
         )
         _, statements = map_companyfacts_to_statements(payload)
-        self.assertEqual(statements[2024]["fcf"], 40 - 10)
+        self.assertEqual(statements[2024]["owner_earnings"], 40 - 10)
 
 
 if __name__ == "__main__":

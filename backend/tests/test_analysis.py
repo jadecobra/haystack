@@ -31,7 +31,7 @@ class TestMetrics(unittest.TestCase):
             "assets": 200,
             "total_liabilities": 150,
             "debt": 40,
-            "fcf": 20,
+            "owner_earnings": 20,
             "dividends": 5,
             "shares": 10,
             "cash": 8,
@@ -68,7 +68,7 @@ class TestMetrics(unittest.TestCase):
             "assets": 200,
             "total_liabilities": 150,
             "debt": 40,
-            "fcf": 20,
+            "owner_earnings": 20,
             "dividends": 5,
             "shares": 10,
             "cash": 8,
@@ -79,7 +79,7 @@ class TestMetrics(unittest.TestCase):
         yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "—")
 
-    def test_owner_earnings_yield_missing_fcf(self):
+    def test_owner_earnings_yield_missing_owner_earnings(self):
         stmt = {
             "revenue": 100,
             "net_income": 10,
@@ -87,7 +87,7 @@ class TestMetrics(unittest.TestCase):
             "assets": 200,
             "total_liabilities": 150,
             "debt": 40,
-            "fcf": None,
+            "owner_earnings": None,
             "dividends": 5,
             "shares": 10,
             "cash": 8,

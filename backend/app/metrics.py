@@ -48,7 +48,7 @@ FIELDS = (
     "assets",
     "total_liabilities",
     "debt",
-    "fcf",
+    "owner_earnings",
     "dividends",
     "shares",
     "cash",
@@ -108,9 +108,9 @@ def compute_year(
     s = {k: _num(stmt.get(k)) for k in FIELDS}
     shares = s["shares"]
     ni = s["net_income"]
-    fcf = s["fcf"]
+    owner_earnings = s["owner_earnings"]
     div = s["dividends"]
-    fcf_ps = _ratio(fcf, shares)
+    oe_ps = _ratio(owner_earnings, shares)
     ty = _num(treasury_yield)
     close = _num(previous_close)
     return {
@@ -119,26 +119,26 @@ def compute_year(
         "Net Income / Assets": _ratio(ni, s["assets"]),
         "Net Income / Total Liabilities": _ratio(ni, s["total_liabilities"]),
         "Net Income / Debt": _ratio(ni, s["debt"]),
-        "Owner Earnings / Revenue": _ratio(fcf, s["revenue"]),
-        "Owner Earnings / Equity": _ratio(fcf, s["equity"]),
-        "Owner Earnings / Assets": _ratio(fcf, s["assets"]),
-        "Owner Earnings / Total Liabilities": _ratio(fcf, s["total_liabilities"]),
-        "Owner Earnings / Debt": _ratio(fcf, s["debt"]),
-        "Owner Earnings / Last Close Price": _ratio(fcf_ps, close),
+        "Owner Earnings / Revenue": _ratio(owner_earnings, s["revenue"]),
+        "Owner Earnings / Equity": _ratio(owner_earnings, s["equity"]),
+        "Owner Earnings / Assets": _ratio(owner_earnings, s["assets"]),
+        "Owner Earnings / Total Liabilities": _ratio(owner_earnings, s["total_liabilities"]),
+        "Owner Earnings / Debt": _ratio(owner_earnings, s["debt"]),
+        "Owner Earnings / Last Close Price": _ratio(oe_ps, close),
         "Dividends / Net Income": _ratio(div, ni),
-        "Dividends / Owner Earnings": _ratio(div, fcf),
+        "Dividends / Owner Earnings": _ratio(div, owner_earnings),
         "Dividends / Equity": _ratio(div, s["equity"]),
         "Shares Outstanding": shares,
         "Debt per Share": _ratio(s["debt"], shares),
         "Revenue per Share": _ratio(s["revenue"], shares),
         "Net Income per Share": _ratio(ni, shares),
-        "Owner Earnings per Share": fcf_ps,
+        "Owner Earnings per Share": oe_ps,
         "Dividends per Share": _ratio(div, shares),
         "Equity per Share": _ratio(s["equity"], shares),
         "Assets per Share": _ratio(s["assets"], shares),
         "Cash per Share": _ratio(s["cash"], shares),
         "Liabilities per Share": _ratio(s["total_liabilities"], shares),
-        TREASURY_LABEL: _ratio(fcf_ps, ty),
+        TREASURY_LABEL: _ratio(oe_ps, ty),
         "30 Year Treasury (DGS30)": ty,
     }
 

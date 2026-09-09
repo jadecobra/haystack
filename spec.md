@@ -16,7 +16,7 @@ Users type a ticker and see five years of ratios and per-share metrics derived f
 - FRED series DGS30 (30-year Treasury).
 - Previous close from Yahoo, then NASDAQ. The same last close is used for every year column in Owner Earnings / Last Close Price.
 
-**Owner earnings.** Cash after maintenance reinvestment, before allocation. Internal field name remains `fcf`.
+**Owner earnings.** Cash after maintenance reinvestment, before allocation. Internal field name is `owner_earnings`.
 
 ```
 OE = OCF − min(|capex|, D&A)

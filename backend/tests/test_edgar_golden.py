@@ -38,7 +38,7 @@ class TestTagMappingSnippet(unittest.TestCase):
         self.assertEqual(s24["total_liabilities"], 308030000000)
         self.assertEqual(s24["cash"], 29943000000)
         self.assertEqual(s24["dividends"], 15234000000)
-        self.assertEqual(s24["fcf"], 118254000000 - 9447000000)
+        self.assertEqual(s24["owner_earnings"], 118254000000 - 9447000000)
         self.assertAlmostEqual(s24["shares"], 15340883000)
         self.assertNotEqual(s24["revenue"], 85777000000)
 
@@ -67,7 +67,7 @@ class TestTagMappingSnippet(unittest.TestCase):
         self.assertEqual(years, [2024])
         self.assertEqual(statements[2024]["net_income"], 100)
         self.assertIsNone(statements[2024]["revenue"])
-        self.assertIsNone(statements[2024]["fcf"])
+        self.assertIsNone(statements[2024]["owner_earnings"])
 
 
 class TestLiveGolden(unittest.TestCase):
