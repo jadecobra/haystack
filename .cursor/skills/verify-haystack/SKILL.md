@@ -74,6 +74,7 @@ FEATURE=backend-health .cursor/skills/verify-haystack/helpers/http backend-healt
 FEATURE=backend-analyze .cursor/skills/verify-haystack/helpers/http backend-analyze AAPL
 FEATURE=backend-contract .cursor/skills/verify-haystack/helpers/http backend-contract
 FEATURE=empty-ticker .cursor/skills/verify-haystack/helpers/http empty-ticker
+FEATURE=metrics-docs .cursor/skills/verify-haystack/helpers/http docs
 ```
 
 `backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture when `VERIFY_FIXTURE=1` or `helpers/http backend-analyze TICKER --fixture` / `--local` (CLI `--local`). Launch never sets `HAYSTACK_PREFER_FIXTURE`.
@@ -92,8 +93,9 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - subtitle `Fundamental Analysis to answer two questions - How much? How long?`
 - `input[placeholder="enter stock ticker e.g. AAPL"]`
 - `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
-- footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.`
-- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 5)
+- footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`
+- `/docs` SSR: `h1` `How metrics are calculated`; all 26 `LOCKED_LABELS` strings in contract order
+- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 6)
 - Document title `LongMuch - How much? How long?` (layout metadata)
 - Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
 - FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; fixture via `HAYSTACK_PREFER_FIXTURE` or CLI `--local` only), GET `/contract` on the backend origin only

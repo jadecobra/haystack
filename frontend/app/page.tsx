@@ -158,6 +158,14 @@ export default function Home() {
         <p className="mt-8 sm:mt-12 text-zinc-500 text-sm sm:text-lg px-1">
           Last 5 years of 10-K metrics. No login. No ads. No bloat.
         </p>
+        <p className="mt-3 text-zinc-500 text-sm sm:text-base px-1">
+          <a
+            href="/docs"
+            className="underline underline-offset-4 hover:text-zinc-300"
+          >
+            How metrics are calculated
+          </a>
+        </p>
       </div>
     </main>
   );

@@ -1,6 +1,6 @@
 # Backend contract
 
-GET `/contract` returns `schema_version` and the locked metric labels so agents can assert table shape without scraping docs.
+GET `/contract` returns `schema_version` (`"6"`) and the locked metric labels (26 rows, including Owner Earnings / Last Close Price) so agents can assert table shape without scraping docs.
 
 ## Sub-features
 

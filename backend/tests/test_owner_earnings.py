@@ -121,7 +121,7 @@ class TestOcfFallbacks(unittest.TestCase):
     def test_map_null_without_ocf_or_maint(self):
         payload = _facts(NetIncomeLoss=[_usd(2024, 100)])
         years, statements = map_companyfacts_to_statements(payload)
-        self.assertIsNone(statements[2024]["fcf"])
+        self.assertIsNone(statements[2024]["owner_earnings"])
 
     def test_map_end_to_end_reported(self):
         payload = _facts(
@@ -132,7 +132,20 @@ class TestOcfFallbacks(unittest.TestCase):
             DepreciationAndAmortization=[_usd(2024, 10)],
         )
         _, statements = map_companyfacts_to_statements(payload)
-        self.assertEqual(statements[2024]["fcf"], 40 - 10)
+        self.assertEqual(statements[2024]["owner_earnings"], 40 - 10)
+
+
+class TestFixtureOwnerEarnings(unittest.TestCase):
+    def test_fixture_owner_earnings_uses_formula(self):
+        from app.fixture import AAPL_CAPEX, AAPL_DA, AAPL_OCF, AAPL_STATEMENTS
+
+        oe = _owner_earnings(AAPL_OCF, AAPL_CAPEX, AAPL_DA)
+        self.assertEqual(set(AAPL_STATEMENTS), set(oe))
+        for year, stmt in AAPL_STATEMENTS.items():
+            self.assertEqual(stmt["owner_earnings"], oe[year])
+        # FY2025: D&A < capex, so OE is not OCF − capex (reported FCF).
+        self.assertEqual(oe[2025], AAPL_OCF[2025] - AAPL_DA[2025])
+        self.assertNotEqual(oe[2025], AAPL_OCF[2025] - AAPL_CAPEX[2025])
 
 
 if __name__ == "__main__":

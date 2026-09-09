@@ -48,7 +48,7 @@ TAG_PREFS: dict[str, list[str]] = {
         "Dividends",
         "PaymentsOfDividendsCommonStockAndPreferredStockAndUnits",
     ],
-    # Owner earnings components — not FIELDS keys; edgar composes fcf from these.
+    # Owner earnings components — not FIELDS keys; edgar composes owner_earnings from these.
     "operating_cf": [
         "NetCashProvidedByUsedInOperatingActivities",
         "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations",

@@ -1,0 +1,31 @@
+/** Snapshot of backend/app/metrics.py LOCKED_LABELS. Order is the product contract. */
+export const LOCKED_LABELS = [
+  "Net Income / Revenue",
+  "Net Income / Equity",
+  "Net Income / Assets",
+  "Net Income / Total Liabilities",
+  "Net Income / Debt",
+  "Owner Earnings / Revenue",
+  "Owner Earnings / Equity",
+  "Owner Earnings / Assets",
+  "Owner Earnings / Total Liabilities",
+  "Owner Earnings / Debt",
+  "Owner Earnings / Last Close Price",
+  "Dividends / Net Income",
+  "Dividends / Owner Earnings",
+  "Dividends / Equity",
+  "Shares Outstanding",
+  "Debt per Share",
+  "Revenue per Share",
+  "Net Income per Share",
+  "Owner Earnings per Share",
+  "Dividends per Share",
+  "Equity per Share",
+  "Assets per Share",
+  "Cash per Share",
+  "Liabilities per Share",
+  "Owner Earnings / 30 Year Treasury per Share",
+  "30 Year Treasury (DGS30)",
+] as const;
+
+export type LockedLabel = (typeof LOCKED_LABELS)[number];

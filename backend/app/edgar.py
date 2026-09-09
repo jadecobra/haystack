@@ -461,7 +461,7 @@ def map_companyfacts_to_statements(
     da = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["da"]))
     ocf = _resolve_ocf(us_gaap, net_income, da)
     capex = _compose_capex(us_gaap)
-    fcf = _owner_earnings(ocf, capex, da)
+    owner_earnings = _owner_earnings(ocf, capex, da)
 
     all_years = sorted(
         set(revenue)
@@ -470,7 +470,7 @@ def map_companyfacts_to_statements(
         | set(assets)
         | set(liabilities)
         | set(debt)
-        | set(fcf)
+        | set(owner_earnings)
         | set(dividends)
         | set(shares)
         | set(cash),
@@ -487,7 +487,7 @@ def map_companyfacts_to_statements(
         "assets": assets,
         "total_liabilities": liabilities,
         "debt": debt,
-        "fcf": fcf,
+        "owner_earnings": owner_earnings,
         "dividends": dividends,
         "shares": shares,
         "cash": cash,
