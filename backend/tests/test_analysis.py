@@ -17,11 +17,11 @@ class TestMetrics(unittest.TestCase):
     def test_locked_labels_include_treasury(self):
         self.assertEqual(len(LOCKED_LABELS), 26)
         self.assertIn("Shares Outstanding", LOCKED_LABELS)
-        self.assertIn("Owner Earnings Yield", LOCKED_LABELS)
+        self.assertIn("Owner Earnings / Last Close Price", LOCKED_LABELS)
         self.assertIn(TREASURY_LABEL, LOCKED_LABELS)
         self.assertEqual(LOCKED_LABELS[-1], "30 Year Treasury (DGS30)")
         debt_i = LOCKED_LABELS.index("Owner Earnings / Debt")
-        self.assertEqual(LOCKED_LABELS[debt_i + 1], "Owner Earnings Yield")
+        self.assertEqual(LOCKED_LABELS[debt_i + 1], "Owner Earnings / Last Close Price")
 
     def test_compute_and_table(self):
         stmt = {
@@ -40,14 +40,14 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(year["Net Income / Revenue"], 0.1)
         self.assertAlmostEqual(year["Shares Outstanding"], 10)
         self.assertAlmostEqual(year["Owner Earnings per Share"], 2.0)
-        self.assertAlmostEqual(year["Owner Earnings Yield"], 0.02)
+        self.assertAlmostEqual(year["Owner Earnings / Last Close Price"], 0.02)
         self.assertAlmostEqual(year[TREASURY_LABEL], 40.0)
         self.assertAlmostEqual(year["30 Year Treasury (DGS30)"], 0.05)
         rows = build_table([2024], {2024: stmt}, {2024: 0.05}, previous_close=100.0)
         self.assertEqual(len(rows), 26)
         self.assertEqual(rows[0]["values"]["2024"], "10.0%")
         self.assertAlmostEqual(rows[0]["raw"]["2024"], 0.1)
-        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings Yield")
+        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "2.00%")
         self.assertAlmostEqual(yield_row["raw"]["2024"], 0.02)
         shares_row = next(r for r in rows if r["metric"] == "Shares Outstanding")
@@ -74,9 +74,9 @@ class TestMetrics(unittest.TestCase):
             "cash": 8,
         }
         year = compute_year(stmt, 0.05, previous_close=None)
-        self.assertIsNone(year["Owner Earnings Yield"])
+        self.assertIsNone(year["Owner Earnings / Last Close Price"])
         rows = build_table([2024], {2024: stmt}, {2024: 0.05})
-        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings Yield")
+        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "—")
 
     def test_owner_earnings_yield_missing_fcf(self):
@@ -93,11 +93,11 @@ class TestMetrics(unittest.TestCase):
             "cash": 8,
         }
         year = compute_year(stmt, 0.05, previous_close=100.0)
-        self.assertIsNone(year["Owner Earnings Yield"])
+        self.assertIsNone(year["Owner Earnings / Last Close Price"])
         rows = build_table(
             [2024], {2024: stmt}, {2024: 0.05}, previous_close=100.0
         )
-        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings Yield")
+        yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "—")
 
 
@@ -195,7 +195,7 @@ class TestSourcesFixture(unittest.TestCase):
         self.assertEqual(payload["previous_close"], 100.0)
         self.assertIn("raw", payload["rows"][0])
         yield_row = next(
-            r for r in payload["rows"] if r["metric"] == "Owner Earnings Yield"
+            r for r in payload["rows"] if r["metric"] == "Owner Earnings / Last Close Price"
         )
         self.assertNotEqual(yield_row["values"][payload["years"][0]], "—")
 

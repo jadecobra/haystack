@@ -15,7 +15,7 @@ RATIO_LABELS = [
     "Owner Earnings / Assets",
     "Owner Earnings / Total Liabilities",
     "Owner Earnings / Debt",
-    "Owner Earnings Yield",
+    "Owner Earnings / Last Close Price",
     "Dividends / Net Income",
     "Dividends / Owner Earnings",
     "Dividends / Equity",
@@ -124,7 +124,7 @@ def compute_year(
         "Owner Earnings / Assets": _ratio(fcf, s["assets"]),
         "Owner Earnings / Total Liabilities": _ratio(fcf, s["total_liabilities"]),
         "Owner Earnings / Debt": _ratio(fcf, s["debt"]),
-        "Owner Earnings Yield": _ratio(fcf_ps, close),
+        "Owner Earnings / Last Close Price": _ratio(fcf_ps, close),
         "Dividends / Net Income": _ratio(div, ni),
         "Dividends / Owner Earnings": _ratio(div, fcf),
         "Dividends / Equity": _ratio(div, s["equity"]),
@@ -150,7 +150,7 @@ def _fmt_yield(value: float | None) -> str:
 
 
 def format_cell(label: str, value: float | None) -> str:
-    if label == "Owner Earnings Yield":
+    if label == "Owner Earnings / Last Close Price":
         return _fmt_yield(value)
     if label in RATIO_LABELS:
         return _fmt_pct(value)
