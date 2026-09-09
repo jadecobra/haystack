@@ -1,6 +1,7 @@
 """Docs must quote LOCKED_LABELS and not revive dropped stack claims."""
 
 from pathlib import Path
+import re
 import unittest
 
 from app.metrics import LOCKED_LABELS
@@ -8,6 +9,10 @@ from app.metrics import LOCKED_LABELS
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = (ROOT / "spec.md").read_text()
 README = (ROOT / "README.md").read_text()
+LOCKED_LABELS_TS = (ROOT / "frontend" / "lib" / "locked-labels.ts").read_text()
+METRICS_CATALOG_TS = (
+    ROOT / "frontend" / "lib" / "metrics-catalog.ts"
+).read_text()
 
 BANNED_IN_SPEC = (
     "AWS Lambda",
@@ -17,6 +22,10 @@ BANNED_IN_SPEC = (
     "ao start",
 )
 BANNED_IN_README = ("ao start", "AWS Lambda")
+
+
+def _ts_string_literals(text: str) -> list[str]:
+    return re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"', text)
 
 
 class TestDocsContract(unittest.TestCase):
@@ -47,3 +56,11 @@ class TestDocsContract(unittest.TestCase):
             [],
             "README must not copy LOCKED_LABELS; point at contract instead",
         )
+
+    def test_frontend_locked_labels_match_contract(self):
+        listed = _ts_string_literals(LOCKED_LABELS_TS)
+        self.assertEqual(listed, list(LOCKED_LABELS))
+
+    def test_metrics_catalog_labels_match_contract(self):
+        listed = re.findall(r'label:\s*"([^"]+)"', METRICS_CATALOG_TS)
+        self.assertEqual(listed, list(LOCKED_LABELS))
