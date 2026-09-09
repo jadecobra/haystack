@@ -10,6 +10,7 @@
 #   FEATURE=backend-analyze helpers/http backend-analyze AAPL --fixture
 #   FEATURE=backend-contract helpers/http backend-contract
 #   FEATURE=empty-ticker helpers/http empty-ticker
+#   FEATURE=metrics-docs helpers/http docs
 #
 # backend-analyze defaults to live EDGAR. Fixture only when VERIFY_FIXTURE=1
 # or --fixture/--local (runs `uv run longmuch analyze TICKER --local`).
@@ -92,6 +93,7 @@ case "$cmd" in
     grep -q 'enter stock ticker e.g. AAPL' "$EVIDENCE/home.html" || die "home HTML missing ticker placeholder"
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
     grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
+    grep -q 'How metrics are calculated' "$EVIDENCE/home.html" || die "home HTML missing docs link"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
     if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" != "1" ]]; then
@@ -252,6 +254,19 @@ PY
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
     grep -q 'Owner Earnings / Last Close Price' "$body" || die "contract JSON missing Owner Earnings / Last Close Price"
     ;;
+  docs)
+    FEATURE="${FEATURE:-metrics-docs}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    code="$(http_get "$FRONTEND_ORIGIN" /docs docs | tail -n 1)"
+    [[ "$code" == "200" ]] || die "docs GET not 200 (got $code)"
+    grep -q 'How metrics are calculated' "$EVIDENCE/docs.html" || die "docs HTML missing title"
+    grep -q 'Owner Earnings / Last Close Price' "$EVIDENCE/docs.html" || die "docs HTML missing OE/close label"
+    grep -q 'Owner Earnings / 30 Year Treasury per Share' "$EVIDENCE/docs.html" || die "docs HTML missing treasury label"
+    grep -q '30 Year Treasury (DGS30)' "$EVIDENCE/docs.html" || die "docs HTML missing DGS30 row"
+    grep -q 'Two DGS30 clocks' "$EVIDENCE/docs.html" || die "docs HTML missing DGS30 primer"
+    echo "metrics-docs ok h1=$(html_h1 "$EVIDENCE/docs.html") title=$(html_title "$EVIDENCE/docs.html")"
+    ;;
   empty-ticker)
     FEATURE="${FEATURE:-empty-ticker}"
     EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
@@ -263,7 +278,7 @@ PY
     echo "empty-ticker ok: Analyze disabled=$disabled on empty input"
     ;;
   "")
-    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker"
+    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs"
     ;;
   *)
     die "unknown http subcommand: $cmd"

@@ -46,6 +46,7 @@ Keep implementation details out of the map except where they change what the use
 ## Features
 
 - [Home search](./home-search.md) covers the LongMuch landing page: heading, ticker field, Analyze.
+- [Metrics docs](./metrics-docs.md) covers `/docs` formulas and the home link.
 - [Analyze results](./analyze-results.md) covers submitting a ticker and the 5-year metrics table from analyze JSON.
 - [Backend health](./backend-health.md) covers GET `/health` on the isolated FastAPI origin.
 - [Backend analyze](./backend-analyze.md) maps GET `/analyze/{ticker}` (live EDGAR default; fixture via env or CLI `--local`) plus `uv run longmuch analyze TICKER --local`.
