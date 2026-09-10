@@ -305,7 +305,7 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
       const waitStatus = (await page.locator('[data-testid="analyze-wait-status"]').textContent()) || '';
       const waitElapsed = (await page.locator('[data-testid="analyze-wait-elapsed"]').textContent()) || '';
       const groupCount = await page.locator('th[scope="colgroup"]').count();
-      const hasSkeleton = waitHtml.includes('5-Year Financial Metrics') && waitHtml.includes('—');
+      const hasSkeleton = waitHtml.includes('Financial Metrics') && waitHtml.includes('—');
       const forbiddenWait = /cold start|waking|Render|API/i.test(waitStatus);
       fs.writeFileSync(
         path.join(outDir, 'wait.meta.txt'),
@@ -330,7 +330,7 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
       const html = await page.content();
       fs.writeFileSync(path.join(outDir, 'after-click.html'), html);
       await page.screenshot({ path: path.join(outDir, 'after-click.png'), fullPage: true });
-      const hasTable = html.includes('5-Year Financial Metrics');
+      const hasTable = html.includes('Financial Metrics');
       const readyGroups = await page.locator('th[scope="colgroup"]').count();
       fs.writeFileSync(
         path.join(outDir, 'after-click.meta.txt'),

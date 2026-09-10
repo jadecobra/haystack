@@ -28,7 +28,7 @@ def _in_range(val, lo, hi) -> bool:
 class TestTagMappingSnippet(unittest.TestCase):
     def test_map_snippet_annual_only(self):
         payload = json.loads(SNIPPET.read_text(encoding="utf-8"))
-        years, statements = map_companyfacts_to_statements(payload, max_years=5)
+        years, statements = map_companyfacts_to_statements(payload)
         self.assertEqual(years[:2], [2024, 2023])
         s24 = statements[2024]
         self.assertEqual(s24["revenue"], 391035000000)
@@ -69,6 +69,30 @@ class TestTagMappingSnippet(unittest.TestCase):
         self.assertIsNone(statements[2024]["revenue"])
         self.assertIsNone(statements[2024]["owner_earnings"])
 
+    def test_map_returns_all_core_years(self):
+        usd = [
+            {
+                "end": f"{y}-12-31",
+                "val": float(y),
+                "fy": y,
+                "fp": "FY",
+                "form": "10-K",
+                "filed": f"{y + 1}-01-01",
+            }
+            for y in range(2015, 2025)
+        ]
+        payload = {
+            "facts": {
+                "us-gaap": {
+                    "Revenues": {"units": {"USD": usd}},
+                    "NetIncomeLoss": {"units": {"USD": usd}},
+                }
+            }
+        }
+        years, statements = map_companyfacts_to_statements(payload)
+        self.assertEqual(years, list(range(2024, 2014, -1)))
+        self.assertEqual(len(statements), 10)
+
 
 class TestLiveGolden(unittest.TestCase):
     def _live_or_skip(self, ticker: str):
@@ -86,7 +110,7 @@ class TestLiveGolden(unittest.TestCase):
     def test_aapl_live_ballpark(self):
         years, statements, cik = self._live_or_skip("AAPL")
         self.assertTrue(cik)
-        self.assertGreaterEqual(len(years), 3)
+        self.assertGreater(len(years), 5)
         checked = 0
         for y, fields in AAPL_BALLPARK.items():
             if y not in statements:
@@ -104,7 +128,7 @@ class TestLiveGolden(unittest.TestCase):
     def test_msft_live_ballpark(self):
         years, statements, cik = self._live_or_skip("MSFT")
         self.assertTrue(cik)
-        self.assertGreaterEqual(len(years), 3)
+        self.assertGreater(len(years), 5)
         checked = 0
         for y, fields in MSFT_BALLPARK.items():
             if y not in statements:

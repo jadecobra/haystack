@@ -1,7 +1,8 @@
-"""AAPL-shaped 5-year 10-K numbers for local MVP when EDGAR is unavailable.
+"""AAPL-shaped 10-K numbers for local MVP when EDGAR is unavailable.
 
-Figures are rounded public-scale placeholders so the locked ratio table is
-computable offline. Not a substitute for live XBRL in production.
+Kept at five years for agents; live EDGAR is the product path and returns
+every mapped annual year. Figures are rounded public-scale placeholders so
+the locked ratio table is computable offline. Not a substitute for live XBRL.
 
 owner_earnings is OCF − min(|capex|, D&A) via edgar._owner_earnings, not
 reported free cash flow. FY2025 is the first year in this window where D&A

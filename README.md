@@ -1,6 +1,6 @@
 # LongMuch — How much? How Long?
 
-Instant 5-year 10-K metrics. No paywall. No bloat.
+Instant 10-K metrics for all available annual years. No paywall. No bloat.
 
 Row names and order live in `backend/app/metrics.py` (`LOCKED_LABELS`). `uv run longmuch contract` prints them. `spec.md` must list the same strings.
 

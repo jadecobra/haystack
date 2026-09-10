@@ -412,8 +412,6 @@ def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int
 
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
-    *,
-    max_years: int = 5,
 ) -> tuple[list[int], dict[int, dict[str, float | None]]]:
     """Map companyfacts JSON → (years newest-first, statements[year][field])."""
     facts = companyfacts.get("facts") or {}
@@ -478,7 +476,7 @@ def map_companyfacts_to_statements(
     )
     # Prefer years that have revenue or net_income (core 10-K presence)
     core = [y for y in all_years if y in revenue or y in net_income]
-    years = (core or all_years)[:max_years]
+    years = core or all_years
 
     field_series: dict[str, dict[int, float]] = {
         "revenue": revenue,
@@ -502,13 +500,11 @@ def map_companyfacts_to_statements(
 
 def statements_for_ticker(
     ticker: str,
-    *,
-    max_years: int = 5,
 ) -> tuple[list[int], dict[int, dict[str, float | None]], str]:
     """Resolve ticker → companyfacts → statements. Returns (years, statements, cik)."""
     cik = resolve_cik(ticker)
     payload = fetch_companyfacts(cik)
-    years, statements = map_companyfacts_to_statements(payload, max_years=max_years)
+    years, statements = map_companyfacts_to_statements(payload)
     if not years:
         raise ValueError(f"no annual us-gaap facts for {ticker} (CIK {cik})")
     return years, statements, cik

@@ -4,7 +4,7 @@ Reference for what the running product does. The locked table is `LOCKED_LABELS`
 
 ### 1. Goal
 
-Users type a ticker and see five years of ratios and per-share metrics derived from SEC 10-K annual facts.
+Users type a ticker and see available annual years of ratios and per-share metrics derived from SEC 10-K facts.
 
 ### 2. Behavior
 
@@ -12,7 +12,7 @@ Users type a ticker and see five years of ratios and per-share metrics derived f
 
 **Sources.**
 
-- SEC companyfacts JSON (US-GAAP FY series tied to 10-K), last five years. Not a per-filing XBRL instance parse.
+- SEC companyfacts JSON (US-GAAP FY series tied to 10-K), every mapped annual year (newest-first). Not a per-filing XBRL instance parse.
 - FRED series DGS30 (30-year Treasury).
 - Previous close from Yahoo, then NASDAQ. The same last close is used for every year column in rows that divide by Last Close Price.
 

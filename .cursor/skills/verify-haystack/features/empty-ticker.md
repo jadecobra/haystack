@@ -21,7 +21,7 @@ Preconditions:
 - `helpers/doctor` reports `DOCTOR PASS`.
 
 - **GET homepage.** Run `FEATURE=empty-ticker .cursor/skills/verify-haystack/helpers/http empty-ticker`. HTTP 200. `button_disabled=yes` in `home.meta.txt`. Button text is `Analyze` (not `Analyzing...`).
-- **Proof.** `artifacts/empty-ticker/home.html` contains a `<button` tag with a `disabled` attribute, placeholder `AAPL or TSLA`, and no `5-Year Financial Metrics` table.
+- **Proof.** `artifacts/empty-ticker/home.html` contains a `<button` tag with a `disabled` attribute, placeholder `AAPL or TSLA`, and no `Financial Metrics` table.
 
 ## Gotchas
 

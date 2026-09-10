@@ -25,7 +25,7 @@ lines = [
     "subtitle=" + str(text.count("Clean. Instant. Fundamental analysis.")),
     "analyze=" + str(text.count("Analyze")),
     "placeholder_count=" + str(text.count("AAPL or TSLA")),
-    "table=" + str(text.count("5-Year Financial Metrics")),
+    "table=" + str(text.count("Financial Metrics")),
     "hardcoded_200B=" + str(text.count("$200B")),
     "create_next_app=" + str(text.count("Create Next App")),
 ]

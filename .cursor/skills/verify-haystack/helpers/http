@@ -49,7 +49,7 @@ save_meta() {
     echo "subtitle_count=$(html_count "$body" 'How much? How long?')"
     echo "analyze_count=$(html_count "$body" 'Analyze')"
     echo "placeholder_count=$(html_count "$body" 'enter stock ticker e.g. AAPL')"
-    echo "table_title_count=$(html_count "$body" '5-Year Financial Metrics')"
+    echo "table_title_count=$(html_count "$body" 'Financial Metrics')"
     echo "hardcoded_200B_count=$(html_count "$body" '$200B')"
     echo "kpi_revenue_count=$(html_count "$body" 'Revenue')"
     echo "create_next_app_count=$(html_count "$body" 'Create Next App')"
@@ -137,7 +137,7 @@ case "$cmd" in
     grep -q 'Owner Earnings / Last Close Price' "$body" || die "analyze JSON missing Owner Earnings / Last Close Price"
     grep -q '"rows"' "$body" || die "analyze JSON missing rows"
     http_get "$FRONTEND_ORIGIN" / home-after-api >/dev/null
-    table_count="$(html_count "$EVIDENCE/home-after-api.html" '5-Year Financial Metrics')"
+    table_count="$(html_count "$EVIDENCE/home-after-api.html" 'Financial Metrics')"
     echo "  homepage_table_after_api_get=$table_count (SSR never includes the table; it is client-state after JSON)"
     echo "$code"
     ;;

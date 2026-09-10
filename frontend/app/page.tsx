@@ -485,8 +485,8 @@ export default function Home() {
           ) : null}
           <h2 className="text-lg sm:text-xl text-zinc-300 mb-4 break-words">
             {view.kind === 'waiting'
-              ? `${cardTicker} 5-Year Financial Metrics`
-              : `${cardTicker} 5-Year Financial Metrics | source : ${sourceLabel}`}
+              ? `${cardTicker} Financial Metrics`
+              : `${cardTicker} Financial Metrics | source : ${sourceLabel}`}
           </h2>
           {view.kind === 'waiting' && (
             <p
@@ -503,7 +503,7 @@ export default function Home() {
       )}
 
       <p className="mt-8 sm:mt-12 text-muted-2 text-sm sm:text-lg px-1">
-        Last 5 years of 10-K metrics. No login. No ads. No bloat.
+        All available annual 10-K years. No login. No ads. No bloat.
       </p>
       <p className="mt-3 text-muted-2 text-sm sm:text-base px-1">
         <TextLink href="/docs">
