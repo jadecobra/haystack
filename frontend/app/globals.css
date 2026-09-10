@@ -59,35 +59,3 @@ body {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
 }
-
-.card {
-  @apply rounded-lg border bg-background p-6 shadow-sm ring-1 ring-inset ring-background/50 transition-all duration-200 hover:shadow-md;
-}
-
-.data-table {
-  @apply rounded-lg border bg-background p-6 shadow-sm ring-1 ring-inset ring-background/50 overflow-x-auto;
-}
-
-.data-table table {
-  @apply w-full;
-}
-
-.data-table thead {
-  @apply border-b;
-}
-
-.data-table th {
-  @apply text-left py-3 font-semibold text-zinc-400;
-}
-
-.data-table td {
-  @apply py-3 px-2 text-zinc-300;
-}
-
-.data-table tbody tr:nth-child(even) {
-  @apply bg-zinc-950;
-}
-
-.data-table tbody tr:nth-child(odd) {
-  @apply bg-zinc-900;
-}
