@@ -4,48 +4,96 @@ from __future__ import annotations
 
 from typing import Any
 
-RATIO_LABELS = [
-    "Net Income / Revenue",
-    "Net Income / Equity",
-    "Net Income / Assets",
-    "Net Income / Total Liabilities",
-    "Net Income / Debt",
-    "Owner Earnings / Revenue",
-    "Owner Earnings / Equity",
-    "Owner Earnings / Assets",
-    "Owner Earnings / Total Liabilities",
-    "Owner Earnings / Debt",
-    "Owner Earnings / Last Close Price",
-    "Cash per Share / Last Close Price",
-    "Revenue per Share / Last Close Price",
-    "Dividends per Share / Last Close Price",
-    "Net Income per Share / Last Close Price",
-    "Assets per Share / Last Close Price",
-    "Equity per Share / Last Close Price",
-    "Dividends / Net Income",
-    "Dividends / Owner Earnings",
-    "Dividends / Equity",
+LOCKED_GROUPS: list[dict[str, Any]] = [
+    {
+        "id": "yield_vs_last_close",
+        "title": "Yield vs last close",
+        "labels": [
+            "Owner Earnings / Last Close Price",
+            "Cash per Share / Last Close Price",
+            "Dividends per Share / Last Close Price",
+            "Net Income per Share / Last Close Price",
+            "Equity per Share / Last Close Price",
+            "Assets per Share / Last Close Price",
+            "Revenue per Share / Last Close Price",
+        ],
+    },
+    {
+        "id": "net_income",
+        "title": "Net income",
+        "labels": [
+            "Net Income / Equity",
+            "Net Income / Assets",
+            "Net Income / Revenue",
+            "Net Income / Total Liabilities",
+            "Net Income / Debt",
+        ],
+    },
+    {
+        "id": "owner_earnings",
+        "title": "Owner earnings",
+        "labels": [
+            "Owner Earnings / Equity",
+            "Owner Earnings / Assets",
+            "Owner Earnings / Revenue",
+            "Owner Earnings / Total Liabilities",
+            "Owner Earnings / Debt",
+        ],
+    },
+    {
+        "id": "payout",
+        "title": "Payout",
+        "labels": [
+            "Dividends / Equity",
+            "Dividends / Owner Earnings",
+            "Dividends / Net Income",
+        ],
+    },
+    {
+        "id": "per_share",
+        "title": "Per share",
+        "labels": [
+            "Owner Earnings per Share",
+            "Cash per Share",
+            "Dividends per Share",
+            "Net Income per Share",
+            "Equity per Share",
+            "Assets per Share",
+            "Revenue per Share",
+            "Liabilities per Share",
+            "Debt per Share",
+        ],
+    },
+    {
+        "id": "scale_and_rates",
+        "title": "Scale & rates",
+        "labels": [
+            "Shares Outstanding",
+            "30 Year Treasury (DGS30)",
+            "Owner Earnings / 30 Year Treasury per Share",
+        ],
+    },
 ]
 
-PER_SHARE_LABELS = [
-    "Shares Outstanding",
-    "Debt per Share",
-    "Revenue per Share",
-    "Net Income per Share",
-    "Owner Earnings per Share",
-    "Dividends per Share",
-    "Equity per Share",
-    "Assets per Share",
-    "Cash per Share",
-    "Liabilities per Share",
-    "Owner Earnings / 30 Year Treasury per Share",
-    "30 Year Treasury (DGS30)",
-]
-
-LOCKED_LABELS = RATIO_LABELS + PER_SHARE_LABELS
+LOCKED_LABELS = [label for group in LOCKED_GROUPS for label in group["labels"]]
 TREASURY_LABEL = "Owner Earnings / 30 Year Treasury per Share"
 
-SCHEMA_VERSION = "7"
+
+def groups_payload() -> list[dict[str, Any]]:
+    return [
+        {"id": g["id"], "title": g["title"], "labels": list(g["labels"])}
+        for g in LOCKED_GROUPS
+    ]
+
+SCHEMA_VERSION = "8"
+
+_PERCENT_GROUP_IDS = frozenset({"net_income", "owner_earnings", "payout"})
+PERCENT_LABELS = frozenset(
+    label
+    for group in LOCKED_GROUPS
+    if group["id"] in _PERCENT_GROUP_IDS
+    for label in group["labels"]
+)
 
 FIELDS = (
     "revenue",
@@ -181,7 +229,7 @@ CLOSE_YIELD_LABELS = {
 def format_cell(label: str, value: float | None) -> str:
     if label in CLOSE_YIELD_LABELS:
         return _fmt_yield(value)
-    if label in RATIO_LABELS:
+    if label in PERCENT_LABELS:
         return _fmt_pct(value)
     if label == "Shares Outstanding":
         return _fmt_shares(value)

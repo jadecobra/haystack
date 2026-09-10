@@ -5,7 +5,12 @@ import fastapi
 import fastapi.middleware.cors
 import pydantic
 
-from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL
+from app.metrics import (
+    LOCKED_LABELS,
+    SCHEMA_VERSION,
+    TREASURY_LABEL,
+    groups_payload,
+)
 from app.sources import analyze
 
 dotenv.load_dotenv()
@@ -49,6 +54,12 @@ class MetricRow(pydantic.BaseModel):
     raw: dict[str, float | None]
 
 
+class MetricGroup(pydantic.BaseModel):
+    id: str
+    title: str
+    labels: list[str]
+
+
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
     years: list[str]
@@ -61,6 +72,9 @@ class AnalysisResponse(pydantic.BaseModel):
     treasury_dgs30_as_of: str | None = None
     previous_close: float | None = None
     previous_close_as_of: str | None = None
+    groups: list[MetricGroup]
+    schema_version: str | None = None
+    labels: list[str] | None = None
 
 
 @app.get("/health")
@@ -73,6 +87,7 @@ class ContractResponse(pydantic.BaseModel):
     labels: list[str]
     row_count: int
     treasury_label: str
+    groups: list[MetricGroup]
 
 
 @app.get("/contract", response_model=ContractResponse)
@@ -82,6 +97,7 @@ async def contract():
         "labels": list(LOCKED_LABELS),
         "row_count": len(LOCKED_LABELS),
         "treasury_label": TREASURY_LABEL,
+        "groups": groups_payload(),
     }
 
 
@@ -95,6 +111,12 @@ async def analyze_ticker(ticker: str):
         raise fastapi.HTTPException(status_code=500, detail="metric table incomplete")
     if [r["metric"] for r in payload["rows"]] != list(LOCKED_LABELS):
         raise fastapi.HTTPException(status_code=500, detail="metric labels drifted")
+    payload = {
+        **payload,
+        "groups": groups_payload(),
+        "schema_version": SCHEMA_VERSION,
+        "labels": list(LOCKED_LABELS),
+    }
     return payload
 
 

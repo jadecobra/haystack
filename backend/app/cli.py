@@ -9,7 +9,7 @@ from typing import Any
 
 import httpx
 
-from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL
+from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL, groups_payload
 from app.sources import analyze as analyze_local
 
 DEFAULT_BASE = "http://127.0.0.1:8000"
@@ -109,6 +109,7 @@ def cmd_contract(base: str | None) -> int:
         "labels": list(LOCKED_LABELS),
         "row_count": len(LOCKED_LABELS),
         "treasury_label": TREASURY_LABEL,
+        "groups": groups_payload(),
     }
     if base:
         code, body = _get(base, "/contract")

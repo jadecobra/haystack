@@ -2,12 +2,18 @@
 
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
 
 type MetricRow = {
   metric: string;
   values: Record<string, string>;
   raw?: Record<string, number | null>;
+};
+
+type MetricGroup = {
+  id: string;
+  title: string;
+  labels: string[];
 };
 
 type Analysis = {
@@ -23,6 +29,7 @@ type Analysis = {
   treasury_dgs30_as_of?: string | null;
   previous_close?: number | null;
   previous_close_as_of?: string | null;
+  groups?: MetricGroup[];
 };
 
 export default function Home() {
@@ -58,7 +65,7 @@ export default function Home() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
@@ -73,24 +80,47 @@ export default function Home() {
 
   const treasuryLabel = data?.treasury_label;
   const headers = data ? ['Metric', ...data.years] : [];
+
+  const metricCells = (row: MetricRow, years: string[]) => {
+    const metricLabel =
+      treasuryLabel && row.metric === treasuryLabel && dgs30Line ? (
+        <>
+          <div>{treasuryLabel}</div>
+          <div
+            className="text-xs text-zinc-500 font-normal mt-0.5 whitespace-normal"
+            data-testid="dgs30-as-of"
+          >
+            {dgs30Line}
+          </div>
+        </>
+      ) : (
+        row.metric
+      );
+    return [metricLabel, ...years.map((y) => row.values[y] ?? "—")];
+  };
+
   const rows = data
-    ? data.rows.map((row) => {
-        const metricLabel =
-          treasuryLabel && row.metric === treasuryLabel && dgs30Line ? (
-            <>
-              <div>{treasuryLabel}</div>
-              <div
-                className="text-xs text-zinc-500 font-normal mt-0.5 whitespace-normal"
-                data-testid="dgs30-as-of"
-              >
-                {dgs30Line}
-              </div>
-            </>
-          ) : (
-            row.metric
-          );
-        return [metricLabel, ...data.years.map((y) => row.values[y] ?? "—")];
-      })
+    ? (() => {
+        const byMetric = new Map(data.rows.map((row) => [row.metric, row]));
+        const groups = data.groups?.length
+          ? data.groups
+          : [{ id: "all", title: "", labels: data.rows.map((r) => r.metric) }];
+        const tableRows: Array<
+          | { kind: "group"; title: string }
+          | { kind: "data"; cells: ReactNode[] }
+        > = [];
+        for (const group of groups) {
+          if (group.title) {
+            tableRows.push({ kind: "group", title: group.title });
+          }
+          for (const label of group.labels) {
+            const row = byMetric.get(label);
+            if (!row) continue;
+            tableRows.push({ kind: "data", cells: metricCells(row, data.years) });
+          }
+        }
+        return tableRows;
+      })()
     : [];
 
   const sourceLabel = (data?.source || "api").toUpperCase();

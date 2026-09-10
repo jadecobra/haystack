@@ -19,9 +19,9 @@ class TestMetrics(unittest.TestCase):
         self.assertIn("Shares Outstanding", LOCKED_LABELS)
         self.assertIn("Owner Earnings / Last Close Price", LOCKED_LABELS)
         self.assertIn(TREASURY_LABEL, LOCKED_LABELS)
-        self.assertEqual(LOCKED_LABELS[-1], "30 Year Treasury (DGS30)")
-        debt_i = LOCKED_LABELS.index("Owner Earnings / Debt")
-        self.assertEqual(LOCKED_LABELS[debt_i + 1], "Owner Earnings / Last Close Price")
+        self.assertEqual(LOCKED_LABELS[0], "Owner Earnings / Last Close Price")
+        self.assertEqual(LOCKED_LABELS[-1], TREASURY_LABEL)
+        self.assertEqual(LOCKED_LABELS[-2], "30 Year Treasury (DGS30)")
 
     def test_compute_and_table(self):
         stmt = {
@@ -51,8 +51,12 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(year["30 Year Treasury (DGS30)"], 0.05)
         rows = build_table([2024], {2024: stmt}, {2024: 0.05}, previous_close=100.0)
         self.assertEqual(len(rows), 32)
-        self.assertEqual(rows[0]["values"]["2024"], "10.0%")
-        self.assertAlmostEqual(rows[0]["raw"]["2024"], 0.1)
+        self.assertEqual(rows[0]["metric"], "Owner Earnings / Last Close Price")
+        self.assertEqual(rows[0]["values"]["2024"], "2.00%")
+        self.assertAlmostEqual(rows[0]["raw"]["2024"], 0.02)
+        ni_rev = next(r for r in rows if r["metric"] == "Net Income / Revenue")
+        self.assertEqual(ni_rev["values"]["2024"], "10.0%")
+        self.assertAlmostEqual(ni_rev["raw"]["2024"], 0.1)
         yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "2.00%")
         self.assertAlmostEqual(yield_row["raw"]["2024"], 0.02)
@@ -194,6 +198,9 @@ class TestAnalysis(unittest.TestCase):
         self.assertEqual(body["schema_version"], SCHEMA_VERSION)
         self.assertEqual(body["labels"], LOCKED_LABELS)
         self.assertEqual(body["row_count"], 32)
+        self.assertEqual(len(body["groups"]), 6)
+        flat = [label for g in body["groups"] for label in g["labels"]]
+        self.assertEqual(flat, LOCKED_LABELS)
 
 
 class TestSourcesFixture(unittest.TestCase):

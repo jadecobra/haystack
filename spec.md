@@ -24,42 +24,42 @@ OE = OCF − min(|capex|, D&A)
 
 OCF is the reported operating-cash tag when present. If missing: `ΔCash − CFI − CFF − FX` (FX = 0 if absent). If still missing: `NI + D&A − ΔNWC` using AR / inventory / AP pairs that exist in both the year and the prior year. Do not use NI + D&A with no working-capital pair. Capex is PPE (or the combined PPE+intangibles tag if present), plus capitalized software, without double-counting ProductiveAssets on top of PPE. If OCF cannot be resolved, or both capex and D&A are missing, owner earnings is null.
 
-**Table rows.** Exact strings from `LOCKED_LABELS` (CI fails if this list diverges):
+**Table rows.** Exact strings from `LOCKED_LABELS` (CI fails if this list diverges). Groups from `LOCKED_GROUPS` / `GET /contract` `groups`:
 
-- Net Income / Revenue
-- Net Income / Equity
-- Net Income / Assets
-- Net Income / Total Liabilities
-- Net Income / Debt
-- Owner Earnings / Revenue
-- Owner Earnings / Equity
-- Owner Earnings / Assets
-- Owner Earnings / Total Liabilities
-- Owner Earnings / Debt
 - Owner Earnings / Last Close Price
 - Cash per Share / Last Close Price
-- Revenue per Share / Last Close Price
 - Dividends per Share / Last Close Price
 - Net Income per Share / Last Close Price
-- Assets per Share / Last Close Price
 - Equity per Share / Last Close Price
-- Dividends / Net Income
-- Dividends / Owner Earnings
+- Assets per Share / Last Close Price
+- Revenue per Share / Last Close Price
+- Net Income / Equity
+- Net Income / Assets
+- Net Income / Revenue
+- Net Income / Total Liabilities
+- Net Income / Debt
+- Owner Earnings / Equity
+- Owner Earnings / Assets
+- Owner Earnings / Revenue
+- Owner Earnings / Total Liabilities
+- Owner Earnings / Debt
 - Dividends / Equity
-- Shares Outstanding
-- Debt per Share
-- Revenue per Share
-- Net Income per Share
+- Dividends / Owner Earnings
+- Dividends / Net Income
 - Owner Earnings per Share
+- Cash per Share
 - Dividends per Share
+- Net Income per Share
 - Equity per Share
 - Assets per Share
-- Cash per Share
+- Revenue per Share
 - Liabilities per Share
-- Owner Earnings / 30 Year Treasury per Share
+- Debt per Share
+- Shares Outstanding
 - 30 Year Treasury (DGS30)
+- Owner Earnings / 30 Year Treasury per Share
 
-**UI.** Next.js App Router page: ticker, previous close when present, one metric×year table. No KPI cards. No charts.
+**UI.** Next.js App Router page: ticker, previous close when present, one metric×year table with six group header rows from the API `groups` field. No KPI cards. No charts.
 
 ### 3. Stack
 

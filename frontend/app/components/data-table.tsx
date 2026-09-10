@@ -1,11 +1,23 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 
+export type DataTableGroupRow = {
+  kind: "group";
+  title: string;
+};
+
+export type DataTableDataRow = {
+  kind: "data";
+  cells: React.ReactNode[];
+};
+
+export type DataTableRow = DataTableGroupRow | DataTableDataRow | React.ReactNode[];
+
 export interface DataTableProps {
   className?: string;
   framed?: boolean;
   headers: string[];
-  rows: React.ReactNode[][];
+  rows: DataTableRow[];
 }
 
 const DataTable = ({
@@ -45,10 +57,28 @@ const DataTable = ({
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => {
-            const stripe = rowIndex % 2 === 0 ? "bg-canvas" : "bg-surface";
+            if (!Array.isArray(row) && row.kind === "group") {
+              return (
+                <tr key={`group-${rowIndex}`} className="bg-surface">
+                  <th
+                    colSpan={Math.max(headers.length, 1)}
+                    scope="colgroup"
+                    className="text-left py-2 sm:py-3 px-2 font-semibold text-zinc-200 sticky left-0 z-10 bg-surface border-t border-edge"
+                  >
+                    {row.title}
+                  </th>
+                </tr>
+              );
+            }
+            const cells = Array.isArray(row) ? row : row.cells;
+            const dataIndex = rows
+              .slice(0, rowIndex)
+              .filter((r) => Array.isArray(r) || (!Array.isArray(r) && r.kind === "data"))
+              .length;
+            const stripe = dataIndex % 2 === 0 ? "bg-canvas" : "bg-surface";
             return (
               <tr key={rowIndex} className={stripe}>
-                {row.map((cell, cellIndex) => (
+                {cells.map((cell, cellIndex) => (
                   <td
                     key={cellIndex}
                     className={cn(

@@ -95,7 +95,7 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
 - footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`
 - `/docs` SSR: `h1` `How metrics are calculated`; all 32 `LOCKED_LABELS` strings in contract order
-- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 7)
+- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`
 - Document title `LongMuch - How much? How long?` (layout metadata)
 - Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
 - FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; fixture via `HAYSTACK_PREFER_FIXTURE` or CLI `--local` only), GET `/contract` on the backend origin only

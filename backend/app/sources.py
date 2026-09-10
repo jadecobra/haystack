@@ -6,7 +6,14 @@ import os
 from typing import Any
 
 from app import fixture
-from app.metrics import FIELDS, LOCKED_LABELS, TREASURY_LABEL, build_table
+from app.metrics import (
+    FIELDS,
+    LOCKED_LABELS,
+    SCHEMA_VERSION,
+    TREASURY_LABEL,
+    build_table,
+    groups_payload,
+)
 
 
 def _env_force_fixture() -> bool:
@@ -49,6 +56,9 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "treasury_dgs30_as_of": as_of,
             "previous_close": prev_close,
             "previous_close_as_of": None,
+            "groups": groups_payload(),
+            "schema_version": SCHEMA_VERSION,
+            "labels": list(LOCKED_LABELS),
         }
 
     from app import edgar, fred
@@ -118,4 +128,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         "treasury_dgs30_as_of": dgs30_as_of,
         "previous_close": prev_close,
         "previous_close_as_of": prev_close_as_of,
+        "groups": groups_payload(),
+        "schema_version": SCHEMA_VERSION,
+        "labels": list(LOCKED_LABELS),
     }
