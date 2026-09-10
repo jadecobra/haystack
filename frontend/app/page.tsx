@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
+import { analyzeErrorMessage } from './utils/analyze-error';
 import Link from 'next/link';
 
 import {
@@ -366,12 +367,10 @@ export default function Home() {
       const result = parseAnalysis(raw);
       if (!response.ok) {
         clearWaitTimers();
-        const message =
-          (result && (result.error || result.message)) ||
-          (isRecord(raw) && typeof raw.error === 'string' && raw.error) ||
-          (isRecord(raw) && typeof raw.message === 'string' && raw.message) ||
-          `Analyze failed (${response.status})`;
-        setView({ kind: 'error', message });
+        setView({
+          kind: 'error',
+          message: analyzeErrorMessage({ raw, ticker: symbol }),
+        });
         return;
       }
       if (!result || !result.rows.length || !result.years.length) {
