@@ -58,12 +58,18 @@ const DataTable = ({
         <tbody>
           {rows.map((row, rowIndex) => {
             if (!Array.isArray(row) && row.kind === "group") {
+              const isFirstGroup = !rows
+                .slice(0, rowIndex)
+                .some((r) => !Array.isArray(r) && r.kind === "group");
               return (
                 <tr key={`group-${rowIndex}`} className="bg-surface">
                   <th
                     colSpan={Math.max(headers.length, 1)}
                     scope="colgroup"
-                    className="text-left py-2 sm:py-3 px-2 font-semibold text-zinc-200 sticky left-0 z-10 bg-surface border-t border-edge"
+                    className={cn(
+                      "text-left py-3 sm:py-4 px-2 font-semibold text-zinc-100 sticky left-0 z-10 bg-surface border-t-2 border-zinc-600",
+                      !isFirstGroup && "pt-5 sm:pt-6"
+                    )}
                   >
                     {row.title}
                   </th>
