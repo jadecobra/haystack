@@ -8,6 +8,7 @@ The public `/docs` page explains how locked table metrics are calculated and how
 - `docs-primer` covers owner earnings, sources, and last close in plain English bullets.
 - `docs-catalog` lists all 32 locked labels in contract order.
 - `docs-home-link` is reachable from `/` via `How metrics are calculated`.
+- `docs-copyright` shows `© 2026 JadeCobra LLC`.
 
 ## How to get to it (user POV)
 

@@ -93,7 +93,7 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - subtitle `Fundamental Analysis to answer two questions - How much? How long?`
 - `input[placeholder="enter stock ticker e.g. AAPL"]`
 - `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
-- footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`
+- footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`, plus `© 2026 JadeCobra LLC` from PageShell
 - `/docs` SSR: `h1` `How metrics are calculated`; all 32 `LOCKED_LABELS` strings in contract order
 - After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`
 - Document title `LongMuch - How much? How long?` (layout metadata)

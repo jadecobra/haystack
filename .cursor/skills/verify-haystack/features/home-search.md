@@ -8,6 +8,7 @@ The LongMuch landing page is a ticker search: a large heading, a subtitle, one t
 - `home-ticker` shows a text input with placeholder `enter stock ticker e.g. AAPL`.
 - `home-analyze` shows a button whose idle label is `Analyze`.
 - `home-footer` shows `Last 5 years of 10-K metrics. No login. No ads. No bloat.`
+- `home-copyright` shows `© 2026 JadeCobra LLC`.
 - `home-docs-link` shows `How metrics are calculated` pointing at `/docs`.
 - `home-title` document title is `LongMuch - How much? How long?` (layout metadata).
 

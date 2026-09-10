@@ -43,6 +43,9 @@ const PageShell = ({
         )}
       >
         {children}
+        <p className="mt-8 sm:mt-10 text-muted-2 text-sm sm:text-base px-1">
+          © 2026 JadeCobra LLC
+        </p>
       </div>
     </main>
   );

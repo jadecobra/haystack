@@ -94,6 +94,7 @@ case "$cmd" in
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
     grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
     grep -q 'How metrics are calculated' "$EVIDENCE/home.html" || die "home HTML missing docs link"
+    grep -q 'JadeCobra LLC' "$EVIDENCE/home.html" || die "home HTML missing JadeCobra LLC copyright"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
     if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" != "1" ]]; then
@@ -263,6 +264,7 @@ PY
     code="$(http_get "$FRONTEND_ORIGIN" /docs docs | tail -n 1)"
     [[ "$code" == "200" ]] || die "docs GET not 200 (got $code)"
     grep -q 'How metrics are calculated' "$EVIDENCE/docs.html" || die "docs HTML missing title"
+    grep -q 'JadeCobra LLC' "$EVIDENCE/docs.html" || die "docs HTML missing JadeCobra LLC copyright"
     grep -q 'Owner Earnings / Last Close Price' "$EVIDENCE/docs.html" || die "docs HTML missing OE/close label"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$EVIDENCE/docs.html" || die "docs HTML missing treasury label"
     grep -q '30 Year Treasury (DGS30)' "$EVIDENCE/docs.html" || die "docs HTML missing DGS30 row"
