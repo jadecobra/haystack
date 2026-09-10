@@ -1,22 +1,58 @@
 @import "tailwindcss";
 
+/* :root uses --lm-* names. @theme maps those onto Tailwind theme keys.
+   Never assign --radius-card: var(--radius-card) (circular). */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  --lm-canvas: #09090b; /* zinc-950 — page background */
+  --lm-surface: #18181b; /* zinc-900 — raised panels, inputs */
+  --lm-surface-muted: rgb(24 24 27 / 0.6); /* zinc-900/60 — docs cards */
+  --lm-foreground: #fafafa; /* zinc-50 */
+  --lm-muted: #a1a1aa; /* zinc-400 — secondary copy, table headers */
+  --lm-muted-2: #71717a; /* zinc-500 — tertiary copy, link rest */
+  --lm-formula: #e4e4e7; /* zinc-200 — formula strings */
+  --lm-edge: #27272a; /* zinc-800 — default hairline */
+  --lm-edge-strong: #3f3f46; /* zinc-700 — inputs at rest */
+  --lm-edge-focus: #fafafa; /* focus border */
+  --lm-accent: #fafafa; /* primary button bg */
+  --lm-accent-fg: #09090b;
+  --lm-danger: #f87171; /* red-400 — analyze error line */
+
+  --lm-radius-card: 0.5rem; /* 8px — cards */
+  --lm-radius-control: 1rem; /* 16px — Input/Button default (mobile) */
+  --lm-radius-control-sm: 1.5rem; /* 24px — Input/Button from sm: */
+  --lm-border-width: 1px;
+
+  --lm-shadow-card: none;
+
+  /* Compat: body { background: var(--background) } and leftover bg-background */
+  --background: var(--lm-canvas);
+  --foreground: var(--lm-foreground);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--color-foreground);
+  --color-canvas: var(--lm-canvas);
+  --color-surface: var(--lm-surface);
+  --color-surface-muted: var(--lm-surface-muted);
+  --color-foreground: var(--lm-foreground);
+  --color-muted: var(--lm-muted);
+  --color-muted-2: var(--lm-muted-2);
+  --color-formula: var(--lm-formula);
+  --color-edge: var(--lm-edge);
+  --color-edge-strong: var(--lm-edge-strong);
+  --color-edge-focus: var(--lm-edge-focus);
+  --color-accent: var(--lm-accent);
+  --color-accent-fg: var(--lm-accent-fg);
+  --color-danger: var(--lm-danger);
+  --color-background: var(--lm-canvas);
+  --radius-card: var(--lm-radius-card);
+  /* Do not map --lm-radius-control* into @theme. Controls keep
+     rounded-2xl sm:rounded-3xl. --lm-radius-control* on :root are docs only. */
+  --default-border-width: var(--lm-border-width);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 html {
