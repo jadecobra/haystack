@@ -6,7 +6,7 @@ import json
 import unittest
 from pathlib import Path
 
-from app.edgar import map_companyfacts_to_statements
+from app.edgar import entity_name, map_companyfacts_to_statements
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SNIPPET = FIXTURES / "aapl_companyfacts_snippet.json"
@@ -26,6 +26,12 @@ def _in_range(val, lo, hi) -> bool:
 
 
 class TestTagMappingSnippet(unittest.TestCase):
+    def test_snippet_entity_name(self):
+        payload = json.loads(SNIPPET.read_text(encoding="utf-8"))
+        self.assertEqual(entity_name(payload), "Apple Inc.")
+        self.assertIsNone(entity_name({}))
+        self.assertIsNone(entity_name({"entityName": "  "}))
+
     def test_map_snippet_annual_only(self):
         payload = json.loads(SNIPPET.read_text(encoding="utf-8"))
         years, statements = map_companyfacts_to_statements(payload)
@@ -108,8 +114,9 @@ class TestLiveGolden(unittest.TestCase):
             self.skipTest(f"network/edgar unavailable for {ticker}: {exc}")
 
     def test_aapl_live_ballpark(self):
-        years, statements, cik = self._live_or_skip("AAPL")
+        years, statements, cik, company_name = self._live_or_skip("AAPL")
         self.assertTrue(cik)
+        self.assertEqual(company_name, "Apple Inc.")
         self.assertGreater(len(years), 5)
         checked = 0
         for y, fields in AAPL_BALLPARK.items():
@@ -126,7 +133,7 @@ class TestLiveGolden(unittest.TestCase):
             self.skipTest("no overlapping ballpark years in live AAPL facts")
 
     def test_msft_live_ballpark(self):
-        years, statements, cik = self._live_or_skip("MSFT")
+        years, statements, cik, _company_name = self._live_or_skip("MSFT")
         self.assertTrue(cik)
         self.assertGreater(len(years), 5)
         checked = 0

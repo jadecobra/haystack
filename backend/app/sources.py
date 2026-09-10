@@ -44,8 +44,10 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         prev_close = 100.0
         rows = build_table(years, statements, treasury, previous_close=prev_close)
         pct, as_of = _fixture_dgs30_meta(treasury)
+        company_name = "Apple Inc." if ticker == "AAPL" else None
         return {
             "ticker": ticker,
+            "company_name": company_name,
             "years": [str(y) for y in years],
             "rows": rows,
             "source": "fixture",
@@ -64,7 +66,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
     from app import edgar, fred
 
     try:
-        years, statements, cik = edgar.statements_for_ticker(ticker)
+        years, statements, cik, company_name = edgar.statements_for_ticker(ticker)
     except ValueError:
         raise
     except Exception as exc:
@@ -115,6 +117,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
 
     return {
         "ticker": ticker,
+        "company_name": company_name,
         "years": [str(y) for y in years],
         "rows": rows,
         "source": "edgar",

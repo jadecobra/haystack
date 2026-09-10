@@ -62,6 +62,7 @@ class MetricGroup(pydantic.BaseModel):
 
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
+    company_name: str | None = None
     years: list[str]
     rows: list[MetricRow]
     source: str

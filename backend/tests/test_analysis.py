@@ -207,6 +207,7 @@ class TestSourcesFixture(unittest.TestCase):
     def test_analyze_prefer_fixture(self):
         payload = analyze("AAPL", prefer_fixture=True)
         self.assertEqual(payload["source"], "fixture")
+        self.assertEqual(payload["company_name"], "Apple Inc.")
         self.assertEqual(len(payload["rows"]), 32)
         self.assertEqual(payload["previous_close"], 100.0)
         self.assertIn("raw", payload["rows"][0])

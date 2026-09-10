@@ -27,6 +27,7 @@ type MetricGroup = {
 
 type Analysis = {
   ticker: string;
+  company_name?: string | null;
   years: string[];
   rows: MetricRow[];
   source?: string;
@@ -152,6 +153,12 @@ function parseAnalysis(value: unknown): Analysis | null {
 
   return {
     ticker: value.ticker,
+    company_name:
+      typeof value.company_name === 'string' && value.company_name.trim()
+        ? value.company_name.trim()
+        : value.company_name === null
+          ? null
+          : undefined,
     years: value.years,
     rows,
     source: typeof value.source === 'string' ? value.source : undefined,
@@ -223,6 +230,11 @@ function buildTableRows(args: {
 
 function formatElapsed(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function headingWithCompany(ticker: string, companyName?: string | null): string {
+  const name = companyName?.trim();
+  return name ? `${ticker} · ${name}` : ticker;
 }
 
 export default function Home() {
@@ -485,10 +497,13 @@ export default function Home() {
                 : ''}
             </p>
           ) : null}
-          <h2 className="text-lg sm:text-xl text-zinc-300 mb-4 break-words">
+          <h2
+            className="text-lg sm:text-xl text-zinc-300 mb-4 break-words"
+            data-testid="company-heading"
+          >
             {view.kind === 'waiting'
               ? `${cardTicker} Financial Metrics`
-              : `${cardTicker} Financial Metrics | source : ${sourceLabel}`}
+              : `${headingWithCompany(cardTicker, ready?.company_name)} Financial Metrics | source : ${sourceLabel}`}
           </h2>
           {view.kind === 'waiting' && (
             <p

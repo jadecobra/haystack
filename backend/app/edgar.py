@@ -498,13 +498,24 @@ def map_companyfacts_to_statements(
     return years, statements
 
 
+def entity_name(companyfacts: dict[str, Any]) -> str | None:
+    raw = companyfacts.get("entityName")
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    return name or None
+
+
 def statements_for_ticker(
     ticker: str,
-) -> tuple[list[int], dict[int, dict[str, float | None]], str]:
-    """Resolve ticker → companyfacts → statements. Returns (years, statements, cik)."""
+) -> tuple[list[int], dict[int, dict[str, float | None]], str, str | None]:
+    """Resolve ticker → companyfacts → statements.
+
+    Returns (years, statements, cik, company_name).
+    """
     cik = resolve_cik(ticker)
     payload = fetch_companyfacts(cik)
     years, statements = map_companyfacts_to_statements(payload)
     if not years:
         raise ValueError(f"no annual us-gaap facts for {ticker} (CIK {cik})")
-    return years, statements, cik
+    return years, statements, cik, entity_name(payload)
