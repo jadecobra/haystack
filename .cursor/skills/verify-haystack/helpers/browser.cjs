@@ -69,6 +69,72 @@ function loadPlaywright() {
   return null;
 }
 
+function existingChromiumExecutables() {
+  const fromEnv = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+  const found = [];
+  if (fromEnv && fs.existsSync(fromEnv)) found.push(fromEnv);
+  const cache = path.join(
+    process.env.HOME || '',
+    'Library',
+    'Caches',
+    'ms-playwright',
+  );
+  if (!fs.existsSync(cache)) return found;
+  const names = fs.readdirSync(cache).filter((n) => n.startsWith('chromium'));
+  names.sort().reverse();
+  for (const name of names) {
+    const root = path.join(cache, name);
+    const walk = [root];
+    for (let i = 0; i < walk.length; i++) {
+      let entries;
+      try {
+        entries = fs.readdirSync(walk[i], { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      for (const ent of entries) {
+        const p = path.join(walk[i], ent.name);
+        if (ent.isDirectory()) {
+          if (walk.length < 80) walk.push(p);
+          continue;
+        }
+        if (
+          ent.name === 'chrome-headless-shell' ||
+          ent.name === 'headless_shell' ||
+          ent.name === 'chrome' ||
+          ent.name === 'Chromium'
+        ) {
+          found.push(p);
+        }
+      }
+    }
+  }
+  return [...new Set(found)];
+}
+
+async function launchChromium(pw) {
+  try {
+    return await pw.chromium.launch({ headless: true });
+  } catch (first) {
+    const tried = [];
+    for (const executablePath of existingChromiumExecutables()) {
+      tried.push(executablePath);
+      try {
+        return await pw.chromium.launch({ headless: true, executablePath });
+      } catch {
+        /* try next binary */
+      }
+    }
+    const extra = tried.length
+      ? `; also failed executablePath fallbacks: ${tried.join(', ')}`
+      : '';
+    const err = new Error(
+      `${first && first.message ? first.message : first}${extra}`,
+    );
+    throw err;
+  }
+}
+
 /**
  * Detect Next.js Dev Tools "N Issues" badge / error indicator.
  * Prefer DOM attrs on [data-next-badge]; also scan visible text + open shadow roots.
@@ -180,7 +246,7 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
 
   let browser;
   try {
-    browser = await pw.chromium.launch({ headless: true });
+    browser = await launchChromium(pw);
   } catch (err) {
     const msg = String(err && err.message ? err.message : err);
     fs.writeFileSync(path.join(outDir, 'browser-skipped.txt'), msg);
