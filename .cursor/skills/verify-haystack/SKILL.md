@@ -9,10 +9,10 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show 5-ye
 
 ## Surfaces
 
-- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle includes `How much? How long?`, text input placeholder `enter stock ticker e.g. AAPL`, button `Analyze`. After client state `data` is set, a table titled `5-Year Financial Metrics` appears. `frontend/app/layout.tsx` metadata title is `LongMuch - How much? How long?`.
+- Primary (this skill): Next.js 16 App Router UI in `frontend/`. Homepage `frontend/app/page.tsx` is a client component: `h1` LongMuch, subtitle includes `How much? How long?`, text input placeholder `enter stock ticker e.g. AAPL`, button `Analyze`. On Analyze click the view enters `waiting` (skeleton table + status stages + elapsed); on success it becomes `ready` with the real table titled `5-Year Financial Metrics`. `frontend/app/layout.tsx` metadata title is `LongMuch - How much? How long?`.
 - Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR**. Fixture mode only via CLI `uv run longmuch analyze TICKER --local`, or `HAYSTACK_PREFER_FIXTURE=1` on the **backend process**. The `?fixture=` query param is ignored. Curl-local env does not switch a running uvicorn. Verify HTTP prove uses live analyze by default; `VERIFY_FIXTURE=1` / `--fixture` runs CLI `--local`.
-- Frontend `fetch('/api/analyze/${ticker}')` on the Next origin. Prove that path; do not document a 404 or mock KPI payload unless the live helper still returns one.
-- The metrics table is client-rendered from analyze JSON after `data` is set. SSR homepage HTML has no table. Do not treat leftover sample rows in docs as live proof.
+- Frontend `fetch('/api/analyze/${ticker}')` and `fetch('/api/contract')` on the Next origin. Prove those paths; do not document a 404 or mock KPI payload unless the live helper still returns one.
+- The metrics table is client-rendered from the discriminated `View` (`waiting` skeleton or `ready` analyze JSON). SSR homepage HTML has no table. Do not treat leftover sample rows in docs as live proof.
 - No Playwright/Cypress in the repo. Drive with curl against isolated origins. `helpers/browser.cjs` is an optional skill-local Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
 - `ao start` / agent-orchestrator.yaml port 3000 is out of scope.
 
@@ -92,12 +92,14 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - `h1` text `LongMuch`
 - subtitle `Fundamental Analysis to answer two questions - How much? How long?`
 - `input[placeholder="enter stock ticker e.g. AAPL"]`
-- `button` text `Analyze` (while loading: `Analyzing...`); disabled when loading or ticker is blank, so it is disabled on the empty SSR homepage
+- `button` text `Analyze` (stays `Analyze` while waiting; status line carries stages + elapsed); disabled when waiting or ticker is blank, so it is disabled on the empty SSR homepage
 - footer `Last 5 years of 10-K metrics. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`, plus `© 2026 JadeCobra LLC` from PageShell
 - `/docs` SSR: `h1` `How metrics are calculated`; all 32 `LOCKED_LABELS` strings in contract order
-- After `data` is set: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`
+- After `ready`: table `h2` includes `5-Year Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`
+- While `waiting`: same DataTable chrome with group headers from `/api/contract` (or cached groups), year headers from last-known years or five `…` placeholders, metric cells `—`; status line stages `Looking up company…` → `Loading filings…` → `Building table…` plus elapsed clock; no `Analyzing...` button label
 - Document title `LongMuch - How much? How long?` (layout metadata)
 - Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
+- Next API path `/api/contract` (proxies to FastAPI GET `/contract`)
 - FastAPI GET `/health`, GET `/analyze/{ticker}` (live EDGAR default; fixture via `HAYSTACK_PREFER_FIXTURE` or CLI `--local` only), GET `/contract` on the backend origin only
 
 ## Evidence

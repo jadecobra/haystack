@@ -292,20 +292,55 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
 
     if (cmd === 'analyze') {
       const ticker = (process.argv[3] || 'AAPL').toUpperCase();
+      await page.route('**/api/analyze/**', async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await route.continue();
+      });
       await page.locator('input[placeholder="enter stock ticker e.g. AAPL"]').fill(ticker);
       await page.locator('button', { hasText: 'Analyze' }).click();
-      await page.waitForTimeout(2000);
+      await page.waitForSelector('[data-testid="analyze-wait-status"]', { timeout: 5000 });
+      const waitHtml = await page.content();
+      fs.writeFileSync(path.join(outDir, 'wait.html'), waitHtml);
+      await page.screenshot({ path: path.join(outDir, 'wait.png'), fullPage: true });
+      const waitStatus = (await page.locator('[data-testid="analyze-wait-status"]').textContent()) || '';
+      const waitElapsed = (await page.locator('[data-testid="analyze-wait-elapsed"]').textContent()) || '';
+      const groupCount = await page.locator('th[scope="colgroup"]').count();
+      const hasSkeleton = waitHtml.includes('5-Year Financial Metrics') && waitHtml.includes('—');
+      const forbiddenWait = /cold start|waking|Render|API/i.test(waitStatus);
+      fs.writeFileSync(
+        path.join(outDir, 'wait.meta.txt'),
+        [
+          `ticker=${ticker}`,
+          `status=${waitStatus.trim()}`,
+          `elapsed=${waitElapsed.trim()}`,
+          `group_headers=${groupCount}`,
+          `has_skeleton=${hasSkeleton}`,
+          `forbidden_copy=${forbiddenWait}`,
+        ].join('\n') + '\n'
+      );
+      if (forbiddenWait) {
+        console.error('WAIT_UX_FAIL: forbidden copy in status line');
+        process.exit(1);
+      }
+      await page.waitForFunction(
+        () => document.body && document.body.innerText.includes('source : EDGAR'),
+        null,
+        { timeout: 180000 },
+      );
       const html = await page.content();
       fs.writeFileSync(path.join(outDir, 'after-click.html'), html);
       await page.screenshot({ path: path.join(outDir, 'after-click.png'), fullPage: true });
       const hasTable = html.includes('5-Year Financial Metrics');
+      const readyGroups = await page.locator('th[scope="colgroup"]').count();
       fs.writeFileSync(
         path.join(outDir, 'after-click.meta.txt'),
         [
           `ticker=${ticker}`,
           `h1=${String(h1 || '').trim()}`,
           `has_table=${hasTable}`,
-          `note=Table rows in page.tsx are hardcoded sample billions; KPI values come from /api/analyze JSON.`,
+          `ready_group_headers=${readyGroups}`,
+          `wait_status=${waitStatus.trim()}`,
+          `wait_elapsed=${waitElapsed.trim()}`,
         ].join('\n') + '\n'
       );
       detection = await detectNextIssues(page);
