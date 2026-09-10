@@ -6,7 +6,7 @@ The public `/docs` page explains how locked table metrics are calculated and how
 
 - `docs-heading` shows `h1` `How metrics are calculated`.
 - `docs-primer` covers owner earnings, sources, and last close in plain English bullets.
-- `docs-catalog` lists all 26 locked labels in contract order.
+- `docs-catalog` lists all 32 locked labels in contract order.
 - `docs-home-link` is reachable from `/` via `How metrics are calculated`.
 
 ## How to get to it (user POV)

@@ -1,6 +1,6 @@
 # Analyze results
 
-Submitting a ticker shows a previous-close line (when the API has one) and a `5-Year Financial Metrics` table of the 26 locked rows. The Next origin proxies `GET /api/analyze/{ticker}` to FastAPI. Proof is HTTP 200 plus the locked labels in the JSON, then the same labels in the page after Analyze.
+Submitting a ticker shows a previous-close line (when the API has one) and a `5-Year Financial Metrics` table of the 32 locked rows. The Next origin proxies `GET /api/analyze/{ticker}` to FastAPI. Proof is HTTP 200 plus the locked labels in the JSON, then the same labels in the page after Analyze.
 
 ## Sub-features
 

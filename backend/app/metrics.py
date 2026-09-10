@@ -16,6 +16,12 @@ RATIO_LABELS = [
     "Owner Earnings / Total Liabilities",
     "Owner Earnings / Debt",
     "Owner Earnings / Last Close Price",
+    "Cash per Share / Last Close Price",
+    "Revenue per Share / Last Close Price",
+    "Dividends per Share / Last Close Price",
+    "Net Income per Share / Last Close Price",
+    "Assets per Share / Last Close Price",
+    "Equity per Share / Last Close Price",
     "Dividends / Net Income",
     "Dividends / Owner Earnings",
     "Dividends / Equity",
@@ -39,7 +45,7 @@ PER_SHARE_LABELS = [
 LOCKED_LABELS = RATIO_LABELS + PER_SHARE_LABELS
 TREASURY_LABEL = "Owner Earnings / 30 Year Treasury per Share"
 
-SCHEMA_VERSION = "6"
+SCHEMA_VERSION = "7"
 
 FIELDS = (
     "revenue",
@@ -111,6 +117,12 @@ def compute_year(
     owner_earnings = s["owner_earnings"]
     div = s["dividends"]
     oe_ps = _ratio(owner_earnings, shares)
+    cash_ps = _ratio(s["cash"], shares)
+    revenue_ps = _ratio(s["revenue"], shares)
+    div_ps = _ratio(div, shares)
+    ni_ps = _ratio(ni, shares)
+    assets_ps = _ratio(s["assets"], shares)
+    equity_ps = _ratio(s["equity"], shares)
     ty = _num(treasury_yield)
     close = _num(previous_close)
     return {
@@ -125,18 +137,24 @@ def compute_year(
         "Owner Earnings / Total Liabilities": _ratio(owner_earnings, s["total_liabilities"]),
         "Owner Earnings / Debt": _ratio(owner_earnings, s["debt"]),
         "Owner Earnings / Last Close Price": _ratio(oe_ps, close),
+        "Cash per Share / Last Close Price": _ratio(cash_ps, close),
+        "Revenue per Share / Last Close Price": _ratio(revenue_ps, close),
+        "Dividends per Share / Last Close Price": _ratio(div_ps, close),
+        "Net Income per Share / Last Close Price": _ratio(ni_ps, close),
+        "Assets per Share / Last Close Price": _ratio(assets_ps, close),
+        "Equity per Share / Last Close Price": _ratio(equity_ps, close),
         "Dividends / Net Income": _ratio(div, ni),
         "Dividends / Owner Earnings": _ratio(div, owner_earnings),
         "Dividends / Equity": _ratio(div, s["equity"]),
         "Shares Outstanding": shares,
         "Debt per Share": _ratio(s["debt"], shares),
-        "Revenue per Share": _ratio(s["revenue"], shares),
-        "Net Income per Share": _ratio(ni, shares),
+        "Revenue per Share": revenue_ps,
+        "Net Income per Share": ni_ps,
         "Owner Earnings per Share": oe_ps,
-        "Dividends per Share": _ratio(div, shares),
-        "Equity per Share": _ratio(s["equity"], shares),
-        "Assets per Share": _ratio(s["assets"], shares),
-        "Cash per Share": _ratio(s["cash"], shares),
+        "Dividends per Share": div_ps,
+        "Equity per Share": equity_ps,
+        "Assets per Share": assets_ps,
+        "Cash per Share": cash_ps,
         "Liabilities per Share": _ratio(s["total_liabilities"], shares),
         TREASURY_LABEL: _ratio(oe_ps, ty),
         "30 Year Treasury (DGS30)": ty,
@@ -149,8 +167,19 @@ def _fmt_yield(value: float | None) -> str:
     return f"{value * 100:.2f}%"
 
 
+CLOSE_YIELD_LABELS = {
+    "Owner Earnings / Last Close Price",
+    "Cash per Share / Last Close Price",
+    "Revenue per Share / Last Close Price",
+    "Dividends per Share / Last Close Price",
+    "Net Income per Share / Last Close Price",
+    "Assets per Share / Last Close Price",
+    "Equity per Share / Last Close Price",
+}
+
+
 def format_cell(label: str, value: float | None) -> str:
-    if label == "Owner Earnings / Last Close Price":
+    if label in CLOSE_YIELD_LABELS:
         return _fmt_yield(value)
     if label in RATIO_LABELS:
         return _fmt_pct(value)

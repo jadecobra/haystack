@@ -15,7 +15,7 @@ from app.sources import analyze
 
 class TestMetrics(unittest.TestCase):
     def test_locked_labels_include_treasury(self):
-        self.assertEqual(len(LOCKED_LABELS), 26)
+        self.assertEqual(len(LOCKED_LABELS), 32)
         self.assertIn("Shares Outstanding", LOCKED_LABELS)
         self.assertIn("Owner Earnings / Last Close Price", LOCKED_LABELS)
         self.assertIn(TREASURY_LABEL, LOCKED_LABELS)
@@ -41,15 +41,24 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(year["Shares Outstanding"], 10)
         self.assertAlmostEqual(year["Owner Earnings per Share"], 2.0)
         self.assertAlmostEqual(year["Owner Earnings / Last Close Price"], 0.02)
+        self.assertAlmostEqual(year["Cash per Share / Last Close Price"], 0.008)
+        self.assertAlmostEqual(year["Revenue per Share / Last Close Price"], 0.1)
+        self.assertAlmostEqual(year["Dividends per Share / Last Close Price"], 0.005)
+        self.assertAlmostEqual(year["Net Income per Share / Last Close Price"], 0.01)
+        self.assertAlmostEqual(year["Assets per Share / Last Close Price"], 0.2)
+        self.assertAlmostEqual(year["Equity per Share / Last Close Price"], 0.05)
         self.assertAlmostEqual(year[TREASURY_LABEL], 40.0)
         self.assertAlmostEqual(year["30 Year Treasury (DGS30)"], 0.05)
         rows = build_table([2024], {2024: stmt}, {2024: 0.05}, previous_close=100.0)
-        self.assertEqual(len(rows), 26)
+        self.assertEqual(len(rows), 32)
         self.assertEqual(rows[0]["values"]["2024"], "10.0%")
         self.assertAlmostEqual(rows[0]["raw"]["2024"], 0.1)
         yield_row = next(r for r in rows if r["metric"] == "Owner Earnings / Last Close Price")
         self.assertEqual(yield_row["values"]["2024"], "2.00%")
         self.assertAlmostEqual(yield_row["raw"]["2024"], 0.02)
+        cash_yield = next(r for r in rows if r["metric"] == "Cash per Share / Last Close Price")
+        self.assertEqual(cash_yield["values"]["2024"], "0.80%")
+        self.assertAlmostEqual(cash_yield["raw"]["2024"], 0.008)
         shares_row = next(r for r in rows if r["metric"] == "Shares Outstanding")
         self.assertEqual(shares_row["values"]["2024"], "10")
         self.assertAlmostEqual(shares_row["raw"]["2024"], 10)
@@ -137,7 +146,7 @@ class TestAnalysis(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             body = response.json()
             self.assertEqual(body["ticker"], "AAPL")
-            self.assertEqual(len(body["rows"]), 26)
+            self.assertEqual(len(body["rows"]), 32)
             self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
             self.assertIn("raw", body["rows"][0])
             mocked.assert_called_once_with("AAPL")
@@ -184,14 +193,14 @@ class TestAnalysis(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["schema_version"], SCHEMA_VERSION)
         self.assertEqual(body["labels"], LOCKED_LABELS)
-        self.assertEqual(body["row_count"], 26)
+        self.assertEqual(body["row_count"], 32)
 
 
 class TestSourcesFixture(unittest.TestCase):
     def test_analyze_prefer_fixture(self):
         payload = analyze("AAPL", prefer_fixture=True)
         self.assertEqual(payload["source"], "fixture")
-        self.assertEqual(len(payload["rows"]), 26)
+        self.assertEqual(len(payload["rows"]), 32)
         self.assertEqual(payload["previous_close"], 100.0)
         self.assertIn("raw", payload["rows"][0])
         yield_row = next(

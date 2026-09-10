@@ -249,8 +249,8 @@ PY
     echo "GET $url -> HTTP $code"
     [[ "$code" == "200" ]] || die "backend /contract not 200"
     grep -q 'schema_version' "$body" || die "contract JSON missing schema_version"
-    grep -q '"schema_version":"6"' "$body" || die "contract JSON schema_version is not 6"
-    grep -q '"row_count":26' "$body" || die "contract JSON row_count is not 26"
+    grep -q '"schema_version":"7"' "$body" || die "contract JSON schema_version is not 7"
+    grep -q '"row_count":32' "$body" || die "contract JSON row_count is not 32"
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "contract JSON missing treasury label"
     grep -q 'Owner Earnings / Last Close Price' "$body" || die "contract JSON missing Owner Earnings / Last Close Price"
     ;;

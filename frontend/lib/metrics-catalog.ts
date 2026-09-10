@@ -114,6 +114,36 @@ const CATALOG: MetricDocDraft[] = [
     meaning: "Owner earnings per share compared with the latest closing share price.",
   },
   {
+    label: "Cash per Share / Last Close Price",
+    formula: "(Cash ÷ Shares) ÷ Last Close Price",
+    meaning: "Cash per share compared with the latest closing share price.",
+  },
+  {
+    label: "Revenue per Share / Last Close Price",
+    formula: "(Revenue ÷ Shares) ÷ Last Close Price",
+    meaning: "Revenue per share compared with the latest closing share price.",
+  },
+  {
+    label: "Dividends per Share / Last Close Price",
+    formula: "(Dividends ÷ Shares) ÷ Last Close Price",
+    meaning: "Dividends per share compared with the latest closing share price.",
+  },
+  {
+    label: "Net Income per Share / Last Close Price",
+    formula: "(Net Income ÷ Shares) ÷ Last Close Price",
+    meaning: "Net income per share compared with the latest closing share price.",
+  },
+  {
+    label: "Assets per Share / Last Close Price",
+    formula: "(Assets ÷ Shares) ÷ Last Close Price",
+    meaning: "Assets per share compared with the latest closing share price.",
+  },
+  {
+    label: "Equity per Share / Last Close Price",
+    formula: "(Equity ÷ Shares) ÷ Last Close Price",
+    meaning: "Book equity per share compared with the latest closing share price.",
+  },
+  {
     label: "Dividends / Net Income",
     formula: "Dividends ÷ Net Income",
     meaning: "Share of net income paid as dividends.",

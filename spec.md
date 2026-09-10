@@ -14,7 +14,7 @@ Users type a ticker and see five years of ratios and per-share metrics derived f
 
 - SEC companyfacts JSON (US-GAAP FY series tied to 10-K), last five years. Not a per-filing XBRL instance parse.
 - FRED series DGS30 (30-year Treasury).
-- Previous close from Yahoo, then NASDAQ. The same last close is used for every year column in Owner Earnings / Last Close Price.
+- Previous close from Yahoo, then NASDAQ. The same last close is used for every year column in rows that divide by Last Close Price.
 
 **Owner earnings.** Cash after maintenance reinvestment, before allocation. Internal field name is `owner_earnings`.
 
@@ -37,6 +37,12 @@ OCF is the reported operating-cash tag when present. If missing: `ΔCash − CFI
 - Owner Earnings / Total Liabilities
 - Owner Earnings / Debt
 - Owner Earnings / Last Close Price
+- Cash per Share / Last Close Price
+- Revenue per Share / Last Close Price
+- Dividends per Share / Last Close Price
+- Net Income per Share / Last Close Price
+- Assets per Share / Last Close Price
+- Equity per Share / Last Close Price
 - Dividends / Net Income
 - Dividends / Owner Earnings
 - Dividends / Equity
