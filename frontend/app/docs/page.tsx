@@ -36,10 +36,7 @@ export default function DocsPage() {
             Primer
           </h2>
           {model.primer.map((block) => (
-            <Card
-              key={block.id}
-              className="border-zinc-800 bg-zinc-900/60 text-left shadow-none hover:shadow-none"
-            >
+            <Card key={block.id} variant="muted">
               <h3
                 id={block.id}
                 className="text-lg font-semibold text-zinc-100 mb-2 scroll-mt-8"
@@ -60,10 +57,7 @@ export default function DocsPage() {
             Metrics
           </h2>
           {model.entries.map((entry) => (
-            <Card
-              key={entry.label}
-              className="border-zinc-800 bg-zinc-900/60 text-left shadow-none hover:shadow-none"
-            >
+            <Card key={entry.label} variant="muted">
               <h3
                 id={entry.anchor}
                 className="text-base sm:text-lg font-semibold text-zinc-100 mb-3 scroll-mt-8"
