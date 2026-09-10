@@ -46,7 +46,7 @@ const DataTable = ({
                 className={cn(
                   "text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap sticky top-0 border-b border-edge",
                   headerBg,
-                  index === 0 ? "left-0 z-30" : "z-20"
+                  index === 0 ? "left-0 z-30" : "z-20 border-l border-edge/40"
                 )}
               >
                 {header}
@@ -89,9 +89,11 @@ const DataTable = ({
                     className={cn(
                       "py-2 sm:py-3 px-2 text-zinc-300",
                       cellIndex === 0
-                        ? "whitespace-normal max-w-[16rem] sm:max-w-xs"
-                        : "whitespace-nowrap",
-                      cellIndex === 0 && `sticky left-0 z-10 ${stripe}`
+                        ? `whitespace-normal max-w-[16rem] sm:max-w-xs sticky left-0 z-10 ${stripe}`
+                        : cn(
+                            "whitespace-nowrap border-l border-edge/40",
+                            cellIndex % 2 === 1 && "bg-zinc-400/[0.04]"
+                          )
                     )}
                   >
                     {cell}
