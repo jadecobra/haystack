@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
+import Link from 'next/link';
 
 import {
   useCallback,
@@ -433,19 +434,13 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="wide" centerViewport textAlign="center">
-      <img
-        src="/logo.svg"
-        alt=""
-        width={500}
-        height={500}
-        className="mx-auto mb-2 h-[72px] w-auto"
-      />
-      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter mb-3 sm:mb-6">
-        LongMuch
-      </h1>
-      <p className="text-lg sm:text-2xl md:text-3xl text-muted mb-8 sm:mb-16">
-        Fundamental Analysis to answer two questions - How much? How long?
-      </p>
+      <Link
+        href="/"
+        className="mx-auto mb-8 sm:mb-16 block w-full max-w-xs sm:max-w-sm md:max-w-md"
+      >
+        <img src="/logo.svg" alt="LongMuch" className="h-auto w-full" />
+      </Link>
+      <h1 className="sr-only">LongMuch</h1>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-4xl mx-auto mb-8 sm:mb-16">
         <Input

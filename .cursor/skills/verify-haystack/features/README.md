@@ -14,7 +14,7 @@ This directory is the maintained source for verifying the user-facing behavior o
 ## Driving conventions
 
 - Start every recipe from the baseline state unless its preconditions say otherwise.
-- Prefer `h1` LongMuch, the ticker `input` placeholder from `page.tsx`, and the `Analyze` button over coordinates. Keep those strings in sync with SKILL.md Stable handles.
+- Prefer visually hidden `h1` LongMuch, the ticker `input` placeholder from `page.tsx`, and the `Analyze` button over coordinates. Keep those strings in sync with SKILL.md Stable handles.
 - Treat every command as literal.
 - HTTP via `helpers/http`. Browser via `node helpers/browser.cjs`. Both require launch first.
 - Table logic: `uv run longmuch analyze AAPL --local`. HTTP/UI: `helpers/http`. Do not invent a parallel verify skill.

@@ -92,7 +92,7 @@ case "$cmd" in
     grep -q 'LongMuch' "$EVIDENCE/home.html" || die "home HTML missing h1 text LongMuch"
     grep -q 'enter stock ticker e.g. AAPL' "$EVIDENCE/home.html" || die "home HTML missing ticker placeholder"
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
-    grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing subtitle"
+    grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing document title phrase How much? How long?"
     grep -q 'How metrics are calculated' "$EVIDENCE/home.html" || die "home HTML missing docs link"
     grep -q 'JadeCobra LLC' "$EVIDENCE/home.html" || die "home HTML missing JadeCobra LLC copyright"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
