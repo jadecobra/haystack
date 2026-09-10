@@ -14,6 +14,9 @@ const DataTable = ({
   headers,
   rows,
 }: DataTableProps) => {
+  // Match wrapper when framed; otherwise even-row stripe (first body row).
+  const headerBg = framed ? "bg-surface" : "bg-canvas";
+
   return (
     <div
       className={cn(
@@ -31,7 +34,8 @@ const DataTable = ({
                 key={index}
                 className={cn(
                   "text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap",
-                  index === 0 && "sticky left-0 bg-canvas z-10"
+                  headerBg,
+                  index === 0 && "sticky left-0 z-10"
                 )}
               >
                 {header}
