@@ -433,7 +433,14 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="wide" centerViewport textAlign="center">
-      <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tighter mb-3 sm:mb-6">
+      <img
+        src="/logo.svg"
+        alt=""
+        width={500}
+        height={500}
+        className="mx-auto mb-2 h-[72px] w-auto"
+      />
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter mb-3 sm:mb-6">
         LongMuch
       </h1>
       <p className="text-lg sm:text-2xl md:text-3xl text-muted mb-8 sm:mb-16">

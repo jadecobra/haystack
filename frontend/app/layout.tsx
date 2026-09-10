@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: "LongMuch - How much? How long?",
   description:
     "Fundamental Analysis to answer two questions - How much? How long?",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export const viewport = {
