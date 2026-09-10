@@ -32,22 +32,21 @@ const DataTable = ({
   return (
     <div
       className={cn(
-        framed
-          ? "rounded-card border border-edge bg-surface overflow-x-auto p-3 sm:p-6"
-          : "overflow-x-auto",
+        "max-h-[70vh] overflow-auto",
+        framed && "rounded-card border border-edge bg-surface p-3 sm:p-6",
         className
       )}
     >
-      <table className="w-full min-w-[36rem] text-sm sm:text-base">
+      <table className="w-full min-w-[36rem] text-sm sm:text-base border-separate border-spacing-0">
         <thead>
           <tr className="border-b border-edge">
             {headers.map((header, index) => (
               <th
                 key={index}
                 className={cn(
-                  "text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap",
+                  "text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap sticky top-0 border-b border-edge",
                   headerBg,
-                  index === 0 && "sticky left-0 z-10"
+                  index === 0 ? "left-0 z-30" : "z-20"
                 )}
               >
                 {header}
@@ -67,7 +66,7 @@ const DataTable = ({
                     colSpan={Math.max(headers.length, 1)}
                     scope="colgroup"
                     className={cn(
-                      "text-left py-3 sm:py-4 px-2 font-semibold text-zinc-100 sticky left-0 z-10 bg-surface border-t-2 border-zinc-600",
+                      "text-left py-3 sm:py-4 px-2 font-semibold text-zinc-100 bg-surface border-t-2 border-zinc-600",
                       !isFirstGroup && "pt-5 sm:pt-6"
                     )}
                   >
