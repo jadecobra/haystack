@@ -94,3 +94,9 @@ next-env.d.ts
 
 # haystack EDGAR/FRED disk cache
 backend/.cache/
+
+# cloudflare wrangler local runtime
+.wrangler/
+
+# scratch file at repo root only (not every TODO path)
+/TODO
