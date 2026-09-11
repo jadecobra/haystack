@@ -74,6 +74,8 @@ def _http_get_json(url: str, *, timeout: float = 60.0) -> dict[str, Any]:
     }
     with httpx.Client(timeout=timeout, headers=headers, follow_redirects=True) as client:
         resp = client.get(url)
+        if resp.status_code == 404:
+            raise ValueError("unknown ticker / no companyfacts")
         resp.raise_for_status()
         return resp.json()
 
@@ -127,7 +129,7 @@ def resolve_cik(ticker: str) -> str:
         if cik is not None:
             return _normalize_cik(cik)
     except Exception as exc:
-        raise ValueError(f"unknown ticker / no CIK for {ticker}: {exc}") from exc
+        raise ValueError(f"unknown ticker / no CIK for {ticker}") from exc
     raise ValueError(f"unknown ticker / no CIK for {ticker}")
 
 
@@ -517,5 +519,5 @@ def statements_for_ticker(
     payload = fetch_companyfacts(cik)
     years, statements = map_companyfacts_to_statements(payload)
     if not years:
-        raise ValueError(f"no annual us-gaap facts for {ticker} (CIK {cik})")
+        raise ValueError(f"unknown ticker / no annual us-gaap facts for {ticker}")
     return years, statements, cik, entity_name(payload)

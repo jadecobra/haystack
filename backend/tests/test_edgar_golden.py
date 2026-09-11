@@ -6,7 +6,9 @@ import json
 import unittest
 from pathlib import Path
 
-from app.edgar import entity_name, map_companyfacts_to_statements
+from unittest import mock
+
+from app.edgar import entity_name, map_companyfacts_to_statements, _http_get_json
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SNIPPET = FIXTURES / "aapl_companyfacts_snippet.json"
@@ -149,3 +151,36 @@ class TestLiveGolden(unittest.TestCase):
                 checked += 1
         if checked == 0:
             self.skipTest("no overlapping ballpark years in live MSFT facts")
+
+
+class TestCompanyfacts404(unittest.TestCase):
+    def test_http_404_is_unknown_ticker_not_url(self):
+        class Resp:
+            status_code = 404
+
+            def raise_for_status(self):
+                raise AssertionError("404 must not call raise_for_status")
+
+            def json(self):
+                raise AssertionError("404 must not parse body")
+
+        class Client:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, url):
+                return Resp()
+
+        with mock.patch("app.edgar.httpx.Client", Client):
+            with self.assertRaises(ValueError) as ctx:
+                _http_get_json(
+                    "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json"
+                )
+        self.assertIn("unknown ticker", str(ctx.exception).lower())
+        self.assertNotIn("sec.gov", str(ctx.exception).lower())

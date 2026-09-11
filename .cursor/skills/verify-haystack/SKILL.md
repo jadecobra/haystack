@@ -96,7 +96,7 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - footer `All available annual 10-K years. No login. No ads. No bloat.` plus link `How metrics are calculated` to `/docs`, plus `© 2026 JadeCobra LLC` from PageShell
 - `/docs` SSR: `h1` `How metrics are calculated`; all 32 `LOCKED_LABELS` strings in contract order
 - After `ready`: table `h2` includes ticker plus EDGAR `entityName` when present (e.g. `AAPL · Apple Inc.`) and `Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`. Company name is not in the logo header.
-- While `waiting`: same DataTable chrome with group headers from `/api/contract` (or cached groups), year headers from last-known years or five `…` placeholders, metric cells `—`; `h2` may be ticker-only (`AAPL Financial Metrics`); status line stages `Looking up company…` → `Loading filings…` → `Building table…` plus elapsed clock; no `Analyzing...` button label
+- While `waiting`: same DataTable chrome with group headers from `/api/contract` (or cached groups), year headers from last-known years or five `…` placeholders, metric cells `—`; `h2` may be ticker-only (`AAPL Financial Metrics`); status line is `Working…` plus elapsed clock (no timer-faked pipeline stages); no `Analyzing...` button label
 - Document title `LongMuch - How much? How long?` (layout metadata)
 - Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
 - Next API path `/api/contract` (proxies to FastAPI GET `/contract`)

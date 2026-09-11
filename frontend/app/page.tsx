@@ -1,7 +1,11 @@
 'use client';
 
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
-import { analyzeErrorMessage } from './utils/analyze-error';
+import {
+  ANALYZE_TIMEOUT_MESSAGE,
+  ANALYZE_TIMEOUT_MS,
+  analyzeErrorMessage,
+} from './utils/analyze-error';
 import Link from 'next/link';
 
 import {
@@ -43,7 +47,7 @@ type Analysis = {
   groups?: MetricGroup[];
 };
 
-type WaitStage = 'Looking up company…' | 'Loading filings…' | 'Building table…';
+const WAIT_STATUS = 'Working…';
 
 type SkeletonSpec = { groups: MetricGroup[]; years: string[] };
 
@@ -53,7 +57,6 @@ type View =
       kind: 'waiting';
       ticker: string;
       startedAt: number;
-      stage: WaitStage;
       skeleton: SkeletonSpec;
     }
   | { kind: 'ready'; data: Analysis }
@@ -68,12 +71,6 @@ type ContractPayload = {
 };
 
 const PLACEHOLDER_YEARS = ['…', '…', '…', '…', '…'] as const;
-const STAGE_ORDER: WaitStage[] = [
-  'Looking up company…',
-  'Loading filings…',
-  'Building table…',
-];
-const STAGE_AT_MS = [0, 1200, 3500] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -249,6 +246,7 @@ export default function Home() {
   const waitTimersRef = useRef<number[]>([]);
   const elapsedTimerRef = useRef<number | null>(null);
   const requestIdRef = useRef(0);
+  const analyzeAbortRef = useRef<AbortController | null>(null);
 
   const clearWaitTimers = useCallback(() => {
     for (const id of waitTimersRef.current) {
@@ -314,7 +312,6 @@ export default function Home() {
           kind: 'waiting',
           ticker: symbol,
           startedAt,
-          stage: STAGE_ORDER[0],
           skeleton,
         });
       });
@@ -322,19 +319,6 @@ export default function Home() {
       elapsedTimerRef.current = window.setInterval(() => {
         setElapsedMs(Date.now() - startedAt);
       }, 100);
-
-      for (let i = 1; i < STAGE_ORDER.length; i += 1) {
-        const stage = STAGE_ORDER[i];
-        const delay = STAGE_AT_MS[i];
-        const timerId = window.setTimeout(() => {
-          setView((current) =>
-            current.kind === 'waiting' && current.startedAt === startedAt
-              ? { ...current, stage }
-              : current,
-          );
-        }, delay);
-        waitTimersRef.current.push(timerId);
-      }
 
       void loadContractGroups().then((groups) => {
         if (groups.length === 0) return;
@@ -357,10 +341,19 @@ export default function Home() {
 
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+    analyzeAbortRef.current?.abort();
+    const controller = new AbortController();
+    analyzeAbortRef.current = controller;
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      ANALYZE_TIMEOUT_MS,
+    );
     startWaitChrome(symbol);
 
     try {
-      const response = await fetch(`/api/analyze/${symbol}`);
+      const response = await fetch(`/api/analyze/${symbol}`, {
+        signal: controller.signal,
+      });
       const raw: unknown = await response.json();
       if (requestIdRef.current !== requestId) return;
 
@@ -387,9 +380,23 @@ export default function Home() {
       setView({ kind: 'ready', data: result });
     } catch (err) {
       if (requestIdRef.current !== requestId) return;
-      console.error('Error fetching data:', err);
       clearWaitTimers();
+      const aborted =
+        controller.signal.aborted ||
+        (err instanceof DOMException && err.name === 'AbortError') ||
+        (err instanceof Error && err.name === 'AbortError');
+      if (aborted) {
+        setView({ kind: 'error', message: ANALYZE_TIMEOUT_MESSAGE });
+        return;
+      }
+      console.error('Error fetching data:', err);
       setView({ kind: 'error', message: 'Could not reach /api/analyze' });
+    } finally {
+      window.clearTimeout(timeoutId);
+      clearWaitTimers();
+      if (analyzeAbortRef.current === controller) {
+        analyzeAbortRef.current = null;
+      }
     }
   };
 
@@ -510,7 +517,7 @@ export default function Home() {
               data-testid="analyze-wait-status"
               aria-live="polite"
             >
-              {view.stage}{' '}
+              {WAIT_STATUS}{' '}
               <span data-testid="analyze-wait-elapsed">{formatElapsed(elapsedMs)}</span>
             </p>
           )}
