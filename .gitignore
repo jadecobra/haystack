@@ -100,3 +100,6 @@ backend/.cache/
 
 # scratch file at repo root only (not every TODO path)
 /TODO
+
+# local agent orchestrator hooks (not product)
+.claude/
