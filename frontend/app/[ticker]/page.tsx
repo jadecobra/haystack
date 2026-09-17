@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { AnalyzePage } from '../analyze-page';
 import { normalizeTickerSegment } from '../utils/ticker';
 
-const META_TIMEOUT_MS = 4_000;
+const META_TIMEOUT_MS = 15_000;
 const META_REVALIDATE_SECONDS = 86_400;
 
 type PageProps = {
