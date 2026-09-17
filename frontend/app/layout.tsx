@@ -18,8 +18,11 @@ export const metadata: Metadata = {
   description:
     "Fundamental Analysis to answer two questions - How much? How long?",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
