@@ -240,7 +240,8 @@ function headingWithCompany(ticker: string, companyName?: string | null): string
 function syncSharePath(symbol: string) {
   if (typeof window === 'undefined') return;
   const path = `/${symbol}`;
-  if (window.location.pathname.toUpperCase() === path) return;
+  // Exact path so /aapl normalizes to /AAPL in the address bar.
+  if (window.location.pathname === path) return;
   window.history.replaceState(window.history.state, '', path);
 }
 
