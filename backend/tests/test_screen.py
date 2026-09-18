@@ -64,7 +64,7 @@ class ScreenRankingTests(unittest.TestCase):
         def quote(ticker: str):
             if ticker == "SKIP":
                 return None
-            prices = {"CHEAP": 10.0, "MID": 50.0, "RICH": 100.0}
+            prices = {"CHEAP": 100.0, "MID": 100.0, "RICH": 100.0}
             return {"price": prices[ticker], "as_of": "2026-09-16"}
 
         payload = build_payload(
@@ -81,7 +81,7 @@ class ScreenRankingTests(unittest.TestCase):
         cheap = payload["rows"][0]
         self.assertEqual(cheap["ticker"], "CHEAP")
         self.assertAlmostEqual(cheap["oe_per_share"], 40.0)
-        self.assertAlmostEqual(cheap["oe_yield"], 4.0)
+        self.assertAlmostEqual(cheap["oe_yield"], 0.4)
         self.assertEqual(cheap["fy"], 2024)
         self.assertEqual(cheap["price_as_of"], "2026-09-16")
         self.assertEqual(payload["price_as_of"], "2026-09-16")
@@ -95,6 +95,23 @@ class ScreenRankingTests(unittest.TestCase):
             "price_as_of",
         ):
             self.assertIn(key, cheap)
+
+
+    def test_skips_pathological_yield(self):
+        def facts(ticker: str):
+            return [2024], {2024: _stmt(oe=400.0, shares=10.0)}, "1", "Bad Co"
+
+        def quote(ticker: str):
+            return {"price": 10.0, "as_of": "2026-09-16"}  # yield 4.0 → skipped
+
+        payload = build_payload(
+            ["BAD"],
+            fetch_facts=facts,
+            fetch_quote=quote,
+            built_at="2026-09-17T02:00:00+00:00",
+        )
+        self.assertEqual(payload["count"], 0)
+        self.assertEqual(payload["skipped"], 1)
 
     def test_rank_rows_high_to_low(self):
         ranked = rank_rows(
@@ -159,7 +176,11 @@ class ScreenApiTests(unittest.TestCase):
         self.assertIsInstance(body["rows"], list)
         self.assertGreaterEqual(len(body["rows"]), 1)
         self.assertIn("built_at", body)
-        self.assertEqual(body["rows"][0]["ticker"], "AAPL")
+        row0 = body["rows"][0]
+        for key in ("ticker", "oe_yield", "oe_per_share", "price", "fy"):
+            self.assertIn(key, row0)
+        # Pathological yields from bad share units must not lead the board.
+        self.assertLessEqual(float(row0["oe_yield"]), 2.0)
 
     def test_rebuild_requires_token(self):
         client = TestClient(app)
