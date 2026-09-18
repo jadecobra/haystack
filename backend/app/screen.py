@@ -92,7 +92,7 @@ def _row_from_facts(
         yv = float(oe_yield)
     except (TypeError, ValueError):
         return None
-    if yv > 2.0 or yv < -1.0:
+    if yv > 1.0 or yv < -1.0:
         return None
     as_of = quote.get("as_of")
     return {
