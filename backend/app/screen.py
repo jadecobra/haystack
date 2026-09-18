@@ -87,6 +87,13 @@ def _row_from_facts(
     oe_ps = computed.get("Owner Earnings per Share")
     if oe_yield is None or oe_ps is None:
         return None
+    # Skip pathological companyfacts units (e.g. shares in millions → OE/share absurd).
+    try:
+        yv = float(oe_yield)
+    except (TypeError, ValueError):
+        return None
+    if yv > 2.0 or yv < -1.0:
+        return None
     as_of = quote.get("as_of")
     return {
         "ticker": ticker,
