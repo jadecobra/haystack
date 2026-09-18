@@ -2,7 +2,15 @@
 
 import { Card, DataTable, PageShell, TextLink } from "../components";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
+const WAIT_STATUS = "Working…";
+const SKELETON_ROW_COUNT = 12;
+const HEADERS = ["Rank", "Ticker", "Name", "OE yield", "OE / share", "Prior close", "FY"];
+
+function formatElapsed(ms: number): string {
+  return `${(ms / 1000).toFixed(1)}s`;
+}
 
 type ScreenRow = {
   ticker: string;
@@ -80,9 +88,20 @@ function fmtMoney(value: number): string {
 const DEFAULT_CAVEAT =
   "Trailing annual owner earnings per share divided by prior close — not live, not a growth screen.";
 
+function skeletonRows(): Array<{ kind: "data"; cells: ReactNode[] }> {
+  const dash = Array.from({ length: HEADERS.length }, () => "—");
+  return Array.from({ length: SKELETON_ROW_COUNT }, () => ({
+    kind: "data" as const,
+    cells: dash,
+  }));
+}
+
 export default function ScreenPage() {
   const [data, setData] = useState<ScreenPayload | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [waiting, setWaiting] = useState(true);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const elapsedTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     void fetch("/api/contract", { cache: "no-store" }).catch(() => {});
@@ -90,6 +109,20 @@ export default function ScreenPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const startedAt = Date.now();
+    setWaiting(true);
+    setElapsedMs(0);
+    elapsedTimerRef.current = window.setInterval(() => {
+      setElapsedMs(Date.now() - startedAt);
+    }, 100);
+
+    const stopClock = () => {
+      if (elapsedTimerRef.current != null) {
+        window.clearInterval(elapsedTimerRef.current);
+        elapsedTimerRef.current = null;
+      }
+    };
+
     void (async () => {
       try {
         const response = await fetch("/api/screen/sp500-oe-yield", {
@@ -98,21 +131,26 @@ export default function ScreenPage() {
         const json: unknown = await response.json();
         const parsed = parsePayload(json);
         if (cancelled) return;
+        stopClock();
+        setWaiting(false);
         if (!parsed || parsed.rows.length === 0) {
           setLoadError("Screen snapshot is empty.");
           return;
         }
         setData(parsed);
       } catch {
-        if (!cancelled) setLoadError("Could not load the S&P 500 screen.");
+        if (cancelled) return;
+        stopClock();
+        setWaiting(false);
+        setLoadError("Could not load the S&P 500 screen.");
       }
     })();
     return () => {
       cancelled = true;
+      stopClock();
     };
   }, []);
 
-  const headers = ["Rank", "Ticker", "Name", "OE yield", "OE / share", "Prior close", "FY"];
   const rows =
     data?.rows.map((row, index) => ({
       kind: "data" as const,
@@ -131,7 +169,9 @@ export default function ScreenPage() {
         fmtMoney(row.price),
         String(row.fy),
       ],
-    })) ?? [];
+    })) ?? skeletonRows();
+
+  const showTable = waiting || data !== null;
 
   return (
     <PageShell maxWidth="wide" textAlign="start">
@@ -141,7 +181,7 @@ export default function ScreenPage() {
       <h1 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-4">
         S&P 500 owner-earnings yield
       </h1>
-      {data ? (
+      {data && !waiting ? (
         <p
           className="text-xl sm:text-3xl text-zinc-200 mb-3"
           data-testid="screen-as-of"
@@ -151,13 +191,20 @@ export default function ScreenPage() {
             Built {data.built_at ?? "—"}
           </span>
         </p>
-      ) : (
-        <p className="text-zinc-400 mb-3">Loading ranked snapshot…</p>
-      )}
+      ) : waiting ? (
+        <p
+          className="text-sm sm:text-base text-zinc-400 mb-3"
+          data-testid="screen-wait-status"
+          aria-live="polite"
+        >
+          {WAIT_STATUS}{" "}
+          <span data-testid="screen-wait-elapsed">{formatElapsed(elapsedMs)}</span>
+        </p>
+      ) : null}
       <p className="text-zinc-400 mb-6 text-sm sm:text-base">
         {data?.caveat ?? DEFAULT_CAVEAT}
       </p>
-      {(data?.stale || data?.error || loadError) && (
+      {!waiting && (data?.stale || data?.error || loadError) && (
         <p className="text-danger mb-6" role="alert">
           {loadError ||
             (data?.stale
@@ -165,15 +212,17 @@ export default function ScreenPage() {
               : data?.error)}
         </p>
       )}
-      {data && (
+      {showTable && (
         <Card variant="raised" className="overflow-hidden text-left">
-          <p className="text-sm text-zinc-400 mb-3">
-            {data.count} names · S&P 500 constituents (list may lag index changes)
-            {typeof data.skipped === "number" && data.skipped > 0
-              ? ` · ${data.skipped} skipped`
-              : ""}
-          </p>
-          <DataTable headers={headers} rows={rows} />
+          {data && !waiting ? (
+            <p className="text-sm text-zinc-400 mb-3">
+              {data.count} names · S&P 500 constituents (list may lag index changes)
+              {typeof data.skipped === "number" && data.skipped > 0
+                ? ` · ${data.skipped} skipped`
+                : ""}
+            </p>
+          ) : null}
+          <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />
         </Card>
       )}
     </PageShell>
