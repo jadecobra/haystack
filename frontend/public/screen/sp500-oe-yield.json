@@ -1,22 +1,13 @@
 {
   "universe": "sp500",
-  "count": 484,
-  "skipped": 19,
-  "built_at": "2026-09-18T01:04:32+00:00",
+  "count": 483,
+  "skipped": 20,
+  "built_at": "2026-09-18T01:11:58+00:00",
   "price_as_of": "2026-09-17",
   "stale": false,
   "error": null,
   "caveat": "Trailing annual owner earnings per share divided by prior close \u2014 not live, not a growth screen.",
   "rows": [
-    {
-      "ticker": "BKNG",
-      "name": "Booking Holdings Inc.",
-      "oe_yield": 1.624324766567889,
-      "oe_per_share": 278.4092649897362,
-      "price": 171.4,
-      "fy": 2025,
-      "price_as_of": "2026-09-17"
-    },
     {
       "ticker": "CHTR",
       "name": "Charter Communications, Inc.",
