@@ -1,22 +1,13 @@
 {
   "universe": "sp500",
-  "count": 485,
-  "skipped": 18,
-  "built_at": "2026-09-18T00:49:42+00:00",
+  "count": 484,
+  "skipped": 19,
+  "built_at": "2026-09-18T01:04:32+00:00",
   "price_as_of": "2026-09-17",
   "stale": false,
   "error": null,
   "caveat": "Trailing annual owner earnings per share divided by prior close \u2014 not live, not a growth screen.",
   "rows": [
-    {
-      "ticker": "MCD",
-      "name": "McDONALD\u2019S CORPORATION",
-      "oe_yield": 56686.087520174275,
-      "oe_per_share": 14089893.914014518,
-      "price": 248.56,
-      "fy": 2025,
-      "price_as_of": "2026-09-17"
-    },
     {
       "ticker": "BKNG",
       "name": "Booking Holdings Inc.",
