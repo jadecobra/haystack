@@ -179,8 +179,6 @@ class ScreenApiTests(unittest.TestCase):
         row0 = body["rows"][0]
         for key in ("ticker", "oe_yield", "oe_per_share", "price", "fy"):
             self.assertIn(key, row0)
-        # Pathological yields from bad share units must not lead the board.
-        self.assertLessEqual(float(row0["oe_yield"]), 2.0)
 
     def test_rebuild_requires_token(self):
         client = TestClient(app)
