@@ -94,6 +94,7 @@ case "$cmd" in
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
     grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing document title phrase How much? How long?"
     grep -q 'How metrics are calculated' "$EVIDENCE/home.html" || die "home HTML missing docs link"
+    grep -q 'S&amp;P 500 OE-yield screen\|S&P 500 OE-yield screen' "$EVIDENCE/home.html" || die "home HTML missing /screen link"
     grep -q 'JadeCobra LLC' "$EVIDENCE/home.html" || die "home HTML missing JadeCobra LLC copyright"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
@@ -292,6 +293,22 @@ PY
     grep -q 'NASDAQ Stock Market' "$EVIDENCE/docs.html" || die "docs HTML missing NASDAQ spelling"
     echo "metrics-docs ok h1=$(html_h1 "$EVIDENCE/docs.html") title=$(html_title "$EVIDENCE/docs.html")"
     ;;
+  screen)
+    FEATURE="${FEATURE:-sp500-screen}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    code="$(http_get "$FRONTEND_ORIGIN" /screen screen | tail -n 1)"
+    [[ "$code" == "200" ]] || die "screen GET not 200 (got $code)"
+    grep -q 'S&amp;P 500 owner-earnings yield\|S&P 500 owner-earnings yield' "$EVIDENCE/screen.html" || die "screen HTML missing heading"
+    grep -q 'not live, not a growth screen' "$EVIDENCE/screen.html" || die "screen HTML missing caveat"
+    api_body="$EVIDENCE/screen-api.json"
+    api_code="$(curl -sS -o "$api_body" -w '%{http_code}' --max-time 20 "$FRONTEND_ORIGIN/api/screen/sp500-oe-yield" || echo "000")"
+    echo "$api_code" > "$EVIDENCE/screen-api.status"
+    [[ "$api_code" == "200" ]] || die "screen API not 200 (got $api_code)"
+    grep -q '"oe_yield"' "$api_body" || die "screen JSON missing oe_yield"
+    grep -q '"ticker"' "$api_body" || die "screen JSON missing ticker"
+    echo "sp500-screen ok http=$code api=$api_code"
+    ;;
   empty-ticker)
     FEATURE="${FEATURE:-empty-ticker}"
     EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
@@ -303,7 +320,7 @@ PY
     echo "empty-ticker ok: Analyze disabled=$disabled on empty input"
     ;;
   "")
-    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs"
+    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen"
     ;;
   *)
     die "unknown http subcommand: $cmd"

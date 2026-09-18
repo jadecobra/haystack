@@ -1,0 +1,39 @@
+{
+  "universe": "sp500",
+  "count": 3,
+  "skipped": 0,
+  "built_at": "2026-09-16T22:00:00+00:00",
+  "price_as_of": "2026-09-16",
+  "stale": false,
+  "error": "seed snapshot (subset) — replace with nightly full S&P 500 build",
+  "caveat": "Trailing annual owner earnings per share divided by prior close — not live, not a growth screen.",
+  "rows": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "oe_yield": 0.04,
+      "oe_per_share": 6.0,
+      "price": 150.0,
+      "fy": 2024,
+      "price_as_of": "2026-09-16"
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "oe_yield": 0.03,
+      "oe_per_share": 12.0,
+      "price": 400.0,
+      "fy": 2024,
+      "price_as_of": "2026-09-16"
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "oe_yield": 0.02,
+      "oe_per_share": 4.0,
+      "price": 200.0,
+      "fy": 2025,
+      "price_as_of": "2026-09-16"
+    }
+  ]
+}

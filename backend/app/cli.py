@@ -1,4 +1,4 @@
-"""longmuch CLI: health, analyze, contract. JSON on stdout."""
+"""longmuch CLI: health, analyze, contract, screen-build. JSON on stdout."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL, groups_payload
+from app.screen import screen_build
 from app.sources import analyze as analyze_local
 
 DEFAULT_BASE = "http://127.0.0.1:8000"
@@ -103,6 +104,29 @@ def cmd_analyze(
     return 1 if reason else 0
 
 
+def cmd_screen_build(tickers: str | None, also_seed: bool) -> int:
+    allowlist = None
+    if tickers:
+        allowlist = [part.strip().upper() for part in tickers.split(",") if part.strip()]
+    try:
+        payload = screen_build(allowlist, fail_soft=True, also_seed=also_seed)
+    except Exception as exc:
+        _dump({"error": str(exc)})
+        return 1
+    _dump(
+        {
+            "universe": payload.get("universe"),
+            "count": payload.get("count"),
+            "skipped": payload.get("skipped"),
+            "built_at": payload.get("built_at"),
+            "price_as_of": payload.get("price_as_of"),
+            "stale": payload.get("stale"),
+            "error": payload.get("error"),
+        }
+    )
+    return 0 if payload.get("rows") else 1
+
+
 def cmd_contract(base: str | None) -> int:
     local = {
         "schema_version": SCHEMA_VERSION,
@@ -150,6 +174,18 @@ def main(argv: list[str] | None = None) -> int:
     p_contract = sub.add_parser("contract")
     p_contract.add_argument("--base", default=None)
 
+    p_screen = sub.add_parser("screen-build")
+    p_screen.add_argument(
+        "--tickers",
+        default=None,
+        help="comma-separated allowlist (tests / bounded live sample)",
+    )
+    p_screen.add_argument(
+        "--seed",
+        action="store_true",
+        help="also write frontend/public/screen/sp500-oe-yield.json",
+    )
+
     args = parser.parse_args(argv)
     if args.cmd == "health":
         return cmd_health(args.base)
@@ -162,6 +198,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.cmd == "contract":
         return cmd_contract(args.base)
+    if args.cmd == "screen-build":
+        return cmd_screen_build(args.tickers, args.seed)
     parser.error("unknown command")
     return 2
 

@@ -11,6 +11,7 @@ from app.metrics import (
     TREASURY_LABEL,
     groups_payload,
 )
+from app.screen import load_snapshot, rebuild_token, screen_build
 from app.sources import analyze
 
 dotenv.load_dotenv()
@@ -99,6 +100,38 @@ async def contract():
         "row_count": len(LOCKED_LABELS),
         "treasury_label": TREASURY_LABEL,
         "groups": groups_payload(),
+    }
+
+
+@app.get("/screen/sp500-oe-yield")
+async def screen_sp500_oe_yield():
+    payload = load_snapshot()
+    if payload is None:
+        raise fastapi.HTTPException(status_code=503, detail="screen snapshot missing")
+    return payload
+
+
+@app.post("/screen/sp500-oe-yield/rebuild")
+async def screen_sp500_rebuild(
+    authorization: str | None = fastapi.Header(default=None),
+):
+    token = rebuild_token()
+    if not token:
+        raise fastapi.HTTPException(status_code=403, detail="rebuild disabled")
+    expected = f"Bearer {token}"
+    if (authorization or "") != expected:
+        raise fastapi.HTTPException(status_code=403, detail="unauthorized")
+    try:
+        payload = screen_build(fail_soft=True, also_seed=False)
+    except Exception as exc:
+        raise fastapi.HTTPException(status_code=500, detail=str(exc)) from exc
+    return {
+        "universe": payload.get("universe"),
+        "count": payload.get("count"),
+        "skipped": payload.get("skipped"),
+        "built_at": payload.get("built_at"),
+        "stale": payload.get("stale"),
+        "error": payload.get("error"),
     }
 
 

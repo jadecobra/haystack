@@ -564,6 +564,8 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
         <TextLink href="/docs">
           How metrics are calculated
         </TextLink>
+        {" · "}
+        <TextLink href="/screen">S&P 500 OE-yield screen</TextLink>
       </p>
     </PageShell>
   );

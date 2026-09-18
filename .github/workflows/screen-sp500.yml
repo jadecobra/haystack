@@ -1,0 +1,49 @@
+# Nightly S&P 500 OE-yield snapshot after US close.
+# Writes ranked JSON into the repo (Vercel static fail-soft + Render seed).
+# No Redis. Does not hit live analyze for the UI.
+
+name: S&P 500 OE-yield screen
+
+on:
+  schedule:
+    - cron: "0 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screen-sp500
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install backend
+        working-directory: backend
+        run: uv sync
+      - name: Build screen snapshot
+        working-directory: backend
+        env:
+          HAYSTACK_SEC_USER_AGENT: ${{ secrets.HAYSTACK_SEC_USER_AGENT }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: uv run longmuch screen-build --seed
+      - name: Commit snapshot if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/screen/sp500-oe-yield.json backend/data/sp500-oe-yield.json
+          if git diff --cached --quiet; then
+            echo "snapshot unchanged"
+            exit 0
+          fi
+          git commit -m "chore(screen): refresh S&P 500 OE-yield snapshot"
+          git push
