@@ -13,8 +13,33 @@ const UNSAFE =
 const SEC_URL = /https?:\/\/[^\s]*sec\.gov[^\s]*/gi;
 
 export const ANALYZE_TIMEOUT_MS = 20_000;
+export const ANALYZE_RETRY_DELAY_MS = 1_500;
 export const ANALYZE_TIMEOUT_MESSAGE =
   'This is taking too long. Try again.';
+
+export function isTransientAnalyzeStatus(status: number): boolean {
+  return (
+    status === 408 ||
+    status === 429 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  );
+}
+
+export function isProductAnalyzeStatus(status: number): boolean {
+  return status >= 400 && status < 500 && !isTransientAnalyzeStatus(status);
+}
+
+export function parseAnalyzeBody(text: string): { ok: true; raw: unknown } | { ok: false } {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.startsWith('<')) return { ok: false };
+  try {
+    return { ok: true, raw: JSON.parse(trimmed) as unknown };
+  } catch {
+    return { ok: false };
+  }
+}
 
 function firstHumanField(value: unknown): string | null {
   if (typeof value === 'string' && value.trim()) return value.trim();

@@ -2,9 +2,13 @@
 
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
 import {
+  ANALYZE_RETRY_DELAY_MS,
   ANALYZE_TIMEOUT_MESSAGE,
   ANALYZE_TIMEOUT_MS,
   analyzeErrorMessage,
+  isProductAnalyzeStatus,
+  isTransientAnalyzeStatus,
+  parseAnalyzeBody,
 } from './utils/analyze-error';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
@@ -362,36 +366,17 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       analyzeAbortRef.current?.abort();
-      const controller = new AbortController();
-      analyzeAbortRef.current = controller;
-      const timeoutId = window.setTimeout(
-        () => controller.abort(),
-        ANALYZE_TIMEOUT_MS,
-      );
       startWaitChrome(symbol);
 
-      try {
-        const response = await fetch(`/api/analyze/${encodeURIComponent(symbol)}`, {
-          signal: controller.signal,
-        });
-        const raw: unknown = await response.json();
-        if (requestIdRef.current !== requestId) return;
+      const stillCurrent = () => requestIdRef.current === requestId;
 
-        const result = parseAnalysis(raw);
-        if (!response.ok) {
-          clearWaitTimers();
-          setView({
-            kind: 'error',
-            message: analyzeErrorMessage({ raw, ticker: symbol }),
-          });
-          return;
-        }
-        if (!result || !result.rows.length || !result.years.length) {
-          clearWaitTimers();
-          setView({ kind: 'error', message: 'Backend returned no metric table' });
-          return;
-        }
+      const fail = (message: string) => {
+        if (!stillCurrent()) return;
+        clearWaitTimers();
+        setView({ kind: 'error', message });
+      };
 
+      const succeed = (result: Analysis) => {
         if (result.groups?.length) {
           groupsCacheRef.current = result.groups;
         }
@@ -400,24 +385,85 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
         const displayTicker = result.ticker.toUpperCase().trim() || symbol;
         setView({ kind: 'ready', data: { ...result, ticker: displayTicker } });
         syncSharePath(displayTicker);
-      } catch (err) {
-        if (requestIdRef.current !== requestId) return;
-        clearWaitTimers();
-        const aborted =
-          controller.signal.aborted ||
-          (err instanceof DOMException && err.name === 'AbortError') ||
-          (err instanceof Error && err.name === 'AbortError');
-        if (aborted) {
-          setView({ kind: 'error', message: ANALYZE_TIMEOUT_MESSAGE });
+      };
+
+      let retried = false;
+      while (stillCurrent()) {
+        const controller = new AbortController();
+        analyzeAbortRef.current = controller;
+        const timeoutId = window.setTimeout(
+          () => controller.abort(),
+          ANALYZE_TIMEOUT_MS,
+        );
+        try {
+          const response = await fetch(
+            `/api/analyze/${encodeURIComponent(symbol)}`,
+            { signal: controller.signal },
+          );
+          if (!stillCurrent()) return;
+          const text = await response.text();
+          if (!stillCurrent()) return;
+          const parsedBody = parseAnalyzeBody(text);
+
+          if (!parsedBody.ok) {
+            if (!retried) {
+              retried = true;
+              await new Promise((resolve) =>
+                window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
+              );
+              continue;
+            }
+            fail(ANALYZE_TIMEOUT_MESSAGE);
+            return;
+          }
+
+          const raw = parsedBody.raw;
+          if (!response.ok) {
+            if (
+              isTransientAnalyzeStatus(response.status) &&
+              !retried &&
+              !isProductAnalyzeStatus(response.status)
+            ) {
+              retried = true;
+              await new Promise((resolve) =>
+                window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
+              );
+              continue;
+            }
+            fail(analyzeErrorMessage({ raw, ticker: symbol }));
+            return;
+          }
+
+          const result = parseAnalysis(raw);
+          if (!result || !result.rows.length || !result.years.length) {
+            fail('Backend returned no metric table');
+            return;
+          }
+          succeed(result);
           return;
-        }
-        console.error('Error fetching data:', err);
-        setView({ kind: 'error', message: 'Could not reach /api/analyze' });
-      } finally {
-        window.clearTimeout(timeoutId);
-        clearWaitTimers();
-        if (analyzeAbortRef.current === controller) {
-          analyzeAbortRef.current = null;
+        } catch (err) {
+          if (!stillCurrent()) return;
+          const aborted =
+            controller.signal.aborted ||
+            (err instanceof DOMException && err.name === 'AbortError') ||
+            (err instanceof Error && err.name === 'AbortError');
+          if (!retried) {
+            retried = true;
+            await new Promise((resolve) =>
+              window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
+            );
+            continue;
+          }
+          fail(ANALYZE_TIMEOUT_MESSAGE);
+          if (!aborted) {
+            console.error('Error fetching data:', err);
+          }
+          return;
+        } finally {
+          window.clearTimeout(timeoutId);
+          if (analyzeAbortRef.current === controller) {
+            analyzeAbortRef.current = null;
+          }
         }
       }
     },

@@ -85,6 +85,10 @@ export default function ScreenPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    void fetch("/api/contract", { cache: "no-store" }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
