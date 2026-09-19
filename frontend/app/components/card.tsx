@@ -10,8 +10,8 @@ export interface CardProps {
 }
 
 const variants: Record<CardVariant, string> = {
-  raised: "rounded-card border border-edge bg-surface p-4 sm:p-6",
-  muted: "rounded-card border border-edge bg-surface-muted p-6",
+  raised: "rounded-card border border-edge bg-transparent p-4 sm:p-6",
+  muted: "rounded-card border border-edge bg-transparent p-6",
 };
 
 const Card = ({ className, variant = "muted", children }: CardProps) => {
