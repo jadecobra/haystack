@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 from app import fixture
@@ -33,11 +34,21 @@ def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str |
     return round(rate * 100.0, 2), f"{last_y}-12-31"
 
 
-def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
+def _ms(start: float) -> float:
+    return round((time.perf_counter() - start) * 1000.0, 1)
+
+
+def analyze(
+    ticker: str,
+    *,
+    prefer_fixture: bool = False,
+    include_timings: bool = False,
+) -> dict[str, Any]:
     ticker = ticker.upper().strip()
     if not ticker or len(ticker) > 8 or not ticker.replace(".", "").isalnum():
         raise ValueError("invalid ticker")
 
+    t0 = time.perf_counter()
     use_fixture = prefer_fixture or _env_force_fixture()
     if use_fixture:
         years, statements, treasury = fixture.statements_for(ticker)
@@ -45,7 +56,7 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         rows = build_table(years, statements, treasury, previous_close=prev_close)
         pct, as_of = _fixture_dgs30_meta(treasury)
         company_name = "Apple Inc." if ticker == "AAPL" else None
-        return {
+        out: dict[str, Any] = {
             "ticker": ticker,
             "company_name": company_name,
             "years": [str(y) for y in years],
@@ -62,19 +73,36 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             "schema_version": SCHEMA_VERSION,
             "labels": list(LOCKED_LABELS),
         }
+        if include_timings:
+            out["timings"] = {
+                "cache_hit": True,
+                "cache_source": None,
+                "facts_ms": 0.0,
+                "metrics_ms": 0.0,
+                "quote_ms": 0.0,
+                "total_ms": _ms(t0),
+            }
+        return out
 
     from app import edgar, fred
 
+    facts_meta: dict[str, Any] = {}
+    t_facts = time.perf_counter()
     try:
-        years, statements, cik, company_name = edgar.statements_for_ticker(ticker)
+        years, statements, cik, company_name = edgar.statements_for_ticker(
+            ticker,
+            meta=facts_meta if include_timings else None,
+        )
     except ValueError:
         raise
     except Exception as exc:
         raise ValueError(f"edgar fetch failed for {ticker}: {exc}") from exc
+    facts_ms = _ms(t_facts)
 
     if not years:
         raise ValueError(f"no company / no annual facts for {ticker}")
 
+    t_metrics = time.perf_counter()
     try:
         treasury = fred.treasury_for_years(years)
     except Exception:
@@ -99,9 +127,11 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         dgs30_as_of = str(latest["as_of"])
     except Exception:
         pass
+    metrics_part_ms = _ms(t_metrics)
 
     prev_close: float | None = None
     prev_close_as_of: str | None = None
+    t_quote = time.perf_counter()
     try:
         from app.quote import previous_close as fetch_previous_close
 
@@ -112,10 +142,13 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
             prev_close_as_of = str(as_of_q) if as_of_q else None
     except Exception:
         pass
+    quote_ms = _ms(t_quote)
 
+    t_table = time.perf_counter()
     rows = build_table(years, statements, treasury, previous_close=prev_close)
+    metrics_ms = round(metrics_part_ms + _ms(t_table), 1)
 
-    return {
+    out = {
         "ticker": ticker,
         "company_name": company_name,
         "years": [str(y) for y in years],
@@ -135,3 +168,14 @@ def analyze(ticker: str, *, prefer_fixture: bool = False) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "labels": list(LOCKED_LABELS),
     }
+    if include_timings:
+        cache_source = facts_meta.get("cache_source")
+        out["timings"] = {
+            "cache_hit": cache_source in ("mem", "disk"),
+            "cache_source": cache_source,
+            "facts_ms": facts_ms,
+            "metrics_ms": metrics_ms,
+            "quote_ms": quote_ms,
+            "total_ms": _ms(t0),
+        }
+    return out

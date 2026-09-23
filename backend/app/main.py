@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import dotenv
 import fastapi
@@ -17,6 +18,21 @@ from app.sources import analyze
 dotenv.load_dotenv()
 
 app = fastapi.FastAPI(title="LongMuch API", version="1.0.0")
+
+
+def _flag_on(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _want_analyze_timings(
+    debug: str | None = None,
+    timings: str | None = None,
+) -> bool:
+    if _flag_on(os.environ.get("HAYSTACK_ANALYZE_TIMINGS")):
+        return True
+    return _flag_on(debug) or _flag_on(timings)
 
 _PROD_ORIGINS = [
     "https://longmuch.com",
@@ -77,6 +93,7 @@ class AnalysisResponse(pydantic.BaseModel):
     groups: list[MetricGroup]
     schema_version: str | None = None
     labels: list[str] | None = None
+    timings: dict[str, Any] | None = None
 
 
 @app.get("/health")
@@ -135,10 +152,19 @@ async def screen_sp500_rebuild(
     }
 
 
-@app.get("/analyze/{ticker}", response_model=AnalysisResponse)
-async def analyze_ticker(ticker: str):
+@app.get(
+    "/analyze/{ticker}",
+    response_model=AnalysisResponse,
+    response_model_exclude_unset=True,
+)
+async def analyze_ticker(
+    ticker: str,
+    debug: str | None = None,
+    timings: str | None = None,
+):
+    include_timings = _want_analyze_timings(debug, timings)
     try:
-        payload = analyze(ticker)
+        payload = analyze(ticker, include_timings=include_timings)
     except ValueError as exc:
         raise fastapi.HTTPException(status_code=400, detail=str(exc)) from exc
     if len(payload["rows"]) != len(LOCKED_LABELS):

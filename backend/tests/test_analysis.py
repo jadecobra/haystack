@@ -153,7 +153,8 @@ class TestAnalysis(unittest.TestCase):
             self.assertEqual(len(body["rows"]), 32)
             self.assertEqual([r["metric"] for r in body["rows"]], LOCKED_LABELS)
             self.assertIn("raw", body["rows"][0])
-            mocked.assert_called_once_with("AAPL")
+            self.assertNotIn("timings", body)
+            mocked.assert_called_once_with("AAPL", include_timings=False)
 
     def test_analyze_ticker_invalid_ticker(self):
         response = self.client.get("/analyze/!!!")
@@ -182,7 +183,7 @@ class TestAnalysis(unittest.TestCase):
                 response = self.client.get("/analyze/AAPL?fixture=1")
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.json()["source"], "edgar")
-                mocked.assert_called_once_with("AAPL")
+                mocked.assert_called_once_with("AAPL", include_timings=False)
 
     def test_analyze_env_force_fixture(self):
         with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):
@@ -190,6 +191,28 @@ class TestAnalysis(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["source"], "fixture")
             self.assertIn("raw", response.json()["rows"][0])
+
+    def test_analyze_debug_timings_query(self):
+        with mock.patch.dict(
+            os.environ,
+            {"HAYSTACK_PREFER_FIXTURE": "1", "HAYSTACK_ANALYZE_TIMINGS": ""},
+            clear=False,
+        ):
+            response = self.client.get("/analyze/AAPL?debug=1")
+            self.assertEqual(response.status_code, 200)
+            body = response.json()
+            self.assertEqual(body["source"], "fixture")
+            timings = body["timings"]
+            self.assertTrue(timings["cache_hit"])
+            for key in (
+                "cache_hit",
+                "cache_source",
+                "facts_ms",
+                "metrics_ms",
+                "quote_ms",
+                "total_ms",
+            ):
+                self.assertIn(key, timings)
 
     def test_contract_endpoint(self):
         response = self.client.get("/contract")
@@ -211,10 +234,20 @@ class TestSourcesFixture(unittest.TestCase):
         self.assertEqual(len(payload["rows"]), 32)
         self.assertEqual(payload["previous_close"], 100.0)
         self.assertIn("raw", payload["rows"][0])
+        self.assertNotIn("timings", payload)
         yield_row = next(
             r for r in payload["rows"] if r["metric"] == "Owner Earnings / Last Close Price"
         )
         self.assertNotEqual(yield_row["values"][payload["years"][0]], "—")
+
+    def test_analyze_fixture_timings(self):
+        payload = analyze("AAPL", prefer_fixture=True, include_timings=True)
+        timings = payload["timings"]
+        self.assertTrue(timings["cache_hit"])
+        self.assertIsNone(timings["cache_source"])
+        for key in ("facts_ms", "metrics_ms", "quote_ms", "total_ms"):
+            self.assertIn(key, timings)
+            self.assertIsInstance(timings[key], float)
 
 
 class TestQuote(unittest.TestCase):

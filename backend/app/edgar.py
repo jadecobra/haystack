@@ -164,13 +164,24 @@ def _fetch_companyfacts_uncached(cik: str) -> dict[str, Any]:
     return _http_get_json(url)
 
 
-def fetch_companyfacts(cik: str) -> dict[str, Any]:
-    """Fetch companyfacts JSON with memory + disk cache and in-flight coalesce."""
+def fetch_companyfacts(
+    cik: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Fetch companyfacts JSON with memory + disk cache and in-flight coalesce.
+
+    When ``meta`` is provided, sets ``meta["cache_source"]`` to
+    ``"mem"`` | ``"disk"`` | ``"network"`` without changing cache behavior.
+    In-flight waiters inherit the leader's source.
+    """
     key = _cik_pad(cik)
     now = time.time()
     with _lock:
         hit = _mem_cache.get(key)
         if hit and now - hit[0] < _CACHE_TTL_S:
+            if meta is not None:
+                meta["cache_source"] = "mem"
             return hit[1]
         fut = _inflight.get(key)
         if fut is not None:
@@ -181,20 +192,29 @@ def fetch_companyfacts(cik: str) -> dict[str, Any]:
             _inflight[key] = future
 
     if waiter is not None:
-        return waiter.result()
+        payload, source = waiter.result()
+        if meta is not None:
+            meta["cache_source"] = source
+        return payload
 
     try:
         disk = _read_disk_cache(key)
         if disk is not None:
             with _lock:
                 _mem_cache[key] = (time.time(), disk)
-            future.set_result(disk)
+            source = "disk"
+            future.set_result((disk, source))
+            if meta is not None:
+                meta["cache_source"] = source
             return disk
         payload = _fetch_companyfacts_uncached(key)
         _write_disk_cache(key, payload)
         with _lock:
             _mem_cache[key] = (time.time(), payload)
-        future.set_result(payload)
+        source = "network"
+        future.set_result((payload, source))
+        if meta is not None:
+            meta["cache_source"] = source
         return payload
     except Exception as exc:
         future.set_exception(exc)
@@ -510,13 +530,16 @@ def entity_name(companyfacts: dict[str, Any]) -> str | None:
 
 def statements_for_ticker(
     ticker: str,
+    *,
+    meta: dict[str, Any] | None = None,
 ) -> tuple[list[int], dict[int, dict[str, float | None]], str, str | None]:
     """Resolve ticker → companyfacts → statements.
 
     Returns (years, statements, cik, company_name).
+    Optional ``meta`` is forwarded to ``fetch_companyfacts`` for cache_source.
     """
     cik = resolve_cik(ticker)
-    payload = fetch_companyfacts(cik)
+    payload = fetch_companyfacts(cik, meta=meta)
     years, statements = map_companyfacts_to_statements(payload)
     if not years:
         raise ValueError(f"unknown ticker / no annual us-gaap facts for {ticker}")
