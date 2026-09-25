@@ -2,8 +2,8 @@
   "universe": "sp500",
   "count": 483,
   "skipped": 20,
-  "built_at": "2026-09-24T00:23:46+00:00",
-  "price_as_of": "2026-09-23",
+  "built_at": "2026-09-25T00:27:34+00:00",
+  "price_as_of": "2026-09-24",
   "stale": false,
   "error": null,
   "caveat": "Trailing annual owner earnings per share divided by prior close \u2014 not live, not a growth screen.",
@@ -11,3836 +11,3836 @@
     {
       "ticker": "CHTR",
       "name": "Charter Communications, Inc.",
-      "oe_yield": 0.4938761264819473,
+      "oe_yield": 0.49662905918251554,
       "oe_per_share": 57.91191459127314,
-      "price": 117.26,
+      "price": 116.61,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SYF",
       "name": "Synchrony Financial",
-      "oe_yield": 0.3436344794968134,
+      "oe_yield": 0.3533595249049587,
       "oe_per_share": 24.97191762503343,
-      "price": 72.67,
+      "price": 70.67,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AES",
       "name": "THE AES CORPORATION",
-      "oe_yield": 0.2692439998941547,
+      "oe_yield": 0.2694257986786882,
       "oe_per_share": 3.9901960784313726,
-      "price": 14.82,
+      "price": 14.81,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CMCSA",
       "name": "COMCAST\u00a0CORPORATION",
-      "oe_yield": 0.2632769483973333,
+      "oe_yield": 0.26175916554626216,
       "oe_per_share": 5.9026691830682125,
-      "price": 22.42,
+      "price": 22.55,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MET",
       "name": "MetLife, Inc.",
-      "oe_yield": 0.2628403267389392,
+      "oe_yield": 0.25937905494649227,
       "oe_per_share": 25.21164414079905,
-      "price": 95.92,
+      "price": 97.2,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "COF",
       "name": "CAPITAL ONE FINANCIAL CORP",
-      "oe_yield": 0.240793572340759,
+      "oe_yield": 0.2462577814020358,
       "oe_per_share": 48.29115093293922,
-      "price": 200.55,
+      "price": 196.1,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "F",
       "name": "Ford Motor Co",
-      "oe_yield": 0.23917551880195453,
+      "oe_yield": 0.24213286679332338,
       "oe_per_share": 3.1331992963056043,
-      "price": 13.1,
+      "price": 12.94,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GM",
       "name": "GENERAL MOTORS COMPANY",
-      "oe_yield": 0.2163138102032283,
+      "oe_yield": 0.21548749506338072,
       "oe_per_share": 18.051387461459402,
-      "price": 83.45,
+      "price": 83.77,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FISV",
       "name": "FISERV, INC.",
-      "oe_yield": 0.21308709584375454,
+      "oe_yield": 0.2137827011620693,
       "oe_per_share": 9.823315118397085,
-      "price": 46.1,
+      "price": 45.95,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "STT",
       "name": "STATE STREET CORP",
-      "oe_yield": 0.20813628102590226,
+      "oe_yield": 0.2084832712137754,
       "oe_per_share": 37.51656465491888,
-      "price": 180.25,
+      "price": 179.95,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "OMC",
       "name": "OMNICOM GROUP INC.",
-      "oe_yield": 0.1806290092365399,
+      "oe_yield": 0.18027009611711375,
       "oe_per_share": 13.608589555880917,
-      "price": 75.34,
+      "price": 75.49,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ACGL",
       "name": "ARCH CAPITAL GROUP LTD.",
-      "oe_yield": 0.17169255433440347,
+      "oe_yield": 0.17131366156002112,
       "oe_per_share": 16.30220803405161,
-      "price": 94.95,
+      "price": 95.16,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AMP",
       "name": "AMERIPRISE FINANCIAL, INC.",
-      "oe_yield": 0.16241763297407077,
+      "oe_yield": 0.1655122866543182,
       "oe_per_share": 83.21792260692465,
-      "price": 512.37,
+      "price": 502.79,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ALL",
       "name": "ALLSTATE CORP",
-      "oe_yield": 0.1612086242209351,
+      "oe_yield": 0.16395187121645222,
       "oe_per_share": 36.997379258704605,
-      "price": 229.5,
+      "price": 225.66,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HIG",
       "name": "The Hartford Insurance Group, Inc.",
-      "oe_yield": 0.15598756491969,
+      "oe_yield": 0.15862452983736228,
       "oe_per_share": 20.080279232111693,
-      "price": 128.73,
+      "price": 126.59,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "APTV",
       "name": "APTIV PLC",
-      "oe_yield": 0.15526535117615534,
+      "oe_yield": 0.15334043205597275,
       "oe_per_share": 6.92638731596829,
-      "price": 44.61,
+      "price": 45.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PRU",
-      "name": "PRUDENTIAL FINANCIAL INC",
-      "oe_yield": 0.1476102825183434,
-      "oe_per_share": 17.367825841108285,
-      "price": 117.66,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "APA",
-      "name": "APA CORPORATION",
-      "oe_yield": 0.14757304569430452,
-      "oe_per_share": 6.242339832869081,
-      "price": 42.3,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TAP",
-      "name": "Molson Coors Beverage Company",
-      "oe_yield": 0.1461430014239784,
-      "oe_per_share": 5.389753892516324,
-      "price": 36.88,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "UAL",
       "name": "United Airlines Holdings, Inc.",
-      "oe_yield": 0.1451125514033866,
+      "oe_yield": 0.15099726379320966,
       "oe_per_share": 16.71841704718417,
-      "price": 115.21,
+      "price": 110.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NTRS",
-      "name": "NORTHERN TRUST CORP",
-      "oe_yield": 0.14276951681324623,
-      "oe_per_share": 24.756234215416896,
-      "price": 173.4,
+      "ticker": "PRU",
+      "name": "PRUDENTIAL FINANCIAL INC",
+      "oe_yield": 0.1476981532537485,
+      "oe_per_share": 17.367825841108285,
+      "price": 117.59,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TAP",
+      "name": "Molson Coors Beverage Company",
+      "oe_yield": 0.14718060875249384,
+      "oe_per_share": 5.389753892516324,
+      "price": 36.62,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PGR",
       "name": "PROGRESSIVE CORP/OH/",
-      "oe_yield": 0.14161708918188903,
+      "oe_yield": 0.14427332464579393,
       "oe_per_share": 29.30624043530012,
-      "price": 206.94,
+      "price": 203.13,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MGM",
       "name": "MGM Resorts International",
-      "oe_yield": 0.14014318100852519,
+      "oe_yield": 0.14403090465605362,
       "oe_per_share": 5.451569741231629,
-      "price": 38.9,
+      "price": 37.85,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "APA",
+      "name": "APA CORPORATION",
+      "oe_yield": 0.14284530509997895,
+      "oe_per_share": 6.242339832869081,
+      "price": 43.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NTRS",
+      "name": "NORTHERN TRUST CORP",
+      "oe_yield": 0.14228538545558306,
+      "oe_per_share": 24.756234215416896,
+      "price": 173.99,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CNC",
       "name": "CENTENE CORPORATION",
-      "oe_yield": 0.13843039626769357,
+      "oe_yield": 0.1411508389778512,
       "oe_per_share": 8.762644083745002,
-      "price": 63.3,
+      "price": 62.08,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NCLH",
-      "name": "Norwegian Cruise Line Holdings Ltd.",
-      "oe_yield": 0.13654796383126766,
-      "oe_per_share": 1.9417120456806263,
-      "price": 14.22,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TTD",
       "name": "The Trade Desk, Inc.",
-      "oe_yield": 0.1348096396794751,
+      "oe_yield": 0.14012547720626828,
       "oe_per_share": 1.7767910509754818,
-      "price": 13.18,
+      "price": 12.68,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NCLH",
+      "name": "Norwegian Cruise Line Holdings Ltd.",
+      "oe_yield": 0.13693314849651808,
+      "oe_per_share": 1.9417120456806263,
+      "price": 14.18,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WRB",
       "name": "W. R. BERKLEY CORP",
-      "oe_yield": 0.12945000074484955,
+      "oe_yield": 0.13040648072670893,
       "oe_per_share": 8.824606550776394,
-      "price": 68.17,
+      "price": 67.67,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "KHC",
       "name": "Kraft Heinz Co",
-      "oe_yield": 0.128510249929795,
+      "oe_yield": 0.12964464053447164,
       "oe_per_share": 3.08424599831508,
-      "price": 24.0,
+      "price": 23.79,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FITB",
-      "name": "FIFTH THIRD BANCORP",
-      "oe_yield": 0.12539016845273734,
-      "oe_per_share": 6.615585287566422,
-      "price": 52.76,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BLDR",
       "name": "BUILDERS FIRSTSOURCE, INC.",
-      "oe_yield": 0.12536117233913763,
+      "oe_yield": 0.12898469506902144,
       "oe_per_share": 7.630734560283307,
-      "price": 60.87,
+      "price": 59.16,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "L",
-      "name": "LOEWS CORP",
-      "oe_yield": 0.1219193850061102,
-      "oe_per_share": 12.91248206599713,
-      "price": 105.91,
+      "ticker": "FITB",
+      "name": "FIFTH THIRD BANCORP",
+      "oe_yield": 0.1279857861784953,
+      "oe_per_share": 6.615585287566422,
+      "price": 51.69,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AIZ",
-      "name": "Assurant, Inc.",
-      "oe_yield": 0.12113165070727325,
-      "oe_per_share": 32.83636787372763,
-      "price": 271.08,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EIX",
       "name": "EDISON INTERNATIONAL",
-      "oe_yield": 0.12061573793019065,
+      "oe_yield": 0.1240870187452251,
       "oe_per_share": 6.639896373056994,
-      "price": 55.05,
+      "price": 53.51,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AIZ",
+      "name": "Assurant, Inc.",
+      "oe_yield": 0.12299647104066984,
+      "oe_per_share": 32.83636787372763,
+      "price": 266.97,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "L",
+      "name": "LOEWS CORP",
+      "oe_yield": 0.12292918950873125,
+      "oe_per_share": 12.91248206599713,
+      "price": 105.04,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TRV",
       "name": "TRAVELERS COMPANIES, INC.",
-      "oe_yield": 0.120470703287236,
+      "oe_yield": 0.12101223479289744,
       "oe_per_share": 43.611599297012305,
-      "price": 362.01,
+      "price": 360.39,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CINF",
       "name": "CINCINNATI FINANCIAL CORPORATION",
-      "oe_yield": 0.11890865696171539,
+      "oe_yield": 0.12060557572994557,
       "oe_per_share": 19.60684844641725,
-      "price": 164.89,
+      "price": 162.57,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GDDY",
       "name": "GoDaddy Inc.",
-      "oe_yield": 0.11404595117603866,
+      "oe_yield": 0.1162468794722353,
       "oe_per_share": 11.203874243534038,
-      "price": 98.24,
+      "price": 96.38,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CCL",
       "name": "Carnival Corporation Ltd.",
-      "oe_yield": 0.10974319835474841,
+      "oe_yield": 0.11215956235521993,
       "oe_per_share": 2.4450784593437946,
-      "price": 22.28,
+      "price": 21.8,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PYPL",
-      "name": "PayPal Holdings, Inc.",
-      "oe_yield": 0.10867713904892268,
-      "oe_per_share": 5.74793388429752,
-      "price": 52.89,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "T",
-      "name": "AT&T INC.",
-      "oe_yield": 0.10789548311836925,
-      "oe_per_share": 2.7081766262710683,
-      "price": 25.1,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "UHS",
-      "name": "UNIVERSAL HEALTH SERVICES INC",
-      "oe_yield": 0.10777985225002293,
-      "oe_per_share": 19.32384970990661,
-      "price": 179.29,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DAL",
       "name": "DELTA AIR LINES, INC.",
-      "oe_yield": 0.1074818598169802,
+      "oe_yield": 0.11033489511732084,
       "oe_per_share": 9.019877675840979,
-      "price": 83.92,
+      "price": 81.75,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ADM",
-      "name": "Archer-Daniels-Midland Co",
-      "oe_yield": 0.1071700287258836,
-      "oe_per_share": 8.824380165289256,
-      "price": 82.34,
+      "ticker": "PYPL",
+      "name": "PayPal Holdings, Inc.",
+      "oe_yield": 0.1094636047285759,
+      "oe_per_share": 5.74793388429752,
+      "price": 52.51,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "INTU",
       "name": "INTUIT INC.",
-      "oe_yield": 0.10682759340313987,
+      "oe_yield": 0.10889486377757301,
       "oe_per_share": 31.231046931407942,
-      "price": 292.35,
+      "price": 286.8,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "DVN",
-      "name": "DEVON ENERGY CORP/DE",
-      "oe_yield": 0.10499318503677119,
-      "oe_per_share": 4.927330173775672,
-      "price": 46.93,
+      "ticker": "ADM",
+      "name": "Archer-Daniels-Midland Co",
+      "oe_yield": 0.10741789610820761,
+      "oe_per_share": 8.824380165289256,
+      "price": 82.15,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "T",
+      "name": "AT&T INC.",
+      "oe_yield": 0.10704255439806594,
+      "oe_per_share": 2.7081766262710683,
+      "price": 25.3,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "UHS",
+      "name": "UNIVERSAL HEALTH SERVICES INC",
+      "oe_yield": 0.10653205639730201,
+      "oe_per_share": 19.32384970990661,
+      "price": 181.39,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "KR",
       "name": "Kroger Co.",
-      "oe_yield": 0.10373649522379343,
+      "oe_yield": 0.1053922477499192,
       "oe_per_share": 6.074809160305343,
-      "price": 58.56,
+      "price": 57.64,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "IVZ",
       "name": "Invesco Ltd.",
-      "oe_yield": 0.1026590913138725,
+      "oe_yield": 0.10302644655279658,
       "oe_per_share": 3.167032967032967,
-      "price": 30.85,
+      "price": 30.74,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LDOS",
-      "name": "Leidos Holdings, Inc.",
-      "oe_yield": 0.10137052955964641,
-      "oe_per_share": 12.5,
-      "price": 123.31,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BMY",
       "name": "BRISTOL-MYERS SQUIBB COMPANY",
-      "oe_yield": 0.10119930432864366,
+      "oe_yield": 0.10301973335172637,
       "oe_per_share": 6.299656694458068,
-      "price": 62.25,
+      "price": 61.15,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "DVN",
+      "name": "DEVON ENERGY CORP/DE",
+      "oe_yield": 0.10256723925428125,
+      "oe_per_share": 4.927330173775672,
+      "price": 48.04,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GPN",
       "name": "GLOBAL PAYMENTS INC.",
-      "oe_yield": 0.09937025159530832,
+      "oe_yield": 0.1002929753601219,
       "oe_per_share": 8.42460993025024,
-      "price": 84.78,
+      "price": 84.0,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LDOS",
+      "name": "Leidos Holdings, Inc.",
+      "oe_yield": 0.10024861656909134,
+      "oe_per_share": 12.5,
+      "price": 124.69,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "VICI",
       "name": "VICI Properties Inc.",
-      "oe_yield": 0.09835249628224692,
+      "oe_yield": 0.09951446670245913,
       "oe_per_share": 2.358492860848281,
-      "price": 23.98,
+      "price": 23.7,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TMUS",
-      "name": "T-MOBILE US, INC.",
-      "oe_yield": 0.09795964462949622,
-      "oe_per_share": 15.90962588427648,
-      "price": 162.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GL",
       "name": "GLOBE LIFE INC.",
-      "oe_yield": 0.09772354006739564,
+      "oe_yield": 0.09811732973996352,
       "oe_per_share": 16.557299393618845,
-      "price": 169.43,
+      "price": 168.75,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ADBE",
-      "name": "ADOBE INC.",
-      "oe_yield": 0.09684197075179822,
-      "oe_per_share": 23.072599531615925,
-      "price": 238.25,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "VZ",
-      "name": "VERIZON COMMUNICATIONS INC",
-      "oe_yield": 0.09559866066215351,
-      "oe_per_share": 4.440557787757031,
-      "price": 46.45,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DG",
       "name": "DOLLAR GENERAL CORP",
-      "oe_yield": 0.09558098004328155,
+      "oe_yield": 0.09718984728613282,
       "oe_per_share": 11.721095582707617,
-      "price": 122.63,
+      "price": 120.6,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DECK",
       "name": "DECKERS OUTDOOR CORP",
-      "oe_yield": 0.095137612026221,
+      "oe_yield": 0.096638701718453,
       "oe_per_share": 7.594835568053222,
-      "price": 79.83,
+      "price": 78.59,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CF",
-      "name": "CF INDUSTRIES HOLDINGS,\u00a0INC.",
-      "oe_yield": 0.09478673954986422,
-      "oe_per_share": 11.430332922318126,
-      "price": 120.59,
+      "ticker": "TMUS",
+      "name": "T-MOBILE US, INC.",
+      "oe_yield": 0.09603782376117638,
+      "oe_per_share": 15.90962588427648,
+      "price": 165.66,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "DVA",
-      "name": "DAVITA INC.",
-      "oe_yield": 0.09400906160488612,
-      "oe_per_share": 17.27134479804968,
-      "price": 183.72,
+      "ticker": "ADBE",
+      "name": "ADOBE INC.",
+      "oe_yield": 0.09586023321125067,
+      "oe_per_share": 23.072599531615925,
+      "price": 240.69,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HBAN",
       "name": "Huntington Bancshares Incorporated",
-      "oe_yield": 0.09381269552206939,
+      "oe_yield": 0.0957035886047639,
       "oe_per_share": 1.4719211927412688,
-      "price": 15.69,
+      "price": 15.38,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ACN",
-      "name": "Accenture plc",
-      "oe_yield": 0.09359039904192618,
-      "oe_per_share": 17.194428111982678,
-      "price": 183.72,
+      "ticker": "VZ",
+      "name": "VERIZON COMMUNICATIONS INC",
+      "oe_yield": 0.0954548105708734,
+      "oe_per_share": 4.440557787757031,
+      "price": 46.52,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "KEY",
-      "name": "KeyCorp",
-      "oe_yield": 0.09347022919347939,
-      "oe_per_share": 1.9142702938824578,
-      "price": 20.48,
+      "ticker": "CF",
+      "name": "CF INDUSTRIES HOLDINGS,\u00a0INC.",
+      "oe_yield": 0.09474745459481206,
+      "oe_per_share": 11.430332922318126,
+      "price": 120.64,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "VTRS",
-      "name": "VIATRIS INC.",
-      "oe_yield": 0.09342381423230858,
-      "oe_per_share": 1.6050211285110614,
-      "price": 17.18,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CI",
       "name": "The Cigna Group",
-      "oe_yield": 0.09284998575397473,
+      "oe_yield": 0.0947431882070043,
       "oe_per_share": 25.41675510029304,
-      "price": 273.74,
+      "price": 268.27,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "HPQ",
-      "name": "HP INC.",
-      "oe_yield": 0.0917006941742549,
-      "oe_per_share": 2.938090241343127,
-      "price": 32.04,
+      "ticker": "KEY",
+      "name": "KeyCorp",
+      "oe_yield": 0.09457857183213725,
+      "oe_per_share": 1.9142702938824578,
+      "price": 20.24,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CCI",
-      "name": "CROWN CASTLE INC.",
-      "oe_yield": 0.0909071074812913,
-      "oe_per_share": 6.578947368421052,
-      "price": 72.37,
+      "ticker": "DVA",
+      "name": "DAVITA INC.",
+      "oe_yield": 0.0943067860546559,
+      "oe_per_share": 17.27134479804968,
+      "price": 183.14,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EQT",
-      "name": "EQT CORPORATION",
-      "oe_yield": 0.0907004962240381,
-      "oe_per_share": 4.608492213143376,
-      "price": 50.81,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CTSH",
-      "name": "COGNIZANT TECHNOLOGY SOLUTIONS CORPORATION",
-      "oe_yield": 0.09043538626887643,
-      "oe_per_share": 5.306748466257669,
-      "price": 58.68,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GEN",
       "name": "Gen Digital Inc.",
-      "oe_yield": 0.09015830092745246,
+      "oe_yield": 0.09380175494892024,
       "oe_per_share": 2.4604200323101777,
-      "price": 27.29,
+      "price": 26.23,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "LULU",
-      "name": "lululemon athletica inc.",
-      "oe_yield": 0.08956811913380107,
-      "oe_per_share": 9.290900997749185,
-      "price": 103.73,
+      "ticker": "VTRS",
+      "name": "VIATRIS INC.",
+      "oe_yield": 0.09375123414200125,
+      "oe_per_share": 1.6050211285110614,
+      "price": 17.12,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "SJM",
-      "name": "J M SMUCKER Co",
-      "oe_yield": 0.08950428267363786,
-      "oe_per_share": 10.839863674604281,
-      "price": 121.11,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FIS",
-      "name": "Fidelity National Information Services, Inc.",
-      "oe_yield": 0.08820965457121063,
-      "oe_per_share": 3.083809523809524,
-      "price": 34.96,
+      "ticker": "ACN",
+      "name": "Accenture plc",
+      "oe_yield": 0.09369239380984458,
+      "oe_per_share": 17.194428111982678,
+      "price": 183.52,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "EXE",
-      "name": "EXPAND ENERGY Corp",
-      "oe_yield": 0.08790882641472944,
-      "oe_per_share": 7.650705162873903,
-      "price": 87.03,
+      "ticker": "CCI",
+      "name": "CROWN CASTLE INC.",
+      "oe_yield": 0.09367716600343232,
+      "oe_per_share": 6.578947368421052,
+      "price": 70.23,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "HCA",
-      "name": "HCA Healthcare, Inc.",
-      "oe_yield": 0.08685040346515516,
-      "oe_per_share": 38.05089876615378,
-      "price": 438.12,
+      "ticker": "HPQ",
+      "name": "HP INC.",
+      "oe_yield": 0.09135852740494799,
+      "oe_per_share": 2.938090241343127,
+      "price": 32.16,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CAH",
-      "name": "Cardinal Health, Inc.",
-      "oe_yield": 0.08598823186912002,
-      "oe_per_share": 19.09282700421941,
-      "price": 222.04,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GIS",
-      "name": "GENERAL MILLS, INC.",
-      "oe_yield": 0.08531873074813504,
-      "oe_per_share": 3.0245490050213872,
-      "price": 35.45,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WYNN",
-      "name": "WYNN RESORTS, LIMITED",
-      "oe_yield": 0.08510781842272866,
-      "oe_per_share": 7.022246098059342,
-      "price": 82.51,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EXPE",
       "name": "EXPEDIA GROUP, INC.",
-      "oe_yield": 0.0839714440821153,
+      "oe_yield": 0.09099283644938914,
       "oe_per_share": 23.570784353849767,
-      "price": 280.7,
+      "price": 259.04,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LULU",
+      "name": "lululemon athletica inc.",
+      "oe_yield": 0.09083790572691812,
+      "oe_per_share": 9.290900997749185,
+      "price": 102.28,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EQT",
+      "name": "EQT CORPORATION",
+      "oe_yield": 0.09025640840468813,
+      "oe_per_share": 4.608492213143376,
+      "price": 51.06,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CTSH",
+      "name": "COGNIZANT TECHNOLOGY SOLUTIONS CORPORATION",
+      "oe_yield": 0.08973196594957167,
+      "oe_per_share": 5.306748466257669,
+      "price": 59.14,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "FIS",
+      "name": "Fidelity National Information Services, Inc.",
+      "oe_yield": 0.08894749131264851,
+      "oe_per_share": 3.083809523809524,
+      "price": 34.67,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SJM",
+      "name": "J M SMUCKER Co",
+      "oe_yield": 0.0885537429507743,
+      "oe_per_share": 10.839863674604281,
+      "price": 122.41,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EXE",
+      "name": "EXPAND ENERGY Corp",
+      "oe_yield": 0.08789872659551819,
+      "oe_per_share": 7.650705162873903,
+      "price": 87.04,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HCA",
+      "name": "HCA Healthcare, Inc.",
+      "oe_yield": 0.08717672921131273,
+      "oe_per_share": 38.05089876615378,
+      "price": 436.48,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CAH",
+      "name": "Cardinal Health, Inc.",
+      "oe_yield": 0.08628746329922451,
+      "oe_per_share": 19.09282700421941,
+      "price": 221.27,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "WYNN",
+      "name": "WYNN RESORTS, LIMITED",
+      "oe_yield": 0.08621542170729701,
+      "oe_per_share": 7.022246098059342,
+      "price": 81.45,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GIS",
+      "name": "GENERAL MILLS, INC.",
+      "oe_yield": 0.08443743732611354,
+      "oe_per_share": 3.0245490050213872,
+      "price": 35.82,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PNR",
       "name": "Pentair plc",
-      "oe_yield": 0.08223359152924317,
+      "oe_yield": 0.08259080532050142,
       "oe_per_share": 4.563141993957704,
-      "price": 55.49,
+      "price": 55.25,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HII",
       "name": "HUNTINGTON INGALLS INDUSTRIES, INC.",
-      "oe_yield": 0.08142117993094695,
+      "oe_yield": 0.08176823092027455,
       "oe_per_share": 22.061068702290076,
-      "price": 270.95,
+      "price": 269.8,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "IT",
-      "name": "Gartner, Inc.",
-      "oe_yield": 0.08065889008154731,
-      "oe_per_share": 14.417776602076582,
-      "price": 178.75,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SWKS",
-      "name": "SKYWORKS SOLUTIONS, INC.",
-      "oe_yield": 0.07925293253051217,
-      "oe_per_share": 7.129593810444875,
-      "price": 89.96,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "APO",
-      "name": "APOLLO GLOBAL MANAGEMENT, INC.",
-      "oe_yield": 0.07889822611039603,
-      "oe_per_share": 9.795214771605668,
-      "price": 124.15,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ZBH",
       "name": "ZIMMER BIOMET HOLDINGS, INC.",
-      "oe_yield": 0.07885904045587658,
+      "oe_yield": 0.08154899452072273,
       "oe_per_share": 7.411172622043281,
-      "price": 93.98,
+      "price": 90.88,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "IT",
+      "name": "Gartner, Inc.",
+      "oe_yield": 0.08076280866052309,
+      "oe_per_share": 14.417776602076582,
+      "price": 178.52,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FE",
       "name": "FIRSTENERGY CORP",
-      "oe_yield": 0.07875008606038383,
+      "oe_yield": 0.08069854179796034,
       "oe_per_share": 3.5224913494809686,
-      "price": 44.73,
+      "price": 43.65,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "MO",
-      "name": "Altria Group, Inc.",
-      "oe_yield": 0.07854840742541278,
-      "oe_per_share": 5.3915626856803325,
-      "price": 68.64,
+      "ticker": "APO",
+      "name": "APOLLO GLOBAL MANAGEMENT, INC.",
+      "oe_yield": 0.07876499494697385,
+      "oe_per_share": 9.795214771605668,
+      "price": 124.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TPR",
       "name": "Tapestry, Inc.",
-      "oe_yield": 0.07680503234583282,
+      "oe_yield": 0.07825064330664479,
       "oe_per_share": 8.647478591817316,
-      "price": 112.59,
+      "price": 110.51,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MO",
+      "name": "Altria Group, Inc.",
+      "oe_yield": 0.07819525287426153,
+      "oe_per_share": 5.3915626856803325,
+      "price": 68.95,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EXC",
       "name": "EXELON CORPORATION",
-      "oe_yield": 0.07590729428674092,
+      "oe_yield": 0.07797800199522661,
       "oe_per_share": 3.1729249011857705,
-      "price": 41.8,
+      "price": 40.69,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SWKS",
+      "name": "SKYWORKS SOLUTIONS, INC.",
+      "oe_yield": 0.07796166003766948,
+      "oe_per_share": 7.129593810444875,
+      "price": 91.45,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MTB",
       "name": "M&T BANK CORP",
-      "oe_yield": 0.07554171892591575,
+      "oe_yield": 0.07686278733230757,
       "oe_per_share": 16.877530842428097,
-      "price": 223.42,
+      "price": 219.58,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AXP",
-      "name": "AMERICAN EXPRESS CO",
-      "oe_yield": 0.07536898446898752,
-      "oe_per_share": 22.992816091954023,
-      "price": 305.07,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ZTS",
-      "name": "Zoetis Inc.",
-      "oe_yield": 0.07474221026680833,
-      "oe_per_share": 5.445717440039655,
-      "price": 72.86,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DHI",
       "name": "D.R. Horton, Inc.",
-      "oe_yield": 0.07433101470993225,
+      "oe_yield": 0.0764203647702671,
       "oe_per_share": 10.711842529848338,
-      "price": 144.11,
+      "price": 140.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AXP",
+      "name": "AMERICAN EXPRESS CO",
+      "oe_yield": 0.07614523808436224,
+      "oe_per_share": 22.992816091954023,
+      "price": 301.96,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ZTS",
+      "name": "Zoetis Inc.",
+      "oe_yield": 0.0760468850724711,
+      "oe_per_share": 5.445717440039655,
+      "price": 71.61,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "RCL",
       "name": "ROYAL CARIBBEAN CRUISES LTD",
-      "oe_yield": 0.07375715236173602,
+      "oe_yield": 0.07522717116043497,
       "oe_per_share": 17.324817518248175,
-      "price": 234.89,
+      "price": 230.3,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PNW",
       "name": "PINNACLE WEST CAPITAL CORP",
-      "oe_yield": 0.07352753282945201,
+      "oe_yield": 0.07441417662565725,
       "oe_per_share": 6.849824958391749,
-      "price": 93.16,
+      "price": 92.05,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EOG",
-      "name": "EOG RESOURCES, INC.",
-      "oe_yield": 0.07328895301945759,
-      "oe_per_share": 10.225274725274724,
-      "price": 139.52,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BF.B",
-      "name": "BROWN FORMAN CORP",
-      "oe_yield": 0.0732469034500492,
-      "oe_per_share": 1.9454377556333065,
-      "price": 26.56,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "OXY",
-      "name": "OCCIDENTAL PETROLEUM CORPORATION",
-      "oe_yield": 0.07289272848598641,
-      "oe_per_share": 4.104589541045895,
-      "price": 56.31,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CFG",
-      "name": "CITIZENS FINANCIAL GROUP INC/RI",
-      "oe_yield": 0.07273178711646877,
-      "oe_per_share": 4.7632047382575395,
-      "price": 65.49,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "OKE",
-      "name": "ONEOK INC /NEW/",
-      "oe_yield": 0.07244535124388136,
-      "oe_per_share": 6.526601693561272,
-      "price": 90.09,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "KIM",
-      "name": "KIMCO REALTY CORPORATION",
-      "oe_yield": 0.07234358899085445,
-      "oe_per_share": 1.631347931743768,
-      "price": 22.55,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FDX",
-      "name": "FEDEX CORP",
-      "oe_yield": 0.07233174880241189,
-      "oe_per_share": 21.405857740585773,
-      "price": 295.94,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PHM",
       "name": "PULTEGROUP, INC.",
-      "oe_yield": 0.07207551455943839,
+      "oe_yield": 0.07424913381748566,
       "oe_per_share": 8.814114675473721,
-      "price": 122.29,
+      "price": 118.71,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "RJF",
-      "name": "RAYMOND JAMES FINANCIAL, INC.",
-      "oe_yield": 0.07184943419633433,
-      "oe_per_share": 11.452081316553727,
-      "price": 159.39,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "BF.B",
+      "name": "BROWN FORMAN CORP",
+      "oe_yield": 0.07399915388487283,
+      "oe_per_share": 1.9454377556333065,
+      "price": 26.29,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "BRO",
-      "name": "BROWN & BROWN, INC.",
-      "oe_yield": 0.0713784274437006,
-      "oe_per_share": 4.456869009584665,
-      "price": 62.44,
+      "ticker": "CFG",
+      "name": "CITIZENS FINANCIAL GROUP INC/RI",
+      "oe_yield": 0.07372240734031171,
+      "oe_per_share": 4.7632047382575395,
+      "price": 64.61,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CVS",
-      "name": "CVS HEALTH CORPORATION",
-      "oe_yield": 0.07052132667173122,
-      "oe_per_share": 6.142407553107789,
-      "price": 87.1,
+      "ticker": "KIM",
+      "name": "KIMCO REALTY CORPORATION",
+      "oe_yield": 0.07345105500872436,
+      "oe_per_share": 1.631347931743768,
+      "price": 22.21,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "URI",
-      "name": "United Rentals, Inc.",
-      "oe_yield": 0.07052060992605935,
-      "oe_per_share": 73.55581697727695,
-      "price": 1043.04,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "FDX",
+      "name": "FEDEX CORP",
+      "oe_yield": 0.0734334742387162,
+      "oe_per_share": 21.405857740585773,
+      "price": 291.5,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CLX",
       "name": "CLOROX CO /DE/",
-      "oe_yield": 0.07034963923029351,
+      "oe_yield": 0.07303992207433976,
       "oe_per_share": 6.13097105892008,
-      "price": 87.15,
+      "price": 83.94,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "RJF",
+      "name": "RAYMOND JAMES FINANCIAL, INC.",
+      "oe_yield": 0.07237616960471294,
+      "oe_per_share": 11.452081316553727,
+      "price": 158.23,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BRO",
+      "name": "BROWN & BROWN, INC.",
+      "oe_yield": 0.07223450582795242,
+      "oe_per_share": 4.456869009584665,
+      "price": 61.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EOG",
+      "name": "EOG RESOURCES, INC.",
+      "oe_yield": 0.0720902053389363,
+      "oe_per_share": 10.225274725274724,
+      "price": 141.84,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "OKE",
+      "name": "ONEOK INC /NEW/",
+      "oe_yield": 0.07208528488581037,
+      "oe_per_share": 6.526601693561272,
+      "price": 90.54,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LOW",
       "name": "LOWES COMPANIES INC",
-      "oe_yield": 0.06985122690447047,
+      "oe_yield": 0.07157414596273291,
       "oe_per_share": 13.696428571428571,
-      "price": 196.08,
+      "price": 191.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "FANG",
-      "name": "Diamondback Energy, Inc.",
-      "oe_yield": 0.06974772164708007,
-      "oe_per_share": 12.868454643886274,
-      "price": 184.5,
+      "ticker": "OXY",
+      "name": "OCCIDENTAL PETROLEUM CORPORATION",
+      "oe_yield": 0.07155839506704838,
+      "oe_per_share": 4.104589541045895,
+      "price": 57.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CVS",
+      "name": "CVS HEALTH CORPORATION",
+      "oe_yield": 0.07153980378648718,
+      "oe_per_share": 6.142407553107789,
+      "price": 85.86,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "URI",
+      "name": "United Rentals, Inc.",
+      "oe_yield": 0.07127570710692638,
+      "oe_per_share": 73.55581697727695,
+      "price": 1031.99,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ES",
       "name": "EVERSOURCE ENERGY",
-      "oe_yield": 0.0693498956087176,
+      "oe_yield": 0.0709204447774869,
       "oe_per_share": 4.603446070506674,
-      "price": 66.38,
+      "price": 64.91,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "FANG",
+      "name": "Diamondback Energy, Inc.",
+      "oe_yield": 0.06931567273841246,
+      "oe_per_share": 12.868454643886274,
+      "price": 185.65,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DPZ",
       "name": "Domino\u2019s Pizza, Inc.",
-      "oe_yield": 0.06912970344064337,
+      "oe_yield": 0.06929061662545612,
       "oe_per_share": 20.539817486283958,
-      "price": 297.12,
+      "price": 296.43,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DIS",
-      "name": "WALT DISNEY CO/",
-      "oe_yield": 0.06794561500009415,
-      "oe_per_share": 7.054113749309773,
-      "price": 103.82,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LVS",
       "name": "LAS VEGAS SANDS CORP.",
-      "oe_yield": 0.06742487850800193,
+      "oe_yield": 0.06830231377309715,
       "oe_per_share": 2.676767676767677,
-      "price": 39.7,
+      "price": 39.19,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "JKHY",
-      "name": "JACK HENRY & ASSOCIATES, INC.",
-      "oe_yield": 0.06701573720136382,
-      "oe_per_share": 9.992046416723346,
-      "price": 149.1,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "ticker": "DIS",
+      "name": "WALT DISNEY CO/",
+      "oe_yield": 0.06818203894558064,
+      "oe_per_share": 7.054113749309773,
+      "price": 103.46,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PCAR",
       "name": "PACCAR Inc",
-      "oe_yield": 0.06695718779811248,
+      "oe_yield": 0.0680383949523152,
       "oe_per_share": 7.626423690205011,
-      "price": 113.9,
+      "price": 112.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "UPS",
-      "name": "UNITED PARCEL SERVICE INC",
-      "oe_yield": 0.06687978205781113,
-      "oe_per_share": 6.411764705882353,
-      "price": 95.87,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "JKHY",
+      "name": "JACK HENRY & ASSOCIATES, INC.",
+      "oe_yield": 0.0673636244638532,
+      "oe_per_share": 9.992046416723346,
+      "price": 148.33,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ED",
       "name": "CONSOLIDATED EDISON INC",
-      "oe_yield": 0.06655496672412749,
+      "oe_yield": 0.0673527701455355,
       "oe_per_share": 6.911067744633399,
-      "price": 103.84,
+      "price": 102.61,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TXT",
       "name": "Textron Inc.",
-      "oe_yield": 0.0661751939722442,
+      "oe_yield": 0.06709704604294203,
       "oe_per_share": 5.153724106558378,
-      "price": 77.88,
+      "price": 76.81,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "UPS",
+      "name": "UNITED PARCEL SERVICE INC",
+      "oe_yield": 0.06691468071261067,
+      "oe_per_share": 6.411764705882353,
+      "price": 95.82,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AOS",
       "name": "A. O. Smith Corporation",
-      "oe_yield": 0.06615161219783498,
+      "oe_yield": 0.06663279815424458,
       "oe_per_share": 3.8473777654260823,
-      "price": 58.16,
+      "price": 57.74,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "UBER",
-      "name": "Uber Technologies, Inc",
-      "oe_yield": 0.06590162184654805,
-      "oe_per_share": 4.605864350855243,
-      "price": 69.89,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TSCO",
       "name": "TRACTOR SUPPLY CO /DE/",
-      "oe_yield": 0.06530101984459157,
+      "oe_yield": 0.06641330107452423,
       "oe_per_share": 2.144485491696387,
-      "price": 32.84,
+      "price": 32.29,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "UBER",
+      "name": "Uber Technologies, Inc",
+      "oe_yield": 0.06634780107829506,
+      "oe_per_share": 4.605864350855243,
+      "price": 69.42,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DLTR",
       "name": "DOLLAR TREE, INC.",
-      "oe_yield": 0.06499878311626059,
+      "oe_yield": 0.06607864978521226,
       "oe_per_share": 7.477460009694619,
-      "price": 115.04,
+      "price": 113.16,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BR",
-      "name": "BROADRIDGE FINANCIAL SOLUTIONS, INC.",
-      "oe_yield": 0.06459000121636645,
-      "oe_per_share": 10.529461998292058,
-      "price": 163.02,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CRM",
-      "name": "Salesforce, Inc.",
-      "oe_yield": 0.06457841888068139,
-      "oe_per_share": 15.064853556485355,
-      "price": 233.28,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TROW",
-      "name": "PRICE T ROWE GROUP INC",
-      "oe_yield": 0.06445694781797849,
-      "oe_per_share": 6.71448025419882,
-      "price": 104.17,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SLB",
-      "name": "SLB LIMITED/NV",
-      "oe_yield": 0.06402173454439224,
-      "oe_per_share": 3.336812804453723,
-      "price": 52.12,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HAL",
-      "name": "HALLIBURTON COMPANY",
-      "oe_yield": 0.0638805469459567,
-      "oe_per_share": 2.0984759671746778,
-      "price": 32.85,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TSN",
-      "name": "TYSON FOODS, INC.",
-      "oe_yield": 0.06362251577589739,
-      "oe_per_share": 3.2969187675070026,
-      "price": 51.82,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NI",
-      "name": "NISOURCE INC.",
-      "oe_yield": 0.06313460930737418,
-      "oe_per_share": 2.5178082191780824,
-      "price": 39.88,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ROP",
-      "name": "ROPER TECHNOLOGIES, INC.",
-      "oe_yield": 0.06307061699218437,
-      "oe_per_share": 22.948243992606283,
-      "price": 363.85,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BBY",
       "name": "BEST BUY CO., INC.",
-      "oe_yield": 0.06255183025760316,
+      "oe_yield": 0.065321195429801,
       "oe_per_share": 5.931164545025931,
-      "price": 94.82,
+      "price": 90.8,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BR",
+      "name": "BROADRIDGE FINANCIAL SOLUTIONS, INC.",
+      "oe_yield": 0.06442007952457668,
+      "oe_per_share": 10.529461998292058,
+      "price": 163.45,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SLB",
+      "name": "SLB LIMITED/NV",
+      "oe_yield": 0.06433030276563954,
+      "oe_per_share": 3.336812804453723,
+      "price": 51.87,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TROW",
+      "name": "PRICE T ROWE GROUP INC",
+      "oe_yield": 0.06421038781867477,
+      "oe_per_share": 6.71448025419882,
+      "price": 104.57,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TSN",
+      "name": "TYSON FOODS, INC.",
+      "oe_yield": 0.0641923436041083,
+      "oe_per_share": 3.2969187675070026,
+      "price": 51.36,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NI",
+      "name": "NISOURCE INC.",
+      "oe_yield": 0.06414798010644795,
+      "oe_per_share": 2.5178082191780824,
+      "price": 39.25,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ETR",
       "name": "ENTERGY CORP /DE/",
-      "oe_yield": 0.06247798979806749,
+      "oe_yield": 0.0636931719033811,
       "oe_per_share": 6.320273447972507,
-      "price": 101.16,
+      "price": 99.23,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "HAS",
-      "name": "HASBRO, INC.",
-      "oe_yield": 0.062184124426682405,
-      "oe_per_share": 5.404422253922967,
-      "price": 86.91,
+      "ticker": "HAL",
+      "name": "HALLIBURTON COMPANY",
+      "oe_yield": 0.06357091690926016,
+      "oe_per_share": 2.0984759671746778,
+      "price": 33.01,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "FOX",
-      "name": "Fox Corporation",
-      "oe_yield": 0.06199460487977021,
-      "oe_per_share": 3.5535307517084282,
-      "price": 57.32,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BIIB",
-      "name": "BIOGEN INC.",
-      "oe_yield": 0.06186340242197574,
-      "oe_per_share": 13.941536369816452,
-      "price": 225.36,
+      "ticker": "CRM",
+      "name": "Salesforce, Inc.",
+      "oe_yield": 0.06340960331882041,
+      "oe_per_share": 15.064853556485355,
+      "price": 237.58,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SBAC",
       "name": "SBA COMMUNICATIONS CORPORATION",
-      "oe_yield": 0.06132277552024214,
+      "oe_yield": 0.06323225735928797,
       "oe_per_share": 10.782996847479378,
-      "price": 175.84,
+      "price": 170.53,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AMCR",
-      "name": "AMCOR PLC",
-      "oe_yield": 0.061282355986962064,
-      "oe_per_share": 2.64984907287624,
-      "price": 43.24,
+      "ticker": "ROP",
+      "name": "ROPER TECHNOLOGIES, INC.",
+      "oe_yield": 0.06263850855062311,
+      "oe_per_share": 22.948243992606283,
+      "price": 366.36,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HAS",
+      "name": "HASBRO, INC.",
+      "oe_yield": 0.06246442734538798,
+      "oe_per_share": 5.404422253922967,
+      "price": 86.52,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "FOX",
+      "name": "Fox Corporation",
+      "oe_yield": 0.06238642471398224,
+      "oe_per_share": 3.5535307517084282,
+      "price": 56.96,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CVNA",
       "name": "CARVANA CO.",
-      "oe_yield": 0.06060930087014639,
+      "oe_yield": 0.06198355397822634,
       "oe_per_share": 3.9638482769075742,
-      "price": 65.4,
+      "price": 63.95,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "DTE",
-      "name": "DTE ENERGY CO",
-      "oe_yield": 0.06040091880275209,
-      "oe_per_share": 7.57487922705314,
-      "price": 125.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CBOE",
-      "name": "Cboe Global Markets, Inc.",
-      "oe_yield": 0.05996327249559645,
-      "oe_per_share": 16.0,
-      "price": 266.83,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "KMB",
-      "name": "KIMBERLY-CLARK CORPORATION",
-      "oe_yield": 0.059835884611654795,
-      "oe_per_share": 5.918367346938775,
-      "price": 98.91,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MRSH",
-      "name": "Marsh\u00a0& McLennan Companies, Inc.",
-      "oe_yield": 0.05954639010279701,
-      "oe_per_share": 10.123481781376519,
-      "price": 170.01,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MAS",
-      "name": "Masco Corporation",
-      "oe_yield": 0.059489776470908556,
-      "oe_per_share": 4.161904761904762,
-      "price": 69.96,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LHX",
-      "name": "L3HARRIS TECHNOLOGIES, INC.",
-      "oe_yield": 0.05934248526328283,
-      "oe_per_share": 14.235668789808917,
-      "price": 239.89,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "QCOM",
-      "name": "QUALCOMM INC/DE",
-      "oe_yield": 0.058515206308322645,
-      "oe_per_share": 11.60180995475113,
-      "price": 198.27,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CRH",
-      "name": "CRH public limited company",
-      "oe_yield": 0.05820169024822207,
-      "oe_per_share": 5.124076809453471,
-      "price": 88.04,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FDS",
-      "name": "FACTSET RESEARCH SYSTEMS INC.",
-      "oe_yield": 0.05819338243034178,
-      "oe_per_share": 16.085814771395075,
-      "price": 276.42,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PPG",
-      "name": "PPG INDUSTRIES INC",
-      "oe_yield": 0.057733401371309244,
-      "oe_per_share": 6.221928665785997,
-      "price": 107.77,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EFX",
-      "name": "EQUIFAX INC",
-      "oe_yield": 0.05720496625648341,
-      "oe_per_share": 9.140209508460918,
-      "price": 159.78,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WEC",
-      "name": "WEC ENERGY GROUP, INC.",
-      "oe_yield": 0.05709033487570441,
-      "oe_per_share": 5.870599135268685,
-      "price": 102.83,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PFE",
-      "name": "PFIZER INC",
-      "oe_yield": 0.05687369883787762,
-      "oe_per_share": 1.588482408541922,
-      "price": 27.93,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LMT",
-      "name": "LOCKHEED MARTIN CORPORATION",
-      "oe_yield": 0.05663855427712503,
-      "oe_per_share": 29.58458244111349,
-      "price": 522.34,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NVR",
-      "name": "NVR, Inc.",
-      "oe_yield": 0.05637745393618073,
-      "oe_per_share": 357.3721703051348,
-      "price": 6338.92,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "AMCR",
+      "name": "AMCOR PLC",
+      "oe_yield": 0.0619123615158,
+      "oe_per_share": 2.64984907287624,
+      "price": 42.8,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PAYX",
       "name": "Paychex, Inc.",
-      "oe_yield": 0.05631227140875268,
+      "oe_yield": 0.06172307823183505,
       "oe_per_share": 6.4494444444444445,
-      "price": 114.53,
+      "price": 104.49,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CPRT",
-      "name": "COPART, INC.",
-      "oe_yield": 0.05625884214112031,
-      "oe_per_share": 1.620254653664265,
-      "price": 28.8,
+      "ticker": "DTE",
+      "name": "DTE ENERGY CO",
+      "oe_yield": 0.061639508723680854,
+      "oe_per_share": 7.57487922705314,
+      "price": 122.89,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BIIB",
+      "name": "BIOGEN INC.",
+      "oe_yield": 0.06127339854004506,
+      "oe_per_share": 13.941536369816452,
+      "price": 227.53,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MAS",
+      "name": "Masco Corporation",
+      "oe_yield": 0.061060809300245926,
+      "oe_per_share": 4.161904761904762,
+      "price": 68.16,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "KMB",
+      "name": "KIMBERLY-CLARK CORPORATION",
+      "oe_yield": 0.06057694316211643,
+      "oe_per_share": 5.918367346938775,
+      "price": 97.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CRH",
+      "name": "CRH public limited company",
+      "oe_yield": 0.060120577372444806,
+      "oe_per_share": 5.124076809453471,
+      "price": 85.23,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LHX",
+      "name": "L3HARRIS TECHNOLOGIES, INC.",
+      "oe_yield": 0.05951117758375033,
+      "oe_per_share": 14.235668789808917,
+      "price": 239.21,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CBOE",
+      "name": "Cboe Global Markets, Inc.",
+      "oe_yield": 0.05950831256741176,
+      "oe_per_share": 16.0,
+      "price": 268.87,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MRSH",
+      "name": "Marsh\u00a0& McLennan Companies, Inc.",
+      "oe_yield": 0.05941707818626904,
+      "oe_per_share": 10.123481781376519,
+      "price": 170.38,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EFX",
+      "name": "EQUIFAX INC",
+      "oe_yield": 0.05884760177994411,
+      "oe_per_share": 9.140209508460918,
+      "price": 155.32,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "QCOM",
+      "name": "QUALCOMM INC/DE",
+      "oe_yield": 0.058820776489308106,
+      "oe_per_share": 11.60180995475113,
+      "price": 197.24,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PPG",
+      "name": "PPG INDUSTRIES INC",
+      "oe_yield": 0.05804037934501863,
+      "oe_per_share": 6.221928665785997,
+      "price": 107.2,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "WEC",
+      "name": "WEC ENERGY GROUP, INC.",
+      "oe_yield": 0.05802707458009968,
+      "oe_per_share": 5.870599135268685,
+      "price": 101.17,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ORCL",
       "name": "Oracle Corporation",
-      "oe_yield": 0.05601597906749519,
+      "oe_yield": 0.05781394629821722,
       "oe_per_share": 8.357584076870282,
-      "price": 149.2,
+      "price": 144.56,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "GEHC",
-      "name": "GE HEALTHCARE TECHNOLOGIES INC.",
-      "oe_yield": 0.05601011608590766,
-      "oe_per_share": 3.7117903930131004,
-      "price": 66.27,
+      "ticker": "FDS",
+      "name": "FACTSET RESEARCH SYSTEMS INC.",
+      "oe_yield": 0.05756652747162107,
+      "oe_per_share": 16.085814771395075,
+      "price": 279.43,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AEP",
-      "name": "American Electric Power Company, Inc.",
-      "oe_yield": 0.05598591353390916,
-      "oe_per_share": 6.733425820723254,
-      "price": 120.27,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CDW",
-      "name": "CDW CORP",
-      "oe_yield": 0.05587018728091387,
-      "oe_per_share": 8.236941710825132,
-      "price": 147.43,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "D",
-      "name": "DOMINION ENERGY, INC",
-      "oe_yield": 0.0556966606293659,
-      "oe_per_share": 3.477142523091313,
-      "price": 62.43,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MKC",
-      "name": "McCORMICK\u00a0& COMPANY, INCORPORATED",
-      "oe_yield": 0.05561168800851571,
-      "oe_per_share": 2.7483296213808464,
-      "price": 49.42,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NEM",
-      "name": "NEWMONT CORPORATION",
-      "oe_yield": 0.05540974417194169,
-      "oe_per_share": 7.0514440433212995,
-      "price": 127.26,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FOXA",
-      "name": "Fox Corporation",
-      "oe_yield": 0.055307871621921065,
-      "oe_per_share": 3.5535307517084282,
-      "price": 64.25,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "OTIS",
-      "name": "OTIS WORLDWIDE CORPORATION",
-      "oe_yield": 0.05516129713780192,
-      "oe_per_share": 3.7553811091415548,
-      "price": 68.08,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "IBM",
-      "name": "INTERNATIONAL BUSINESS MACHINES CORP",
-      "oe_yield": 0.055133272527105134,
-      "oe_per_share": 12.756736597321586,
-      "price": 231.38,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WDAY",
-      "name": "WORKDAY, INC.",
-      "oe_yield": 0.055025333845006456,
-      "oe_per_share": 10.357418589645565,
-      "price": 188.23,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FSLR",
       "name": "First Solar, Inc.",
-      "oe_yield": 0.054986553029031646,
+      "oe_yield": 0.05751002821883093,
       "oe_per_share": 11.040200117168974,
-      "price": 200.78,
+      "price": 191.97,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NVR",
+      "name": "NVR, Inc.",
+      "oe_yield": 0.05725640825125806,
+      "oe_per_share": 357.3721703051348,
+      "price": 6241.61,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NEM",
+      "name": "NEWMONT CORPORATION",
+      "oe_yield": 0.05707360617823796,
+      "oe_per_share": 7.0514440433212995,
+      "price": 123.55,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AEP",
+      "name": "American Electric Power Company, Inc.",
+      "oe_yield": 0.05687015051286532,
+      "oe_per_share": 6.733425820723254,
+      "price": 118.4,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "D",
+      "name": "DOMINION ENERGY, INC",
+      "oe_yield": 0.056843918965036995,
+      "oe_per_share": 3.477142523091313,
+      "price": 61.17,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LMT",
+      "name": "LOCKHEED MARTIN CORPORATION",
+      "oe_yield": 0.05638595418371863,
+      "oe_per_share": 29.58458244111349,
+      "price": 524.68,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PFE",
+      "name": "PFIZER INC",
+      "oe_yield": 0.056369141538038396,
+      "oe_per_share": 1.588482408541922,
+      "price": 28.18,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CDW",
+      "name": "CDW CORP",
+      "oe_yield": 0.05635564936251459,
+      "oe_per_share": 8.236941710825132,
+      "price": 146.16,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GEHC",
+      "name": "GE HEALTHCARE TECHNOLOGIES INC.",
+      "oe_yield": 0.056162662929537,
+      "oe_per_share": 3.7117903930131004,
+      "price": 66.09,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CPRT",
+      "name": "COPART, INC.",
+      "oe_yield": 0.056141879891346676,
+      "oe_per_share": 1.620254653664265,
+      "price": 28.86,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MKC",
+      "name": "McCORMICK\u00a0& COMPANY, INCORPORATED",
+      "oe_yield": 0.05598552905644421,
+      "oe_per_share": 2.7483296213808464,
+      "price": 49.09,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BEN",
       "name": "FRANKLIN RESOURCES INC",
-      "oe_yield": 0.054884466680846705,
+      "oe_yield": 0.055589189273508144,
       "oe_per_share": 1.8183223811364515,
-      "price": 33.13,
+      "price": 32.71,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "BSX",
-      "name": "BOSTON SCIENTIFIC CORPORATION",
-      "oe_yield": 0.054488899190174,
-      "oe_per_share": 2.4476413516226163,
-      "price": 44.92,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PPL",
-      "name": "PPL Corp",
-      "oe_yield": 0.05388424334974661,
-      "oe_per_share": 1.7717139213396687,
-      "price": 32.88,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "FOXA",
+      "name": "Fox Corporation",
+      "oe_yield": 0.05555864214678593,
+      "oe_per_share": 3.5535307517084282,
+      "price": 63.96,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HSIC",
       "name": "HENRY SCHEIN, INC.",
-      "oe_yield": 0.053844305335689166,
+      "oe_yield": 0.05535105955907471,
       "oe_per_share": 4.707607615499304,
-      "price": 87.43,
+      "price": 85.05,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "OTIS",
+      "name": "OTIS WORLDWIDE CORPORATION",
+      "oe_yield": 0.054967522089308475,
+      "oe_per_share": 3.7553811091415548,
+      "price": 68.32,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PPL",
+      "name": "PPL Corp",
+      "oe_yield": 0.05493686577797422,
+      "oe_per_share": 1.7717139213396687,
+      "price": 32.25,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BSX",
+      "name": "BOSTON SCIENTIFIC CORPORATION",
+      "oe_yield": 0.05485525216545532,
+      "oe_per_share": 2.4476413516226163,
+      "price": 44.62,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "IBM",
+      "name": "INTERNATIONAL BUSINESS MACHINES CORP",
+      "oe_yield": 0.05480639541726064,
+      "oe_per_share": 12.756736597321586,
+      "price": 232.76,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "INCY",
       "name": "INCYTE CORPORATION",
-      "oe_yield": 0.05357432708831152,
+      "oe_yield": 0.0545586435921003,
       "oe_per_share": 6.800189337319382,
-      "price": 126.93,
+      "price": 124.64,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HSY",
-      "name": "HERSHEY CO",
-      "oe_yield": 0.05334285472162657,
-      "oe_per_share": 8.986137306405213,
-      "price": 168.46,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AMT",
       "name": "AMERICAN TOWER CORP /MA/",
-      "oe_yield": 0.05312255430185766,
+      "oe_yield": 0.05451298536948445,
       "oe_per_share": 9.309727641400555,
-      "price": 175.25,
+      "price": 170.78,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MCK",
-      "name": "McKESSON CORPORATION",
-      "oe_yield": 0.05305526971240382,
-      "oe_per_share": 47.28444802578566,
-      "price": 891.23,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AON",
       "name": "Aon plc",
-      "oe_yield": 0.053016865738852725,
+      "oe_yield": 0.05386408127800343,
       "oe_per_share": 15.168125287885767,
-      "price": 286.1,
+      "price": 281.6,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AVY",
-      "name": "AVERY DENNISON CORPORATION",
-      "oe_yield": 0.05286965959108242,
-      "oe_per_share": 9.098339719029374,
-      "price": 172.09,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "COP",
-      "name": "ConocoPhillips",
-      "oe_yield": 0.05283430965446126,
-      "oe_per_share": 6.618553970414362,
-      "price": 125.27,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "COR",
-      "name": "CENCORA, INC.",
-      "oe_yield": 0.05224958518942755,
-      "oe_per_share": 16.428837071111705,
-      "price": 314.43,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FTV",
-      "name": "Fortive Corporation",
-      "oe_yield": 0.052246503501172756,
-      "oe_per_share": 2.9231918708906157,
-      "price": 55.95,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ATO",
-      "name": "Atmos Energy Corp",
-      "oe_yield": 0.052037764264165086,
-      "oe_per_share": 8.187621829323735,
-      "price": 157.34,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DRI",
-      "name": "DARDEN RESTAURANTS, INC.",
-      "oe_yield": 0.05202397838315113,
-      "oe_per_share": 11.109200343938092,
-      "price": 213.54,
+      "ticker": "WDAY",
+      "name": "WORKDAY, INC.",
+      "oe_yield": 0.0538383334527787,
+      "oe_per_share": 10.357418589645565,
+      "price": 192.38,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MCK",
+      "name": "McKESSON CORPORATION",
+      "oe_yield": 0.05370181490719552,
+      "oe_per_share": 47.28444802578566,
+      "price": 880.5,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HSY",
+      "name": "HERSHEY CO",
+      "oe_yield": 0.05334602140935123,
+      "oe_per_share": 8.986137306405213,
+      "price": 168.45,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HRL",
       "name": "HORMEL FOODS CORPORATION",
-      "oe_yield": 0.051945284655191895,
+      "oe_yield": 0.05301443961044433,
       "oe_per_share": 1.0560476370400511,
-      "price": 20.33,
+      "price": 19.92,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AVY",
+      "name": "AVERY DENNISON CORPORATION",
+      "oe_yield": 0.052695121736530605,
+      "oe_per_share": 9.098339719029374,
+      "price": 172.66,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "COR",
+      "name": "CENCORA, INC.",
+      "oe_yield": 0.052609315585729816,
+      "oe_per_share": 16.428837071111705,
+      "price": 312.28,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ATO",
+      "name": "Atmos Energy Corp",
+      "oe_yield": 0.052404133572220526,
+      "oe_per_share": 8.187621829323735,
+      "price": 156.24,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WTW",
       "name": "WILLIS TOWERS WATSON PLC",
-      "oe_yield": 0.05185584677183126,
+      "oe_yield": 0.05233106340166777,
       "oe_per_share": 15.646464646464647,
-      "price": 301.73,
+      "price": 298.99,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TEL",
-      "name": "TE CONNECTIVITY\u00a0PLC",
-      "oe_yield": 0.05171507297762889,
-      "oe_per_share": 11.040133779264215,
-      "price": 213.48,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CL",
-      "name": "COLGATE-PALMOLIVE COMPANY",
-      "oe_yield": 0.05146852782377425,
-      "oe_per_share": 4.480335347059548,
-      "price": 87.05,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ALLE",
-      "name": "Allegion plc",
-      "oe_yield": 0.05143237321736235,
-      "oe_per_share": 7.918013856812933,
-      "price": 153.95,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CTVA",
-      "name": "Corteva, Inc.",
-      "oe_yield": 0.051421464645523614,
-      "oe_per_share": 4.131200469621367,
-      "price": 80.34,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "META",
-      "name": "Meta Platforms, Inc.",
-      "oe_yield": 0.05125715687757502,
-      "oe_per_share": 37.75602175602176,
-      "price": 736.6,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SYY",
       "name": "SYSCO CORP",
-      "oe_yield": 0.05125660403487653,
+      "oe_yield": 0.05227323100108551,
       "oe_per_share": 4.0323570394237365,
-      "price": 78.67,
+      "price": 77.14,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DGX",
-      "name": "Quest Diagnostics Inc",
-      "oe_yield": 0.05122912196526824,
-      "oe_per_share": 12.026548672566372,
-      "price": 234.76,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DUK",
       "name": "Duke Energy CORP",
-      "oe_yield": 0.05118792841258665,
+      "oe_yield": 0.05214739383084833,
       "oe_per_share": 5.953667953667954,
-      "price": 116.31,
+      "price": 114.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ADSK",
-      "name": "Autodesk, Inc.",
-      "oe_yield": 0.051018355171617784,
-      "oe_per_share": 11.204651162790698,
-      "price": 219.62,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "RMD",
-      "name": "ResMed Inc.",
-      "oe_yield": 0.0508810619310178,
-      "oe_per_share": 11.294069316828022,
-      "price": 221.97,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "REGN",
-      "name": "REGENERON PHARMACEUTICALS, INC.",
-      "oe_yield": 0.05080206369638619,
-      "oe_per_share": 40.83977900552486,
-      "price": 803.9,
+      "ticker": "CL",
+      "name": "COLGATE-PALMOLIVE COMPANY",
+      "oe_yield": 0.052139361655528314,
+      "oe_per_share": 4.480335347059548,
+      "price": 85.93,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PTC",
-      "name": "PTC Inc.",
-      "oe_yield": 0.0506652756733484,
-      "oe_per_share": 7.093138594268776,
-      "price": 140.0,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BDX",
-      "name": "BECTON, DICKINSON AND COMPANY",
-      "oe_yield": 0.05057091437156633,
-      "oe_per_share": 9.254477329996638,
-      "price": 183.0,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ALB",
-      "name": "ALBEMARLE CORPORATION",
-      "oe_yield": 0.05038624609289139,
-      "oe_per_share": 5.885113543649714,
-      "price": 116.8,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GILD",
-      "name": "GILEAD SCIENCES, INC.",
-      "oe_yield": 0.0503599018480346,
-      "oe_per_share": 7.688446215139442,
-      "price": 152.67,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "XYZ",
       "name": "Block, Inc.",
-      "oe_yield": 0.050212151244926576,
+      "oe_yield": 0.05212838893973162,
       "oe_per_share": 3.8929480860191576,
-      "price": 77.53,
+      "price": 74.68,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AZO",
-      "name": "AUTOZONE INC",
-      "oe_yield": 0.05016340384177432,
-      "oe_per_share": 145.20951000289938,
-      "price": 2894.73,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "DRI",
+      "name": "DARDEN RESTAURANTS, INC.",
+      "oe_yield": 0.05198746007739292,
+      "oe_per_share": 11.109200343938092,
+      "price": 213.69,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "KVUE",
-      "name": "Kenvue Inc.",
-      "oe_yield": 0.05011256411032447,
-      "oe_per_share": 0.895010395010395,
-      "price": 17.86,
+      "ticker": "FTV",
+      "name": "Fortive Corporation",
+      "oe_yield": 0.05195861839478521,
+      "oe_per_share": 2.9231918708906157,
+      "price": 56.26,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "SNA",
-      "name": "Snap-on Inc",
-      "oe_yield": 0.04989495265257239,
-      "oe_per_share": 18.550943396226415,
-      "price": 371.8,
+      "ticker": "ALB",
+      "name": "ALBEMARLE CORPORATION",
+      "oe_yield": 0.051864929440818844,
+      "oe_per_share": 5.885113543649714,
+      "price": 113.47,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "KMI",
-      "name": "KINDER MORGAN, INC.",
-      "oe_yield": 0.04983225490521874,
-      "oe_per_share": 1.5582546108861899,
-      "price": 31.27,
+      "ticker": "COP",
+      "name": "ConocoPhillips",
+      "oe_yield": 0.051671121636461564,
+      "oe_per_share": 6.618553970414362,
+      "price": 128.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NWSA",
       "name": "NEWS CORPORATION",
-      "oe_yield": 0.04965346655891069,
+      "oe_yield": 0.05164878722788541,
       "oe_per_share": 1.4523638968481376,
-      "price": 29.25,
+      "price": 28.12,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "VRSK",
-      "name": "Verisk Analytics, Inc.",
-      "oe_yield": 0.04948552329492541,
-      "oe_per_share": 8.508540875329475,
-      "price": 171.94,
+      "ticker": "DGX",
+      "name": "Quest Diagnostics Inc",
+      "oe_yield": 0.05161608872346082,
+      "oe_per_share": 12.026548672566372,
+      "price": 233.0,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "VLO",
-      "name": "VALERO ENERGY CORP/TX",
-      "oe_yield": 0.049452419358575604,
-      "oe_per_share": 18.650485436893202,
-      "price": 377.14,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SWK",
-      "name": "STANLEY BLACK\u00a0& DECKER, INC.",
-      "oe_yield": 0.049161980337875014,
-      "oe_per_share": 4.5292932485284245,
-      "price": 92.13,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SW",
-      "name": "Smurfit Westrock plc",
-      "oe_yield": 0.049114506378746516,
-      "oe_per_share": 2.2813688212927756,
-      "price": 46.45,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LII",
-      "name": "LENNOX INTERNATIONAL INC",
-      "oe_yield": 0.04902917520934113,
-      "oe_per_share": 18.22316384180791,
-      "price": 371.68,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NTAP",
-      "name": "NetApp, Inc.",
-      "oe_yield": 0.04869128000554998,
-      "oe_per_share": 9.393034825870647,
-      "price": 192.91,
+      "ticker": "ADSK",
+      "name": "Autodesk, Inc.",
+      "oe_yield": 0.05159866987239557,
+      "oe_per_share": 11.204651162790698,
+      "price": 217.15,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "SCHW",
-      "name": "SCHWAB CHARLES CORP",
-      "oe_yield": 0.04827217508207179,
-      "oe_per_share": 4.844112769485903,
-      "price": 100.35,
+      "ticker": "TEL",
+      "name": "TE CONNECTIVITY\u00a0PLC",
+      "oe_yield": 0.05149556312917681,
+      "oe_per_share": 11.040133779264215,
+      "price": 214.39,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ULTA",
-      "name": "ULTA BEAUTY, INC.",
-      "oe_yield": 0.048237157793182314,
-      "oe_per_share": 26.716632215331956,
-      "price": 553.86,
+      "ticker": "ALLE",
+      "name": "Allegion plc",
+      "oe_yield": 0.0513856438238233,
+      "oe_per_share": 7.918013856812933,
+      "price": 154.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "BNY",
-      "name": "Bank of New York Mellon Corp",
-      "oe_yield": 0.04810017678151961,
-      "oe_per_share": 7.223203547280799,
-      "price": 150.17,
+      "ticker": "CTVA",
+      "name": "Corteva, Inc.",
+      "oe_yield": 0.051370311733665346,
+      "oe_per_share": 4.131200469621367,
+      "price": 80.42,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CMS",
-      "name": "CMS ENERGY CORPORATION",
-      "oe_yield": 0.048022074646670736,
-      "oe_per_share": 3.086378737541528,
-      "price": 64.27,
+      "ticker": "AZO",
+      "name": "AUTOZONE INC",
+      "oe_yield": 0.05107004790243143,
+      "oe_per_share": 145.20951000289938,
+      "price": 2843.34,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "PEP",
-      "name": "PepsiCo, Inc.",
-      "oe_yield": 0.04794478377574277,
-      "oe_per_share": 6.289876183539694,
-      "price": 131.19,
+      "ticker": "REGN",
+      "name": "REGENERON PHARMACEUTICALS, INC.",
+      "oe_yield": 0.050933849249862634,
+      "oe_per_share": 40.83977900552486,
+      "price": 801.82,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "PODD",
-      "name": "INSULET CORPORATION",
-      "oe_yield": 0.04779693611519207,
-      "oe_per_share": 6.66193695573547,
-      "price": 139.38,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EVRG",
-      "name": "Evergy, Inc.",
-      "oe_yield": 0.04764689262119581,
-      "oe_per_share": 3.776969178082192,
-      "price": 79.27,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SPG",
-      "name": "SIMON PROPERTY GROUP, INC.",
-      "oe_yield": 0.04764107858820722,
-      "oe_per_share": 9.811680135241277,
-      "price": 205.95,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BALL",
-      "name": "BALL CORPORATION",
-      "oe_yield": 0.04761317555757766,
-      "oe_per_share": 2.855362138187932,
-      "price": 59.97,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TGT",
-      "name": "Target Corporation",
-      "oe_yield": 0.047315708627547415,
-      "oe_per_share": 7.52414398595259,
-      "price": 159.02,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "UNH",
-      "name": "UnitedHealth Group Incorporated",
-      "oe_yield": 0.047313164141065935,
-      "oe_per_share": 17.64544456641054,
-      "price": 372.95,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "STE",
-      "name": "STERIS plc",
-      "oe_yield": 0.047186536716380914,
-      "oe_per_share": 9.852077001013171,
-      "price": 208.79,
+      "ticker": "RMD",
+      "name": "ResMed Inc.",
+      "oe_yield": 0.05080552999022952,
+      "oe_per_share": 11.294069316828022,
+      "price": 222.3,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "BX",
-      "name": "Blackstone Inc.",
-      "oe_yield": 0.04718289875186401,
-      "oe_per_share": 5.851151274218656,
-      "price": 124.01,
+      "ticker": "GILD",
+      "name": "GILEAD SCIENCES, INC.",
+      "oe_yield": 0.050792404143089394,
+      "oe_per_share": 7.688446215139442,
+      "price": 151.37,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ON",
-      "name": "ON SEMICONDUCTOR CORPORATION",
-      "oe_yield": 0.046805382520007606,
-      "oe_per_share": 3.4448761534725594,
-      "price": 73.6,
+      "ticker": "META",
+      "name": "Meta Platforms, Inc.",
+      "oe_yield": 0.05074052110740728,
+      "oe_per_share": 37.75602175602176,
+      "price": 744.1,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AKAM",
-      "name": "Akamai Technologies, Inc",
-      "oe_yield": 0.04656404876533484,
-      "oe_per_share": 5.510389530889725,
-      "price": 118.34,
+      "ticker": "BDX",
+      "name": "BECTON, DICKINSON AND COMPANY",
+      "oe_yield": 0.05070390822921673,
+      "oe_per_share": 9.254477329996638,
+      "price": 182.52,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CHD",
-      "name": "CHURCH & DWIGHT CO., INC.",
-      "oe_yield": 0.046546060840513694,
-      "oe_per_share": 4.474007367990176,
-      "price": 96.12,
+      "ticker": "KVUE",
+      "name": "Kenvue Inc.",
+      "oe_yield": 0.0506514088857043,
+      "oe_per_share": 0.895010395010395,
+      "price": 17.67,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CPAY",
-      "name": "Corpay, Inc",
-      "oe_yield": 0.046527246697257406,
-      "oe_per_share": 18.282881589687296,
-      "price": 392.95,
+      "ticker": "PTC",
+      "name": "PTC Inc.",
+      "oe_yield": 0.05052093015860951,
+      "oe_per_share": 7.093138594268776,
+      "price": 140.4,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CHRW",
-      "name": "C. H. ROBINSON WORLDWIDE, INC.",
-      "oe_yield": 0.04644417080883776,
-      "oe_per_share": 6.946190186169775,
-      "price": 149.56,
+      "ticker": "SNA",
+      "name": "Snap-on Inc",
+      "oe_yield": 0.05010383091485865,
+      "oe_per_share": 18.550943396226415,
+      "price": 370.25,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ELV",
-      "name": "ELEVANCE HEALTH, INC.",
-      "oe_yield": 0.04642323264618024,
-      "oe_per_share": 18.682101513802316,
-      "price": 402.43,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MDT",
-      "name": "Medtronic plc",
-      "oe_yield": 0.046407467986223874,
-      "oe_per_share": 4.212405869109541,
-      "price": 90.77,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HST",
-      "name": "HOST HOTELS & RESORTS, INC.",
-      "oe_yield": 0.04623478164379586,
-      "oe_per_share": 1.0301109350237718,
-      "price": 22.28,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LH",
-      "name": "LABCORP HOLDINGS INC.",
-      "oe_yield": 0.046194415210112576,
-      "oe_per_share": 14.391408114558473,
-      "price": 311.54,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "YUM",
-      "name": "YUM! BRANDS, INC.",
-      "oe_yield": 0.04595182038238334,
-      "oe_per_share": 6.419928825622776,
-      "price": 139.71,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ABNB",
       "name": "Airbnb, Inc.",
-      "oe_yield": 0.04591914322358337,
+      "oe_yield": 0.04967359650359691,
       "oe_per_share": 7.430176565008026,
-      "price": 161.81,
+      "price": 149.58,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "LYB",
-      "name": "LYONDELLBASELL INDUSTRIES N.V.",
-      "oe_yield": 0.045701583392095076,
-      "oe_per_share": 2.707361800147712,
-      "price": 59.24,
+      "ticker": "KMI",
+      "name": "KINDER MORGAN, INC.",
+      "oe_yield": 0.04967340168588428,
+      "oe_per_share": 1.5582546108861899,
+      "price": 31.37,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "PG",
-      "name": "The Procter & Gamble Company",
-      "oe_yield": 0.04566330221483448,
-      "oe_per_share": 6.768214654282766,
-      "price": 148.22,
+      "ticker": "VLO",
+      "name": "VALERO ENERGY CORP/TX",
+      "oe_yield": 0.049623471256101545,
+      "oe_per_share": 18.650485436893202,
+      "price": 375.84,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "VRSK",
+      "name": "Verisk Analytics, Inc.",
+      "oe_yield": 0.0495258490997059,
+      "oe_per_share": 8.508540875329475,
+      "price": 171.8,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SWK",
+      "name": "STANLEY BLACK\u00a0& DECKER, INC.",
+      "oe_yield": 0.04936021412955999,
+      "oe_per_share": 4.5292932485284245,
+      "price": 91.76,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ULTA",
+      "name": "ULTA BEAUTY, INC.",
+      "oe_yield": 0.049128615169511336,
+      "oe_per_share": 26.716632215331956,
+      "price": 543.81,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SW",
+      "name": "Smurfit Westrock plc",
+      "oe_yield": 0.04907224825323243,
+      "oe_per_share": 2.2813688212927756,
+      "price": 46.49,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BX",
+      "name": "Blackstone Inc.",
+      "oe_yield": 0.04905803030283103,
+      "oe_per_share": 5.851151274218656,
+      "price": 119.27,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LII",
+      "name": "LENNOX INTERNATIONAL INC",
+      "oe_yield": 0.048942267394875415,
+      "oe_per_share": 18.22316384180791,
+      "price": 372.34,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CMS",
+      "name": "CMS ENERGY CORPORATION",
+      "oe_yield": 0.048873772565978274,
+      "oe_per_share": 3.086378737541528,
+      "price": 63.15,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PODD",
+      "name": "INSULET CORPORATION",
+      "oe_yield": 0.048808974692178694,
+      "oe_per_share": 6.66193695573547,
+      "price": 136.49,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SCHW",
+      "name": "SCHWAB CHARLES CORP",
+      "oe_yield": 0.04868455044709451,
+      "oe_per_share": 4.844112769485903,
+      "price": 99.5,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BALL",
+      "name": "BALL CORPORATION",
+      "oe_yield": 0.048544068993334445,
+      "oe_per_share": 2.855362138187932,
+      "price": 58.82,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PEP",
+      "name": "PepsiCo, Inc.",
+      "oe_yield": 0.04831676281717386,
+      "oe_per_share": 6.289876183539694,
+      "price": 130.18,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BNY",
+      "name": "Bank of New York Mellon Corp",
+      "oe_yield": 0.04831251118507658,
+      "oe_per_share": 7.223203547280799,
+      "price": 149.51,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EVRG",
+      "name": "Evergy, Inc.",
+      "oe_yield": 0.04816334070495017,
+      "oe_per_share": 3.776969178082192,
+      "price": 78.42,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TGT",
+      "name": "Target Corporation",
+      "oe_yield": 0.048151439817948234,
+      "oe_per_share": 7.52414398595259,
+      "price": 156.26,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SPG",
+      "name": "SIMON PROPERTY GROUP, INC.",
+      "oe_yield": 0.04805877809189497,
+      "oe_per_share": 9.811680135241277,
+      "price": 204.16,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NTAP",
+      "name": "NetApp, Inc.",
+      "oe_yield": 0.04784309492115645,
+      "oe_per_share": 9.393034825870647,
+      "price": 196.33,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "MNST",
-      "name": "Monster Beverage Corp",
-      "oe_yield": 0.045517693628851684,
-      "oe_per_share": 2.015068296949264,
-      "price": 44.27,
+      "ticker": "UNH",
+      "name": "UnitedHealth Group Incorporated",
+      "oe_yield": 0.04752469650787939,
+      "oe_per_share": 17.64544456641054,
+      "price": 371.29,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NOC",
-      "name": "NORTHROP GRUMMAN CORP /DE/",
-      "oe_yield": 0.045104966772901794,
-      "oe_per_share": 22.99721835883171,
-      "price": 509.86,
+      "ticker": "LH",
+      "name": "LABCORP HOLDINGS INC.",
+      "oe_yield": 0.047343272960584486,
+      "oe_per_share": 14.391408114558473,
+      "price": 303.98,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "EXR",
-      "name": "EXTRA SPACE STORAGE INC.",
-      "oe_yield": 0.045055019024564096,
-      "oe_per_share": 6.081977018125908,
-      "price": 134.99,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "MDT",
+      "name": "Medtronic plc",
+      "oe_yield": 0.047171398310297215,
+      "oe_per_share": 4.212405869109541,
+      "price": 89.3,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ZBRA",
-      "name": "Zebra Technologies Corporation",
-      "oe_yield": 0.044873041313440366,
-      "oe_per_share": 16.22654046935317,
-      "price": 361.61,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "STE",
+      "name": "STERIS plc",
+      "oe_yield": 0.04691912087347924,
+      "oe_per_share": 9.852077001013171,
+      "price": 209.98,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ABT",
-      "name": "ABBOTT LABORATORIES",
-      "oe_yield": 0.044866177192048204,
-      "oe_per_share": 4.6521739130434785,
-      "price": 103.69,
+      "ticker": "ELV",
+      "name": "ELEVANCE HEALTH, INC.",
+      "oe_yield": 0.04687400018517241,
+      "oe_per_share": 18.682101513802316,
+      "price": 398.56,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "GD",
-      "name": "GENERAL DYNAMICS CORPORATION",
-      "oe_yield": 0.04485396875700334,
-      "oe_per_share": 15.402404331467377,
-      "price": 343.39,
+      "ticker": "CHD",
+      "name": "CHURCH & DWIGHT CO., INC.",
+      "oe_yield": 0.04659453622151819,
+      "oe_per_share": 4.474007367990176,
+      "price": 96.02,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AKAM",
+      "name": "Akamai Technologies, Inc",
+      "oe_yield": 0.04652473430335803,
+      "oe_per_share": 5.510389530889725,
+      "price": 118.44,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NWS",
       "name": "NEWS CORPORATION",
-      "oe_yield": 0.04485373368894804,
+      "oe_yield": 0.04652030419116392,
       "oe_per_share": 1.4523638968481376,
-      "price": 32.38,
+      "price": 31.22,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HST",
+      "name": "HOST HOTELS & RESORTS, INC.",
+      "oe_yield": 0.04650613702138925,
+      "oe_per_share": 1.0301109350237718,
+      "price": 22.15,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ON",
+      "name": "ON SEMICONDUCTOR CORPORATION",
+      "oe_yield": 0.046489556727025094,
+      "oe_per_share": 3.4448761534725594,
+      "price": 74.1,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CHRW",
+      "name": "C. H. ROBINSON WORLDWIDE, INC.",
+      "oe_yield": 0.04641003665510641,
+      "oe_per_share": 6.946190186169775,
+      "price": 149.67,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CPAY",
+      "name": "Corpay, Inc",
+      "oe_yield": 0.04626703509891511,
+      "oe_per_share": 18.282881589687296,
+      "price": 395.16,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PG",
+      "name": "The Procter & Gamble Company",
+      "oe_yield": 0.045920446802922635,
+      "oe_per_share": 6.768214654282766,
+      "price": 147.39,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MNST",
+      "name": "Monster Beverage Corp",
+      "oe_yield": 0.04589087444657856,
+      "oe_per_share": 2.015068296949264,
+      "price": 43.91,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ADP",
-      "name": "AUTOMATIC DATA PROCESSING, INC.",
-      "oe_yield": 0.04464815619750028,
+      "name": "Automatic Data Processing, Inc.",
+      "oe_yield": 0.04565734540766829,
       "oe_per_share": 12.038928837093975,
-      "price": 269.64,
+      "price": 263.68,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AWK",
-      "name": "AMERICAN WATER WORKS COMPANY, INC.",
-      "oe_yield": 0.0446447390103047,
-      "oe_per_share": 5.9743589743589745,
-      "price": 133.82,
+      "ticker": "YUM",
+      "name": "YUM! BRANDS, INC.",
+      "oe_yield": 0.045651204050506836,
+      "oe_per_share": 6.419928825622776,
+      "price": 140.63,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CARR",
-      "name": "CARRIER GLOBAL CORPORATION",
-      "oe_yield": 0.04450625378964141,
-      "oe_per_share": 2.4594155844155843,
-      "price": 55.26,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SPGI",
-      "name": "S&P Global Inc.",
-      "oe_yield": 0.044435596418060906,
-      "oe_per_share": 17.882661422484432,
-      "price": 402.44,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PNC",
-      "name": "PNC Financial Services Group, Inc.",
-      "oe_yield": 0.04434368248195235,
-      "oe_per_share": 10.108585858585858,
-      "price": 227.96,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CVX",
-      "name": "Chevron Corp",
-      "oe_yield": 0.0441660746623872,
-      "oe_per_share": 8.939655172413794,
-      "price": 202.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ALGN",
       "name": "ALIGN TECHNOLOGY,\u00a0INC.",
-      "oe_yield": 0.04410688950911875,
+      "oe_yield": 0.04563099880443284,
       "oe_per_share": 6.761145092852813,
-      "price": 153.29,
+      "price": 148.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ICE",
-      "name": "Intercontinental Exchange, Inc.",
-      "oe_yield": 0.044021277140152214,
-      "oe_per_share": 6.732173913043479,
-      "price": 152.93,
+      "ticker": "EXR",
+      "name": "EXTRA SPACE STORAGE INC.",
+      "oe_yield": 0.045442147475537265,
+      "oe_per_share": 6.081977018125908,
+      "price": 133.84,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LYB",
+      "name": "LYONDELLBASELL INDUSTRIES N.V.",
+      "oe_yield": 0.045145269303780426,
+      "oe_per_share": 2.707361800147712,
+      "price": 59.97,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PNC",
+      "name": "PNC Financial Services Group, Inc.",
+      "oe_yield": 0.045121572372386995,
+      "oe_per_share": 10.108585858585858,
+      "price": 224.03,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ABT",
+      "name": "ABBOTT LABORATORIES",
+      "oe_yield": 0.04495288349641008,
+      "oe_per_share": 4.6521739130434785,
+      "price": 103.49,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AWK",
+      "name": "AMERICAN WATER WORKS COMPANY, INC.",
+      "oe_yield": 0.04489973676806684,
+      "oe_per_share": 5.9743589743589745,
+      "price": 133.06,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GD",
+      "name": "GENERAL DYNAMICS CORPORATION",
+      "oe_yield": 0.04486180739075344,
+      "oe_per_share": 15.402404331467377,
+      "price": 343.33,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NOC",
+      "name": "NORTHROP GRUMMAN CORP /DE/",
+      "oe_yield": 0.044705140466606494,
+      "oe_per_share": 22.99721835883171,
+      "price": 514.42,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CARR",
+      "name": "CARRIER GLOBAL CORPORATION",
+      "oe_yield": 0.04463549155019209,
+      "oe_per_share": 2.4594155844155843,
+      "price": 55.1,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "IQV",
       "name": "IQVIA HOLDINGS INC.",
-      "oe_yield": 0.04376809822064862,
+      "oe_yield": 0.04413247834098031,
       "oe_per_share": 11.821325648414986,
-      "price": 270.09,
+      "price": 267.86,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CME",
-      "name": "CME GROUP INC.",
-      "oe_yield": 0.043557002101709485,
-      "oe_per_share": 11.63886653159779,
-      "price": 267.21,
+      "ticker": "SPGI",
+      "name": "S&P Global Inc.",
+      "oe_yield": 0.04399178701718187,
+      "oe_per_share": 17.882661422484432,
+      "price": 406.5,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DOV",
-      "name": "DOVER Corp",
-      "oe_yield": 0.043490347088168506,
-      "oe_per_share": 8.112689345826952,
-      "price": 186.54,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "VST",
-      "name": "Vistra Operations Company LLC",
-      "oe_yield": 0.04293935249559802,
-      "oe_per_share": 6.029114483906918,
-      "price": 140.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TYL",
-      "name": "TYLER TECHNOLOGIES, INC.",
-      "oe_yield": 0.04279864869480565,
-      "oe_per_share": 14.168492650415411,
-      "price": 331.05,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "RL",
       "name": "Ralph Lauren Corporation",
-      "oe_yield": 0.0427281883313084,
+      "oe_yield": 0.04381579652689893,
       "oe_per_share": 14.786516853932584,
-      "price": 346.06,
+      "price": 337.47,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CASY",
-      "name": "CASEY\u2019S GENERAL STORES, INC.",
-      "oe_yield": 0.042542941054138805,
-      "oe_per_share": 24.880388216692,
-      "price": 584.83,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PKG",
-      "name": "PACKAGING CORP OF AMERICA",
-      "oe_yield": 0.04238382325603708,
-      "oe_per_share": 10.097098214285714,
-      "price": 238.23,
+      "ticker": "ZBRA",
+      "name": "Zebra Technologies Corporation",
+      "oe_yield": 0.0437349481681666,
+      "oe_per_share": 16.22654046935317,
+      "price": 371.02,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "VLTO",
-      "name": "VERALTO CORPORATION",
-      "oe_yield": 0.042291874241983836,
-      "oe_per_share": 4.051138633639632,
-      "price": 95.79,
+      "ticker": "VST",
+      "name": "Vistra Operations Company LLC",
+      "oe_yield": 0.04369873511565498,
+      "oe_per_share": 6.029114483906918,
+      "price": 137.97,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CVX",
+      "name": "Chevron Corp",
+      "oe_yield": 0.04349985486065785,
+      "oe_per_share": 8.939655172413794,
+      "price": 205.51,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HD",
       "name": "The Home Depot, Inc.",
-      "oe_yield": 0.04216596326976292,
+      "oe_yield": 0.043392345930244366,
       "oe_per_share": 12.87537688442211,
-      "price": 305.35,
+      "price": 296.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ICE",
+      "name": "Intercontinental Exchange, Inc.",
+      "oe_yield": 0.04305835569583293,
+      "oe_per_share": 6.732173913043479,
+      "price": 156.35,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CME",
+      "name": "CME GROUP INC.",
+      "oe_yield": 0.04297956621712625,
+      "oe_per_share": 11.63886653159779,
+      "price": 270.8,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "DOV",
+      "name": "DOVER Corp",
+      "oe_yield": 0.04291746995623421,
+      "oe_per_share": 8.112689345826952,
+      "price": 189.03,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TYL",
+      "name": "TYLER TECHNOLOGIES, INC.",
+      "oe_yield": 0.042608163625583895,
+      "oe_per_share": 14.168492650415411,
+      "price": 332.53,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "APH",
       "name": "AMPHENOL CORPORATION",
-      "oe_yield": 0.04207105674201843,
+      "oe_yield": 0.042403775891334795,
       "oe_per_share": 3.4851663405088065,
-      "price": 82.84,
+      "price": 82.19,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NSC",
-      "name": "NORFOLK SOUTHERN CORP",
-      "oe_yield": 0.04195396937134069,
-      "oe_per_share": 13.173546382600977,
-      "price": 314.0,
+      "ticker": "VLTO",
+      "name": "VERALTO CORPORATION",
+      "oe_yield": 0.04225217598706334,
+      "oe_per_share": 4.051138633639632,
+      "price": 95.88,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MPC",
       "name": "Marathon Petroleum Corporation",
-      "oe_yield": 0.04194827866135847,
+      "oe_yield": 0.04208868950192638,
       "oe_per_share": 16.34640522875817,
-      "price": 389.68,
+      "price": 388.38,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "UNP",
-      "name": "UNION PACIFIC CORP",
-      "oe_yield": 0.041737779127819105,
-      "oe_per_share": 11.453263970464842,
-      "price": 274.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "JBHT",
       "name": "J.B. HUNT TRANSPORT SERVICES, INC.",
-      "oe_yield": 0.04154374396137257,
+      "oe_yield": 0.042035972611641576,
       "oe_per_share": 9.862900253869462,
-      "price": 237.41,
+      "price": 234.63,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "IR",
-      "name": "Ingersoll Rand Inc.",
-      "oe_yield": 0.041200316743685815,
-      "oe_per_share": 3.0426433915211972,
-      "price": 73.85,
+      "ticker": "PKG",
+      "name": "PACKAGING CORP OF AMERICA",
+      "oe_yield": 0.04190015027921701,
+      "oe_per_share": 10.097098214285714,
+      "price": 240.98,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AFL",
-      "name": "Aflac Incorporated",
-      "oe_yield": 0.041094983888514985,
-      "oe_per_share": 4.709485153623817,
-      "price": 114.6,
+      "ticker": "NSC",
+      "name": "NORFOLK SOUTHERN CORP",
+      "oe_yield": 0.041819454565255,
+      "oe_per_share": 13.173546382600977,
+      "price": 315.01,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CASY",
+      "name": "CASEY\u2019S GENERAL STORES, INC.",
+      "oe_yield": 0.04165406274244865,
+      "oe_per_share": 24.880388216692,
+      "price": 597.31,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "UNP",
+      "name": "UNION PACIFIC CORP",
+      "oe_yield": 0.04156811951680341,
+      "oe_per_share": 11.453263970464842,
+      "price": 275.53,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ROL",
       "name": "ROLLINS, INC.",
-      "oe_yield": 0.04085851547824125,
+      "oe_yield": 0.04132381713188696,
       "oe_per_share": 1.3426108186150074,
-      "price": 32.86,
+      "price": 32.49,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NKE",
-      "name": "NIKE, Inc.",
-      "oe_yield": 0.040849841295373904,
-      "oe_per_share": 1.4746792707629979,
-      "price": 36.1,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WMB",
-      "name": "WILLIAMS COMPANIES, INC.",
-      "oe_yield": 0.04083932812347255,
-      "oe_per_share": 2.8987755102040818,
-      "price": 70.98,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MDLZ",
-      "name": "Mondelez International, Inc.",
-      "oe_yield": 0.040803795673763375,
-      "oe_per_share": 2.4922958397534667,
-      "price": 61.08,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SYK",
-      "name": "STRYKER CORP",
-      "oe_yield": 0.0402831824015069,
-      "oe_per_share": 11.08150064683053,
-      "price": 275.09,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NXPI",
-      "name": "NXP Semiconductors N.V.",
-      "oe_yield": 0.04010167542636791,
-      "oe_per_share": 9.526955031042224,
-      "price": 237.57,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MSFT",
-      "name": "MICROSOFT CORPORATION",
-      "oe_yield": 0.04004613651169821,
-      "oe_per_share": 19.942975982825708,
-      "price": 498.0,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CMG",
-      "name": "CHIPOTLE MEXICAN GRILL, INC.",
-      "oe_yield": 0.04000368861955484,
-      "oe_per_share": 1.3053203596560745,
-      "price": 32.63,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PSA",
-      "name": "Public Storage",
-      "oe_yield": 0.03992516298545636,
-      "oe_per_share": 11.566718968516561,
-      "price": 289.71,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HON",
-      "name": "Honeywell International Inc",
-      "oe_yield": 0.03981577530097186,
-      "oe_per_share": 8.434971997510889,
-      "price": 211.85,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WBD",
-      "name": "Warner Bros. Discovery, Inc.",
-      "oe_yield": 0.03958979434589019,
-      "oe_per_share": 1.2205533596837945,
-      "price": 30.83,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CEG",
-      "name": "CONSTELLATION ENERGY CORPORATION",
-      "oe_yield": 0.03952787041240986,
-      "oe_per_share": 10.414012738853502,
-      "price": 263.46,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SNDK",
       "name": "Sandisk Corporation",
-      "oe_yield": 0.039392638137489264,
+      "oe_yield": 0.04092079241150506,
       "oe_per_share": 74.33548387096774,
-      "price": 1887.04,
+      "price": 1816.57,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TRGP",
-      "name": "Targa Resources Corp.",
-      "oe_yield": 0.03925106785993443,
-      "oe_per_share": 11.074688796680498,
-      "price": 282.15,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "NKE",
+      "name": "NIKE, Inc.",
+      "oe_yield": 0.040906498495506184,
+      "oe_per_share": 1.4746792707629979,
+      "price": 36.05,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "COO",
-      "name": "The Cooper Companies, Inc.",
-      "oe_yield": 0.03922047386507506,
-      "oe_per_share": 2.1685,
-      "price": 55.29,
+      "ticker": "AFL",
+      "name": "Aflac Incorporated",
+      "oe_yield": 0.040870304205708724,
+      "oe_per_share": 4.709485153623817,
+      "price": 115.23,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ABBV",
-      "name": "AbbVie Inc.",
-      "oe_yield": 0.03885012064527694,
-      "oe_per_share": 10.303440496333897,
-      "price": 265.21,
+      "ticker": "WMB",
+      "name": "WILLIAMS COMPANIES, INC.",
+      "oe_yield": 0.04076466756017553,
+      "oe_per_share": 2.8987755102040818,
+      "price": 71.11,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MDLZ",
+      "name": "Mondelez International, Inc.",
+      "oe_yield": 0.040564710933487416,
+      "oe_per_share": 2.4922958397534667,
+      "price": 61.44,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "SYK",
+      "name": "STRYKER CORP",
+      "oe_yield": 0.04053218963727334,
+      "oe_per_share": 11.08150064683053,
+      "price": 273.4,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NXPI",
+      "name": "NXP Semiconductors N.V.",
+      "oe_yield": 0.04046447090996527,
+      "oe_per_share": 9.526955031042224,
+      "price": 235.44,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PSA",
+      "name": "Public Storage",
+      "oe_yield": 0.04034010730832686,
+      "oe_per_share": 11.566718968516561,
+      "price": 286.73,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "IR",
+      "name": "Ingersoll Rand Inc.",
+      "oe_yield": 0.0399192258137129,
+      "oe_per_share": 3.0426433915211972,
+      "price": 76.22,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CMG",
+      "name": "CHIPOTLE MEXICAN GRILL, INC.",
+      "oe_yield": 0.03990585018820161,
+      "oe_per_share": 1.3053203596560745,
+      "price": 32.71,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MSFT",
+      "name": "MICROSOFT CORPORATION",
+      "oe_yield": 0.039838942014074806,
+      "oe_per_share": 19.942975982825708,
+      "price": 500.59,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HON",
+      "name": "Honeywell International Inc",
+      "oe_yield": 0.03968091451056541,
+      "oe_per_share": 8.434971997510889,
+      "price": 212.57,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "WBD",
+      "name": "Warner Bros. Discovery, Inc.",
+      "oe_yield": 0.03967988815617017,
+      "oe_per_share": 1.2205533596837945,
+      "price": 30.76,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CEG",
+      "name": "CONSTELLATION ENERGY CORPORATION",
+      "oe_yield": 0.039464956566823944,
+      "oe_per_share": 10.414012738853502,
+      "price": 263.88,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "COIN",
       "name": "Coinbase Global, Inc.",
-      "oe_yield": 0.03875306232990229,
+      "oe_yield": 0.039328109032824174,
       "oe_per_share": 7.792078242673454,
-      "price": 201.07,
+      "price": 198.13,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "NDAQ",
-      "name": "Nasdaq, Inc.",
-      "oe_yield": 0.03858992669640992,
-      "oe_per_share": 3.646748072810737,
-      "price": 94.5,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CNP",
       "name": "CENTERPOINT ENERGY INC",
-      "oe_yield": 0.03852298600287854,
+      "oe_yield": 0.03923829440820648,
       "oe_per_share": 1.4580950202089529,
-      "price": 37.85,
+      "price": 37.16,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TJX",
-      "name": "The TJX Companies, Inc.",
-      "oe_yield": 0.038141105415589606,
-      "oe_per_share": 4.988475177304965,
-      "price": 130.79,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "VRSN",
-      "name": "VERISIGN INC/CA",
-      "oe_yield": 0.03803729142867397,
-      "oe_per_share": 11.389125799573561,
-      "price": 299.42,
+      "ticker": "TRGP",
+      "name": "Targa Resources Corp.",
+      "oe_yield": 0.03913179321112504,
+      "oe_per_share": 11.074688796680498,
+      "price": 283.01,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MLM",
-      "name": "MARTIN MARIETTA MATERIALS INC",
-      "oe_yield": 0.03793786676300506,
-      "oe_per_share": 18.943894389438945,
-      "price": 499.34,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WM",
-      "name": "WASTE MANAGEMENT INC",
-      "oe_yield": 0.03788228226121868,
-      "oe_per_share": 7.867392380009896,
-      "price": 207.68,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SHW",
-      "name": "THE SHERWIN-WILLIAMS COMPANY",
-      "oe_yield": 0.03784169175823935,
-      "oe_per_share": 12.425319488817891,
-      "price": 328.35,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SRE",
       "name": "SEMPRA",
-      "oe_yield": 0.03781151807694605,
+      "oe_yield": 0.03908573824190823,
       "oe_per_share": 3.061976733871091,
-      "price": 80.98,
+      "price": 78.34,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ABBV",
+      "name": "AbbVie Inc.",
+      "oe_yield": 0.03886917344323939,
+      "oe_per_share": 10.303440496333897,
+      "price": 265.08,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "VRSN",
+      "name": "VERISIGN INC/CA",
+      "oe_yield": 0.03883362588507079,
+      "oe_per_share": 11.389125799573561,
+      "price": 293.28,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "COO",
+      "name": "The Cooper Companies, Inc.",
+      "oe_yield": 0.03867487069734261,
+      "oe_per_share": 2.1685,
+      "price": 56.07,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MLM",
+      "name": "MARTIN MARIETTA MATERIALS INC",
+      "oe_yield": 0.03862553652653471,
+      "oe_per_share": 18.943894389438945,
+      "price": 490.45,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WSM",
       "name": "WILLIAMS-SONOMA, INC.",
-      "oe_yield": 0.03780786470356092,
+      "oe_yield": 0.038614370530095206,
       "oe_per_share": 8.797512037871591,
-      "price": 232.69,
+      "price": 227.83,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "Q",
-      "name": "QNITY ELECTRONICS, INC.",
-      "oe_yield": 0.0377162173779533,
-      "oe_per_share": 4.709246901811249,
-      "price": 124.86,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NRG",
       "name": "NRG Energy, Inc",
-      "oe_yield": 0.037462250424873764,
+      "oe_yield": 0.038217297767630845,
       "oe_per_share": 3.849246231155779,
-      "price": 102.75,
+      "price": 100.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "EXPD",
-      "name": "EXPEDITORS INTERNATIONAL OF WASHINGTON, INC.",
-      "oe_yield": 0.037317916646208975,
-      "oe_per_share": 6.997482550330645,
-      "price": 187.51,
+      "ticker": "NDAQ",
+      "name": "Nasdaq, Inc.",
+      "oe_yield": 0.038209849882761285,
+      "oe_per_share": 3.646748072810737,
+      "price": 95.44,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "MSCI",
-      "name": "MSCI INC.",
-      "oe_yield": 0.037206214399601784,
-      "oe_per_share": 20.421746959653426,
-      "price": 548.88,
+      "ticker": "SHW",
+      "name": "THE SHERWIN-WILLIAMS COMPANY",
+      "oe_yield": 0.038060771576358184,
+      "oe_per_share": 12.425319488817891,
+      "price": 326.46,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "RSG",
-      "name": "REPUBLIC SERVICES, INC.",
-      "oe_yield": 0.037174335982005674,
-      "oe_per_share": 7.950846979831373,
-      "price": 213.88,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "TJX",
+      "name": "The TJX Companies, Inc.",
+      "oe_yield": 0.03790922697245205,
+      "oe_per_share": 4.988475177304965,
+      "price": 131.59,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TDY",
-      "name": "TELEDYNE TECHNOLOGIES INC",
-      "oe_yield": 0.036978535509516706,
-      "oe_per_share": 22.658227848101266,
-      "price": 612.74,
+      "ticker": "WM",
+      "name": "WASTE MANAGEMENT INC",
+      "oe_yield": 0.037845835963103217,
+      "oe_per_share": 7.867392380009896,
+      "price": 207.88,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "Q",
+      "name": "QNITY ELECTRONICS, INC.",
+      "oe_yield": 0.03782527631976907,
+      "oe_per_share": 4.709246901811249,
+      "price": 124.5,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CRL",
       "name": "CHARLES RIVER LABORATORIES INTERNATIONAL,\u00a0INC.",
-      "oe_yield": 0.03669145522418362,
+      "oe_yield": 0.03772076875551506,
       "oe_per_share": 10.461100798966992,
-      "price": 285.11,
+      "price": 277.33,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AMGN",
-      "name": "Amgen Inc.",
-      "oe_yield": 0.036429040187437756,
-      "oe_per_share": 14.944649446494465,
-      "price": 410.24,
+      "ticker": "RSG",
+      "name": "REPUBLIC SERVICES, INC.",
+      "oe_yield": 0.03731040347175679,
+      "oe_per_share": 7.950846979831373,
+      "price": 213.1,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NDSN",
-      "name": "NORDSON CORPORATION",
-      "oe_yield": 0.03633630474349577,
-      "oe_per_share": 11.615626537353293,
-      "price": 319.67,
+      "ticker": "EXPD",
+      "name": "EXPEDITORS INTERNATIONAL OF WASHINGTON, INC.",
+      "oe_yield": 0.03721471334537385,
+      "oe_per_share": 6.997482550330645,
+      "price": 188.03,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "IEX",
-      "name": "IDEX CORP",
-      "oe_yield": 0.03629418698108448,
-      "oe_per_share": 8.191235059760956,
-      "price": 225.69,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EME",
-      "name": "EMCOR Group, Inc.",
-      "oe_yield": 0.036152115951528584,
-      "oe_per_share": 27.349075717331374,
-      "price": 756.5,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "PM",
-      "name": "Philip Morris International Inc.",
-      "oe_yield": 0.035981036940823684,
-      "oe_per_share": 6.844672657252889,
-      "price": 190.23,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NEE",
       "name": "NEXTERA ENERGY INC",
-      "oe_yield": 0.035980701328883986,
+      "oe_yield": 0.03702714083779986,
       "oe_per_share": 2.851830387327345,
-      "price": 79.26,
+      "price": 77.02,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AMGN",
+      "name": "Amgen Inc.",
+      "oe_yield": 0.03680132346645932,
+      "oe_per_share": 14.944649446494465,
+      "price": 406.09,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MSCI",
+      "name": "MSCI INC.",
+      "oe_yield": 0.0367495896340713,
+      "oe_per_share": 20.421746959653426,
+      "price": 555.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EL",
       "name": "Estee Lauder Companies Inc",
-      "oe_yield": 0.035970247685221626,
+      "oe_yield": 0.03650163048012625,
       "oe_per_share": 3.607456140350877,
-      "price": 100.29,
+      "price": 98.83,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "DHR",
-      "name": "DANAHER CORPORATION",
-      "oe_yield": 0.035787700714697314,
-      "oe_per_share": 7.912302751012429,
-      "price": 221.09,
+      "ticker": "TDY",
+      "name": "TELEDYNE TECHNOLOGIES INC",
+      "oe_yield": 0.03648374180517071,
+      "oe_per_share": 22.658227848101266,
+      "price": 621.05,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "KDP",
-      "name": "Keurig Dr Pepper Inc.",
-      "oe_yield": 0.035769320300011447,
-      "oe_per_share": 1.1270912826533608,
-      "price": 31.51,
+      "ticker": "EME",
+      "name": "EMCOR Group, Inc.",
+      "oe_yield": 0.03637812678548999,
+      "oe_per_share": 27.349075717331374,
+      "price": 751.8,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HUBB",
-      "name": "HUBBELL INC",
-      "oe_yield": 0.0356330944146642,
-      "oe_per_share": 16.349532710280375,
-      "price": 458.83,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ITW",
-      "name": "ILLINOIS TOOL WORKS INC",
-      "oe_yield": 0.035530704834443795,
-      "oe_per_share": 9.609989736572015,
-      "price": 270.47,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MRK",
       "name": "Merck\u00a0& Co., Inc.",
-      "oe_yield": 0.035490052014454945,
+      "oe_yield": 0.0361683127329916,
       "oe_per_share": 5.355803749501396,
-      "price": 150.91,
+      "price": 148.08,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NUE",
-      "name": "NUCOR CORP",
-      "oe_yield": 0.03538484365643854,
-      "oe_per_share": 8.692640692640692,
-      "price": 245.66,
+      "ticker": "NDSN",
+      "name": "NORDSON CORPORATION",
+      "oe_yield": 0.036138468475369584,
+      "oe_per_share": 11.615626537353293,
+      "price": 321.42,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "J",
-      "name": "JACOBS SOLUTIONS INC.",
-      "oe_yield": 0.034810337981820434,
-      "oe_per_share": 4.98205557195814,
-      "price": 143.12,
+      "ticker": "PM",
+      "name": "Philip Morris International Inc.",
+      "oe_yield": 0.035866027338361396,
+      "oe_per_share": 6.844672657252889,
+      "price": 190.84,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "XYL",
-      "name": "Xylem Inc.",
-      "oe_yield": 0.03458136215293894,
-      "oe_per_share": 3.729599908194464,
-      "price": 107.85,
+      "ticker": "DHR",
+      "name": "DANAHER CORPORATION",
+      "oe_yield": 0.03571178349436915,
+      "oe_per_share": 7.912302751012429,
+      "price": 221.56,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "VMC",
-      "name": "VULCAN MATERIALS COMPANY",
-      "oe_yield": 0.03451562550306152,
-      "oe_per_share": 8.555388093443858,
-      "price": 247.87,
+      "ticker": "IEX",
+      "name": "IDEX CORP",
+      "oe_yield": 0.03566523733949126,
+      "oe_per_share": 8.191235059760956,
+      "price": 229.67,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CMI",
-      "name": "CUMMINS INC.",
-      "oe_yield": 0.034477924131876087,
-      "oe_per_share": 18.139870223503966,
-      "price": 526.13,
+      "ticker": "KDP",
+      "name": "Keurig Dr Pepper Inc.",
+      "oe_yield": 0.035487760788833776,
+      "oe_per_share": 1.1270912826533608,
+      "price": 31.76,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "JBL",
-      "name": "JABIL INC",
-      "oe_yield": 0.03420311784182296,
-      "oe_per_share": 10.568079350766457,
-      "price": 308.98,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FFIV",
-      "name": "F5, INC.",
-      "oe_yield": 0.03407129203466896,
-      "oe_per_share": 15.445538818076477,
-      "price": 453.33,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FICO",
       "name": "FAIR ISAAC CORP",
-      "oe_yield": 0.034008749943291665,
+      "oe_yield": 0.03535654219792793,
       "oe_per_share": 31.100321648141364,
-      "price": 914.48,
+      "price": 879.62,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "J",
+      "name": "JACOBS SOLUTIONS INC.",
+      "oe_yield": 0.03530368177407979,
+      "oe_per_share": 4.98205557195814,
+      "price": 141.12,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HUBB",
+      "name": "HUBBELL INC",
+      "oe_yield": 0.0352588585513918,
+      "oe_per_share": 16.349532710280375,
+      "price": 463.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NUE",
+      "name": "NUCOR CORP",
+      "oe_yield": 0.03519572715459022,
+      "oe_per_share": 8.692640692640692,
+      "price": 246.98,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ITW",
+      "name": "ILLINOIS TOOL WORKS INC",
+      "oe_yield": 0.035147354753024704,
+      "oe_per_share": 9.609989736572015,
+      "price": 273.42,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GOOG",
       "name": "Alphabet Inc.",
-      "oe_yield": 0.03379217163675137,
+      "oe_yield": 0.035046087373347044,
       "oe_per_share": 11.739738348323794,
-      "price": 347.41,
+      "price": 334.98,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CSX",
-      "name": "CSX CORPORATION",
-      "oe_yield": 0.03361101093509545,
-      "oe_per_share": 1.5659369994660972,
-      "price": 46.59,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "APP",
       "name": "AppLovin Corporation",
-      "oe_yield": 0.03359239594279053,
+      "oe_yield": 0.03502879720308813,
       "oe_per_share": 11.042828318273532,
-      "price": 328.73,
+      "price": 315.25,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "VMC",
+      "name": "VULCAN MATERIALS COMPANY",
+      "oe_yield": 0.03500567959674246,
+      "oe_per_share": 8.555388093443858,
+      "price": 244.4,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GOOGL",
       "name": "Alphabet Inc.",
-      "oe_yield": 0.033431308657944504,
+      "oe_yield": 0.03475043172105436,
       "oe_per_share": 11.739738348323794,
-      "price": 351.16,
+      "price": 337.83,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ROST",
-      "name": "Ross Stores, Inc.",
-      "oe_yield": 0.033375224660851806,
-      "oe_per_share": 7.760073485894654,
-      "price": 232.51,
+      "ticker": "CMI",
+      "name": "CUMMINS INC.",
+      "oe_yield": 0.034575183881642935,
+      "oe_per_share": 18.139870223503966,
+      "price": 524.65,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "MSI",
-      "name": "Motorola Solutions, Inc.",
-      "oe_yield": 0.033323702455096575,
-      "oe_per_share": 15.218934911242604,
-      "price": 456.7,
+      "ticker": "XYL",
+      "name": "Xylem Inc.",
+      "oe_yield": 0.0343298960621729,
+      "oe_per_share": 3.729599908194464,
+      "price": 108.64,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "NOW",
-      "name": "ServiceNow, Inc.",
-      "oe_yield": 0.03281805706125652,
-      "oe_per_share": 4.496073817392143,
-      "price": 137.0,
+      "ticker": "JBL",
+      "name": "JABIL INC",
+      "oe_yield": 0.03422859708750269,
+      "oe_per_share": 10.568079350766457,
+      "price": 308.75,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "MA",
-      "name": "Mastercard Incorporated",
-      "oe_yield": 0.03277166218783974,
-      "oe_per_share": 18.217439293598233,
-      "price": 555.89,
+      "ticker": "FFIV",
+      "name": "F5, INC.",
+      "oe_yield": 0.033872538472502635,
+      "oe_per_share": 15.445538818076477,
+      "price": 455.99,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DXCM",
       "name": "DEXCOM, INC.",
-      "oe_yield": 0.03274808311881627,
+      "oe_yield": 0.03341999181155386,
       "oe_per_share": 2.9319358816276204,
-      "price": 89.53,
+      "price": 87.73,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CSX",
+      "name": "CSX CORPORATION",
+      "oe_yield": 0.033183661781438806,
+      "oe_per_share": 1.5659369994660972,
+      "price": 47.19,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ROST",
+      "name": "Ross Stores, Inc.",
+      "oe_yield": 0.03316554186637599,
+      "oe_per_share": 7.760073485894654,
+      "price": 233.98,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MSI",
+      "name": "Motorola Solutions, Inc.",
+      "oe_yield": 0.03305302517427375,
+      "oe_per_share": 15.218934911242604,
+      "price": 460.44,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MAA",
       "name": "MID-AMERICA APARTMENT COMMUNITIES, INC.",
-      "oe_yield": 0.0326118431865145,
+      "oe_yield": 0.03299117945044322,
       "oe_per_share": 3.8857011156732026,
-      "price": 119.15,
+      "price": 117.78,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MA",
+      "name": "Mastercard Incorporated",
+      "oe_yield": 0.03253578956564908,
+      "oe_per_share": 18.217439293598233,
+      "price": 559.92,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PH",
       "name": "PARKER-HANNIFIN CORPORATION",
-      "oe_yield": 0.03245216915565743,
+      "oe_yield": 0.03223965507957709,
       "oe_per_share": 31.311475409836067,
-      "price": 964.85,
+      "price": 971.21,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MAR",
-      "name": "MARRIOTT INTERNATIONAL INC /MD/",
-      "oe_yield": 0.032206502676657554,
-      "oe_per_share": 11.209795321637428,
-      "price": 348.06,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DE",
-      "name": "DEERE & CO",
-      "oe_yield": 0.031925634952145364,
-      "oe_per_share": 22.447552447552447,
-      "price": 703.12,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "VEEV",
-      "name": "Veeva Systems Inc.",
-      "oe_yield": 0.031812550615978714,
-      "oe_per_share": 8.300212581215007,
-      "price": 260.91,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CSCO",
-      "name": "CISCO SYSTEMS, INC.",
-      "oe_yield": 0.03175719434648892,
-      "oe_per_share": 3.380235766240281,
-      "price": 106.44,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "REG",
-      "name": "REGENCY CENTERS CORPORATION",
-      "oe_yield": 0.0314264440108778,
-      "oe_per_share": 2.3107864281198447,
-      "price": 73.53,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FCX",
       "name": "Freeport-McMoRan Inc.",
-      "oe_yield": 0.031373777170683695,
+      "oe_yield": 0.032138885817585186,
       "oe_per_share": 2.3326403326403327,
-      "price": 74.35,
+      "price": 72.58,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "NOW",
+      "name": "ServiceNow, Inc.",
+      "oe_yield": 0.03193687894155522,
+      "oe_per_share": 4.496073817392143,
+      "price": 140.78,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MAR",
+      "name": "MARRIOTT INTERNATIONAL INC /MD/",
+      "oe_yield": 0.0318767995269221,
+      "oe_per_share": 11.209795321637428,
+      "price": 351.66,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "REG",
+      "name": "REGENCY CENTERS CORPORATION",
+      "oe_yield": 0.03177212193207541,
+      "oe_per_share": 2.3107864281198447,
+      "price": 72.73,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CSCO",
+      "name": "CISCO SYSTEMS, INC.",
+      "oe_yield": 0.03176017820389252,
+      "oe_per_share": 3.380235766240281,
+      "price": 106.43,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NFLX",
       "name": "NETFLIX INC",
-      "oe_yield": 0.0313153141776802,
+      "oe_yield": 0.031666382722273026,
       "oe_per_share": 2.259713071061403,
-      "price": 72.16,
+      "price": 71.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "RTX",
-      "name": "RTX CORPORATION",
-      "oe_yield": 0.030649408152208325,
-      "oe_per_share": 5.853730462990268,
-      "price": 190.99,
+      "ticker": "DE",
+      "name": "DEERE & CO",
+      "oe_yield": 0.031639443603135316,
+      "oe_per_share": 22.447552447552447,
+      "price": 709.48,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ORLY",
-      "name": "O REILLY AUTOMOTIVE INC",
-      "oe_yield": 0.03064139898921457,
-      "oe_per_share": 2.6296448612543943,
-      "price": 85.82,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "EMR",
-      "name": "EMERSON ELECTRIC CO.",
-      "oe_yield": 0.030522042631225297,
-      "oe_per_share": 4.706193753308629,
-      "price": 154.19,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MCO",
-      "name": "MOODY'S CORPORATION",
-      "oe_yield": 0.03050294619961424,
-      "oe_per_share": 14.313507504168983,
-      "price": 469.25,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "RVTY",
       "name": "REVVITY, INC",
-      "oe_yield": 0.03048680380650348,
+      "oe_yield": 0.03074423934635151,
       "oe_per_share": 4.3690638535100135,
-      "price": 143.31,
+      "price": 142.11,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "VEEV",
+      "name": "Veeva Systems Inc.",
+      "oe_yield": 0.030656371491098827,
+      "oe_per_share": 8.300212581215007,
+      "price": 270.75,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ORLY",
+      "name": "O REILLY AUTOMOTIVE INC",
+      "oe_yield": 0.03061286217991146,
+      "oe_per_share": 2.6296448612543943,
+      "price": 85.9,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "RTX",
+      "name": "RTX CORPORATION",
+      "oe_yield": 0.03045803872725047,
+      "oe_per_share": 5.853730462990268,
+      "price": 192.19,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "EMR",
+      "name": "EMERSON ELECTRIC CO.",
+      "oe_yield": 0.030443067166754826,
+      "oe_per_share": 4.706193753308629,
+      "price": 154.59,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TT",
       "name": "TRANE TECHNOLOGIES PLC",
-      "oe_yield": 0.030336446640240818,
+      "oe_yield": 0.030387112649637914,
       "oe_per_share": 13.281903068030235,
-      "price": 437.82,
+      "price": 437.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "WAB",
-      "name": "WESTINGHOUSE AIR BRAKE TECHNOLOGIES CORPORATION",
-      "oe_yield": 0.03024044217941717,
-      "oe_per_share": 8.760958503798948,
-      "price": 289.71,
+      "ticker": "MCO",
+      "name": "MOODY'S CORPORATION",
+      "oe_yield": 0.03020683233970451,
+      "oe_per_share": 14.313507504168983,
+      "price": 473.85,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "JNJ",
-      "name": "Johnson & Johnson",
-      "oe_yield": 0.030120639169321402,
-      "oe_per_share": 8.108174857989628,
-      "price": 269.19,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EBAY",
       "name": "eBay Inc.",
-      "oe_yield": 0.030072518176471323,
+      "oe_yield": 0.030124894915434835,
       "oe_per_share": 3.286324786324786,
-      "price": 109.28,
+      "price": 109.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "JNJ",
+      "name": "Johnson & Johnson",
+      "oe_yield": 0.03012287720767406,
+      "oe_per_share": 8.108174857989628,
+      "price": 269.17,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "WAB",
+      "name": "WESTINGHOUSE AIR BRAKE TECHNOLOGIES CORPORATION",
+      "oe_yield": 0.02998069435288121,
+      "oe_per_share": 8.760958503798948,
+      "price": 292.22,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LIN",
       "name": "Linde plc",
-      "oe_yield": 0.03000525980998618,
+      "oe_yield": 0.029698001656860845,
       "oe_per_share": 13.949745338260676,
-      "price": 464.91,
+      "price": 469.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AME",
-      "name": "AMETEK, Inc.",
-      "oe_yield": 0.029452311117081884,
-      "oe_per_share": 7.227891671243065,
-      "price": 245.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MTD",
-      "name": "Mettler-Toledo International Inc.",
-      "oe_yield": 0.029355357460530945,
-      "oe_per_share": 43.76179268786111,
-      "price": 1490.76,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AJG",
-      "name": "ARTHUR J. GALLAGHER & CO.",
-      "oe_yield": 0.02921130575807532,
-      "oe_per_share": 6.731745411948458,
-      "price": 230.45,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PSKY",
       "name": "Paramount Skydance Corporation",
-      "oe_yield": 0.028991438998601588,
+      "oe_yield": 0.02942805705580944,
       "oe_per_share": 0.29310344827586204,
-      "price": 10.11,
+      "price": 9.96,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ECL",
-      "name": "ECOLAB INC.",
-      "oe_yield": 0.0289421110050803,
-      "oe_per_share": 7.994389901823282,
-      "price": 276.22,
+      "ticker": "AME",
+      "name": "AMETEK, Inc.",
+      "oe_yield": 0.029328024634786228,
+      "oe_per_share": 7.227891671243065,
+      "price": 246.45,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MTD",
+      "name": "Mettler-Toledo International Inc.",
+      "oe_yield": 0.02932427777038819,
+      "oe_per_share": 43.76179268786111,
+      "price": 1492.34,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AJG",
+      "name": "ARTHUR J. GALLAGHER & CO.",
+      "oe_yield": 0.029314341630153538,
+      "oe_per_share": 6.731745411948458,
+      "price": 229.64,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "O",
       "name": "REALTY INCOME CORPORATION",
-      "oe_yield": 0.02863890578249634,
+      "oe_yield": 0.029112701742213958,
       "oe_per_share": 1.6189573438845182,
-      "price": 56.53,
+      "price": 55.61,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FLEX",
-      "name": "FLEX LTD.",
-      "oe_yield": 0.02838512231260156,
-      "oe_per_share": 3.248677248677249,
-      "price": 114.45,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CBRE",
       "name": "CBRE GROUP, INC.",
-      "oe_yield": 0.02812286045538148,
+      "oe_yield": 0.02907946240914565,
       "oe_per_share": 3.966729467231558,
-      "price": 141.05,
+      "price": 136.41,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ROK",
-      "name": "Rockwell Automation, Inc.",
-      "oe_yield": 0.028107103130653177,
-      "oe_per_share": 12.00707338638373,
-      "price": 427.19,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "FLEX",
+      "name": "FLEX LTD.",
+      "oe_yield": 0.028928559649841933,
+      "oe_per_share": 3.248677248677249,
+      "price": 112.3,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TDG",
-      "name": "TransDigm Group Incorporated",
-      "oe_yield": 0.028049431995912935,
-      "oe_per_share": 31.20274914089347,
-      "price": 1112.42,
+      "ticker": "ECL",
+      "name": "ECOLAB INC.",
+      "oe_yield": 0.028889816066143686,
+      "oe_per_share": 7.994389901823282,
+      "price": 276.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GWW",
-      "name": "W.W. Grainger, Inc.",
-      "oe_yield": 0.02767114397271576,
-      "oe_per_share": 35.104166666666664,
-      "price": 1268.62,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EW",
       "name": "Edwards Lifesciences Corporation",
-      "oe_yield": 0.02766148860110549,
+      "oe_yield": 0.028285958972657746,
       "oe_per_share": 2.4557869580061453,
-      "price": 88.78,
+      "price": 86.82,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TDG",
+      "name": "TransDigm Group Incorporated",
+      "oe_yield": 0.02823062856551595,
+      "oe_per_share": 31.20274914089347,
+      "price": 1105.28,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "INVH",
       "name": "Invitation Homes Inc.",
-      "oe_yield": 0.027599253675156796,
+      "oe_yield": 0.02812781617513164,
       "oe_per_share": 0.7490437447437555,
-      "price": 27.14,
+      "price": 26.63,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ROK",
+      "name": "Rockwell Automation, Inc.",
+      "oe_yield": 0.027737007984438844,
+      "oe_per_share": 12.00707338638373,
+      "price": 432.89,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SBUX",
       "name": "Starbucks Corporation",
-      "oe_yield": 0.027452259312639338,
+      "oe_yield": 0.027735121980296658,
       "oe_per_share": 2.6109843832251274,
-      "price": 95.11,
+      "price": 94.14,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GWW",
+      "name": "W.W. Grainger, Inc.",
+      "oe_yield": 0.027626501504455652,
+      "oe_per_share": 35.104166666666664,
+      "price": 1270.67,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BAX",
       "name": "BAXTER INTERNATIONAL INC.",
-      "oe_yield": 0.027329961540487856,
+      "oe_yield": 0.02755102125494902,
       "oe_per_share": 0.6471734892787524,
-      "price": 23.68,
+      "price": 23.49,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "COST",
-      "name": "COSTCO WHOLESALE CORP /NEW",
-      "oe_yield": 0.02726839159210145,
-      "oe_per_share": 24.525464081851965,
-      "price": 899.41,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TMO",
-      "name": "THERMO FISHER SCIENTIFIC INC.",
-      "oe_yield": 0.02718939729205173,
-      "oe_per_share": 17.904761904761905,
-      "price": 658.52,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GRMN",
-      "name": "GARMIN LTD",
-      "oe_yield": 0.02686570302813116,
-      "oe_per_share": 7.647859681018097,
-      "price": 284.67,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ODFL",
-      "name": "OLD DOMINION FREIGHT LINE, INC.",
-      "oe_yield": 0.02679882114015473,
-      "oe_per_share": 4.751698976360835,
-      "price": 177.31,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AMZN",
       "name": "AMAZON COM INC",
-      "oe_yield": 0.02671744219514139,
+      "oe_yield": 0.027329455654178807,
       "oe_per_share": 6.812413410917151,
-      "price": 254.98,
+      "price": 249.27,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "FRT",
-      "name": "FEDERAL REALTY INVESTMENT TRUST",
-      "oe_yield": 0.02666891219628209,
-      "oe_per_share": 2.9458480412013195,
-      "price": 110.46,
-      "fy": 2024,
-      "price_as_of": "2026-09-23"
+      "ticker": "COST",
+      "name": "COSTCO WHOLESALE CORP /NEW",
+      "oe_yield": 0.02710894670261077,
+      "oe_per_share": 24.525464081851965,
+      "price": 904.7,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "A",
       "name": "AGILENT TECHNOLOGIES, INC.",
-      "oe_yield": 0.026662974547453176,
+      "oe_yield": 0.026975859683081405,
       "oe_per_share": 4.459649122807018,
-      "price": 167.26,
+      "price": 165.32,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "FRT",
+      "name": "FEDERAL REALTY INVESTMENT TRUST",
+      "oe_yield": 0.026929774579041225,
+      "oe_per_share": 2.9458480412013195,
+      "price": 109.39,
+      "fy": 2024,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TMO",
+      "name": "THERMO FISHER SCIENTIFIC INC.",
+      "oe_yield": 0.0269123130989958,
+      "oe_per_share": 17.904761904761905,
+      "price": 665.3,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ODFL",
+      "name": "OLD DOMINION FREIGHT LINE, INC.",
+      "oe_yield": 0.026736996265816087,
+      "oe_per_share": 4.751698976360835,
+      "price": 177.72,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HLT",
       "name": "Hilton Worldwide Holdings Inc.",
-      "oe_yield": 0.026590846428053778,
+      "oe_yield": 0.026696441222149946,
       "oe_per_share": 8.201680672268907,
-      "price": 308.44,
+      "price": 307.22,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "APD",
-      "name": "AIR PRODUCTS AND CHEMICALS, INC.",
-      "oe_yield": 0.02640297098471663,
-      "oe_per_share": 7.60035922766053,
-      "price": 287.86,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "ESS",
-      "name": "ESSEX PROPERTY TRUST, INC.",
-      "oe_yield": 0.026385812605475255,
-      "oe_per_share": 7.24976587148038,
-      "price": 274.76,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "VMRK",
       "name": "Vivmark Residential",
-      "oe_yield": 0.02622461998322139,
+      "oe_yield": 0.0266781702717222,
       "oe_per_share": 1.6351050559538538,
-      "price": 62.35,
+      "price": 61.29,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GRMN",
+      "name": "GARMIN LTD",
+      "oe_yield": 0.02659385103629633,
+      "oe_per_share": 7.647859681018097,
+      "price": 287.58,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "ESS",
+      "name": "ESSEX PROPERTY TRUST, INC.",
+      "oe_yield": 0.02651027853687929,
+      "oe_per_share": 7.24976587148038,
+      "price": 273.47,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "APD",
+      "name": "AIR PRODUCTS AND CHEMICALS, INC.",
+      "oe_yield": 0.026484856353139803,
+      "oe_per_share": 7.60035922766053,
+      "price": 286.97,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "STLD",
       "name": "Steel Dynamics, Inc.",
-      "oe_yield": 0.02586443934006427,
+      "oe_yield": 0.025831320846735412,
       "oe_per_share": 6.052020161181639,
-      "price": 233.99,
+      "price": 234.29,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "VRTX",
       "name": "VERTEX PHARMACEUTICALS INC / MA",
-      "oe_yield": 0.02575198645386506,
+      "oe_yield": 0.0256846564354417,
       "oe_per_share": 13.262015503875968,
-      "price": 514.99,
+      "price": 516.34,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TRMB",
       "name": "TRIMBLE INC.",
-      "oe_yield": 0.02520084212290386,
+      "oe_yield": 0.025192345547676985,
       "oe_per_share": 1.4944099378881988,
-      "price": 59.3,
+      "price": 59.32,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "IDXX",
-      "name": "IDEXX LABORATORIES INC /DE",
-      "oe_yield": 0.025018117876689575,
-      "oe_per_share": 13.046948472693613,
-      "price": 521.5,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DOC",
       "name": "Healthpeak Properties, Inc.",
-      "oe_yield": 0.024898688192516342,
+      "oe_yield": 0.02504457894364437,
       "oe_per_share": 0.5129129767658367,
-      "price": 20.6,
+      "price": 20.48,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "IDXX",
+      "name": "IDEXX LABORATORIES INC /DE",
+      "oe_yield": 0.024993196568510043,
+      "oe_per_share": 13.046948472693613,
+      "price": 522.02,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CAT",
       "name": "CATERPILLAR INC",
-      "oe_yield": 0.02483340088383481,
+      "oe_yield": 0.024710766050278766,
       "oe_per_share": 20.065636248147364,
-      "price": 808.01,
+      "price": 812.02,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BAC",
-      "name": "BofA Finance LLC",
-      "oe_yield": 0.023858692048849366,
-      "oe_per_share": 1.3408584931453345,
-      "price": 56.2,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GPC",
-      "name": "GENUINE PARTS CO",
-      "oe_yield": 0.02332582403583848,
-      "oe_per_share": 3.0227935368043086,
-      "price": 129.59,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CTAS",
       "name": "Cintas Corporation",
-      "oe_yield": 0.023295718347089208,
+      "oe_yield": 0.02412454449862653,
       "oe_per_share": 4.631188807401335,
-      "price": 198.8,
+      "price": 191.97,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BAC",
+      "name": "BofA Finance LLC",
+      "oe_yield": 0.023943901663309543,
+      "oe_per_share": 1.3408584931453345,
+      "price": 56.0,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GPC",
+      "name": "GENUINE PARTS CO",
+      "oe_yield": 0.02347618465986571,
+      "oe_per_share": 3.0227935368043086,
+      "price": 128.76,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TECH",
       "name": "BIO-TECHNE Corp",
-      "oe_yield": 0.023107973999778483,
+      "oe_yield": 0.023117533283010604,
       "oe_per_share": 1.676483513683929,
-      "price": 72.55,
+      "price": 72.52,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "DELL",
-      "name": "Dell Technologies Inc.",
-      "oe_yield": 0.022777315413189878,
-      "oe_per_share": 12.502923976608187,
-      "price": 548.92,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ADI",
       "name": "ANALOG DEVICES INC",
-      "oe_yield": 0.02271992964560581,
+      "oe_yield": 0.023023074360135867,
       "oe_per_share": 8.86917893575514,
-      "price": 390.37,
+      "price": 385.23,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "WAT",
-      "name": "Waters Corporation",
-      "oe_yield": 0.022204092957261615,
-      "oe_per_share": 9.45317053562456,
-      "price": 425.74,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "JCI",
-      "name": "JOHNSON CONTROLS INTERNATIONAL PLC",
-      "oe_yield": 0.022132577395848372,
-      "oe_per_share": 3.2410946338480353,
-      "price": 146.44,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "DELL",
+      "name": "Dell Technologies Inc.",
+      "oe_yield": 0.02273961765747265,
+      "oe_per_share": 12.502923976608187,
+      "price": 549.83,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GNRC",
       "name": "GENERAC HOLDINGS INC.",
-      "oe_yield": 0.02194014093519381,
+      "oe_yield": 0.02268277432859747,
       "oe_per_share": 4.523398856608908,
-      "price": 206.17,
+      "price": 199.42,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TKO",
-      "name": "TKO GROUP HOLDINGS, INC.",
-      "oe_yield": 0.02185240878955172,
-      "oe_per_share": 4.1272644480826335,
-      "price": 188.87,
+      "ticker": "WAT",
+      "name": "Waters Corporation",
+      "oe_yield": 0.02247704433417638,
+      "oe_per_share": 9.45317053562456,
+      "price": 420.57,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "RDDT",
       "name": "Reddit, Inc.",
-      "oe_yield": 0.021745780982978052,
+      "oe_yield": 0.022273757899856517,
       "oe_per_share": 3.385165725620193,
-      "price": 155.67,
+      "price": 151.98,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "WST",
-      "name": "WEST PHARMACEUTICAL SERVICES, INC.",
-      "oe_yield": 0.021624833018221386,
-      "oe_per_share": 8.024759284731774,
-      "price": 371.09,
+      "ticker": "JCI",
+      "name": "JOHNSON CONTROLS INTERNATIONAL PLC",
+      "oe_yield": 0.02221449372068564,
+      "oe_per_share": 3.2410946338480353,
+      "price": 145.9,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DASH",
       "name": "DOORDASH, INC.",
-      "oe_yield": 0.02160638731552679,
+      "oe_yield": 0.021942007216766545,
       "oe_per_share": 4.152963705917404,
-      "price": 192.21,
+      "price": 189.27,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "KEYS",
-      "name": "KEYSIGHT TECHNOLOGIES,\u00a0INC.",
-      "oe_yield": 0.021319314400140066,
-      "oe_per_share": 7.404624277456647,
-      "price": 347.32,
+      "ticker": "TKO",
+      "name": "TKO GROUP HOLDINGS, INC.",
+      "oe_yield": 0.021828138608433644,
+      "oe_per_share": 4.1272644480826335,
+      "price": 189.08,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "GE",
-      "name": "GENERAL ELECTRIC CO",
-      "oe_yield": 0.02130661652572152,
-      "oe_per_share": 6.801498127340824,
-      "price": 319.22,
+      "ticker": "WST",
+      "name": "WEST PHARMACEUTICAL SERVICES, INC.",
+      "oe_yield": 0.021349826495149316,
+      "oe_per_share": 8.024759284731774,
+      "price": 375.87,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BLK",
       "name": "BlackRock, Inc.",
-      "oe_yield": 0.02115509335633724,
+      "oe_yield": 0.021270152305583687,
       "oe_per_share": 22.56529187947068,
-      "price": 1066.66,
+      "price": 1060.89,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "TXN",
-      "name": "TEXAS INSTRUMENTS INCORPORATED",
-      "oe_yield": 0.021126135620589615,
-      "oe_per_share": 5.733844468784228,
-      "price": 271.41,
+      "ticker": "GE",
+      "name": "GENERAL ELECTRIC CO",
+      "oe_yield": 0.021267974131772432,
+      "oe_per_share": 6.801498127340824,
+      "price": 319.8,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MCHP",
       "name": "MICROCHIP TECHNOLOGY INCORPORATED",
-      "oe_yield": 0.02107067884647057,
+      "oe_yield": 0.02115158043346218,
       "oe_per_share": 1.5975788701393985,
-      "price": 75.82,
+      "price": 75.53,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "ETN",
-      "name": "EATON CORPORATION plc",
-      "oe_yield": 0.020525460097280863,
-      "oe_per_share": 9.082310838445808,
-      "price": 442.49,
+      "ticker": "TXN",
+      "name": "TEXAS INSTRUMENTS INCORPORATED",
+      "oe_yield": 0.02103236911739501,
+      "oe_per_share": 5.733844468784228,
+      "price": 272.62,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CPT",
-      "name": "CAMDEN PROPERTY TRUST",
-      "oe_yield": 0.020020837398129352,
-      "oe_per_share": 1.9882693620082261,
-      "price": 99.31,
+      "ticker": "KEYS",
+      "name": "KEYSIGHT TECHNOLOGIES,\u00a0INC.",
+      "oe_yield": 0.020954902302062053,
+      "oe_per_share": 7.404624277456647,
+      "price": 353.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "WDC",
-      "name": "WESTERN DIGITAL CORPORATION",
-      "oe_yield": 0.019972822574572134,
-      "oe_per_share": 9.279373368146214,
-      "price": 464.6,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "SNPS",
-      "name": "SYNOPSYS INC",
-      "oe_yield": 0.0199010631964757,
-      "oe_per_share": 8.144311102525716,
-      "price": 409.24,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "CRWD",
-      "name": "CrowdStrike Holdings, Inc.",
-      "oe_yield": 0.019813423694091465,
-      "oe_per_share": 4.954544728944512,
-      "price": 250.06,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "UDR",
-      "name": "UDR, Inc.",
-      "oe_yield": 0.01974079457628286,
-      "oe_per_share": 0.6731610950512456,
-      "price": 34.1,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TPL",
       "name": "Texas Pacific Land Corporation",
-      "oe_yield": 0.019712514523586296,
+      "oe_yield": 0.020857430331085947,
       "oe_per_share": 7.002673659358796,
-      "price": 355.24,
+      "price": 335.74,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "AMAT",
-      "name": "APPLIED MATERIALS INC /DE",
-      "oe_yield": 0.01970673403961486,
-      "oe_per_share": 9.310643564356436,
-      "price": 472.46,
+      "ticker": "ETN",
+      "name": "EATON CORPORATION plc",
+      "oe_yield": 0.020699951769636724,
+      "oe_per_share": 9.082310838445808,
+      "price": 438.76,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CPT",
+      "name": "CAMDEN PROPERTY TRUST",
+      "oe_yield": 0.020354927948487162,
+      "oe_per_share": 1.9882693620082261,
+      "price": 97.68,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "UDR",
+      "name": "UDR, Inc.",
+      "oe_yield": 0.01992190278340472,
+      "oe_per_share": 0.6731610950512456,
+      "price": 33.79,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AAPL",
       "name": "Apple Inc.",
-      "oe_yield": 0.01957375797585931,
+      "oe_yield": 0.019732313430354878,
       "oe_per_share": 6.650184272298201,
-      "price": 339.75,
+      "price": 337.02,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "FIX",
-      "name": "COMFORT SYSTEMS USA,\u00a0INC.",
-      "oe_yield": 0.01952983090890556,
-      "oe_per_share": 31.738514104989694,
-      "price": 1625.13,
+      "ticker": "SNPS",
+      "name": "SYNOPSYS INC",
+      "oe_yield": 0.019717017146481663,
+      "oe_per_share": 8.144311102525716,
+      "price": 413.06,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LNT",
       "name": "ALLIANT ENERGY CORP",
-      "oe_yield": 0.01938887700344726,
+      "oe_yield": 0.01967199296534404,
       "oe_per_share": 1.252909231962762,
-      "price": 64.62,
+      "price": 63.69,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "FAST",
-      "name": "FASTENAL CO",
-      "oe_yield": 0.019384212523777197,
-      "oe_per_share": 0.9707613631907619,
-      "price": 50.08,
+      "ticker": "AMAT",
+      "name": "APPLIED MATERIALS INC /DE",
+      "oe_yield": 0.0196269732373971,
+      "oe_per_share": 9.310643564356436,
+      "price": 474.38,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "LYV",
-      "name": "LIVE NATION ENTERTAINMENT, INC.",
-      "oe_yield": 0.019210575626766493,
-      "oe_per_share": 3.262724164450021,
-      "price": 169.84,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "ticker": "WDC",
+      "name": "WESTERN DIGITAL CORPORATION",
+      "oe_yield": 0.019589548793823415,
+      "oe_per_share": 9.279373368146214,
+      "price": 473.69,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "CDNS",
-      "name": "CADENCE DESIGN SYSTEMS, INC.",
-      "oe_yield": 0.019165609708490558,
-      "oe_per_share": 5.8062214611872145,
-      "price": 302.95,
+      "ticker": "FIX",
+      "name": "COMFORT SYSTEMS USA,\u00a0INC.",
+      "oe_yield": 0.019520581896174238,
+      "oe_per_share": 31.738514104989694,
+      "price": 1625.9,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "VRT",
       "name": "Vertiv Holdings Co",
-      "oe_yield": 0.019061784352929087,
+      "oe_yield": 0.019420370858161454,
       "oe_per_share": 4.831399862093407,
-      "price": 253.46,
+      "price": 248.78,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LYV",
+      "name": "LIVE NATION ENTERTAINMENT, INC.",
+      "oe_yield": 0.01930263364166137,
+      "oe_per_share": 3.262724164450021,
+      "price": 169.03,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "FAST",
+      "name": "FASTENAL CO",
+      "oe_yield": 0.01903826952717713,
+      "oe_per_share": 0.9707613631907619,
+      "price": 50.99,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PWR",
       "name": "QUANTA SERVICES, INC.",
-      "oe_yield": 0.018703503958434228,
+      "oe_yield": 0.018931221844083457,
       "oe_per_share": 12.019432748808587,
-      "price": 642.63,
+      "price": 634.9,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CRWD",
+      "name": "CrowdStrike Holdings, Inc.",
+      "oe_yield": 0.01887517516455679,
+      "oe_per_share": 4.954544728944512,
+      "price": 262.49,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "CDNS",
+      "name": "CADENCE DESIGN SYSTEMS, INC.",
+      "oe_yield": 0.01878488938880978,
+      "oe_per_share": 5.8062214611872145,
+      "price": 309.09,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PLD",
       "name": "Prologis, Inc.",
-      "oe_yield": 0.018324179807101045,
+      "oe_yield": 0.018586813617414825,
       "oe_per_share": 2.48988955218889,
-      "price": 135.88,
+      "price": 133.96,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "FTNT",
-      "name": "FORTINET, INC.",
-      "oe_yield": 0.01830242205904635,
-      "oe_per_share": 3.1893800680094166,
-      "price": 174.26,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "EQIX",
       "name": "EQUINIX, INC.",
-      "oe_yield": 0.017904944643925336,
+      "oe_yield": 0.018277655169828606,
       "oe_per_share": 18.965991663524353,
-      "price": 1059.26,
+      "price": 1037.66,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "NVDA",
       "name": "NVIDIA CORP",
-      "oe_yield": 0.017801382865961432,
+      "oe_yield": 0.01806661565576956,
       "oe_per_share": 4.074202496532593,
-      "price": 228.87,
+      "price": 225.51,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "HWM",
-      "name": "HOWMET AEROSPACE INC.",
-      "oe_yield": 0.017498002101946134,
-      "oe_per_share": 3.9433497536945814,
-      "price": 225.36,
+      "ticker": "FTNT",
+      "name": "FORTINET, INC.",
+      "oe_yield": 0.017843683943210342,
+      "oe_per_share": 3.1893800680094166,
+      "price": 178.74,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ISRG",
       "name": "Intuitive Surgical, Inc.",
-      "oe_yield": 0.017078534165464634,
+      "oe_yield": 0.017241043943237947,
       "oe_per_share": 6.867107802591674,
-      "price": 402.09,
+      "price": 398.3,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HWM",
+      "name": "HOWMET AEROSPACE INC.",
+      "oe_yield": 0.01723642693283758,
+      "oe_per_share": 3.9433497536945814,
+      "price": 228.78,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WMT",
       "name": "WALMART INC.",
-      "oe_yield": 0.016893019314936957,
+      "oe_yield": 0.016830356346339073,
       "oe_per_share": 1.8602592869608576,
-      "price": 110.12,
+      "price": 110.53,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "GEV",
-      "name": "GE Vernova Inc.",
-      "oe_yield": 0.016669381350912286,
-      "oe_per_share": 15.840579710144928,
-      "price": 950.28,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "KO",
       "name": "COCA COLA CO",
-      "oe_yield": 0.016636360736691964,
+      "oe_yield": 0.016734566067411454,
       "oe_per_share": 1.474147924878275,
-      "price": 88.61,
+      "price": 88.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "GEV",
+      "name": "GE Vernova Inc.",
+      "oe_yield": 0.016642411075775805,
+      "oe_per_share": 15.840579710144928,
+      "price": 951.82,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ANET",
       "name": "Arista Networks,\u00a0Inc.",
-      "oe_yield": 0.016424532003125922,
+      "oe_yield": 0.01656337406851825,
       "oe_per_share": 3.370149721721408,
-      "price": 205.19,
+      "price": 203.47,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PSX",
       "name": "Phillips 66",
-      "oe_yield": 0.016329475665191866,
+      "oe_yield": 0.01634857595644092,
       "oe_per_share": 4.193082761307967,
-      "price": 256.78,
+      "price": 256.48,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FERG",
@@ -3849,511 +3849,511 @@
       "oe_per_share": 3.5779816513761467,
       "price": 221.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AVGO",
       "name": "Broadcom Inc.",
-      "oe_yield": 0.015240974314003819,
+      "oe_yield": 0.015650989538936174,
       "oe_per_share": 5.555944776426952,
-      "price": 364.54,
+      "price": 354.99,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MMM",
-      "name": "3M CO",
-      "oe_yield": 0.015233175061808388,
-      "oe_per_share": 2.5789765379641603,
-      "price": 169.3,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "KLAC",
       "name": "KLA Corporation",
-      "oe_yield": 0.015158682467830465,
+      "oe_yield": 0.015195800502192233,
       "oe_per_share": 2.854683082341833,
-      "price": 188.32,
+      "price": 187.86,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
-      "ticker": "PANW",
-      "name": "Palo Alto Networks, Inc",
-      "oe_yield": 0.014372501410692639,
-      "oe_per_share": 5.383507853403142,
-      "price": 374.57,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "ticker": "MMM",
+      "name": "3M CO",
+      "oe_yield": 0.015143726000963947,
+      "oe_per_share": 2.5789765379641603,
+      "price": 170.3,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LLY",
       "name": "ELI LILLY AND COMPANY",
-      "oe_yield": 0.014079542737808632,
+      "oe_yield": 0.014313796070530061,
       "oe_per_share": 16.475036139219394,
-      "price": 1170.14,
+      "price": 1150.99,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HOOD",
       "name": "Robinhood Markets, Inc.",
-      "oe_yield": 0.014006823652184463,
+      "oe_yield": 0.014183763967269107,
       "oe_per_share": 1.7403478387839195,
-      "price": 124.25,
+      "price": 122.7,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "LRCX",
-      "name": "LAM RESEARCH CORPORATION",
-      "oe_yield": 0.01382595018136432,
-      "oe_per_share": 4.294754904837198,
-      "price": 310.63,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CSGP",
       "name": "COSTAR GROUP, INC.",
-      "oe_yield": 0.013797617374554665,
+      "oe_yield": 0.01404661896199355,
       "oe_per_share": 0.3969574518659377,
-      "price": 28.77,
+      "price": 28.26,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "LRCX",
+      "name": "LAM RESEARCH CORPORATION",
+      "oe_yield": 0.013976682194862011,
+      "oe_per_share": 4.294754904837198,
+      "price": 307.28,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BXP",
       "name": "BXP, INC.",
-      "oe_yield": 0.013425828043946125,
+      "oe_yield": 0.013845654289707751,
       "oe_per_share": 0.8634150015061753,
-      "price": 64.31,
+      "price": 62.36,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "PANW",
+      "name": "Palo Alto Networks, Inc",
+      "oe_yield": 0.013688044376819582,
+      "oe_per_share": 5.383507853403142,
+      "price": 393.3,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "CIEN",
       "name": "Ciena Corp",
-      "oe_yield": 0.013112756754487183,
+      "oe_yield": 0.013578819447146177,
       "oe_per_share": 4.832837629433796,
-      "price": 368.56,
+      "price": 355.91,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "TTWO",
-      "name": "TAKE-TWO INTERACTIVE SOFTWARE,\u00a0INC.",
-      "oe_yield": 0.0122099744140846,
-      "oe_per_share": 2.509516041326808,
-      "price": 205.53,
-      "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LUV",
       "name": "SOUTHWEST AIRLINES CO.",
-      "oe_yield": 0.012009894108508116,
+      "oe_yield": 0.012314238403655494,
       "oe_per_share": 0.5053763440860215,
-      "price": 42.08,
+      "price": 41.04,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "TTWO",
+      "name": "TAKE-TWO INTERACTIVE SOFTWARE,\u00a0INC.",
+      "oe_yield": 0.012163222379443622,
+      "oe_per_share": 2.509516041326808,
+      "price": 206.32,
+      "fy": 2026,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MPWR",
       "name": "Monolithic Power Systems, Inc.",
-      "oe_yield": 0.011780086103448568,
+      "oe_yield": 0.0119986591190828,
       "oe_per_share": 16.26382247614316,
-      "price": 1380.62,
+      "price": 1355.47,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "IFF",
       "name": "INTERNATIONAL FLAVORS\u00a0& FRAGRANCES INC",
-      "oe_yield": 0.011656370206317752,
+      "oe_yield": 0.011667250029168127,
       "oe_per_share": 1.0,
-      "price": 85.79,
+      "price": 85.71,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DDOG",
       "name": "Datadog, Inc.",
-      "oe_yield": 0.011127878024894407,
+      "oe_yield": 0.010950001888029817,
       "oe_per_share": 2.753815974820619,
-      "price": 247.47,
+      "price": 251.49,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GLW",
       "name": "CORNING INC /NY",
-      "oe_yield": 0.010482422207378115,
+      "oe_yield": 0.0108359528890226,
       "oe_per_share": 1.6739380022962111,
-      "price": 159.69,
+      "price": 154.48,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "IRM",
       "name": "IRON MOUNTAIN INC",
-      "oe_yield": 0.00896972693793565,
+      "oe_yield": 0.009206654298186968,
       "oe_per_share": 1.0595938431783383,
-      "price": 118.13,
+      "price": 115.09,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LITE",
       "name": "Lumentum Holdings Inc.",
-      "oe_yield": 0.00882532437744821,
+      "oe_yield": 0.008906984529371876,
       "oe_per_share": 8.345844504021448,
-      "price": 945.67,
+      "price": 937.0,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TER",
       "name": "TERADYNE, INC.",
-      "oe_yield": 0.008581155833894374,
+      "oe_yield": 0.00879174852088027,
       "oe_per_share": 3.421221019415348,
-      "price": 398.69,
+      "price": 389.14,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "HUM",
       "name": "HUMANA INC",
-      "oe_yield": 0.008343109232524723,
+      "oe_yield": 0.00828122267596776,
       "oe_per_share": 3.103636634499197,
-      "price": 372.0,
+      "price": 374.78,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DLR",
       "name": "DIGITAL REALTY TRUST, INC.",
-      "oe_yield": 0.008014442846812799,
+      "oe_yield": 0.008199952132878458,
       "oe_per_share": 1.487881314510796,
-      "price": 185.65,
+      "price": 181.45,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "HPE",
-      "name": "HEWLETT PACKARD ENTERPRISE COMPANY",
-      "oe_yield": 0.0077595437437781335,
-      "oe_per_share": 0.4735649546827795,
-      "price": 61.03,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "BG",
-      "name": "BUNGE GLOBAL SA",
-      "oe_yield": 0.007700136626636988,
-      "oe_per_share": 0.8470150289300686,
-      "price": 110.0,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MU",
       "name": "Micron Technology, Inc.",
-      "oe_yield": 0.007438492353103359,
+      "oe_yield": 0.007606987515186194,
       "oe_per_share": 8.153777777777778,
-      "price": 1096.16,
+      "price": 1071.88,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "BG",
+      "name": "BUNGE GLOBAL SA",
+      "oe_yield": 0.007597910198511559,
+      "oe_per_share": 0.8470150289300686,
+      "price": 111.48,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "HPE",
+      "name": "HEWLETT PACKARD ENTERPRISE COMPANY",
+      "oe_yield": 0.00759770503261318,
+      "oe_per_share": 0.4735649546827795,
+      "price": 62.33,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "TSLA",
       "name": "Tesla, Inc.",
-      "oe_yield": 0.007269072844234025,
+      "oe_yield": 0.007245742662002189,
       "oe_per_share": 2.754251700680272,
-      "price": 378.9,
+      "price": 380.12,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "AMD",
-      "name": "ADVANCED MICRO DEVICES INC",
-      "oe_yield": 0.007043690834417881,
-      "oe_per_share": 4.393643031784841,
-      "price": 623.77,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ARE",
       "name": "ALEXANDRIA REAL ESTATE EQUITIES, INC.",
-      "oe_yield": 0.006931390092910972,
+      "oe_yield": 0.007197365146611181,
       "oe_per_share": 0.37325535650325586,
-      "price": 53.85,
+      "price": 51.86,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "AMD",
+      "name": "ADVANCED MICRO DEVICES INC",
+      "oe_yield": 0.007148668312889217,
+      "oe_per_share": 4.393643031784841,
+      "price": 614.61,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MRVL",
       "name": "MARVELL TECHNOLOGY, INC",
-      "oe_yield": 0.006700135438452077,
+      "oe_yield": 0.006737629488816739,
       "oe_per_share": 1.757847533632287,
-      "price": 262.36,
+      "price": 260.9,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "VTR",
       "name": "Ventas,\u00a0Inc.",
-      "oe_yield": 0.006659227502284569,
+      "oe_yield": 0.006676136898065993,
       "oe_per_share": 0.5784205008484377,
-      "price": 86.86,
+      "price": 86.64,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WELL",
       "name": "WELLTOWER INC.",
-      "oe_yield": 0.005089647715548263,
+      "oe_yield": 0.005101161252817524,
       "oe_per_share": 1.1726039371851642,
-      "price": 230.39,
+      "price": 229.87,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PLTR",
       "name": "Palantir Technologies Inc.",
-      "oe_yield": 0.0044429272374543775,
+      "oe_yield": 0.004285401270434774,
       "oe_per_share": 0.8218971096566853,
-      "price": 184.99,
+      "price": 191.79,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "STX",
       "name": "Seagate Technology Holdings plc",
-      "oe_yield": 0.004168226411646024,
+      "oe_yield": 0.004150089172048232,
       "oe_per_share": 3.834101382488479,
-      "price": 919.84,
+      "price": 923.86,
       "fy": 2027,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DD",
       "name": "DUPONT DE NEMOURS, INC.",
-      "oe_yield": 0.00410855564178897,
+      "oe_yield": 0.0041374360757013015,
       "oe_per_share": 0.5415076335877863,
-      "price": 131.8,
+      "price": 130.88,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WY",
       "name": "WEYERHAEUSER COMPANY",
-      "oe_yield": 0.003400567650213361,
+      "oe_yield": 0.003460001284156627,
       "oe_per_share": 0.0732482271855958,
-      "price": 21.54,
+      "price": 21.17,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AXON",
       "name": "AXON ENTERPRISE, INC.",
-      "oe_yield": 0.003387888188451269,
+      "oe_yield": 0.0034533738770099126,
       "oe_per_share": 1.5561248027194368,
-      "price": 459.32,
+      "price": 450.61,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "LEN",
       "name": "LENNAR CORP /NEW/",
-      "oe_yield": 0.0013164469411794093,
+      "oe_yield": 0.0013413160320701883,
       "oe_per_share": 0.10934408293436174,
-      "price": 83.06,
+      "price": 81.52,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PEG",
       "name": "Public Service Enterprise Group Incorporated",
-      "oe_yield": 0.0007508131884379389,
+      "oe_yield": 0.0007710029354454068,
       "oe_per_share": 0.05189620758483034,
-      "price": 69.12,
+      "price": 67.31,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SOLV",
       "name": "SOLVENTUM CORPORATION",
-      "oe_yield": -0.0006427613025557796,
+      "oe_yield": -0.0006455252416184841,
       "oe_per_share": -0.05704506560182544,
-      "price": 88.75,
+      "price": 88.37,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "INTC",
       "name": "INTEL CORP",
-      "oe_yield": -0.0018891941303807724,
+      "oe_yield": -0.0019086099917533645,
       "oe_per_share": -0.23399558498896247,
-      "price": 123.86,
+      "price": 122.6,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "BA",
       "name": "THE BOEING COMPANY",
-      "oe_yield": -0.005891643285202588,
+      "oe_yield": -0.005826517832992826,
       "oe_per_share": -1.1648957103502557,
-      "price": 197.72,
+      "price": 199.93,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "COHR",
       "name": "COHERENT CORP.",
-      "oe_yield": -0.007294458878708306,
+      "oe_yield": -0.007532026252036829,
       "oe_per_share": -2.264127091362271,
-      "price": 310.39,
+      "price": 300.6,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "IP",
       "name": "INTERNATIONAL PAPER COMPANY",
-      "oe_yield": -0.008804695084272285,
+      "oe_yield": -0.008807161385416339,
       "oe_per_share": -0.3144156614593633,
-      "price": 35.71,
+      "price": 35.7,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "FDXF",
       "name": "FedEx Freight Holding Company, Inc.",
-      "oe_yield": -0.011916053977195615,
+      "oe_yield": -0.011894064949557777,
       "oe_per_share": -1.4180104232862782,
-      "price": 119.0,
+      "price": 119.22,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "AEE",
       "name": "AMEREN CORP",
-      "oe_yield": -0.028006799111241272,
+      "oe_yield": -0.028545931398122996,
       "oe_per_share": -2.8471711976487875,
-      "price": 101.66,
+      "price": 99.74,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MOS",
       "name": "MOSAIC CO",
-      "oe_yield": -0.028542818729516153,
+      "oe_yield": -0.028964460696796656,
       "oe_per_share": -0.7058639071809345,
-      "price": 24.73,
+      "price": 24.37,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "MRNA",
       "name": "Moderna, Inc.",
-      "oe_yield": -0.02907801977699623,
+      "oe_yield": -0.02914987255224003,
       "oe_per_share": -5.308483290488432,
-      "price": 182.56,
+      "price": 182.11,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SO",
       "name": "SOUTHERN CO",
-      "oe_yield": -0.031080779846947015,
+      "oe_yield": -0.03170634244599902,
       "oe_per_share": -2.6465284039675385,
-      "price": 85.15,
+      "price": 83.47,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "ECHO",
       "name": "EchoStar Corporation",
-      "oe_yield": -0.03879701519914334,
+      "oe_yield": -0.03994351888384623,
       "oe_per_share": -3.7035630709102225,
-      "price": 95.46,
+      "price": 92.72,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
-    },
-    {
-      "ticker": "MS",
-      "name": "MORGAN STANLEY",
-      "oe_yield": -0.07074976742037693,
-      "oe_per_share": -14.162688442211055,
-      "price": 200.18,
-      "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "DOW",
       "name": "DOW INC.",
-      "oe_yield": -0.07210800553342982,
+      "oe_yield": -0.07097541905908275,
       "oe_per_share": -2.033445756042721,
-      "price": 28.2,
+      "price": 28.65,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
+    },
+    {
+      "ticker": "MS",
+      "name": "MORGAN STANLEY",
+      "oe_yield": -0.07138811654927696,
+      "oe_per_share": -14.162688442211055,
+      "price": 198.39,
+      "fy": 2025,
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "WFC",
       "name": "WELLS        FARGO & COMPANY/MN",
-      "oe_yield": -0.07678490928199211,
+      "oe_yield": -0.07795684013183936,
       "oe_per_share": -6.384665206797644,
-      "price": 83.15,
+      "price": 81.9,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "PCG",
       "name": "PG&E CORP",
-      "oe_yield": -0.10827959900937036,
+      "oe_yield": -0.11238043797265836,
       "oe_per_share": -1.3946412352406903,
-      "price": 12.88,
+      "price": 12.41,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "GS",
       "name": "The Goldman Sachs Group, Inc.",
-      "oe_yield": -0.15658014790546576,
+      "oe_yield": -0.15877577495275397,
       "oe_per_share": -148.6712846347607,
-      "price": 949.49,
+      "price": 936.36,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "XEL",
       "name": "Xcel Energy Inc.",
-      "oe_yield": -0.16080261355491815,
+      "oe_yield": -0.16398862627748945,
       "oe_per_share": -11.587436332767403,
-      "price": 72.06,
+      "price": 70.66,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "SMCI",
       "name": "Super Micro Computer, Inc.",
-      "oe_yield": -0.23691400417183806,
+      "oe_yield": -0.23748570784985892,
       "oe_per_share": -9.841407733298153,
-      "price": 41.54,
+      "price": 41.44,
       "fy": 2026,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     },
     {
       "ticker": "C",
       "name": "Citigroup Inc",
-      "oe_yield": -0.29884388178712623,
+      "oe_yield": -0.3000670736022179,
       "oe_per_share": -39.58784902034061,
-      "price": 132.47,
+      "price": 131.93,
       "fy": 2025,
-      "price_as_of": "2026-09-23"
+      "price_as_of": "2026-09-24"
     }
   ]
 }
