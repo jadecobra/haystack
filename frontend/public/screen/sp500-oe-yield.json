@@ -2,7 +2,7 @@
   "universe": "sp500",
   "count": 483,
   "skipped": 20,
-  "built_at": "2026-09-30T01:43:11+00:00",
+  "built_at": "2026-09-30T02:08:01+00:00",
   "price_as_of": "2026-09-29",
   "stale": false,
   "error": null,
@@ -754,7 +754,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 0.0,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "GIS",
@@ -2041,7 +2041,7 @@
       "fy": 2026,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "META",
@@ -5324,20 +5324,18 @@
   ],
   "meta": {
     "debt_coverage": {
-      "zero": 14,
+      "zero": 16,
       "positive": 394,
-      "unknown": 13,
+      "unknown": 11,
       "n/a": 62,
       "unknown_tickers": [
         "AES",
-        "CPRT",
         "DECK",
         "EXPD",
         "F",
         "FFIV",
         "GM",
         "GRMN",
-        "LULU",
         "NVR",
         "PCAR",
         "SNDK",
