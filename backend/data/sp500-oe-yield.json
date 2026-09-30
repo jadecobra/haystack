@@ -1,8 +1,8 @@
 {
   "universe": "sp500",
-  "count": 481,
-  "skipped": 22,
-  "built_at": "2026-09-30T00:13:46+00:00",
+  "count": 483,
+  "skipped": 20,
+  "built_at": "2026-09-30T01:14:12+00:00",
   "price_as_of": "2026-09-29",
   "stale": false,
   "error": null,
@@ -174,6 +174,17 @@
       "debt_state": "positive"
     },
     {
+      "ticker": "HIG",
+      "name": "The Hartford Insurance Group, Inc.",
+      "oe_yield": 0.15931671875683664,
+      "oe_per_share": 20.080279232111693,
+      "price": 126.04,
+      "fy": 2025,
+      "price_as_of": "2026-09-29",
+      "debt": 4371000000.0,
+      "debt_state": "positive"
+    },
+    {
       "ticker": "APTV",
       "name": "APTIV PLC",
       "oe_yield": 0.15871648295069407,
@@ -275,11 +286,11 @@
     {
       "ticker": "NCLH",
       "name": "Norwegian Cruise Line Holdings Ltd.",
-      "oe_yield": 0.13290294631626465,
+      "oe_yield": 0.1356891716059138,
       "oe_per_share": 1.9417120456806263,
-      "price": 14.61,
+      "price": 14.31,
       "fy": 2025,
-      "price_as_of": null,
+      "price_as_of": "2026-09-29",
       "debt": 14606176000.0,
       "debt_state": "positive"
     },
@@ -383,6 +394,17 @@
       "debt_state": "positive"
     },
     {
+      "ticker": "GDDY",
+      "name": "GoDaddy Inc.",
+      "oe_yield": 0.11955900377263941,
+      "oe_per_share": 11.203874243534038,
+      "price": 93.71,
+      "fy": 2025,
+      "price_as_of": "2026-09-29",
+      "debt": 3780300000.0,
+      "debt_state": "positive"
+    },
+    {
       "ticker": "GEN",
       "name": "Gen Digital Inc.",
       "oe_yield": 0.11800575694533226,
@@ -402,17 +424,6 @@
       "fy": 2026,
       "price_as_of": "2026-09-29",
       "debt": 7669000000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "GDDY",
-      "name": "GoDaddy Inc.",
-      "oe_yield": 0.11533739184202221,
-      "oe_per_share": 11.203874243534038,
-      "price": 97.14,
-      "fy": 2025,
-      "price_as_of": null,
-      "debt": 3780300000.0,
       "debt_state": "positive"
     },
     {
@@ -490,6 +501,17 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 9387000000.0,
+      "debt_state": "positive"
+    },
+    {
+      "ticker": "IVZ",
+      "name": "Invesco Ltd.",
+      "oe_yield": 0.10407600943256545,
+      "oe_per_share": 3.167032967032967,
+      "price": 30.43,
+      "fy": 2025,
+      "price_as_of": "2026-09-29",
+      "debt": 1825100000.0,
       "debt_state": "positive"
     },
     {
@@ -1181,7 +1203,7 @@
       "oe_per_share": 6.142407553107789,
       "price": 87.85,
       "fy": 2025,
-      "price_as_of": null,
+      "price_as_of": "2026-09-29",
       "debt": 64570000000.0,
       "debt_state": "positive"
     },
@@ -2770,6 +2792,17 @@
       "debt_state": "positive"
     },
     {
+      "ticker": "VST",
+      "name": "Vistra Operations Company LLC",
+      "oe_yield": 0.04368290453490014,
+      "oe_per_share": 6.029114483906918,
+      "price": 138.02,
+      "fy": 2025,
+      "price_as_of": "2026-09-29",
+      "debt": 18843000000.0,
+      "debt_state": "positive"
+    },
+    {
       "ticker": "ZBRA",
       "name": "Zebra Technologies Corporation",
       "oe_yield": 0.04363498122826034,
@@ -2800,17 +2833,6 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 15724000000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "VST",
-      "name": "Vistra Operations Company LLC",
-      "oe_yield": 0.04354408842919917,
-      "oe_per_share": 6.029114483906918,
-      "price": 138.46,
-      "fy": 2025,
-      "price_as_of": null,
-      "debt": 18843000000.0,
       "debt_state": "positive"
     },
     {
@@ -4202,13 +4224,24 @@
     {
       "ticker": "GPC",
       "name": "GENUINE PARTS CO",
-      "oe_yield": 0.023322224649365855,
+      "oe_yield": 0.023591614273037607,
       "oe_per_share": 3.0227935368043086,
-      "price": 129.61,
+      "price": 128.13,
       "fy": 2025,
-      "price_as_of": null,
+      "price_as_of": "2026-09-29",
       "debt": 5739291000.0,
       "debt_state": "positive"
+    },
+    {
+      "ticker": "DASH",
+      "name": "DOORDASH, INC.",
+      "oe_yield": 0.02328024948661587,
+      "oe_per_share": 4.152963705917404,
+      "price": 178.39,
+      "fy": 2025,
+      "price_as_of": "2026-09-29",
+      "debt": null,
+      "debt_state": "zero"
     },
     {
       "ticker": "TECH",
@@ -4286,17 +4319,6 @@
       "price_as_of": "2026-09-29",
       "debt": 9918000000.0,
       "debt_state": "positive"
-    },
-    {
-      "ticker": "DASH",
-      "name": "DOORDASH, INC.",
-      "oe_yield": 0.021477884287946857,
-      "oe_per_share": 4.152963705917404,
-      "price": 193.36,
-      "fy": 2025,
-      "price_as_of": null,
-      "debt": null,
-      "debt_state": "zero"
     },
     {
       "ticker": "GE",
@@ -5303,7 +5325,7 @@
   "meta": {
     "debt_coverage": {
       "zero": 48,
-      "positive": 426,
+      "positive": 428,
       "unknown": 7,
       "unknown_tickers": [
         "AES",
