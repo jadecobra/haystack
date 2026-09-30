@@ -432,6 +432,29 @@ def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int
     return out
 
 
+# Explicit 0 on one of these is evidence of no debt. A 0 on a component tag is not.
+_DEBT_TOTAL_TAGS = (
+    "LongTermDebt",
+    "DebtLongtermAndShorttermCombinedAmount",
+    "LongTermDebtAndCapitalLeaseObligations",
+    "DebtInstrumentCarryingAmount",
+)
+_SUPPLEMENTAL_LONG_TAGS = (
+    "ConvertibleLongTermNotesPayable",
+    "ConvertibleDebtNoncurrent",
+    "NotesPayable",
+    "SeniorNotes",
+    "UnsecuredDebt",
+    "UnsecuredLongTermDebt",
+    "SecuredDebt",
+    "OtherLongTermDebtNoncurrent",
+)
+_SUPPLEMENTAL_SHORT_TAGS = (
+    "OtherShortTermBorrowings",
+    "LineOfCredit",
+)
+
+
 def compose_debt(
     us_gaap: dict[str, Any],
 ) -> tuple[dict[int, float], dict[int, str]]:
@@ -441,46 +464,131 @@ def compose_debt(
     Tags are ``TAG_PREFS["debt_ladder"]``. Same fiscal year only; values are
     never taken from a different year.
 
-    Non-overlapping combination (only values present that year are summed):
+    The ladder tags overlap (``SeniorNotes`` ⊂ ``UnsecuredDebt`` ⊂ ``NotesPayable``,
+    and likewise for the convertible, secured, and combined-amount concepts).
+    Never sum overlapping tags. Only values present that year are used.
 
-    * Long-term block: if ``LongTermDebt`` is present, use it alone for the
-      long-term piece (it already includes current maturities). Otherwise
-      noncurrent is the first present of ``LongTermDebtNoncurrent``,
+    * ``standard`` is the v1 combination, unchanged, and is absent when none of
+      its tags are present. Long-term block: if ``LongTermDebt`` is present,
+      use it alone (it already includes current maturities). Otherwise
+      noncurrent is the first present of ``LongTermDebtNoncurrent`` and
       ``LongTermDebtAndCapitalLeaseObligations``, and current maturities are
-      the first present of ``LongTermDebtCurrent``,
-      ``LongTermDebtAndCapitalLeaseObligationsCurrent``.
-    * Short-term block: ``DebtCurrent`` already includes current maturities and
-      short borrowings, so it replaces both — except when ``LongTermDebt`` was
-      used, because ``DebtCurrent`` overlaps those current maturities. In that
-      case add short borrowings only: ``ShortTermBorrowings`` if present, else
-      ``CommercialPaper`` (``ShortTermBorrowings`` already includes commercial
-      paper; never add both).
-    * Therefore: if ``LongTermDebt`` is present,
-      total = LongTermDebt + (ShortTermBorrowings or CommercialPaper).
-      Else total = noncurrent + (DebtCurrent if present, else current
-      maturities + (ShortTermBorrowings or CommercialPaper)).
-    * If no ladder tag is present that year, that year is omitted from the
-      totals (debt is None at the statement layer).
+      the first present of ``LongTermDebtCurrent`` and
+      ``LongTermDebtAndCapitalLeaseObligationsCurrent``. Short-term block:
+      ``DebtCurrent`` already includes current maturities and short borrowings,
+      so it replaces both — except when ``LongTermDebt`` was used, because
+      ``DebtCurrent`` overlaps those current maturities. Then add
+      ``ShortTermBorrowings`` if present, else ``CommercialPaper`` (the former
+      already includes commercial paper; never add both). So when
+      ``LongTermDebt`` is present, standard = LongTermDebt + (ShortTermBorrowings
+      or CommercialPaper). Otherwise standard = noncurrent + (DebtCurrent if
+      present, else current maturities + (ShortTermBorrowings or CommercialPaper)).
+    * ``supplemental`` is the max of the values present among
+      ``ConvertibleLongTermNotesPayable``, ``ConvertibleDebtNoncurrent``,
+      ``NotesPayable``, ``SeniorNotes``, ``UnsecuredDebt``,
+      ``UnsecuredLongTermDebt``, ``SecuredDebt``, ``OtherLongTermDebtNoncurrent``,
+      and ``SecuredDebt + UnsecuredDebt`` when both are present, plus the max
+      of the values present among ``OtherShortTermBorrowings`` and
+      ``LineOfCredit``. Each of those two max terms is included only when at
+      least one of its inputs is present. ``supplemental`` is absent when
+      neither term is present.
+    * ``total`` is the max of the candidates present among
+      ``DebtLongtermAndShorttermCombinedAmount``, ``DebtInstrumentCarryingAmount``,
+      ``standard``, and ``supplemental``. Taking the max of alternative
+      estimates avoids double counting. The result can be a lower bound when
+      the filed components are fragmentary (a notes tag may omit other
+      borrowings that were not tagged).
+    * If no tag from the full ladder is present that year, ``total`` is None
+      and that year is omitted from the totals map (debt is None at the
+      statement layer).
 
-    ``debt_state`` is ``"positive"`` when total > 0, ``"zero"`` when a ladder
-    tag is present and total == 0 (explicit zero) or when no ladder tag is
-    present but the us-gaap ``Liabilities`` tag has an annual value that year,
-    and ``"unknown"`` otherwise. Years with no ladder tag and no ``Liabilities``
-    value are omitted from the state map (callers treat a missing year as
-    unknown).
+    ``debt_state`` is ``"positive"`` when total > 0. It is ``"zero"`` only with
+    evidence: (a) total == 0 and at least one total tag is explicitly 0 that
+    year (``LongTermDebt``, ``DebtLongtermAndShorttermCombinedAmount``,
+    ``LongTermDebtAndCapitalLeaseObligations``, ``DebtInstrumentCarryingAmount``)
+    — an explicit 0 on a partial, short-term, or component tag alone, such as
+    ``LongTermDebtCurrent`` or ``ShortTermBorrowings``, is not zero evidence and
+    the state is ``"unknown"``; or (b) no ladder tag is present that year but
+    us-gaap ``Liabilities`` has an annual value that year. If the state would
+    be ``"zero"`` but any of ``InterestExpense``, ``InterestExpenseDebt``,
+    ``InterestExpenseNonoperating``, or ``InterestPaidNet``
+    (``TAG_PREFS["debt_interest"]``) has an annual value > 0 in the same fiscal
+    year, the state is ``"unknown"``. Otherwise ``"unknown"``. Years with no
+    ladder tag and no ``Liabilities`` value are omitted from the state map
+    (callers treat a missing year as unknown).
     """
     ladder = TAG_PREFS["debt_ladder"]
     series = {tag: _series_for_tags(us_gaap, [tag]) for tag in ladder}
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])
+    interest = {
+        tag: _series_for_tags(us_gaap, [tag]) for tag in TAG_PREFS["debt_interest"]
+    }
 
     def _has(tag: str, year: int) -> bool:
-        return year in series[tag]
+        return year in series.get(tag, {})
 
-    def _first(year: int, tags: list[str]) -> float | None:
+    def _first(year: int, tags: tuple[str, ...] | list[str]) -> float | None:
         for tag in tags:
-            if year in series[tag]:
+            if _has(tag, year):
                 return series[tag][year]
         return None
+
+    def _standard(year: int) -> float | None:
+        parts: list[float] = []
+        if _has("LongTermDebt", year):
+            parts.append(series["LongTermDebt"][year])
+            short = _first(year, ("ShortTermBorrowings", "CommercialPaper"))
+            if short is not None:
+                parts.append(short)
+        else:
+            noncurrent = _first(
+                year,
+                (
+                    "LongTermDebtNoncurrent",
+                    "LongTermDebtAndCapitalLeaseObligations",
+                ),
+            )
+            if noncurrent is not None:
+                parts.append(noncurrent)
+            if _has("DebtCurrent", year):
+                parts.append(series["DebtCurrent"][year])
+            else:
+                current_mat = _first(
+                    year,
+                    (
+                        "LongTermDebtCurrent",
+                        "LongTermDebtAndCapitalLeaseObligationsCurrent",
+                    ),
+                )
+                if current_mat is not None:
+                    parts.append(current_mat)
+                short = _first(year, ("ShortTermBorrowings", "CommercialPaper"))
+                if short is not None:
+                    parts.append(short)
+        if not parts:
+            return None
+        return sum(parts)
+
+    def _supplemental(year: int) -> float | None:
+        long_vals = [
+            series[tag][year] for tag in _SUPPLEMENTAL_LONG_TAGS if _has(tag, year)
+        ]
+        if _has("SecuredDebt", year) and _has("UnsecuredDebt", year):
+            long_vals.append(series["SecuredDebt"][year] + series["UnsecuredDebt"][year])
+        short_vals = [
+            series[tag][year] for tag in _SUPPLEMENTAL_SHORT_TAGS if _has(tag, year)
+        ]
+        parts: list[float] = []
+        if long_vals:
+            parts.append(max(long_vals))
+        if short_vals:
+            parts.append(max(short_vals))
+        if not parts:
+            return None
+        return sum(parts)
+
+    def _interest_positive(year: int) -> bool:
+        return any(by_year.get(year, 0.0) > 0 for by_year in interest.values())
 
     years = set(liabilities)
     for by_year in series.values():
@@ -490,50 +598,39 @@ def compose_debt(
     states: dict[int, str] = {}
     for year in years:
         ladder_present = any(_has(tag, year) for tag in ladder)
-        if ladder_present:
-            parts: list[float] = []
-            if _has("LongTermDebt", year):
-                parts.append(series["LongTermDebt"][year])
-                short = _first(year, ["ShortTermBorrowings", "CommercialPaper"])
-                if short is not None:
-                    parts.append(short)
-            else:
-                noncurrent = _first(
-                    year,
-                    [
-                        "LongTermDebtNoncurrent",
-                        "LongTermDebtAndCapitalLeaseObligations",
-                    ],
-                )
-                if noncurrent is not None:
-                    parts.append(noncurrent)
-                if _has("DebtCurrent", year):
-                    parts.append(series["DebtCurrent"][year])
-                else:
-                    current_mat = _first(
-                        year,
-                        [
-                            "LongTermDebtCurrent",
-                            "LongTermDebtAndCapitalLeaseObligationsCurrent",
-                        ],
-                    )
-                    if current_mat is not None:
-                        parts.append(current_mat)
-                    short = _first(year, ["ShortTermBorrowings", "CommercialPaper"])
-                    if short is not None:
-                        parts.append(short)
-            total = sum(parts)
-            totals[year] = total
-            if total > 0:
-                states[year] = "positive"
-            elif total == 0:
-                states[year] = "zero"
-            else:
-                states[year] = "unknown"
-        elif year in liabilities:
-            states[year] = "zero"
+        if not ladder_present:
+            state = "zero" if year in liabilities else "unknown"
         else:
-            states[year] = "unknown"
+            candidates: list[float] = []
+            for tag in (
+                "DebtLongtermAndShorttermCombinedAmount",
+                "DebtInstrumentCarryingAmount",
+            ):
+                if _has(tag, year):
+                    candidates.append(series[tag][year])
+            standard = _standard(year)
+            if standard is not None:
+                candidates.append(standard)
+            supplemental = _supplemental(year)
+            if supplemental is not None:
+                candidates.append(supplemental)
+            if not candidates:
+                state = "unknown"
+            else:
+                total = max(candidates)
+                totals[year] = total
+                if total > 0:
+                    state = "positive"
+                elif total == 0 and any(
+                    _has(tag, year) and series[tag][year] == 0
+                    for tag in _DEBT_TOTAL_TAGS
+                ):
+                    state = "zero"
+                else:
+                    state = "unknown"
+        if state == "zero" and _interest_positive(year):
+            state = "unknown"
+        states[year] = state
     return totals, states
 
 

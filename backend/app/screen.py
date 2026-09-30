@@ -35,6 +35,26 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def load_sectors(path: Path | None = None) -> dict[str, str]:
+    """Ticker → GICS sector from ``sp500_tickers.json`` ``sectors``.
+
+    Tickers absent from the map are non-financial. Callers compare with
+    ``== "Financials"``.
+    """
+    raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
+    sectors = raw.get("sectors") if isinstance(raw, dict) else None
+    if not isinstance(sectors, dict):
+        return {}
+    out: dict[str, str] = {}
+    for key, value in sectors.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            continue
+        symbol = key.upper().strip()
+        if symbol:
+            out[symbol] = value
+    return out
+
+
 def load_universe(path: Path | None = None) -> list[str]:
     raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
     tickers = raw.get("tickers") if isinstance(raw, dict) else raw
@@ -126,7 +146,7 @@ def _debt_for_row(stmt: dict[str, Any]) -> tuple[float | None, str]:
         except (TypeError, ValueError):
             debt = None
     state = stmt.get("debt_state")
-    if state not in ("zero", "positive", "unknown"):
+    if state not in ("zero", "positive", "unknown", "n/a"):
         if debt is None:
             state = "unknown"
         elif debt > 0:
@@ -139,7 +159,7 @@ def _debt_for_row(stmt: dict[str, Any]) -> tuple[float | None, str]:
 
 
 def debt_coverage(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    counts = {"zero": 0, "positive": 0, "unknown": 0}
+    counts = {"zero": 0, "positive": 0, "unknown": 0, "n/a": 0}
     unknown_tickers: list[str] = []
     for row in rows:
         state = row.get("debt_state")
@@ -154,6 +174,7 @@ def debt_coverage(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "zero": counts["zero"],
         "positive": counts["positive"],
         "unknown": counts["unknown"],
+        "n/a": counts["n/a"],
         "unknown_tickers": sorted(unknown_tickers),
     }
 
@@ -173,7 +194,8 @@ def log_debt_coverage(payload: dict[str, Any]) -> None:
     sys.stderr.write(
         "debt_coverage "
         f"zero={cov.get('zero', 0)} positive={cov.get('positive', 0)} "
-        f"unknown={cov.get('unknown', 0)} unknown_tickers={names}\n"
+        f"unknown={cov.get('unknown', 0)} n/a={cov.get('n/a', 0)} "
+        f"unknown_tickers={names}\n"
     )
 
 
@@ -189,7 +211,9 @@ def build_payload(
     fetch_quote: Callable[[str], dict[str, Any] | None],
     built_at: str | None = None,
     error: str | None = None,
+    sectors: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    sector_by_ticker = load_sectors() if sectors is None else sectors
     rows: list[dict[str, Any]] = []
     skipped = 0
     price_dates: list[str] = []
@@ -213,6 +237,8 @@ def build_payload(
         if row is None:
             skipped += 1
             continue
+        if sector_by_ticker.get(str(row["ticker"]).upper()) == "Financials":
+            row["debt_state"] = "n/a"
         if row.get("price_as_of"):
             price_dates.append(str(row["price_as_of"]))
         rows.append(row)

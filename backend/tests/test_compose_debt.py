@@ -83,6 +83,62 @@ class TestComposeDebt(unittest.TestCase):
         self.assertEqual(totals, {})
         self.assertEqual(states, {})
 
+    def test_partial_tag_explicit_zero_is_unknown(self):
+        # ShortTermBorrowings is not a total tag. A lone 0 is not evidence of
+        # no debt, even when Liabilities is reported.
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                ShortTermBorrowings=[_usd(2024, 0.0)],
+            )
+        )
+        self.assertEqual(totals[2024], 0.0)
+        self.assertEqual(states[2024], "unknown")
+
+    def test_explicit_zero_with_interest_expense_is_unknown(self):
+        # LongTermDebt=0 would be zero evidence, but interest > 0 downgrades it.
+        totals, states = compose_debt(
+            _gaap(
+                LongTermDebt=[_usd(2024, 0.0)],
+                InterestExpense=[_usd(2024, 12.0)],
+            )
+        )
+        self.assertEqual(totals[2024], 0.0)
+        self.assertEqual(states[2024], "unknown")
+
+    def test_liabilities_only_with_interest_is_unknown(self):
+        # Liabilities without a ladder tag would be zero, but interest > 0
+        # means the filing may omit the debt concepts.
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestExpense=[_usd(2024, 4.0)],
+            )
+        )
+        self.assertNotIn(2024, totals)
+        self.assertEqual(states[2024], "unknown")
+
+    def test_overlapping_notes_take_max_not_sum(self):
+        totals, states = compose_debt(
+            _gaap(
+                SeniorNotes=[_usd(2024, 5.0)],
+                UnsecuredDebt=[_usd(2024, 6.0)],
+                NotesPayable=[_usd(2024, 6.0)],
+            )
+        )
+        self.assertEqual(totals[2024], 6.0)
+        self.assertEqual(states[2024], "positive")
+
+    def test_combined_amount_wins_over_smaller_long_term_debt(self):
+        totals, states = compose_debt(
+            _gaap(
+                DebtLongtermAndShorttermCombinedAmount=[_usd(2024, 10.0)],
+                LongTermDebt=[_usd(2024, 8.0)],
+            )
+        )
+        self.assertEqual(totals[2024], 10.0)
+        self.assertEqual(states[2024], "positive")
+
 
 class TestComposeDebtRealGoldens(unittest.TestCase):
     """Trimmed live companyfacts (ladder tags + Liabilities, FY2025 annual only)."""
@@ -94,6 +150,8 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
 
     def test_cmg_known_zero_debt(self):
         # Chipotle FY2025 10-K: LongTermDebt explicitly 0, Liabilities 6.16B.
+        # No InterestExpense* / InterestPaidNet annual fact that year, so the
+        # interest cross-check does not downgrade the explicit zero.
         payload = self._load("cmg_debt_fy2025_companyfacts.json")
         totals, states = compose_debt(payload["facts"]["us-gaap"])
         self.assertEqual(totals[2025], 0.0)
@@ -121,3 +179,29 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
         years, statements = map_companyfacts_to_statements(payload)
         self.assertIsNone(statements[2024]["debt"])
         self.assertEqual(statements[2024]["debt_state"], "unknown")
+
+    def test_ddog_convertible_notes_only(self):
+        # Datadog FY2025: no v1 ladder tags. ConvertibleLongTermNotesPayable
+        # 983,449,000 is the debt total. InterestExpenseNonoperating is
+        # positive and does not change a positive state.
+        payload = self._load("ddog_debt_fy2025_companyfacts.json")
+        convertible = 983_449_000.0
+        totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertEqual(totals[2025], convertible)
+        self.assertEqual(states[2025], "positive")
+        _years, statements = map_companyfacts_to_statements(payload)
+        self.assertEqual(statements[2025]["debt"], convertible)
+        self.assertEqual(statements[2025]["debt_state"], "positive")
+
+    def test_ford_interest_without_ladder_is_not_zero(self):
+        # Ford FY2025 us-gaap has Liabilities and InterestExpenseNonoperating
+        # and none of the debt ladder tags. Liabilities-only would be zero;
+        # interest > 0 downgrades that to unknown. Debt total stays unset.
+        payload = self._load("f_debt_fy2025_companyfacts.json")
+        totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertNotIn(2025, totals)
+        self.assertNotEqual(states[2025], "zero")
+        self.assertEqual(states[2025], "unknown")
+        _years, statements = map_companyfacts_to_statements(payload)
+        self.assertIsNone(statements[2025]["debt"])
+        self.assertEqual(statements[2025]["debt_state"], "unknown")

@@ -27,6 +27,7 @@ TAG_PREFS: dict[str, list[str]] = {
         "LiabilitiesCurrent",
     ],
     # Ladder for compose_debt. One series per tag; combination rules live in edgar.
+    # Overlapping concepts. compose_debt never sums them; see its docstring.
     "debt_ladder": [
         "LongTermDebt",
         "LongTermDebtNoncurrent",
@@ -36,6 +37,25 @@ TAG_PREFS: dict[str, list[str]] = {
         "CommercialPaper",
         "LongTermDebtAndCapitalLeaseObligations",
         "LongTermDebtAndCapitalLeaseObligationsCurrent",
+        "ConvertibleLongTermNotesPayable",
+        "ConvertibleDebtNoncurrent",
+        "NotesPayable",
+        "SeniorNotes",
+        "UnsecuredDebt",
+        "SecuredDebt",
+        "UnsecuredLongTermDebt",
+        "OtherLongTermDebtNoncurrent",
+        "DebtLongtermAndShorttermCombinedAmount",
+        "DebtInstrumentCarryingAmount",
+        "OtherShortTermBorrowings",
+        "LineOfCredit",
+    ],
+    # Not debt totals. An annual value > 0 blocks a "zero" debt_state.
+    "debt_interest": [
+        "InterestExpense",
+        "InterestExpenseDebt",
+        "InterestExpenseNonoperating",
+        "InterestPaidNet",
     ],
     "cash": [
         "CashAndCashEquivalentsAtCarryingValue",

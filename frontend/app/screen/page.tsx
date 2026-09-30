@@ -13,12 +13,13 @@ function formatElapsed(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
-type DebtState = "zero" | "positive" | "unknown";
+type DebtState = "zero" | "positive" | "unknown" | "n/a";
 
 type DebtCoverage = {
   zero: number;
   positive: number;
   unknown: number;
+  "n/a": number;
   unknown_tickers: string[];
 };
 
@@ -48,7 +49,9 @@ type ScreenPayload = {
 };
 
 function parseDebtState(value: unknown): DebtState {
-  if (value === "zero" || value === "positive" || value === "unknown") return value;
+  if (value === "zero" || value === "positive" || value === "unknown" || value === "n/a") {
+    return value;
+  }
   return "unknown";
 }
 
@@ -91,6 +94,7 @@ function parseCoverage(value: unknown): DebtCoverage | undefined {
     zero: num("zero"),
     positive: num("positive"),
     unknown: num("unknown"),
+    "n/a": num("n/a"),
     unknown_tickers: tickers,
   };
 }
@@ -156,8 +160,7 @@ function ScreenPageInner() {
   useEffect(() => {
     let cancelled = false;
     const startedAt = Date.now();
-    setWaiting(true);
-    setElapsedMs(0);
+    // waiting=true / elapsedMs=0 are the initial state; no sync setState here.
     elapsedTimerRef.current = window.setInterval(() => {
       setElapsedMs(Date.now() - startedAt);
     }, 100);
@@ -310,7 +313,7 @@ function ScreenPageInner() {
                   className="text-sm text-zinc-500 mt-2"
                   data-testid="screen-debt-caveat"
                 >
-                  debt-free per reported XBRL; {unknownExcluded} unknown excluded
+                  debt-free per reported XBRL; {unknownExcluded} unknown excluded; financials excluded
                 </p>
               ) : null}
             </div>

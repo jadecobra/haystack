@@ -87,6 +87,7 @@ class ScreenRankingTests(unittest.TestCase):
                 "zero": 0,
                 "positive": 3,
                 "unknown": 0,
+                "n/a": 0,
                 "unknown_tickers": [],
             },
         )
@@ -141,9 +142,37 @@ class ScreenRankingTests(unittest.TestCase):
                 "zero": 2,
                 "positive": 1,
                 "unknown": 1,
+                "n/a": 0,
                 "unknown_tickers": ["NONE"],
             },
         )
+
+    def test_financials_sector_is_debt_na(self):
+        def facts(ticker: str):
+            stmt = _stmt(oe=100.0, shares=10.0) | {
+                "debt": 40.0,
+                "debt_state": "positive",
+            }
+            return [2024], {2024: stmt}, "1", ticker
+
+        def quote(_ticker: str):
+            return {"price": 100.0, "as_of": "2026-09-16"}
+
+        payload = build_payload(
+            ["JPM", "AAPL", "ORPHAN"],
+            fetch_facts=facts,
+            fetch_quote=quote,
+            built_at="2026-09-17T02:00:00+00:00",
+            sectors={"JPM": "Financials", "AAPL": "Information Technology"},
+        )
+        by_ticker = {row["ticker"]: row for row in payload["rows"]}
+        self.assertEqual(by_ticker["JPM"]["debt"], 40.0)
+        self.assertEqual(by_ticker["JPM"]["debt_state"], "n/a")
+        self.assertEqual(by_ticker["AAPL"]["debt_state"], "positive")
+        # Missing from the sectors map stays non-financial.
+        self.assertEqual(by_ticker["ORPHAN"]["debt_state"], "positive")
+        self.assertEqual(payload["meta"]["debt_coverage"]["n/a"], 1)
+        self.assertEqual(payload["meta"]["debt_coverage"]["positive"], 2)
 
     def test_skips_pathological_yield(self):
         def facts(ticker: str):
