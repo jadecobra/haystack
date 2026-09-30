@@ -2,7 +2,7 @@
   "universe": "sp500",
   "count": 483,
   "skipped": 20,
-  "built_at": "2026-09-30T01:14:12+00:00",
+  "built_at": "2026-09-30T01:17:43+00:00",
   "price_as_of": "2026-09-29",
   "stale": false,
   "error": null,
@@ -28,7 +28,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 15182000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CMCSA",
@@ -61,7 +61,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 355000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "F",
@@ -72,7 +72,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "COF",
@@ -83,7 +83,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 51000000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "GM",
@@ -94,7 +94,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "FISV",
@@ -105,7 +105,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 28997000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "STT",
@@ -115,8 +115,8 @@
       "price": 179.73,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 3821000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "OMC",
@@ -138,7 +138,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "n/a"
     },
     {
       "ticker": "MGM",
@@ -148,7 +148,7 @@
       "price": 31.86,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6230141000.0,
+      "debt": 6260327000.0,
       "debt_state": "positive"
     },
     {
@@ -160,7 +160,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "n/a"
     },
     {
       "ticker": "ALL",
@@ -170,8 +170,8 @@
       "price": 227.55,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 7490000000.0,
-      "debt_state": "positive"
+      "debt": 7541000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "HIG",
@@ -181,8 +181,8 @@
       "price": 126.04,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4371000000.0,
-      "debt_state": "positive"
+      "debt": 4482000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "APTV",
@@ -203,7 +203,7 @@
       "price": 111.51,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 21266000000.0,
+      "debt": 21383000000.0,
       "debt_state": "positive"
     },
     {
@@ -215,7 +215,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 20299000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "TAP",
@@ -225,7 +225,7 @@
       "price": 36.27,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6260100000.0,
+      "debt": 6269500000.0,
       "debt_state": "positive"
     },
     {
@@ -236,7 +236,7 @@
       "price": 42.33,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4493000000.0,
+      "debt": 4511000000.0,
       "debt_state": "positive"
     },
     {
@@ -248,7 +248,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "NTRS",
@@ -258,8 +258,8 @@
       "price": 174.55,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 3351500000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "CNC",
@@ -280,17 +280,17 @@
       "price": 209.47,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 0.0,
-      "debt_state": "zero"
+      "debt": 6950000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "NCLH",
       "name": "Norwegian Cruise Line Holdings Ltd.",
-      "oe_yield": 0.1356891716059138,
+      "oe_yield": 0.13290294631626465,
       "oe_per_share": 1.9417120456806263,
-      "price": 14.31,
+      "price": 14.61,
       "fy": 2025,
-      "price_as_of": "2026-09-29",
+      "price_as_of": null,
       "debt": 14606176000.0,
       "debt_state": "positive"
     },
@@ -325,7 +325,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "n/a"
     },
     {
       "ticker": "EIX",
@@ -347,7 +347,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 14515000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "AIZ",
@@ -357,8 +357,8 @@
       "price": 263.53,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 2206900000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "L",
@@ -369,7 +369,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 9489000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CINF",
@@ -380,7 +380,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 790000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "TRV",
@@ -390,19 +390,8 @@
       "price": 363.16,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 300000000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "GDDY",
-      "name": "GoDaddy Inc.",
-      "oe_yield": 0.11955900377263941,
-      "oe_per_share": 11.203874243534038,
-      "price": 93.71,
-      "fy": 2025,
-      "price_as_of": "2026-09-29",
-      "debt": 3780300000.0,
-      "debt_state": "positive"
+      "debt": 9267000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "GEN",
@@ -412,7 +401,7 @@
       "price": 20.85,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 8196000000.0,
+      "debt": 8275000000.0,
       "debt_state": "positive"
     },
     {
@@ -423,7 +412,18 @@
       "price": 269.4,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 7669000000.0,
+      "debt": 7720000000.0,
+      "debt_state": "positive"
+    },
+    {
+      "ticker": "GDDY",
+      "name": "GoDaddy Inc.",
+      "oe_yield": 0.11533739184202221,
+      "oe_per_share": 11.203874243534038,
+      "price": 97.14,
+      "fy": 2025,
+      "price_as_of": null,
+      "debt": 3829200000.0,
       "debt_state": "positive"
     },
     {
@@ -456,7 +456,7 @@
       "price": 177.48,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4752551000.0,
+      "debt": 4768261000.0,
       "debt_state": "positive"
     },
     {
@@ -467,7 +467,7 @@
       "price": 24.9,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 134718000000.0,
+      "debt": 144311000000.0,
       "debt_state": "positive"
     },
     {
@@ -489,8 +489,8 @@
       "price": 54.28,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 9987000000.0,
-      "debt_state": "positive"
+      "debt": 11459000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "DVN",
@@ -512,7 +512,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 1825100000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "LDOS",
@@ -544,7 +544,7 @@
       "price": 23.19,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 16773241000.0,
+      "debt": 17092453000.0,
       "debt_state": "positive"
     },
     {
@@ -567,7 +567,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 21551201000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "GL",
@@ -578,7 +578,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 2625449000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CF",
@@ -588,7 +588,7 @@
       "price": 115.51,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 3215000000.0,
+      "debt": 3250000000.0,
       "debt_state": "positive"
     },
     {
@@ -621,7 +621,7 @@
       "price": 67.1,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 24337000000.0,
+      "debt": 24467000000.0,
       "debt_state": "positive"
     },
     {
@@ -632,7 +632,7 @@
       "price": 178.07,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 10273189000.0,
+      "debt": 10344583000.0,
       "debt_state": "positive"
     },
     {
@@ -655,7 +655,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 18482000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "TMUS",
@@ -687,7 +687,7 @@
       "price": 124.37,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4580282000.0,
+      "debt": 4648666000.0,
       "debt_state": "positive"
     },
     {
@@ -699,7 +699,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 9917000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "HPQ",
@@ -753,8 +753,8 @@
       "price": 100.58,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 0.0,
+      "debt_state": "unknown"
     },
     {
       "ticker": "GIS",
@@ -776,7 +776,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 13082000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "SJM",
@@ -797,7 +797,7 @@
       "price": 85.31,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5009000000.0,
+      "debt": 5025000000.0,
       "debt_state": "positive"
     },
     {
@@ -819,7 +819,7 @@
       "price": 432.6,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 44285000000.0,
+      "debt": 46928000000.0,
       "debt_state": "positive"
     },
     {
@@ -841,7 +841,7 @@
       "price": 80.52,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 10546812000.0,
+      "debt": 10632410000.0,
       "debt_state": "positive"
     },
     {
@@ -886,7 +886,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 13364000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "FE",
@@ -907,7 +907,7 @@
       "price": 87.59,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 496400000.0,
+      "debt": 995800000.0,
       "debt_state": "positive"
     },
     {
@@ -940,7 +940,7 @@
       "price": 69.13,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 25709000000.0,
+      "debt": 25916000000.0,
       "debt_state": "positive"
     },
     {
@@ -951,7 +951,7 @@
       "price": 185.73,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2981674000.0,
+      "debt": 3005000000.0,
       "debt_state": "positive"
     },
     {
@@ -962,8 +962,8 @@
       "price": 139.42,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 5965500000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "MTB",
@@ -974,7 +974,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 13060000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "ZTS",
@@ -984,7 +984,7 @@
       "price": 71.43,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 9042000000.0,
+      "debt": 9150000000.0,
       "debt_state": "positive"
     },
     {
@@ -995,7 +995,7 @@
       "price": 113.45,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 2379000000.0,
+      "debt": 2396600000.0,
       "debt_state": "positive"
     },
     {
@@ -1018,7 +1018,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 57758000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "PNW",
@@ -1050,7 +1050,7 @@
       "price": 119.13,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 43900000.0,
+      "debt": 1631098000.0,
       "debt_state": "positive"
     },
     {
@@ -1062,7 +1062,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 7613000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "FDX",
@@ -1094,8 +1094,8 @@
       "price": 64.8,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 11282000000.0,
-      "debt_state": "positive"
+      "debt": 11300000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "OXY",
@@ -1149,7 +1149,7 @@
       "price": 22.49,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 7718700000.0,
+      "debt": 7718730000.0,
       "debt_state": "positive"
     },
     {
@@ -1171,8 +1171,8 @@
       "price": 161.16,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 3520000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "URI",
@@ -1203,7 +1203,7 @@
       "oe_per_share": 6.142407553107789,
       "price": 87.85,
       "fy": 2025,
-      "price_as_of": "2026-09-29",
+      "price_as_of": null,
       "debt": 64570000000.0,
       "debt_state": "positive"
     },
@@ -1215,7 +1215,7 @@
       "price": 185.23,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 13726000000.0,
+      "debt": 14489000000.0,
       "debt_state": "positive"
     },
     {
@@ -1260,7 +1260,7 @@
       "fy": 2026,
       "price_as_of": "2026-09-29",
       "debt": 40000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "UBER",
@@ -1292,7 +1292,7 @@
       "price": 32.07,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 150000000.0,
+      "debt": 1780000000.0,
       "debt_state": "positive"
     },
     {
@@ -1325,7 +1325,7 @@
       "price": 227.27,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 14439000000.0,
+      "debt": 14500000000.0,
       "debt_state": "positive"
     },
     {
@@ -1380,7 +1380,7 @@
       "price": 99.3,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 4556100000.0,
+      "debt": 4600000000.0,
       "debt_state": "positive"
     },
     {
@@ -1436,7 +1436,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "n/a"
     },
     {
       "ticker": "BR",
@@ -1457,7 +1457,7 @@
       "price": 116.02,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2431700000.0,
+      "debt": 2450000000.0,
       "debt_state": "positive"
     },
     {
@@ -1501,7 +1501,7 @@
       "price": 130.33,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5629800000.0,
+      "debt": 5655300000.0,
       "debt_state": "positive"
     },
     {
@@ -1512,8 +1512,8 @@
       "price": 253.26,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1442900000.0,
-      "debt_state": "positive"
+      "debt": 1450000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "ORCL",
@@ -1523,7 +1523,7 @@
       "price": 132.6,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 7199000000.0,
+      "debt": 130105000000.0,
       "debt_state": "positive"
     },
     {
@@ -1534,7 +1534,7 @@
       "price": 56.55,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 6606000000.0,
+      "debt": 6650000000.0,
       "debt_state": "positive"
     },
     {
@@ -1600,7 +1600,7 @@
       "price": 228.69,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6286800000.0,
+      "debt": 6567300000.0,
       "debt_state": "positive"
     },
     {
@@ -1622,7 +1622,7 @@
       "price": 116.05,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5115000000.0,
+      "debt": 5343000000.0,
       "debt_state": "positive"
     },
     {
@@ -1633,7 +1633,7 @@
       "price": 89.45,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 3264900000.0,
+      "debt": 3281900000.0,
       "debt_state": "positive"
     },
     {
@@ -1644,8 +1644,8 @@
       "price": 267.67,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1368260000.0,
-      "debt_state": "positive"
+      "debt": 1375000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "KMB",
@@ -1667,7 +1667,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 19587000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "LHX",
@@ -1732,7 +1732,7 @@
       "price": 518.1,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 21700000000.0,
+      "debt": 22914000000.0,
       "debt_state": "positive"
     },
     {
@@ -1744,7 +1744,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "AEP",
@@ -1787,7 +1787,7 @@
       "price": 197.02,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 1637700000.0,
+      "debt": 2189100000.0,
       "debt_state": "positive"
     },
     {
@@ -1798,7 +1798,7 @@
       "price": 63.06,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 6606000000.0,
+      "debt": 6650000000.0,
       "debt_state": "positive"
     },
     {
@@ -1809,8 +1809,8 @@
       "price": 272.1,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 15249000000.0,
-      "debt_state": "positive"
+      "debt": 15422000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "BEN",
@@ -1821,7 +1821,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 2362000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "GEHC",
@@ -1897,7 +1897,7 @@
       "price": 188.6,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 2987000000.0,
+      "debt": 3000000000.0,
       "debt_state": "positive"
     },
     {
@@ -1942,7 +1942,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "REGN",
@@ -1986,7 +1986,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 9685000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CTVA",
@@ -2007,8 +2007,8 @@
       "price": 73.31,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 5715759000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "AVY",
@@ -2041,7 +2041,7 @@
       "fy": 2026,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "META",
@@ -2051,7 +2051,7 @@
       "price": 715.62,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 58744000000.0,
+      "debt": 59000000000.0,
       "debt_state": "positive"
     },
     {
@@ -2095,7 +2095,7 @@
       "price": 157.05,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 8918944000.0,
+      "debt": 8935000000.0,
       "debt_state": "positive"
     },
     {
@@ -2140,7 +2140,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 12576587000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "SWK",
@@ -2161,7 +2161,7 @@
       "price": 155.38,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1980100000.0,
+      "debt": 1990800000.0,
       "debt_state": "positive"
     },
     {
@@ -2194,7 +2194,7 @@
       "price": 139.69,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1172434000.0,
+      "debt": 1197434000.0,
       "debt_state": "positive"
     },
     {
@@ -2238,8 +2238,8 @@
       "price": 108.99,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 4105355000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "GILD",
@@ -2282,7 +2282,7 @@
       "price": 17.88,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1453000000.0,
+      "debt": 8524000000.0,
       "debt_state": "positive"
     },
     {
@@ -2304,7 +2304,7 @@
       "price": 57.13,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 7012000000.0,
+      "debt": 7052000000.0,
       "debt_state": "positive"
     },
     {
@@ -2326,7 +2326,7 @@
       "price": 2913.28,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 8799775000.0,
+      "debt": 8848600000.0,
       "debt_state": "positive"
     },
     {
@@ -2348,7 +2348,7 @@
       "price": 62.6,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 18757000000.0,
+      "debt": 18939000000.0,
       "debt_state": "positive"
     },
     {
@@ -2360,7 +2360,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 24099000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "PEP",
@@ -2382,7 +2382,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 33876000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "ULTA",
@@ -2414,7 +2414,7 @@
       "price": 41.86,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 373951000.0,
+      "debt": 375000000.0,
       "debt_state": "positive"
     },
     {
@@ -2425,7 +2425,7 @@
       "price": 204.53,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 28430175000.0,
+      "debt": 28595539000.0,
       "debt_state": "positive"
     },
     {
@@ -2480,7 +2480,7 @@
       "price": 89.5,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 27961000000.0,
+      "debt": 28131000000.0,
       "debt_state": "positive"
     },
     {
@@ -2590,8 +2590,8 @@
       "price": 131.68,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 10656427000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "CPAY",
@@ -2602,7 +2602,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 10001687000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "GD",
@@ -2634,7 +2634,7 @@
       "price": 261.8,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 4965100000.0,
+      "debt": 5001800000.0,
       "debt_state": "positive"
     },
     {
@@ -2656,7 +2656,7 @@
       "price": 75.65,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2980500000.0,
+      "debt": 3004900000.0,
       "debt_state": "positive"
     },
     {
@@ -2667,7 +2667,7 @@
       "price": 505.8,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 15696000000.0,
+      "debt": 15798000000.0,
       "debt_state": "positive"
     },
     {
@@ -2678,7 +2678,7 @@
       "price": 22.66,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1274000000.0,
+      "debt": 5144000000.0,
       "debt_state": "positive"
     },
     {
@@ -2701,7 +2701,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 57101000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "SPGI",
@@ -2712,7 +2712,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 13088000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "NWS",
@@ -2744,8 +2744,8 @@
       "price": 263.24,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 0.0,
-      "debt_state": "zero"
+      "debt": 3422300000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "ICE",
@@ -2756,7 +2756,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 20679000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CARR",
@@ -2788,18 +2788,7 @@
       "price": 324.02,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 599663000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "VST",
-      "name": "Vistra Operations Company LLC",
-      "oe_yield": 0.04368290453490014,
-      "oe_per_share": 6.029114483906918,
-      "price": 138.02,
-      "fy": 2025,
-      "price_as_of": "2026-09-29",
-      "debt": 18843000000.0,
+      "debt": 600000000.0,
       "debt_state": "positive"
     },
     {
@@ -2810,7 +2799,7 @@
       "price": 371.87,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2502000000.0,
+      "debt": 2511000000.0,
       "debt_state": "positive"
     },
     {
@@ -2832,7 +2821,18 @@
       "price": 270.97,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 15724000000.0,
+      "debt": 15800000000.0,
+      "debt_state": "positive"
+    },
+    {
+      "ticker": "VST",
+      "name": "Vistra Operations Company LLC",
+      "oe_yield": 0.04354408842919917,
+      "oe_per_share": 6.029114483906918,
+      "price": 138.46,
+      "fy": 2025,
+      "price_as_of": null,
+      "debt": 18843000000.0,
       "debt_state": "positive"
     },
     {
@@ -2844,7 +2844,7 @@
       "fy": 2026,
       "price_as_of": "2026-09-29",
       "debt": 0.0,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "CVX",
@@ -2931,7 +2931,7 @@
       "price": 274.1,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 31814000000.0,
+      "debt": 33492000000.0,
       "debt_state": "positive"
     },
     {
@@ -2942,8 +2942,8 @@
       "price": 113.55,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 8378000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "MDLZ",
@@ -3009,7 +3009,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 7658724000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "PSA",
@@ -3019,7 +3019,7 @@
       "price": 284.79,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 10253881000.0,
+      "debt": 10310320000.0,
       "debt_state": "positive"
     },
     {
@@ -3041,8 +3041,8 @@
       "price": 282.07,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 1788200000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "NXPI",
@@ -3151,7 +3151,7 @@
       "price": 30.9,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 32567000000.0,
+      "debt": 32845000000.0,
       "debt_state": "positive"
     },
     {
@@ -3163,7 +3163,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 9004000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "MSFT",
@@ -3173,7 +3173,7 @@
       "price": 509.22,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 40294000000.0,
+      "debt": 46136000000.0,
       "debt_state": "positive"
     },
     {
@@ -3206,7 +3206,7 @@
       "price": 56.57,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2503500000.0,
+      "debt": 2505300000.0,
       "debt_state": "positive"
     },
     {
@@ -3217,7 +3217,7 @@
       "price": 130.25,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 2869000000.0,
+      "debt": 2878000000.0,
       "debt_state": "positive"
     },
     {
@@ -3240,7 +3240,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "NEE",
@@ -3283,8 +3283,8 @@
       "price": 542.72,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6202119000.0,
-      "debt_state": "positive"
+      "debt": 6250000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "RSG",
@@ -3327,7 +3327,7 @@
       "price": 610.83,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2475400000.0,
+      "debt": 2489000000.0,
       "debt_state": "positive"
     },
     {
@@ -3393,7 +3393,7 @@
       "price": 308.24,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 3512987000.0,
+      "debt": 3550000000.0,
       "debt_state": "positive"
     },
     {
@@ -3416,7 +3416,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "NUE",
@@ -3470,7 +3470,7 @@
       "price": 193.76,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 48835000000.0,
+      "debt": 49005000000.0,
       "debt_state": "positive"
     },
     {
@@ -3503,7 +3503,7 @@
       "price": 331.32,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1996254000.0,
+      "debt": 2000000000.0,
       "debt_state": "positive"
     },
     {
@@ -3514,7 +3514,7 @@
       "price": 517.84,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 7239000000.0,
+      "debt": 7552000000.0,
       "debt_state": "positive"
     },
     {
@@ -3536,7 +3536,7 @@
       "price": 246.15,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4362100000.0,
+      "debt": 4440600000.0,
       "debt_state": "positive"
     },
     {
@@ -3569,8 +3569,8 @@
       "price": 131.45,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 1491000000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "DXCM",
@@ -3580,8 +3580,8 @@
       "price": 86.68,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 1240900000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "MSI",
@@ -3591,7 +3591,7 @@
       "price": 452.08,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 9162000000.0,
+      "debt": 9163000000.0,
       "debt_state": "positive"
     },
     {
@@ -3624,8 +3624,8 @@
       "price": 118.34,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 5405372000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "ROST",
@@ -3646,7 +3646,7 @@
       "price": 69.23,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 14462836000.0,
+      "debt": 14463000000.0,
       "debt_state": "positive"
     },
     {
@@ -3690,8 +3690,8 @@
       "price": 568.26,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 19000000000.0,
-      "debt_state": "positive"
+      "debt": 19149000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "CSCO",
@@ -3701,7 +3701,7 @@
       "price": 106.74,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 22872000000.0,
+      "debt": 23002000000.0,
       "debt_state": "positive"
     },
     {
@@ -3746,7 +3746,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 6994000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "EBAY",
@@ -3756,7 +3756,7 @@
       "price": 107.32,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6746000000.0,
+      "debt": 6775000000.0,
       "debt_state": "positive"
     },
     {
@@ -3778,7 +3778,7 @@
       "price": 86.51,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6016904000.0,
+      "debt": 6040000000.0,
       "debt_state": "positive"
     },
     {
@@ -3789,7 +3789,7 @@
       "price": 292.37,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5541000000.0,
+      "debt": 5567000000.0,
       "debt_state": "positive"
     },
     {
@@ -3856,7 +3856,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 13513000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "O",
@@ -3866,7 +3866,7 @@
       "price": 55.35,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 516800000.0,
+      "debt": 25031947000.0,
       "debt_state": "positive"
     },
     {
@@ -3877,7 +3877,7 @@
       "price": 151.02,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 3220064000.0,
+      "debt": 3239450000.0,
       "debt_state": "positive"
     },
     {
@@ -3888,7 +3888,7 @@
       "price": 113.04,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 3751000000.0,
+      "debt": 3768000000.0,
       "debt_state": "positive"
     },
     {
@@ -3932,7 +3932,7 @@
       "price": 1545.26,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 2088241000.0,
+      "debt": 2152172000.0,
       "debt_state": "positive"
     },
     {
@@ -3954,7 +3954,7 @@
       "price": 26.54,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 8380020000.0,
+      "debt": 8458399000.0,
       "debt_state": "positive"
     },
     {
@@ -3965,7 +3965,7 @@
       "price": 1109.22,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 29291000000.0,
+      "debt": 29520000000.0,
       "debt_state": "positive"
     },
     {
@@ -4009,7 +4009,7 @@
       "price": 23.49,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 9439000000.0,
+      "debt": 9494000000.0,
       "debt_state": "positive"
     },
     {
@@ -4020,7 +4020,7 @@
       "price": 95.27,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 16074800000.0,
+      "debt": 16200000000.0,
       "debt_state": "positive"
     },
     {
@@ -4031,7 +4031,7 @@
       "price": 278.75,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 751000000.0,
+      "debt": 17996000000.0,
       "debt_state": "positive"
     },
     {
@@ -4075,7 +4075,7 @@
       "price": 922.92,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5788000000.0,
+      "debt": 5805000000.0,
       "debt_state": "positive"
     },
     {
@@ -4086,8 +4086,8 @@
       "price": 273.01,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 6800269000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "TMO",
@@ -4097,7 +4097,7 @@
       "price": 678.6,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 39172000000.0,
+      "debt": 39459000000.0,
       "debt_state": "positive"
     },
     {
@@ -4108,7 +4108,7 @@
       "price": 230.39,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 4211163000.0,
+      "debt": 4286610000.0,
       "debt_state": "positive"
     },
     {
@@ -4141,7 +4141,7 @@
       "price": 320.28,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 12363000000.0,
+      "debt": 12459000000.0,
       "debt_state": "positive"
     },
     {
@@ -4152,7 +4152,7 @@
       "price": 20.1,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 9847894000.0,
+      "debt": 9977466000.0,
       "debt_state": "positive"
     },
     {
@@ -4175,7 +4175,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "IDXX",
@@ -4208,7 +4208,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 338216000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "RDDT",
@@ -4224,24 +4224,13 @@
     {
       "ticker": "GPC",
       "name": "GENUINE PARTS CO",
-      "oe_yield": 0.023591614273037607,
+      "oe_yield": 0.023322224649365855,
       "oe_per_share": 3.0227935368043086,
-      "price": 128.13,
+      "price": 129.61,
       "fy": 2025,
-      "price_as_of": "2026-09-29",
+      "price_as_of": null,
       "debt": 5739291000.0,
       "debt_state": "positive"
-    },
-    {
-      "ticker": "DASH",
-      "name": "DOORDASH, INC.",
-      "oe_yield": 0.02328024948661587,
-      "oe_per_share": 4.152963705917404,
-      "price": 178.39,
-      "fy": 2025,
-      "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
     },
     {
       "ticker": "TECH",
@@ -4262,7 +4251,7 @@
       "price": 200.58,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 1429086000.0,
+      "debt": 2436600000.0,
       "debt_state": "positive"
     },
     {
@@ -4273,7 +4262,7 @@
       "price": 543.43,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 31503000000.0,
+      "debt": 31763000000.0,
       "debt_state": "positive"
     },
     {
@@ -4284,7 +4273,7 @@
       "price": 181.58,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 3762124000.0,
+      "debt": 3783188000.0,
       "debt_state": "positive"
     },
     {
@@ -4321,6 +4310,17 @@
       "debt_state": "positive"
     },
     {
+      "ticker": "DASH",
+      "name": "DOORDASH, INC.",
+      "oe_yield": 0.021477884287946857,
+      "oe_per_share": 4.152963705917404,
+      "price": 193.36,
+      "fy": 2025,
+      "price_as_of": null,
+      "debt": 2724000000.0,
+      "debt_state": "positive"
+    },
+    {
       "ticker": "GE",
       "name": "GENERAL ELECTRIC CO",
       "oe_yield": 0.02137222890692818,
@@ -4339,7 +4339,7 @@
       "price": 375.65,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 202800000.0,
+      "debt": 203000000.0,
       "debt_state": "positive"
     },
     {
@@ -4362,7 +4362,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 12768000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "ETN",
@@ -4384,7 +4384,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "TXN",
@@ -4394,7 +4394,7 @@
       "price": 278.31,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 14048000000.0,
+      "debt": 14150000000.0,
       "debt_state": "positive"
     },
     {
@@ -4416,7 +4416,7 @@
       "price": 77.97,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 5496400000.0,
+      "debt": 5536900000.0,
       "debt_state": "positive"
     },
     {
@@ -4427,7 +4427,7 @@
       "price": 453.23,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 1052000000.0,
+      "debt": 1060000000.0,
       "debt_state": "positive"
     },
     {
@@ -4449,7 +4449,7 @@
       "price": 33.83,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5821369000.0,
+      "debt": 5835855000.0,
       "debt_state": "positive"
     },
     {
@@ -4460,7 +4460,7 @@
       "price": 63.21,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 12116000000.0,
+      "debt": 12125000000.0,
       "debt_state": "positive"
     },
     {
@@ -4493,7 +4493,7 @@
       "price": 417.61,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 13484515000.0,
+      "debt": 13573671000.0,
       "debt_state": "positive"
     },
     {
@@ -4548,7 +4548,7 @@
       "price": 171.89,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 8199648000.0,
+      "debt": 8268659000.0,
       "debt_state": "positive"
     },
     {
@@ -4559,7 +4559,7 @@
       "price": 132.44,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 35037073000.0,
+      "debt": 35578046000.0,
       "debt_state": "positive"
     },
     {
@@ -4570,7 +4570,7 @@
       "price": 1011.07,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1299000000.0,
+      "debt": 19062000000.0,
       "debt_state": "positive"
     },
     {
@@ -4592,7 +4592,7 @@
       "price": 176.33,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 996300000.0,
+      "debt": 1000000000.0,
       "debt_state": "positive"
     },
     {
@@ -4614,8 +4614,8 @@
       "price": 326.7,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "unknown"
+      "debt": 2480150000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "HWM",
@@ -4702,7 +4702,7 @@
       "price": 349.57,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 65136000000.0,
+      "debt": 67120000000.0,
       "debt_state": "positive"
     },
     {
@@ -4747,7 +4747,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "n/a"
     },
     {
       "ticker": "CSGP",
@@ -4790,7 +4790,7 @@
       "price": 62.43,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 750000000.0,
+      "debt": 8811158000.0,
       "debt_state": "positive"
     },
     {
@@ -4801,8 +4801,8 @@
       "price": 392.09,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 1774000000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "LRCX",
@@ -4812,7 +4812,7 @@
       "price": 314.47,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 3722061000.0,
+      "debt": 3750000000.0,
       "debt_state": "positive"
     },
     {
@@ -4823,7 +4823,7 @@
       "price": 202.35,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 2518000000.0,
+      "debt": 2530000000.0,
       "debt_state": "positive"
     },
     {
@@ -4856,7 +4856,7 @@
       "price": 85.72,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5951000000.0,
+      "debt": 5994000000.0,
       "debt_state": "positive"
     },
     {
@@ -4878,8 +4878,8 @@
       "price": 268.7,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 983449000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "IRM",
@@ -4889,7 +4889,7 @@
       "price": 111.05,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 16431959000.0,
+      "debt": 16544473000.0,
       "debt_state": "positive"
     },
     {
@@ -4922,8 +4922,8 @@
       "price": 177.18,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 17093531000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "HUM",
@@ -4966,7 +4966,7 @@
       "price": 357.45,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 6584000000.0,
+      "debt": 8177000000.0,
       "debt_state": "positive"
     },
     {
@@ -5021,7 +5021,7 @@
       "price": 87.04,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 13011016000.0,
+      "debt": 13103627000.0,
       "debt_state": "positive"
     },
     {
@@ -5032,7 +5032,7 @@
       "price": 232.96,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 19197302000.0,
+      "debt": 19359352000.0,
       "debt_state": "positive"
     },
     {
@@ -5054,7 +5054,7 @@
       "price": 921.51,
       "fy": 2027,
       "price_as_of": "2026-09-29",
-      "debt": 4995000000.0,
+      "debt": 5046000000.0,
       "debt_state": "positive"
     },
     {
@@ -5076,7 +5076,7 @@
       "price": 19.72,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5572000000.0,
+      "debt": 5607000000.0,
       "debt_state": "positive"
     },
     {
@@ -5087,7 +5087,7 @@
       "price": 424.75,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 1810722000.0,
+      "debt": 1831110000.0,
       "debt_state": "positive"
     },
     {
@@ -5120,7 +5120,7 @@
       "price": 89.54,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 5035000000.0,
+      "debt": 5083000000.0,
       "debt_state": "positive"
     },
     {
@@ -5131,7 +5131,7 @@
       "price": 116.03,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 46585000000.0,
+      "debt": 47235000000.0,
       "debt_state": "positive"
     },
     {
@@ -5153,7 +5153,7 @@
       "price": 282.45,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 3222224000.0,
+      "debt": 3257482000.0,
       "debt_state": "positive"
     },
     {
@@ -5175,7 +5175,7 @@
       "price": 112.3,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": 4264000000.0,
+      "debt": 4300000000.0,
       "debt_state": "positive"
     },
     {
@@ -5230,7 +5230,7 @@
       "price": 89.22,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 25979871000.0,
+      "debt": 26352557000.0,
       "debt_state": "positive"
     },
     {
@@ -5252,8 +5252,8 @@
       "price": 193.64,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": 341681000000.0,
-      "debt_state": "positive"
+      "debt": 348935000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "WFC",
@@ -5264,7 +5264,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 193035000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     },
     {
       "ticker": "PCG",
@@ -5285,8 +5285,8 @@
       "price": 916.28,
       "fy": 2025,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 355959000000.0,
+      "debt_state": "n/a"
     },
     {
       "ticker": "XEL",
@@ -5307,8 +5307,8 @@
       "price": 41.78,
       "fy": 2026,
       "price_as_of": "2026-09-29",
-      "debt": null,
-      "debt_state": "zero"
+      "debt": 4664139000.0,
+      "debt_state": "positive"
     },
     {
       "ticker": "C",
@@ -5319,22 +5319,34 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": 367705000000.0,
-      "debt_state": "positive"
+      "debt_state": "n/a"
     }
   ],
   "meta": {
     "debt_coverage": {
-      "zero": 48,
-      "positive": 428,
-      "unknown": 7,
+      "zero": 9,
+      "positive": 394,
+      "unknown": 18,
+      "n/a": 62,
       "unknown_tickers": [
         "AES",
-        "CDNS",
+        "CPRT",
         "DECK",
+        "EME",
         "EXPD",
+        "F",
         "FFIV",
+        "GM",
         "GRMN",
-        "PCAR"
+        "INCY",
+        "LULU",
+        "NVR",
+        "PCAR",
+        "SNDK",
+        "TPL",
+        "TTD",
+        "VRTX",
+        "WSM"
       ]
     }
   }
