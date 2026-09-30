@@ -432,7 +432,8 @@ def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int
     return out
 
 
-# Explicit 0 on one of these is evidence of no debt. A 0 on a component tag is not.
+# Explicit 0 on one of these is evidence of no debt. A 0 on a component tag
+# is not, by itself: an all-zero partial ladder is treated like no ladder.
 _DEBT_TOTAL_TAGS = (
     "LongTermDebt",
     "DebtLongtermAndShorttermCombinedAmount",
@@ -509,13 +510,17 @@ def compose_debt(
     ``debt_state`` is ``"positive"`` when total > 0. It is ``"zero"`` only with
     evidence: (a) total == 0 and at least one total tag is explicitly 0 that
     year (``LongTermDebt``, ``DebtLongtermAndShorttermCombinedAmount``,
-    ``LongTermDebtAndCapitalLeaseObligations``, ``DebtInstrumentCarryingAmount``)
-    — an explicit 0 on a partial, short-term, or component tag alone, such as
-    ``LongTermDebtCurrent`` or ``ShortTermBorrowings``, is not zero evidence and
-    the state is ``"unknown"``; or (b) no ladder tag is present that year but
-    us-gaap ``Liabilities`` has an annual value that year. Otherwise
-    ``"unknown"``. Years with no ladder tag and no ``Liabilities`` value are
-    omitted from the state map (callers treat a missing year as unknown).
+    ``LongTermDebtAndCapitalLeaseObligations``, ``DebtInstrumentCarryingAmount``);
+    or (b) no ladder tag is present that year but us-gaap ``Liabilities`` has
+    an annual value that year; or (c) ladder tags are present but every present
+    ladder value is 0 and none of those present-zero tags is a total tag. A
+    partial zero counts no more and no less than the tag being absent, so (c)
+    uses the same state as the no-ladder path: ``"zero"`` when ``Liabilities``
+    is reported that FY, otherwise ``"unknown"``. ``total`` stays 0.0 (debt is
+    0 on the statement). Otherwise ``"unknown"``. Years with no ladder tag and
+    no ``Liabilities`` value are omitted from the state map (callers treat a
+    missing year as unknown). A year on path (c) stays in the state map even
+    when ``Liabilities`` is absent.
 
     Two cross-checks downgrade a would-be ``"zero"`` to ``"unknown"``. They
     never change ``"positive"`` or an already ``"unknown"`` year, and they
@@ -675,12 +680,20 @@ def compose_debt(
             else:
                 total = max(candidates)
                 totals[year] = total
+                present_tags = [tag for tag in ladder if _has(tag, year)]
+                present_zero = [
+                    tag
+                    for tag in present_tags
+                    if series[tag][year] == 0
+                ]
+                all_present_zero = len(present_zero) == len(present_tags)
+                zero_on_total = any(tag in _DEBT_TOTAL_TAGS for tag in present_zero)
                 if total > 0:
                     state = "positive"
-                elif total == 0 and any(
-                    _has(tag, year) and series[tag][year] == 0
-                    for tag in _DEBT_TOTAL_TAGS
-                ):
+                elif all_present_zero and not zero_on_total:
+                    # Partial zeros are the same as a missing ladder.
+                    state = "zero" if year in liabilities else "unknown"
+                elif total == 0 and zero_on_total:
                     state = "zero"
                 else:
                     state = "unknown"

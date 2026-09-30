@@ -9,6 +9,8 @@ TAG_PREFS: dict[str, list[str]] = {
         "SalesRevenueNet",
         "RevenueFromContractWithCustomerExcludingAssessedTax",
         "SalesRevenueGoodsNet",
+        # Last. Fills a year only when no earlier revenue tag has an annual value.
+        "RevenueFromContractWithCustomerIncludingAssessedTax",
     ],
     "net_income": [
         "NetIncomeLoss",

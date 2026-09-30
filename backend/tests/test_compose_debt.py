@@ -87,14 +87,39 @@ class TestComposeDebt(unittest.TestCase):
         self.assertEqual(totals, {})
         self.assertEqual(states, {})
 
-    def test_partial_tag_explicit_zero_is_unknown(self):
-        # ShortTermBorrowings is not a total tag. A lone 0 is not evidence of
-        # no debt, even when Liabilities is reported.
+    def test_partial_tag_explicit_zero_with_liabilities_is_zero(self):
+        # ShortTermBorrowings is not a total tag. Every present ladder value
+        # is 0, so this year follows the no-ladder path: Liabilities reported
+        # means zero. Total stays 0.0 (the statement shows no debt).
         totals, states = compose_debt(
             _gaap(
                 Liabilities=[_usd(2024, 500.0)],
                 ShortTermBorrowings=[_usd(2024, 0.0)],
             )
+        )
+        self.assertEqual(totals[2024], 0.0)
+        self.assertEqual(states[2024], "zero")
+
+    def test_partial_zero_with_material_interest_is_unknown(self):
+        # Same partial zero as above, but interest above 0.15% of revenue
+        # still downgrades the would-be zero.
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                ShortTermBorrowings=[_usd(2024, 0.0)],
+                InterestExpense=[_usd(2024, 12.0)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertEqual(totals[2024], 0.0)
+        self.assertEqual(states[2024], "unknown")
+
+    def test_partial_zero_without_liabilities_is_unknown(self):
+        # A partial zero with no Liabilities is the no-ladder unknown path.
+        # The year stays in the state map because a ladder tag was present,
+        # and the total stays 0.0.
+        totals, states = compose_debt(
+            _gaap(ShortTermBorrowings=[_usd(2024, 0.0)])
         )
         self.assertEqual(totals[2024], 0.0)
         self.assertEqual(states[2024], "unknown")
@@ -300,3 +325,42 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
         payload = self._load("ttd_debt_fy2025_companyfacts.json")
         _totals, states = compose_debt(payload["facts"]["us-gaap"])
         self.assertEqual(states[2025], "zero")
+
+    def test_lulu_line_of_credit_zero_only_is_zero(self):
+        # lululemon FY2025: the only ladder fact is LineOfCredit = 0.
+        # That partial zero follows the no-ladder path. Liabilities is
+        # reported and interest is not material, so the state is zero.
+        # Total stays 0.0.
+        payload = self._load("lulu_debt_fy2025_companyfacts.json")
+        totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertEqual(totals[2025], 0.0)
+        self.assertEqual(states[2025], "zero")
+
+    def test_cprt_no_ladder_immaterial_interest_is_zero(self):
+        # Copart FY2026: no debt-ladder tags. Liabilities is reported.
+        # InterestPaidNet is at or below 0.15% of revenue once the
+        # including-assessed-tax fallback supplies revenue, so zero stands.
+        payload = self._load("cprt_debt_fy2026_companyfacts.json")
+        _totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertEqual(states[2026], "zero")
+
+    def test_cprt_revenue_falls_back_to_including_assessed_tax(self):
+        payload = self._load("cprt_debt_fy2026_companyfacts.json")
+        _years, statements = map_companyfacts_to_statements(payload)
+        self.assertEqual(statements[2026]["revenue"], 4_666_209_000.0)
+
+    def test_revenue_fallback_does_not_override_earlier_tag(self):
+        # Same FY: Revenues wins over the including-assessed-tax fallback.
+        payload = {
+            "facts": {
+                "us-gaap": _gaap(
+                    Revenues=[_usd(2024, 100.0)],
+                    RevenueFromContractWithCustomerIncludingAssessedTax=[
+                        _usd(2024, 120.0)
+                    ],
+                    NetIncomeLoss=[_usd(2024, 1.0)],
+                )
+            }
+        }
+        _years, statements = map_companyfacts_to_statements(payload)
+        self.assertEqual(statements[2024]["revenue"], 100.0)
