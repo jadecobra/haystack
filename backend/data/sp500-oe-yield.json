@@ -2,7 +2,7 @@
   "universe": "sp500",
   "count": 483,
   "skipped": 20,
-  "built_at": "2026-09-30T01:17:43+00:00",
+  "built_at": "2026-09-30T01:43:11+00:00",
   "price_as_of": "2026-09-29",
   "stale": false,
   "error": null,
@@ -248,7 +248,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "NTRS",
@@ -1038,7 +1038,7 @@
       "oe_per_share": 1.9454377556333065,
       "price": 26.03,
       "fy": 2026,
-      "price_as_of": "2026-09-29",
+      "price_as_of": null,
       "debt": 2502000000.0,
       "debt_state": "positive"
     },
@@ -1315,7 +1315,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "zero"
+      "debt_state": "unknown"
     },
     {
       "ticker": "CRM",
@@ -1942,7 +1942,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "REGN",
@@ -3240,7 +3240,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "NEE",
@@ -3416,7 +3416,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "NUE",
@@ -4175,7 +4175,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "IDXX",
@@ -4384,7 +4384,7 @@
       "fy": 2025,
       "price_as_of": "2026-09-29",
       "debt": null,
-      "debt_state": "unknown"
+      "debt_state": "zero"
     },
     {
       "ticker": "TXN",
@@ -5324,29 +5324,24 @@
   ],
   "meta": {
     "debt_coverage": {
-      "zero": 9,
+      "zero": 14,
       "positive": 394,
-      "unknown": 18,
+      "unknown": 13,
       "n/a": 62,
       "unknown_tickers": [
         "AES",
         "CPRT",
         "DECK",
-        "EME",
         "EXPD",
         "F",
         "FFIV",
         "GM",
         "GRMN",
-        "INCY",
         "LULU",
         "NVR",
         "PCAR",
         "SNDK",
-        "TPL",
-        "TTD",
-        "VRTX",
-        "WSM"
+        "TXT"
       ]
     }
   }
