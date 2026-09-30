@@ -453,6 +453,10 @@ _SUPPLEMENTAL_SHORT_TAGS = (
     "OtherShortTermBorrowings",
     "LineOfCredit",
 )
+# 0.15% of revenue. Interest at or below this stays a zero debt_state;
+# strictly above downgrades that year to unknown. See compose_debt.
+MATERIAL_INTEREST_PCT_OF_REVENUE = 0.0015
+_MATURITY_PREFIX = "LongTermDebtMaturitiesRepaymentsOfPrincipal"
 
 
 def compose_debt(
@@ -509,19 +513,50 @@ def compose_debt(
     — an explicit 0 on a partial, short-term, or component tag alone, such as
     ``LongTermDebtCurrent`` or ``ShortTermBorrowings``, is not zero evidence and
     the state is ``"unknown"``; or (b) no ladder tag is present that year but
-    us-gaap ``Liabilities`` has an annual value that year. If the state would
-    be ``"zero"`` but any of ``InterestExpense``, ``InterestExpenseDebt``,
-    ``InterestExpenseNonoperating``, or ``InterestPaidNet``
-    (``TAG_PREFS["debt_interest"]``) has an annual value > 0 in the same fiscal
-    year, the state is ``"unknown"``. Otherwise ``"unknown"``. Years with no
-    ladder tag and no ``Liabilities`` value are omitted from the state map
-    (callers treat a missing year as unknown).
+    us-gaap ``Liabilities`` has an annual value that year. Otherwise
+    ``"unknown"``. Years with no ladder tag and no ``Liabilities`` value are
+    omitted from the state map (callers treat a missing year as unknown).
+
+    Two cross-checks downgrade a would-be ``"zero"`` to ``"unknown"``. They
+    never change ``"positive"`` or an already ``"unknown"`` year, and they
+    never add to the debt total.
+
+    Interest materiality. Per FY, interest is the max of the absolute annual
+    values present among ``InterestExpense``, ``InterestExpenseDebt``,
+    ``InterestExpenseNonoperating``, and ``InterestPaidNet``
+    (``TAG_PREFS["debt_interest"]``). Also include
+    ``abs(InterestIncomeExpenseNet)`` when that tag
+    (``TAG_PREFS["debt_interest_net"]``) is negative — net interest expense.
+    A positive ``InterestIncomeExpenseNet`` is net interest income and is
+    ignored. Revenue is the same tag ladder the statements use
+    (``_series_for_tags(us_gaap, TAG_PREFS["revenue"])``) for that FY. When
+    revenue is present and > 0, interest strictly greater than
+    ``MATERIAL_INTEREST_PCT_OF_REVENUE * revenue`` (0.0015, 0.15%) downgrades
+    ``"zero"`` to ``"unknown"``; interest at or below the threshold stays
+    ``"zero"``. When revenue is missing or <= 0, be conservative: any
+    interest > 0 downgrades to ``"unknown"``.
+
+    Hard maturity evidence, with no threshold. If any us-gaap tag whose name
+    starts with ``LongTermDebtMaturitiesRepaymentsOfPrincipal``
+    (``NextTwelveMonths``, ``InYearTwo`` through ``InYearFive``,
+    ``AfterYearFive``, ``RemainderOfFiscalYear``, and the rest of that
+    prefix) has an annual value > 0 in that FY, a would-be ``"zero"`` becomes
+    ``"unknown"``. Those amounts are not added to the debt total.
     """
     ladder = TAG_PREFS["debt_ladder"]
     series = {tag: _series_for_tags(us_gaap, [tag]) for tag in ladder}
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])
     interest = {
         tag: _series_for_tags(us_gaap, [tag]) for tag in TAG_PREFS["debt_interest"]
+    }
+    interest_net = _series_for_tags(us_gaap, TAG_PREFS["debt_interest_net"])
+    revenue = _series_for_tags(us_gaap, TAG_PREFS["revenue"])
+    maturity = {
+        name: _pick_annual_by_year(_unit_entries(node))
+        for name, node in us_gaap.items()
+        if isinstance(name, str)
+        and name.startswith(_MATURITY_PREFIX)
+        and isinstance(node, dict)
     }
 
     def _has(tag: str, year: int) -> bool:
@@ -587,8 +622,29 @@ def compose_debt(
             return None
         return sum(parts)
 
-    def _interest_positive(year: int) -> bool:
-        return any(by_year.get(year, 0.0) > 0 for by_year in interest.values())
+    def _interest_amount(year: int) -> float:
+        present: list[float] = []
+        for by_year in interest.values():
+            if year in by_year:
+                present.append(abs(by_year[year]))
+        net = interest_net.get(year)
+        if net is not None and net < 0:
+            present.append(abs(net))
+        if not present:
+            return 0.0
+        return max(present)
+
+    def _interest_material(year: int) -> bool:
+        amount = _interest_amount(year)
+        if amount <= 0:
+            return False
+        rev = revenue.get(year)
+        if rev is None or rev <= 0:
+            return True
+        return amount > MATERIAL_INTEREST_PCT_OF_REVENUE * rev
+
+    def _maturity_positive(year: int) -> bool:
+        return any(by_year.get(year, 0.0) > 0 for by_year in maturity.values())
 
     years = set(liabilities)
     for by_year in series.values():
@@ -628,7 +684,7 @@ def compose_debt(
                     state = "zero"
                 else:
                     state = "unknown"
-        if state == "zero" and _interest_positive(year):
+        if state == "zero" and (_interest_material(year) or _maturity_positive(year)):
             state = "unknown"
         states[year] = state
     return totals, states

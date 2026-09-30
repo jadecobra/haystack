@@ -1,0 +1,191 @@
+{
+ "cik": 217346,
+ "entityName": "Textron Inc.",
+ "facts": {
+  "us-gaap": {
+   "InterestIncomeExpenseNet": {
+    "units": {
+     "USD": [
+      {
+       "start": "2023-01-01",
+       "end": "2023-12-30",
+       "val": -77000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2023"
+      },
+      {
+       "start": "2023-12-31",
+       "end": "2024-12-28",
+       "val": -97000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2024"
+      },
+      {
+       "start": "2024-12-29",
+       "end": "2026-01-03",
+       "val": -126000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025"
+      }
+     ]
+    }
+   },
+   "Liabilities": {
+    "units": {
+     "USD": [
+      {
+       "end": "2024-12-28",
+       "val": 9634000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2024Q4I"
+      },
+      {
+       "end": "2026-01-03",
+       "val": 10254000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11"
+      }
+     ]
+    }
+   },
+   "LongTermDebtMaturitiesRepaymentsOfPrincipalInNextTwelveMonths": {
+    "units": {
+     "USD": [
+      {
+       "end": "2026-01-03",
+       "val": 5000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025Q4I"
+      }
+     ]
+    }
+   },
+   "LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFive": {
+    "units": {
+     "USD": [
+      {
+       "end": "2026-01-03",
+       "val": 651000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025Q4I"
+      }
+     ]
+    }
+   },
+   "LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFour": {
+    "units": {
+     "USD": [
+      {
+       "end": "2026-01-03",
+       "val": 301000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025Q4I"
+      }
+     ]
+    }
+   },
+   "LongTermDebtMaturitiesRepaymentsOfPrincipalInYearThree": {
+    "units": {
+     "USD": [
+      {
+       "end": "2026-01-03",
+       "val": 400000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025Q4I"
+      }
+     ]
+    }
+   },
+   "LongTermDebtMaturitiesRepaymentsOfPrincipalInYearTwo": {
+    "units": {
+     "USD": [
+      {
+       "end": "2026-01-03",
+       "val": 405000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025Q4I"
+      }
+     ]
+    }
+   },
+   "Revenues": {
+    "units": {
+     "USD": [
+      {
+       "start": "2023-01-01",
+       "end": "2023-12-30",
+       "val": 13683000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2023"
+      },
+      {
+       "start": "2023-12-31",
+       "end": "2024-12-28",
+       "val": 13702000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2024"
+      },
+      {
+       "start": "2024-12-29",
+       "end": "2026-01-03",
+       "val": 14799000000,
+       "accn": "0000217346-26-000006",
+       "fy": 2025,
+       "fp": "FY",
+       "form": "10-K",
+       "filed": "2026-02-11",
+       "frame": "CY2025"
+      }
+     ]
+    }
+   }
+  }
+ }
+}

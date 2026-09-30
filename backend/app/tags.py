@@ -50,12 +50,18 @@ TAG_PREFS: dict[str, list[str]] = {
         "OtherShortTermBorrowings",
         "LineOfCredit",
     ],
-    # Not debt totals. An annual value > 0 blocks a "zero" debt_state.
+    # Not debt totals. compose_debt takes abs of the annual value present
+    # for the interest-materiality cross-check; see its docstring.
     "debt_interest": [
         "InterestExpense",
         "InterestExpenseDebt",
         "InterestExpenseNonoperating",
         "InterestPaidNet",
+    ],
+    # Signed net. Only a negative annual value (net interest expense) counts,
+    # as abs(value). A positive value is net interest income and is ignored.
+    "debt_interest_net": [
+        "InterestIncomeExpenseNet",
     ],
     "cash": [
         "CashAndCashEquivalentsAtCarryingValue",

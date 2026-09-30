@@ -6,7 +6,11 @@ import json
 import unittest
 from pathlib import Path
 
-from app.edgar import compose_debt, map_companyfacts_to_statements
+from app.edgar import (
+    MATERIAL_INTEREST_PCT_OF_REVENUE,
+    compose_debt,
+    map_companyfacts_to_statements,
+)
 
 
 def _usd(fy: int, val: float) -> dict:
@@ -95,24 +99,100 @@ class TestComposeDebt(unittest.TestCase):
         self.assertEqual(totals[2024], 0.0)
         self.assertEqual(states[2024], "unknown")
 
-    def test_explicit_zero_with_interest_expense_is_unknown(self):
-        # LongTermDebt=0 would be zero evidence, but interest > 0 downgrades it.
+    def test_explicit_zero_with_material_interest_expense_is_unknown(self):
+        # LongTermDebt=0 would be zero evidence. Interest of 12 on revenue
+        # of 1000 is above MATERIAL_INTEREST_PCT_OF_REVENUE, so unknown.
         totals, states = compose_debt(
             _gaap(
                 LongTermDebt=[_usd(2024, 0.0)],
                 InterestExpense=[_usd(2024, 12.0)],
+                Revenues=[_usd(2024, 1000.0)],
             )
         )
         self.assertEqual(totals[2024], 0.0)
+        self.assertGreater(12.0, MATERIAL_INTEREST_PCT_OF_REVENUE * 1000.0)
         self.assertEqual(states[2024], "unknown")
 
-    def test_liabilities_only_with_interest_is_unknown(self):
-        # Liabilities without a ladder tag would be zero, but interest > 0
-        # means the filing may omit the debt concepts.
+    def test_liabilities_only_with_material_interest_is_unknown(self):
+        # Liabilities without a ladder tag would be zero. Interest above
+        # 0.15% of revenue means the filing may omit the debt concepts.
         totals, states = compose_debt(
             _gaap(
                 Liabilities=[_usd(2024, 500.0)],
                 InterestExpense=[_usd(2024, 4.0)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertNotIn(2024, totals)
+        self.assertEqual(states[2024], "unknown")
+
+    def test_interest_at_materiality_boundary_stays_zero(self):
+        # 0.15% of 1000 is 1.5. Equal stays zero; strictly above is unknown.
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestExpense=[_usd(2024, 1.5)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertNotIn(2024, totals)
+        self.assertEqual(states[2024], "zero")
+
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestExpense=[_usd(2024, 1.6)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertEqual(states[2024], "unknown")
+
+    def test_missing_revenue_any_interest_is_unknown(self):
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestExpense=[_usd(2024, 0.1)],
+            )
+        )
+        self.assertEqual(states[2024], "unknown")
+
+    def test_interest_income_expense_net_sign(self):
+        # Negative is net interest expense. -2 / 1000 is material; -1 is not.
+        # A positive value is net interest income and does not count.
+        _, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestIncomeExpenseNet=[_usd(2024, -2.0)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertEqual(states[2024], "unknown")
+
+        _, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestIncomeExpenseNet=[_usd(2024, -1.0)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertEqual(states[2024], "zero")
+
+        _, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                InterestIncomeExpenseNet=[_usd(2024, 5.0)],
+                Revenues=[_usd(2024, 1000.0)],
+            )
+        )
+        self.assertEqual(states[2024], "zero")
+
+    def test_maturity_schedule_blocks_zero_without_threshold(self):
+        totals, states = compose_debt(
+            _gaap(
+                Liabilities=[_usd(2024, 500.0)],
+                LongTermDebtMaturitiesRepaymentsOfPrincipalInYearTwo=[
+                    _usd(2024, 405.0)
+                ],
             )
         )
         self.assertNotIn(2024, totals)
@@ -150,8 +230,8 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
 
     def test_cmg_known_zero_debt(self):
         # Chipotle FY2025 10-K: LongTermDebt explicitly 0, Liabilities 6.16B.
-        # No InterestExpense* / InterestPaidNet annual fact that year, so the
-        # interest cross-check does not downgrade the explicit zero.
+        # No interest-expense annual fact that year, so materiality does not
+        # downgrade the explicit zero.
         payload = self._load("cmg_debt_fy2025_companyfacts.json")
         totals, states = compose_debt(payload["facts"]["us-gaap"])
         self.assertEqual(totals[2025], 0.0)
@@ -196,7 +276,8 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
     def test_ford_interest_without_ladder_is_not_zero(self):
         # Ford FY2025 us-gaap has Liabilities and InterestExpenseNonoperating
         # and none of the debt ladder tags. Liabilities-only would be zero;
-        # interest > 0 downgrades that to unknown. Debt total stays unset.
+        # interest above 0.15% of revenue downgrades that to unknown.
+        # Debt total stays unset.
         payload = self._load("f_debt_fy2025_companyfacts.json")
         totals, states = compose_debt(payload["facts"]["us-gaap"])
         self.assertNotIn(2025, totals)
@@ -205,3 +286,17 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(payload)
         self.assertIsNone(statements[2025]["debt"])
         self.assertEqual(statements[2025]["debt_state"], "unknown")
+
+    def test_txt_material_interest_is_unknown(self):
+        # Textron FY2025: no debt-ladder total. InterestIncomeExpenseNet is
+        # a net expense above 0.15% of revenue, so liabilities-only is unknown.
+        payload = self._load("txt_debt_fy2025_companyfacts.json")
+        _totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertEqual(states[2025], "unknown")
+
+    def test_ttd_immaterial_interest_stays_zero(self):
+        # The Trade Desk FY2025: no debt-ladder tags. Interest is at or below
+        # 0.15% of revenue and there is no maturity schedule, so zero stands.
+        payload = self._load("ttd_debt_fy2025_companyfacts.json")
+        _totals, states = compose_debt(payload["facts"]["us-gaap"])
+        self.assertEqual(states[2025], "zero")
