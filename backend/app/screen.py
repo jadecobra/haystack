@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -95,6 +96,7 @@ def _row_from_facts(
     if yv > 1.0 or yv < -1.0:
         return None
     as_of = quote.get("as_of")
+    debt, debt_state = _debt_for_row(stmt)
     return {
         "ticker": ticker,
         "name": company_name,
@@ -103,7 +105,76 @@ def _row_from_facts(
         "price": price,
         "fy": int(fy),
         "price_as_of": str(as_of) if as_of else None,
+        "debt": debt,
+        "debt_state": debt_state,
     }
+
+
+def _debt_for_row(stmt: dict[str, Any]) -> tuple[float | None, str]:
+    """Debt total and state for the row's fiscal year.
+
+    Rows built from older fetch_facts that omit ``debt_state`` derive the
+    state from ``stmt["debt"]``: >0 positive, ==0 zero, missing unknown.
+    """
+    raw = stmt.get("debt")
+    debt: float | None
+    if raw is None:
+        debt = None
+    else:
+        try:
+            debt = float(raw)
+        except (TypeError, ValueError):
+            debt = None
+    state = stmt.get("debt_state")
+    if state not in ("zero", "positive", "unknown"):
+        if debt is None:
+            state = "unknown"
+        elif debt > 0:
+            state = "positive"
+        elif debt == 0:
+            state = "zero"
+        else:
+            state = "unknown"
+    return debt, state
+
+
+def debt_coverage(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    counts = {"zero": 0, "positive": 0, "unknown": 0}
+    unknown_tickers: list[str] = []
+    for row in rows:
+        state = row.get("debt_state")
+        if state not in counts:
+            state = "unknown"
+        counts[state] += 1
+        if state == "unknown":
+            ticker = row.get("ticker")
+            if isinstance(ticker, str) and ticker:
+                unknown_tickers.append(ticker)
+    return {
+        "zero": counts["zero"],
+        "positive": counts["positive"],
+        "unknown": counts["unknown"],
+        "unknown_tickers": sorted(unknown_tickers),
+    }
+
+
+def log_debt_coverage(payload: dict[str, Any]) -> None:
+    """One stderr line for the GitHub Actions run log."""
+    meta = payload.get("meta")
+    if not isinstance(meta, dict):
+        return
+    cov = meta.get("debt_coverage")
+    if not isinstance(cov, dict):
+        return
+    tickers = cov.get("unknown_tickers") or []
+    if not isinstance(tickers, list):
+        tickers = []
+    names = ",".join(str(t) for t in tickers)
+    sys.stderr.write(
+        "debt_coverage "
+        f"zero={cov.get('zero', 0)} positive={cov.get('positive', 0)} "
+        f"unknown={cov.get('unknown', 0)} unknown_tickers={names}\n"
+    )
 
 
 def rank_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -158,6 +229,7 @@ def build_payload(
         "error": error,
         "caveat": CAVEAT,
         "rows": ranked,
+        "meta": {"debt_coverage": debt_coverage(ranked)},
     }
 
 
@@ -254,6 +326,7 @@ def screen_build(
         if not payload["rows"]:
             raise ValueError("screen produced zero ranked rows")
         write_snapshot(payload, also_seed=also_seed)
+        log_debt_coverage(payload)
         return payload
     except Exception as exc:
         if not fail_soft:
@@ -263,6 +336,7 @@ def screen_build(
             raise
         kept = _mark_stale(previous, error=f"rebuild failed: {exc}")
         write_snapshot(kept, also_seed=False)
+        log_debt_coverage(kept)
         return kept
 
 

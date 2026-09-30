@@ -26,12 +26,16 @@ TAG_PREFS: dict[str, list[str]] = {
         "LiabilitiesNoncurrent",  # used with current for sum fallback in edgar
         "LiabilitiesCurrent",
     ],
-    "debt": [
+    # Ladder for compose_debt. One series per tag; combination rules live in edgar.
+    "debt_ladder": [
         "LongTermDebt",
         "LongTermDebtNoncurrent",
-        "LongTermDebtAndCapitalLeaseObligations",
         "LongTermDebtCurrent",
         "DebtCurrent",
+        "ShortTermBorrowings",
+        "CommercialPaper",
+        "LongTermDebtAndCapitalLeaseObligations",
+        "LongTermDebtAndCapitalLeaseObligationsCurrent",
     ],
     "cash": [
         "CashAndCashEquivalentsAtCarryingValue",
@@ -111,15 +115,5 @@ TAG_PREFS: dict[str, list[str]] = {
     ],
     "liabilities_noncurrent": [
         "LiabilitiesNoncurrent",
-    ],
-    "debt_current": [
-        "DebtCurrent",
-        "LongTermDebtCurrent",
-        "ShortTermBorrowings",
-    ],
-    "debt_longterm": [
-        "LongTermDebt",
-        "LongTermDebtNoncurrent",
-        "LongTermDebtAndCapitalLeaseObligations",
     ],
 }

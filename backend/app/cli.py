@@ -122,6 +122,7 @@ def cmd_screen_build(tickers: str | None, also_seed: bool) -> int:
             "price_as_of": payload.get("price_as_of"),
             "stale": payload.get("stale"),
             "error": payload.get("error"),
+            "debt_coverage": (payload.get("meta") or {}).get("debt_coverage"),
         }
     )
     return 0 if payload.get("rows") else 1

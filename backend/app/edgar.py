@@ -432,9 +432,114 @@ def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int
     return out
 
 
+def compose_debt(
+    us_gaap: dict[str, Any],
+) -> tuple[dict[int, float], dict[int, str]]:
+    """Per fiscal year debt total and debt_state from the US-GAAP ladder.
+
+    One annual series per tag (``_series_for_tags`` / ``_pick_annual_by_year``).
+    Tags are ``TAG_PREFS["debt_ladder"]``. Same fiscal year only; values are
+    never taken from a different year.
+
+    Non-overlapping combination (only values present that year are summed):
+
+    * Long-term block: if ``LongTermDebt`` is present, use it alone for the
+      long-term piece (it already includes current maturities). Otherwise
+      noncurrent is the first present of ``LongTermDebtNoncurrent``,
+      ``LongTermDebtAndCapitalLeaseObligations``, and current maturities are
+      the first present of ``LongTermDebtCurrent``,
+      ``LongTermDebtAndCapitalLeaseObligationsCurrent``.
+    * Short-term block: ``DebtCurrent`` already includes current maturities and
+      short borrowings, so it replaces both — except when ``LongTermDebt`` was
+      used, because ``DebtCurrent`` overlaps those current maturities. In that
+      case add short borrowings only: ``ShortTermBorrowings`` if present, else
+      ``CommercialPaper`` (``ShortTermBorrowings`` already includes commercial
+      paper; never add both).
+    * Therefore: if ``LongTermDebt`` is present,
+      total = LongTermDebt + (ShortTermBorrowings or CommercialPaper).
+      Else total = noncurrent + (DebtCurrent if present, else current
+      maturities + (ShortTermBorrowings or CommercialPaper)).
+    * If no ladder tag is present that year, that year is omitted from the
+      totals (debt is None at the statement layer).
+
+    ``debt_state`` is ``"positive"`` when total > 0, ``"zero"`` when a ladder
+    tag is present and total == 0 (explicit zero) or when no ladder tag is
+    present but the us-gaap ``Liabilities`` tag has an annual value that year,
+    and ``"unknown"`` otherwise. Years with no ladder tag and no ``Liabilities``
+    value are omitted from the state map (callers treat a missing year as
+    unknown).
+    """
+    ladder = TAG_PREFS["debt_ladder"]
+    series = {tag: _series_for_tags(us_gaap, [tag]) for tag in ladder}
+    liabilities = _series_for_tags(us_gaap, ["Liabilities"])
+
+    def _has(tag: str, year: int) -> bool:
+        return year in series[tag]
+
+    def _first(year: int, tags: list[str]) -> float | None:
+        for tag in tags:
+            if year in series[tag]:
+                return series[tag][year]
+        return None
+
+    years = set(liabilities)
+    for by_year in series.values():
+        years |= set(by_year)
+
+    totals: dict[int, float] = {}
+    states: dict[int, str] = {}
+    for year in years:
+        ladder_present = any(_has(tag, year) for tag in ladder)
+        if ladder_present:
+            parts: list[float] = []
+            if _has("LongTermDebt", year):
+                parts.append(series["LongTermDebt"][year])
+                short = _first(year, ["ShortTermBorrowings", "CommercialPaper"])
+                if short is not None:
+                    parts.append(short)
+            else:
+                noncurrent = _first(
+                    year,
+                    [
+                        "LongTermDebtNoncurrent",
+                        "LongTermDebtAndCapitalLeaseObligations",
+                    ],
+                )
+                if noncurrent is not None:
+                    parts.append(noncurrent)
+                if _has("DebtCurrent", year):
+                    parts.append(series["DebtCurrent"][year])
+                else:
+                    current_mat = _first(
+                        year,
+                        [
+                            "LongTermDebtCurrent",
+                            "LongTermDebtAndCapitalLeaseObligationsCurrent",
+                        ],
+                    )
+                    if current_mat is not None:
+                        parts.append(current_mat)
+                    short = _first(year, ["ShortTermBorrowings", "CommercialPaper"])
+                    if short is not None:
+                        parts.append(short)
+            total = sum(parts)
+            totals[year] = total
+            if total > 0:
+                states[year] = "positive"
+            elif total == 0:
+                states[year] = "zero"
+            else:
+                states[year] = "unknown"
+        elif year in liabilities:
+            states[year] = "zero"
+        else:
+            states[year] = "unknown"
+    return totals, states
+
+
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
-) -> tuple[list[int], dict[int, dict[str, float | None]]]:
+) -> tuple[list[int], dict[int, dict[str, float | str | None]]]:
     """Map companyfacts JSON → (years newest-first, statements[year][field])."""
     facts = companyfacts.get("facts") or {}
     us_gaap = facts.get("us-gaap") or {}
@@ -464,19 +569,7 @@ def map_companyfacts_to_statements(
                 if y in equity
             }
 
-    debt = _series_for_tags(
-        us_gaap,
-        [
-            "LongTermDebt",
-            "LongTermDebtNoncurrent",
-            "LongTermDebtAndCapitalLeaseObligations",
-        ],
-    )
-    if not debt:
-        dcur = _series_for_tags(us_gaap, TAG_PREFS["debt_current"])
-        dlt = _series_for_tags(us_gaap, TAG_PREFS["debt_longterm"])
-        if dcur or dlt:
-            debt = _merge_sum_series(dcur, dlt)
+    debt, debt_states = compose_debt(us_gaap)
 
     da = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["da"]))
     ocf = _resolve_ocf(us_gaap, net_income, da)
@@ -512,11 +605,14 @@ def map_companyfacts_to_statements(
         "shares": shares,
         "cash": cash,
     }
-    statements: dict[int, dict[str, float | None]] = {}
+    statements: dict[int, dict[str, float | str | None]] = {}
     for y in years:
-        statements[y] = {
+        row: dict[str, float | str | None] = {
             k: (series[y] if y in series else None) for k, series in field_series.items()
         }
+        # Extra key is not a FIELDS member; compute_year ignores it.
+        row["debt_state"] = debt_states.get(y, "unknown")
+        statements[y] = row
     return years, statements
 
 
@@ -532,7 +628,7 @@ def statements_for_ticker(
     ticker: str,
     *,
     meta: dict[str, Any] | None = None,
-) -> tuple[list[int], dict[int, dict[str, float | None]], str, str | None]:
+) -> tuple[list[int], dict[int, dict[str, float | str | None]], str, str | None]:
     """Resolve ticker → companyfacts → statements.
 
     Returns (years, statements, cik, company_name).

@@ -2,7 +2,8 @@
 
 import { Card, DataTable, PageShell, TextLink } from "../components";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 
 const WAIT_STATUS = "Working…";
 const SKELETON_ROW_COUNT = 12;
@@ -12,6 +13,15 @@ function formatElapsed(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
+type DebtState = "zero" | "positive" | "unknown";
+
+type DebtCoverage = {
+  zero: number;
+  positive: number;
+  unknown: number;
+  unknown_tickers: string[];
+};
+
 type ScreenRow = {
   ticker: string;
   name: string | null;
@@ -20,6 +30,8 @@ type ScreenRow = {
   price: number;
   fy: number;
   price_as_of: string | null;
+  debt: number | null;
+  debt_state: DebtState;
 };
 
 type ScreenPayload = {
@@ -32,7 +44,18 @@ type ScreenPayload = {
   error?: string | null;
   caveat?: string;
   rows: ScreenRow[];
+  meta?: { debt_coverage?: DebtCoverage };
 };
+
+function parseDebtState(value: unknown): DebtState {
+  if (value === "zero" || value === "positive" || value === "unknown") return value;
+  return "unknown";
+}
+
+function parseDebt(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  return null;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -53,6 +76,22 @@ function parseRow(value: unknown): ScreenRow | null {
     price: value.price,
     fy: value.fy,
     price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
+    debt: parseDebt(value.debt),
+    debt_state: parseDebtState(value.debt_state),
+  };
+}
+
+function parseCoverage(value: unknown): DebtCoverage | undefined {
+  if (!isRecord(value)) return undefined;
+  const num = (key: string) => (typeof value[key] === "number" ? value[key] : 0);
+  const tickers = Array.isArray(value.unknown_tickers)
+    ? value.unknown_tickers.filter((item): item is string => typeof item === "string")
+    : [];
+  return {
+    zero: num("zero"),
+    positive: num("positive"),
+    unknown: num("unknown"),
+    unknown_tickers: tickers,
   };
 }
 
@@ -74,6 +113,9 @@ function parsePayload(value: unknown): ScreenPayload | null {
     error: typeof value.error === "string" ? value.error : null,
     caveat: typeof value.caveat === "string" ? value.caveat : undefined,
     rows,
+    meta: isRecord(value.meta)
+      ? { debt_coverage: parseCoverage(value.meta.debt_coverage) }
+      : undefined,
   };
 }
 
@@ -96,7 +138,11 @@ function skeletonRows(): Array<{ kind: "data"; cells: ReactNode[] }> {
   }));
 }
 
-export default function ScreenPage() {
+function ScreenPageInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const debtNone = searchParams.get("debt") === "none";
   const [data, setData] = useState<ScreenPayload | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(true);
@@ -151,8 +197,27 @@ export default function ScreenPage() {
     };
   }, []);
 
+  const shownRows = data
+    ? debtNone
+      ? data.rows.filter((row) => row.debt_state === "zero")
+      : data.rows
+    : [];
+  const unknownExcluded = data
+    ? data.rows.length > 0
+      ? data.rows.filter((row) => row.debt_state === "unknown").length
+      : (data.meta?.debt_coverage?.unknown ?? 0)
+    : 0;
+
+  const toggleDebt = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (debtNone) params.delete("debt");
+    else params.set("debt", "none");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
   const rows =
-    data?.rows.map((row, index) => ({
+    shownRows.map((row, index) => ({
       kind: "data" as const,
       cells: [
         String(index + 1),
@@ -215,16 +280,77 @@ export default function ScreenPage() {
       {showTable && (
         <Card variant="raised" className="overflow-hidden text-left">
           {data && !waiting ? (
-            <p className="text-sm text-zinc-400 mb-3">
-              {data.count} names · S&P 500 constituents (list may lag index changes)
-              {typeof data.skipped === "number" && data.skipped > 0
-                ? ` · ${data.skipped} skipped`
-                : ""}
-            </p>
+            <div className="mb-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-sm text-zinc-400">
+                  {debtNone
+                    ? `${shownRows.length} of ${data.count} names`
+                    : `${data.count} names`}
+                  {" · S&P 500 constituents (list may lag index changes)"}
+                  {typeof data.skipped === "number" && data.skipped > 0
+                    ? ` · ${data.skipped} skipped`
+                    : ""}
+                </p>
+                <button
+                  type="button"
+                  aria-pressed={debtNone}
+                  data-testid="screen-debt-toggle"
+                  onClick={toggleDebt}
+                  className={`text-sm rounded border px-2 py-1 ${
+                    debtNone
+                      ? "border-zinc-400 bg-zinc-800 text-zinc-100"
+                      : "border-zinc-600 text-zinc-300 hover:text-zinc-100"
+                  }`}
+                >
+                  No debt
+                </button>
+              </div>
+              {debtNone ? (
+                <p
+                  className="text-sm text-zinc-500 mt-2"
+                  data-testid="screen-debt-caveat"
+                >
+                  debt-free per reported XBRL; {unknownExcluded} unknown excluded
+                </p>
+              ) : null}
+            </div>
           ) : null}
           <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />
         </Card>
       )}
     </PageShell>
+  );
+}
+
+function ScreenFallback() {
+  return (
+    <PageShell maxWidth="wide" textAlign="start">
+      <p className="mb-6 text-sm text-zinc-500">
+        <TextLink href="/">Back to LongMuch</TextLink>
+      </p>
+      <h1 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-4">
+        S&P 500 owner-earnings yield
+      </h1>
+      <p
+        className="text-sm sm:text-base text-zinc-400 mb-3"
+        data-testid="screen-wait-status"
+        aria-live="polite"
+      >
+        {WAIT_STATUS}{" "}
+        <span data-testid="screen-wait-elapsed">{formatElapsed(0)}</span>
+      </p>
+      <p className="text-zinc-400 mb-6 text-sm sm:text-base">{DEFAULT_CAVEAT}</p>
+      <Card variant="raised" className="overflow-hidden text-left">
+        <DataTable headers={HEADERS} rows={skeletonRows()} />
+      </Card>
+    </PageShell>
+  );
+}
+
+export default function ScreenPage() {
+  return (
+    <Suspense fallback={<ScreenFallback />}>
+      <ScreenPageInner />
+    </Suspense>
   );
 }

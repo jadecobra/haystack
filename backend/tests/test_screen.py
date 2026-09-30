@@ -78,6 +78,18 @@ class ScreenRankingTests(unittest.TestCase):
         self.assertEqual(payload["count"], 3)
         self.assertEqual(payload["skipped"], 1)
         self.assertEqual(payload["universe"], "sp500")
+        # Legacy fixtures omit debt_state; 20.0 debt defaults to positive.
+        self.assertEqual(payload["rows"][0]["debt"], 20.0)
+        self.assertEqual(payload["rows"][0]["debt_state"], "positive")
+        self.assertEqual(
+            payload["meta"]["debt_coverage"],
+            {
+                "zero": 0,
+                "positive": 3,
+                "unknown": 0,
+                "unknown_tickers": [],
+            },
+        )
         cheap = payload["rows"][0]
         self.assertEqual(cheap["ticker"], "CHEAP")
         self.assertAlmostEqual(cheap["oe_per_share"], 40.0)
@@ -96,6 +108,42 @@ class ScreenRankingTests(unittest.TestCase):
         ):
             self.assertIn(key, cheap)
 
+    def test_debt_coverage_counts_and_unknown_tickers(self):
+        def facts(ticker: str):
+            by_ticker = {
+                "ZERO": (_stmt(oe=100.0, shares=10.0) | {"debt": 0.0, "debt_state": "zero"}),
+                "LEV": (_stmt(oe=300.0, shares=10.0) | {"debt": 50.0, "debt_state": "positive"}),
+                "NONE": (_stmt(oe=200.0, shares=10.0) | {"debt": None}),
+                "OLDZERO": (_stmt(oe=50.0, shares=10.0) | {"debt": 0.0}),
+            }
+            stmt = by_ticker[ticker]
+            return ([2024], {2024: stmt}, "1", ticker)
+
+        def quote(_ticker: str):
+            return {"price": 100.0, "as_of": "2026-09-16"}
+
+        payload = build_payload(
+            ["NONE", "LEV", "ZERO", "OLDZERO"],
+            fetch_facts=facts,
+            fetch_quote=quote,
+            built_at="2026-09-17T02:00:00+00:00",
+        )
+        by_ticker = {row["ticker"]: row for row in payload["rows"]}
+        self.assertEqual(by_ticker["ZERO"]["debt"], 0.0)
+        self.assertEqual(by_ticker["ZERO"]["debt_state"], "zero")
+        self.assertEqual(by_ticker["LEV"]["debt_state"], "positive")
+        self.assertIsNone(by_ticker["NONE"]["debt"])
+        self.assertEqual(by_ticker["NONE"]["debt_state"], "unknown")
+        self.assertEqual(by_ticker["OLDZERO"]["debt_state"], "zero")
+        self.assertEqual(
+            payload["meta"]["debt_coverage"],
+            {
+                "zero": 2,
+                "positive": 1,
+                "unknown": 1,
+                "unknown_tickers": ["NONE"],
+            },
+        )
 
     def test_skips_pathological_yield(self):
         def facts(ticker: str):
