@@ -7,16 +7,26 @@ edgartools is optional for ticker→CIK; primary resolver uses company_tickers.j
 from __future__ import annotations
 
 import json
+import math
 import os
 import threading
 import time
+from collections import defaultdict
+from datetime import date
 from concurrent.futures import Future
 from pathlib import Path
+from statistics import median
 from typing import Any
 
 import httpx
 
 from app.tags import TAG_PREFS
+
+_SPLIT_RATIO_LO = 1.0 / 1.15
+_SPLIT_RATIO_HI = 1.15
+# Largest real splits are ~50:1 (CMG 2024). Outside this band is a unit-scale error.
+_SPLIT_ABS_LO = 1.0 / 60.0
+_SPLIT_ABS_HI = 60.0
 
 # backend/.cache/companyfacts/{cik}.json
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "companyfacts"
@@ -312,6 +322,365 @@ def _series_for_tags(
         series = _pick_annual_by_year(entries)
         for year, val in series.items():
             if year not in out:
+                out[year] = val
+    return out
+
+
+def _period_key(entry: dict[str, Any]) -> tuple[Any, Any]:
+    """Duration facts: (start, end); instant facts (e.g. shares outstanding): (None, end)."""
+    return (entry.get("start"), entry.get("end"))
+
+
+def _positive_float(val: Any) -> float | None:
+    if val is None:
+        return None
+    try:
+        num = float(val)
+    except (TypeError, ValueError):
+        return None
+    if num <= 0:
+        return None
+    return num
+
+
+def _median_by_filed(rows: list[tuple[str, float]]) -> list[tuple[str, float]]:
+    """One value per filing date; median when that filing repeats the period."""
+    by_filed: dict[str, list[float]] = defaultdict(list)
+    for filed, val in rows:
+        if filed:
+            by_filed[filed].append(val)
+    return [
+        (filed, median(vals) if len(vals) > 1 else vals[0])
+        for filed, vals in by_filed.items()
+    ]
+
+
+class _BasisJump:
+    """A basis change that happened after filing ``lo`` and by filing ``hi``."""
+
+    __slots__ = ("lo", "hi", "ratio")
+
+    def __init__(self, lo: str, hi: str, ratio: float) -> None:
+        self.lo = lo
+        self.hi = hi
+        self.ratio = ratio
+
+
+def _ratio_in_band(ratio: float, target: float = 1.0) -> bool:
+    """True when ``ratio`` is within the 1.15 band of ``target``."""
+    if ratio <= 0 or target <= 0:
+        return False
+    rel = ratio / target
+    return _SPLIT_RATIO_LO <= rel <= _SPLIT_RATIO_HI
+
+
+def _filed_span_days(prev: str, new: str) -> int:
+    """Calendar days from ``prev`` to ``new``. Unparseable dates sort last."""
+    try:
+        return (date.fromisoformat(new[:10]) - date.fromisoformat(prev[:10])).days
+    except ValueError:
+        return 10**9
+
+
+def _jump_intervals_intersect(lo: str, hi: str, prev: str, new: str) -> bool:
+    """(lo, hi] intersects (prev, new]."""
+    return lo < new and prev < hi
+
+
+def _scale_kept_chain(rows: list[tuple[str, float]]) -> list[tuple[str, float]]:
+    """Filed-order chain with unit-scale errors dropped.
+
+    One median value per filed date. Walk that order and compare each value
+    to the previous kept value. A ratio below 1/60 is a shrink-scale error
+    (CPRT FY2012 filed 131428000, then 131428) and is dropped; the next filing
+    is compared to the last kept value, not to the dropped one. A ratio above
+    60 is not a split. It starts a candidate larger scale, because early
+    filings are sometimes in thousands and a later filing restates in units
+    (NVDA; CPRT FY2014). A second filing on that scale confirms it. If a later
+    filing returns to the abandoned scale first, the candidate was a glitch
+    and is dropped. Consecutive kept pairs stay inside [1/60, 60].
+    """
+    kept: list[tuple[str, float]] = []
+    abandoned: list[tuple[str, float]] | None = None
+    for filed, val in sorted(_median_by_filed(rows)):
+        if val <= 0:
+            continue
+        if not kept:
+            kept.append((filed, val))
+            continue
+        prev_filed, prev_val = kept[-1]
+        if not prev_filed < filed or prev_val <= 0:
+            continue
+        ratio = val / prev_val
+        if _SPLIT_ABS_LO <= ratio <= _SPLIT_ABS_HI:
+            kept.append((filed, val))
+            if len(kept) >= 2:
+                abandoned = None
+            continue
+        if abandoned:
+            a_filed, a_val = abandoned[-1]
+            if a_val > 0 and a_filed < filed and _SPLIT_ABS_LO <= (val / a_val) <= _SPLIT_ABS_HI:
+                kept = [*abandoned, (filed, val)]
+                abandoned = None
+                continue
+        if ratio > _SPLIT_ABS_HI:
+            abandoned = kept
+            kept = [(filed, val)]
+            continue
+    return kept
+
+
+def _collect_basis_pairs(
+    entries: list[dict[str, Any]],
+) -> tuple[list[tuple[str, str, float]], list[tuple[str, str]]]:
+    """Consecutive kept pairs per period: events and same-basis pairs.
+
+    The chain drops shrinks below 1/60 of the previous kept value and does not
+    emit a pair across a larger-scale adoption. A remaining pair is same-basis
+    inside the 1.15 band, otherwise an event.
+    """
+    by_period: dict[tuple[Any, Any], list[tuple[str, float]]] = defaultdict(list)
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        val = _positive_float(entry.get("val"))
+        if val is None:
+            continue
+        filed = str(entry.get("filed") or "")
+        if not filed:
+            continue
+        by_period[_period_key(entry)].append((filed, val))
+
+    events: list[tuple[str, str, float]] = []
+    same_basis: list[tuple[str, str]] = []
+    for rows in by_period.values():
+        filed_vals = _scale_kept_chain(rows)
+        for i in range(1, len(filed_vals)):
+            prev, v_prev = filed_vals[i - 1]
+            new, v_new = filed_vals[i]
+            if v_prev <= 0 or not prev < new:
+                continue
+            ratio = v_new / v_prev
+            if _ratio_in_band(ratio):
+                same_basis.append((prev, new))
+                continue
+            events.append((prev, new, ratio))
+    return events, same_basis
+
+
+def _subset_products_matching(
+    intersecting: list[_BasisJump],
+    contained: list[_BasisJump],
+    ratio: float,
+) -> list[list[_BasisJump]]:
+    """Subsets of ``intersecting`` that contain ``contained`` and match ``ratio``.
+
+    ``|intersecting| > 10`` does not enumerate: the only candidate is the full set.
+    """
+    if len(intersecting) > 10:
+        product = math.prod(jump.ratio for jump in intersecting) if intersecting else 1.0
+        if _ratio_in_band(product, ratio):
+            return [list(intersecting)]
+        return []
+
+    contained_ids = {id(jump) for jump in contained}
+    extras = [jump for jump in intersecting if id(jump) not in contained_ids]
+    base = math.prod(jump.ratio for jump in contained) if contained else 1.0
+    matches: list[list[_BasisJump]] = []
+    n_extra = len(extras)
+    for mask in range(1 << n_extra):
+        chosen = list(contained)
+        product = base
+        for bit in range(n_extra):
+            if mask & (1 << bit):
+                chosen.append(extras[bit])
+                product *= extras[bit].ratio
+        if _ratio_in_band(product, ratio):
+            matches.append(chosen)
+            if len(matches) > 1:
+                break
+    return matches
+
+
+def _basis_jumps(
+    events: list[tuple[str, str, float]],
+    same_basis: list[tuple[str, str]],
+) -> list[_BasisJump]:
+    """Basis-jump intervals from split events, then same-basis narrowing."""
+    ordered = sorted(
+        events,
+        key=lambda item: (abs(math.log(item[2])), _filed_span_days(item[0], item[1]), item[0], item[1]),
+    )
+    jumps: list[_BasisJump] = []
+    for prev, new, ratio in ordered:
+        intersecting = [
+            jump
+            for jump in jumps
+            if _jump_intervals_intersect(jump.lo, jump.hi, prev, new)
+        ]
+        contained = [
+            jump
+            for jump in intersecting
+            if prev <= jump.lo and jump.hi <= new
+        ]
+        matches = _subset_products_matching(intersecting, contained, ratio)
+        if len(matches) == 1:
+            for jump in matches[0]:
+                lo = max(jump.lo, prev)
+                hi = min(jump.hi, new)
+                if lo < hi:
+                    jump.lo = lo
+                    jump.hi = hi
+            continue
+        if len(matches) > 1:
+            continue
+        contained_prod = math.prod(jump.ratio for jump in contained) if contained else 1.0
+        residual = ratio / contained_prod
+        if _ratio_in_band(residual):
+            continue
+        if prev < new:
+            jumps.append(_BasisJump(prev, new, residual))
+
+    for _pass in range(3):
+        changed = False
+        for jump in jumps:
+            for prev, new in same_basis:
+                if prev <= jump.lo < new < jump.hi:
+                    jump.lo = new
+                    changed = True
+                elif jump.lo < prev < jump.hi <= new:
+                    jump.hi = prev
+                    changed = True
+        if not changed:
+            break
+    return jumps
+
+
+def _split_adjusted_shares_for_tag(
+    entries: list[dict[str, Any]],
+) -> dict[int, float]:
+    """Split-adjust one share tag's annual series (steps a, b, c, e for a single tag)."""
+    annual: list[dict[str, Any]] = []
+    for entry in entries:
+        if not isinstance(entry, dict) or not _is_annual(entry):
+            continue
+        if entry.get("fy") is None:
+            continue
+        if _positive_float(entry.get("val")) is None:
+            continue
+        try:
+            int(entry["fy"])
+        except (TypeError, ValueError):
+            continue
+        annual.append(entry)
+    if not annual:
+        return {}
+
+    by_period: dict[tuple[Any, Any], list[tuple[str, float]]] = defaultdict(list)
+    for entry in annual:
+        val = _positive_float(entry.get("val"))
+        if val is None:
+            continue
+        filed = str(entry.get("filed") or "")
+        by_period[_period_key(entry)].append((filed, val))
+
+    # (c) Basis-jump intervals from every positive fact on this tag.
+    events, same_basis = _collect_basis_pairs(entries)
+    jumps = _basis_jumps(events, same_basis)
+
+    # (a) Period identity: same fy pick as _pick_annual_by_year (max filed, then max end).
+    by_fy: dict[int, list[tuple[str, str, dict[str, Any]]]] = defaultdict(list)
+    for entry in annual:
+        year = int(entry["fy"])
+        filed = str(entry.get("filed") or "")
+        end = str(entry.get("end") or "")
+        by_fy[year].append((filed, end, entry))
+
+    out: dict[int, float] = {}
+    for year, candidates in by_fy.items():
+        candidates.sort(key=lambda t: (t[0], t[1]), reverse=True)
+        chosen = candidates[0][2]
+        rows = by_period.get(_period_key(chosen)) or []
+        kept = _scale_kept_chain(rows)
+        if not kept:
+            continue
+        # (b) Latest kept restatement for that exact period key (any fy).
+        latest_filed, latest_val = kept[-1]
+        if latest_val <= 0:
+            continue
+        factor = 1.0
+        for jump in jumps:
+            if latest_filed < jump.hi:
+                factor *= jump.ratio
+        adjusted = latest_val * factor
+        if adjusted > 0:
+            out[year] = adjusted
+    return out
+
+
+def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
+    """Annual diluted/basic/outstanding shares on a post-split basis.
+
+    Per tag in TAG_PREFS["shares"] order (same per-year fill semantics as
+    _series_for_tags: earlier tag wins a year it has):
+
+    a) Period identity: for year Y, take the entry the existing logic picks for
+       fy=Y (annual, max filed then max end) and use its period key (start, end)
+       — or (None, end) for instant tags like CommonStockSharesOutstanding.
+       Same unit list as today (_unit_entries prefer_shares).
+    b) Latest restatement: for that exact period key, build the filed chain
+       across ALL annual filings (any fy) and take the latest kept value, so
+       restated post-split figures win. Walk filings in filed order (one
+       median value per filed date). Drop a value whose ratio to the previous
+       kept value is below 1/60, and compare the next filing to that kept
+       value rather than to the dropped one. CPRT's FY2012 diluted shares
+       were filed as 131428000 and then as 131428; the thousand-fold shrink
+       is a source scale error and does not replace the kept value. A ratio
+       above 60 is not kept as a jump. It starts a candidate larger scale
+       (early filings in thousands, later filings in units). A second filing
+       on that scale confirms it; a return to the abandoned scale drops the
+       candidate as a glitch. Otherwise the latest kept value is on the
+       larger scale.
+    c) Basis-jump intervals, from every positive fact on this tag (annual,
+       quarterly, YTD, any form). Per period key, build the same kept chain.
+       For each consecutive kept pair (p, v_p) -> (n, v_n), r = v_n / v_p.
+       The pair is same-basis when 1/1.15 <= r <= 1.15. It is an event
+       otherwise (r is already inside 1/60..60). Each restatement pins a
+       split to a filing window. A jump
+       is {lo, hi, ratio}: the basis changed after filing lo and by filing hi.
+       Process events sorted by (abs(log r), n-p) ascending so atomic and
+       narrow events come first. For an event (p, n, r), I is the jumps whose
+       (lo, hi] intersects (p, n], and C is the jumps in I fully inside
+       (p <= lo and hi <= n). Enumerate subsets S of I with C ⊆ S (if |I| > 10,
+       the only candidate is S = I) whose product of ratios is within the 1.15
+       band of r. Exactly one match: the event is explained by those jumps, and
+       each jump in S narrows to lo = max(lo, p), hi = min(hi, n) when lo < hi
+       still holds. Several matches: explained, and the window is ambiguous so
+       nothing narrows. No match: add a jump (p, n, r / product(C)) unless that
+       residual is inside the 1.15 band. A composite restatement (CPRT's FY2023
+       10-K moving two prior years by 4 after two separate 2:1 splits) is the
+       product of the jumps it spans, so the 4x is not a third split. Then
+       narrow with same-basis pairs, repeating until stable for at most 3
+       passes: if p <= lo < n < hi, set lo = n (still pre-split at n); if
+       lo < p < hi <= n, set hi = p (already post-split at p). For a year whose
+       step (b) value was filed on date L, multiply by the product of jump.ratio
+       over jumps with L < hi. A value filed on or after hi is already on the
+       new basis, so a 10-K that already restated is not multiplied again when
+       a later 10-Q restates quarterly comparatives. Split-ratio tags are
+       ignored, and there are no per-ticker overrides: a reported ratio that
+       never shows up in the share counts is not an adjustment.
+    e) Values must stay positive floats; if a tag has no usable data fall
+       through to the next tag as today.
+    """
+    out: dict[int, float] = {}
+    for tag in TAG_PREFS["shares"]:
+        node = us_gaap.get(tag)
+        if not isinstance(node, dict):
+            continue
+        entries = _unit_entries(node, prefer_shares=True)
+        series = _split_adjusted_shares_for_tag(entries)
+        for year, val in series.items():
+            if year not in out and val > 0:
                 out[year] = val
     return out
 
@@ -717,7 +1086,7 @@ def map_companyfacts_to_statements(
     equity = _series_for_tags(us_gaap, TAG_PREFS["equity"])
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
     cash = _series_for_tags(us_gaap, TAG_PREFS["cash"])
-    shares = _series_for_tags(us_gaap, TAG_PREFS["shares"], prefer_shares=True)
+    shares = split_adjusted_shares(us_gaap)
     dividends = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
 
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])

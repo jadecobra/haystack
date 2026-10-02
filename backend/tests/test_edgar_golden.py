@@ -8,10 +8,17 @@ from pathlib import Path
 
 from unittest import mock
 
-from app.edgar import entity_name, map_companyfacts_to_statements, _http_get_json
+from app.edgar import (
+    entity_name,
+    map_companyfacts_to_statements,
+    split_adjusted_shares,
+    _http_get_json,
+)
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SNIPPET = FIXTURES / "aapl_companyfacts_snippet.json"
+CPRT_SHARES = FIXTURES / "cprt_shares_companyfacts.json"
+NVDA_SHARES = FIXTURES / "nvda_shares_companyfacts.json"
 
 AAPL_BALLPARK = {
     2024: {"revenue": (380e9, 410e9), "net_income": (85e9, 105e9)},
@@ -184,3 +191,581 @@ class TestCompanyfacts404(unittest.TestCase):
                 )
         self.assertIn("unknown ticker", str(ctx.exception).lower())
         self.assertNotIn("sec.gov", str(ctx.exception).lower())
+
+
+def _share_entry(
+    *,
+    end: str,
+    val: float,
+    fy: int,
+    filed: str,
+    start: str | None = None,
+    form: str = "10-K",
+    fp: str = "FY",
+) -> dict:
+    entry: dict = {
+        "end": end,
+        "val": val,
+        "fy": fy,
+        "fp": fp,
+        "form": form,
+        "filed": filed,
+    }
+    if start is not None:
+        entry["start"] = start
+    return entry
+
+
+def _shares_payload(entries: list[dict], *, ratio_entries: list[dict] | None = None) -> dict:
+    us_gaap: dict = {
+        "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "units": {"shares": entries}
+        }
+    }
+    if ratio_entries is not None:
+        us_gaap["StockholdersEquityNoteStockSplitConversionRatio1"] = {
+            "units": {"pure": ratio_entries}
+        }
+    return {"facts": {"us-gaap": us_gaap}}
+
+
+class TestSplitAdjustedSharesSynthetic(unittest.TestCase):
+    def test_latest_filed_restatement_wins(self):
+        # Same period restated 2x in a later filing; fy pick stays on original fy.
+        entries = [
+            _share_entry(
+                start="2021-01-01",
+                end="2021-12-31",
+                val=100.0,
+                fy=2021,
+                filed="2022-02-01",
+            ),
+            _share_entry(
+                start="2021-01-01",
+                end="2021-12-31",
+                val=200.0,
+                fy=2022,
+                filed="2023-02-01",
+            ),
+            _share_entry(
+                start="2022-01-01",
+                end="2022-12-31",
+                val=200.0,
+                fy=2022,
+                filed="2023-02-01",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2021], 200.0)
+        self.assertAlmostEqual(shares[2022], 200.0)
+
+    def test_later_thousand_fold_scale_error_does_not_win(self):
+        # CPRT FY2012: 131428000 in the 2012 and 2013 10-Ks, then 131428 in the
+        # 2014 10-K. The last figure is a unit scale error, not a restatement.
+        entries = [
+            _share_entry(
+                start="2011-08-01",
+                end="2012-07-31",
+                val=131428000.0,
+                fy=2012,
+                filed="2012-10-01",
+            ),
+            _share_entry(
+                start="2011-08-01",
+                end="2012-07-31",
+                val=131428000.0,
+                fy=2013,
+                filed="2013-09-30",
+            ),
+            _share_entry(
+                start="2011-08-01",
+                end="2012-07-31",
+                val=131428.0,
+                fy=2014,
+                filed="2015-10-01",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2012], 131428000.0)
+
+    def test_unrestated_older_year_gets_implied_factor(self):
+        # FY2020 never restated; FY2021 restated 4x on a later filing → factor applies back.
+        entries = [
+            _share_entry(
+                start="2019-01-01",
+                end="2019-12-31",
+                val=100.0,
+                fy=2020,
+                filed="2020-02-01",
+            ),
+            _share_entry(
+                start="2019-01-01",
+                end="2019-12-31",
+                val=100.0,
+                fy=2021,
+                filed="2021-02-01",
+            ),
+            _share_entry(
+                start="2020-01-01",
+                end="2020-12-31",
+                val=100.0,
+                fy=2021,
+                filed="2021-02-01",
+            ),
+            _share_entry(
+                start="2020-01-01",
+                end="2020-12-31",
+                val=400.0,
+                fy=2022,
+                filed="2022-02-01",
+            ),
+            _share_entry(
+                start="2021-01-01",
+                end="2021-12-31",
+                val=400.0,
+                fy=2022,
+                filed="2022-02-01",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2020], 400.0)
+        self.assertAlmostEqual(shares[2021], 400.0)
+        self.assertAlmostEqual(shares[2022], 400.0)
+
+    def test_small_revision_is_not_a_split(self):
+        entries = [
+            _share_entry(
+                start="2020-01-01",
+                end="2020-12-31",
+                val=100.0,
+                fy=2020,
+                filed="2021-02-01",
+            ),
+            _share_entry(
+                start="2020-01-01",
+                end="2020-12-31",
+                val=100.0,
+                fy=2021,
+                filed="2022-02-01",
+            ),
+            _share_entry(
+                start="2021-01-01",
+                end="2021-12-31",
+                val=100.0,
+                fy=2021,
+                filed="2022-02-01",
+            ),
+            _share_entry(
+                start="2021-01-01",
+                end="2021-12-31",
+                val=103.0,
+                fy=2022,
+                filed="2023-02-01",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        # Latest restatement wins for 2021; r=1.03 is not a split so 2020 stays 100.
+        self.assertAlmostEqual(shares[2021], 103.0)
+        self.assertAlmostEqual(shares[2020], 100.0)
+
+    def test_split_before_10k_is_not_applied_twice(self):
+        # 10:1 split before the FY2025 10-K. The 10-K already restates annual
+        # shares. A later 10-Q restates the prior-year quarter. Annual stays
+        # on the 10-K basis (NFLX / NOW / TPL).
+        entries = [
+            _share_entry(
+                start="2024-01-01",
+                end="2024-12-31",
+                val=100.0,
+                fy=2024,
+                filed="2025-02-01",
+            ),
+            _share_entry(
+                start="2024-01-01",
+                end="2024-12-31",
+                val=1000.0,
+                fy=2025,
+                filed="2026-02-15",
+            ),
+            _share_entry(
+                start="2025-01-01",
+                end="2025-12-31",
+                val=1000.0,
+                fy=2025,
+                filed="2026-02-15",
+            ),
+            _share_entry(
+                start="2025-01-01",
+                end="2025-03-31",
+                val=250.0,
+                fy=2025,
+                filed="2025-04-20",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2025-01-01",
+                end="2025-03-31",
+                val=2500.0,
+                fy=2026,
+                filed="2026-04-20",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2024], 1000.0)
+        self.assertAlmostEqual(shares[2025], 1000.0)
+
+    def test_split_after_10k_uses_later_10q_comparatives(self):
+        # Last 10-K is pre-split. A later 10-Q restates the comparative quarter 4x
+        # (BKNG / CRWD). Annual shares, filed before B, are multiplied.
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=100.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=100.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2023], 400.0)
+
+    def test_reverse_split_after_10k(self):
+        # 1:3 reverse. Only the later 10-Q shows the restated comparative.
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=300.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=90.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=30.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2023], 100.0)
+
+    def test_scale_glitch_round_trip_is_ignored(self):
+        # One filing reports shares ×1000, the next filing is back to normal.
+        # 1000 is outside 1/60..60, so it is not a split.
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=100.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25000.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2024,
+                filed="2024-08-01",
+                form="10-Q",
+                fp="Q2",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2023], 100.0)
+
+    def test_small_10q_restatement_is_not_a_split(self):
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=100.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=26.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2023], 100.0)
+
+    def test_split_tag_without_share_count_change_is_ignored(self):
+        # Ratio tag says 10x; 10-Q comparatives are unchanged, so no adjustment.
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=100.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        ratio = [
+            {
+                "end": "2024-06-01",
+                "val": 10.0,
+                "fy": 2024,
+                "fp": "Q2",
+                "form": "10-Q",
+                "filed": "2024-08-01",
+            }
+        ]
+        shares = split_adjusted_shares(
+            _shares_payload(entries, ratio_entries=ratio)["facts"]["us-gaap"]
+        )
+        self.assertAlmostEqual(shares[2023], 100.0)
+
+    def test_two_10q_restatements_of_the_same_split_apply_once(self):
+        # Two later 10-Qs each restate a comparative 4x. One jump, factor 4.
+        entries = [
+            _share_entry(
+                start="2023-01-01",
+                end="2023-12-31",
+                val=100.0,
+                fy=2023,
+                filed="2024-02-01",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=25.0,
+                fy=2023,
+                filed="2023-05-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=100.0,
+                fy=2024,
+                filed="2024-05-10",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2023-01-01",
+                end="2023-03-31",
+                val=100.0,
+                fy=2024,
+                filed="2024-08-01",
+                form="10-Q",
+                fp="Q2",
+            ),
+            _share_entry(
+                start="2023-04-01",
+                end="2023-06-30",
+                val=25.0,
+                fy=2023,
+                filed="2023-08-01",
+                form="10-Q",
+                fp="Q2",
+            ),
+            _share_entry(
+                start="2023-04-01",
+                end="2023-06-30",
+                val=100.0,
+                fy=2024,
+                filed="2024-08-01",
+                form="10-Q",
+                fp="Q2",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2023], 400.0)
+
+    def test_two_splits_and_composite_annual_restatement_count_once(self):
+        # CPRT-like: 2:1 then 2:1 a year apart. Each 10-Q comparative moves 2x.
+        # The later 10-K restates the two-years-ago annual by 4 (both splits).
+        # The 4x is the product of the two jumps, not a third split.
+        entries = [
+            _share_entry(
+                start="2019-08-01",
+                end="2020-07-31",
+                val=100.0,
+                fy=2020,
+                filed="2020-09-15",
+            ),
+            _share_entry(
+                start="2020-08-01",
+                end="2021-07-31",
+                val=100.0,
+                fy=2021,
+                filed="2021-09-15",
+            ),
+            _share_entry(
+                start="2020-08-01",
+                end="2021-07-31",
+                val=400.0,
+                fy=2023,
+                filed="2023-09-28",
+            ),
+            _share_entry(
+                start="2021-08-01",
+                end="2022-07-31",
+                val=100.0,
+                fy=2022,
+                filed="2022-09-15",
+            ),
+            _share_entry(
+                start="2021-08-01",
+                end="2022-07-31",
+                val=400.0,
+                fy=2023,
+                filed="2023-09-28",
+            ),
+            _share_entry(
+                start="2022-08-01",
+                end="2023-07-31",
+                val=400.0,
+                fy=2023,
+                filed="2023-09-28",
+            ),
+            _share_entry(
+                start="2021-08-01",
+                end="2021-10-31",
+                val=25.0,
+                fy=2022,
+                filed="2021-12-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2021-08-01",
+                end="2021-10-31",
+                val=50.0,
+                fy=2023,
+                filed="2022-12-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2022-08-01",
+                end="2022-10-31",
+                val=50.0,
+                fy=2023,
+                filed="2022-12-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+            _share_entry(
+                start="2022-08-01",
+                end="2022-10-31",
+                val=100.0,
+                fy=2024,
+                filed="2023-12-01",
+                form="10-Q",
+                fp="Q1",
+            ),
+        ]
+        shares = split_adjusted_shares(_shares_payload(entries)["facts"]["us-gaap"])
+        self.assertAlmostEqual(shares[2020], 400.0)
+        self.assertAlmostEqual(shares[2021], 400.0)
+        self.assertAlmostEqual(shares[2022], 400.0)
+        self.assertAlmostEqual(shares[2023], 400.0)
+
+
+class TestSplitAdjustedSharesFixtures(unittest.TestCase):
+    def test_cprt_shares_stay_near_one_billion(self):
+        payload = json.loads(CPRT_SHARES.read_text(encoding="utf-8"))
+        _years, statements = map_companyfacts_to_statements(payload)
+        seen = [year for year in range(2013, 2027) if statements.get(year, {}).get("shares")]
+        self.assertGreaterEqual(len(seen), 10)
+        for year in seen:
+            shares = statements[year]["shares"]
+            self.assertGreaterEqual(shares, 0.90e9, msg=year)
+            self.assertLessEqual(shares, 1.10e9, msg=year)
+
+    def test_nvda_shares_stay_in_post_split_band(self):
+        payload = json.loads(NVDA_SHARES.read_text(encoding="utf-8"))
+        _years, statements = map_companyfacts_to_statements(payload)
+        seen = [year for year in range(2010, 2027) if statements.get(year, {}).get("shares")]
+        self.assertGreaterEqual(len(seen), 10)
+        for year in seen:
+            shares = statements[year]["shares"]
+            self.assertGreaterEqual(shares, 21e9, msg=year)
+            self.assertLessEqual(shares, 27e9, msg=year)
