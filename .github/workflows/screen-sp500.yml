@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: screen-sp500
@@ -20,11 +21,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Install backend
@@ -37,6 +38,7 @@ jobs:
           EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         run: uv run longmuch screen-build --seed
       - name: Commit snapshot if changed
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -47,4 +49,36 @@ jobs:
           fi
           git commit -m "chore(screen): refresh S&P 500 OE-yield snapshot"
           git pull --rebase origin main
-          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      # main requires the CI checks (backend, frontend) on the pushed commit and
+      # github-actions[bot] cannot bypass branch protection. So: push the commit
+      # to a bot branch, dispatch CI on it (GITHUB_TOKEN may dispatch), wait for
+      # green, then fast-forward main to that already-checked sha.
+      - name: Push snapshot through CI
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch=bot/screen-snapshot
+          for attempt in 1 2 3; do
+            sha=$(git rev-parse HEAD)
+            git push --force origin "HEAD:refs/heads/$branch"
+            gh workflow run ci.yml --ref "$branch"
+            run_id=""
+            for i in $(seq 1 30); do
+              run_id=$(gh run list --workflow ci.yml --branch "$branch" --event workflow_dispatch \
+                --json databaseId,headSha -q "map(select(.headSha==\"$sha\"))[0].databaseId // empty")
+              [ -n "$run_id" ] && break
+              sleep 10
+            done
+            [ -n "$run_id" ] || { echo "CI run for $sha not found"; exit 1; }
+            gh run watch "$run_id" --exit-status
+            if git push origin "HEAD:main"; then
+              git push origin --delete "$branch" || true
+              exit 0
+            fi
+            echo "main moved; rebasing and re-checking"
+            git pull --rebase origin main
+          done
+          exit 1

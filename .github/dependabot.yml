@@ -1,0 +1,56 @@
+# Dependabot: weekly version updates + grouped security updates.
+# - minor/patch version updates: one grouped PR per ecosystem (auto-merged by
+#   .github/workflows/dependabot-auto-merge.yml once CI is green)
+# - security updates: one grouped PR per ecosystem
+# - semver-major updates: not in any group -> separate PRs, merged by hand
+# uv: the live lock is the ROOT uv.lock (uv workspace; backend/ is a member and
+# has no lockfile of its own since 5c36d47), so the uv directory is "/".
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      uv-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      uv-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      actions-security:
+        applies-to: security-updates
+        patterns: ["*"]
