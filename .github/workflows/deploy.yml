@@ -54,6 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
       - name: Live origin gate
         run: FEATURE=live-origin .cursor/skills/verify-haystack/helpers/live-origin
