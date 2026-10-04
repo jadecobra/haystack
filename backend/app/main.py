@@ -99,7 +99,8 @@ class AnalysisResponse(pydantic.BaseModel):
 @app.get("/health")
 async def health():
     # commit: the git sha Render built (RENDER_GIT_COMMIT); lets the Deploy
-    # website workflow confirm Render is live at a given commit. None locally.
+    # website workflow confirm Render is live at a given commit (deploy-api
+    # job, #21). None locally.
     return {
         "status": "healthy",
         "message": "LongMuch API is running 🚀",
