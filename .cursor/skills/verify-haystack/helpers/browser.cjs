@@ -8,8 +8,9 @@
  *   FEATURE=analyze-results node helpers/browser.cjs analyze AAPL
  *   FEATURE=home-search node helpers/browser.cjs check-issues
  *
- * check-issues FAILS (exit 1) when the Next.js overlay / badge shows a visible
- * "1 Issue" / "N Issues" (data-error=true). A prove that ignores that badge is invalid.
+ * check-issues [path...] (default "/") FAILS (exit 1) when the Next.js overlay / badge
+ * shows a visible "1 Issue" / "N Issues" (data-error=true), or when console error /
+ * pageerror fires (except "Failed to load resource"). Ignoring that gate is invalid.
  *
  * If Playwright/Chromium is missing, writes browser-skipped.txt and exits 0 for
  * snapshot/analyze (HTTP proof remains valid). For check-issues, missing Playwright
@@ -198,27 +199,85 @@ async function detectNextIssues(page) {
   });
 }
 
-async function writeIssueArtifacts(outDir, label, detection, page) {
+function issueArtifactNames(routePath) {
+  // "/" keeps the historical filenames. Other routes get a sanitized suffix.
+  if (!routePath || routePath === '/') {
+    return {
+      txt: 'next-issue.txt',
+      json: 'next-issue-raw.json',
+      png: 'next-issue.png',
+      badge: 'next-issue-badge-corner.png',
+    };
+  }
+  const safe = String(routePath).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'path';
+  return {
+    txt: `next-issue-${safe}.txt`,
+    json: `next-issue-${safe}-raw.json`,
+    png: `next-issue-${safe}.png`,
+    badge: `next-issue-${safe}-badge-corner.png`,
+  };
+}
+
+function isIgnoredConsoleError(text) {
+  return /Failed to load resource/i.test(text);
+}
+
+async function writeIssueArtifacts(outDir, label, detection, page, routePath) {
+  const names = issueArtifactNames(routePath);
   const lines = [
     `NEXT ISSUE CHECK (${label})`,
+    `path=${routePath || '/'}`,
     `hasIssues=${detection.hasIssues}`,
     `issueCount=${detection.issueCount}`,
     `matchText=${detection.matchText || '(none)'}`,
     `errorBadge=${detection.errorBadge}`,
+    `consoleErrors=${(detection.consoleErrors || []).length}`,
     `note=${detection.note}`,
     `badges=${JSON.stringify(detection.badgeInfos || [])}`,
+    `console=${JSON.stringify(detection.consoleErrors || [])}`,
     '',
   ];
-  fs.writeFileSync(path.join(outDir, 'next-issue.txt'), lines.join('\n'));
-  fs.writeFileSync(path.join(outDir, 'next-issue-raw.json'), JSON.stringify(detection, null, 2));
+  fs.writeFileSync(path.join(outDir, names.txt), lines.join('\n'));
+  fs.writeFileSync(path.join(outDir, names.json), JSON.stringify(detection, null, 2));
   try {
-    await page.screenshot({ path: path.join(outDir, 'next-issue.png'), fullPage: true });
+    await page.screenshot({ path: path.join(outDir, names.png), fullPage: true });
     const badge = page.locator('[data-next-badge]').first();
     if (await badge.count()) {
-      await badge.screenshot({ path: path.join(outDir, 'next-issue-badge-corner.png') }).catch(() => {});
+      await badge.screenshot({ path: path.join(outDir, names.badge) }).catch(() => {});
     }
   } catch {
     /* screenshots are best-effort */
+  }
+}
+
+/**
+ * Navigate one path, collect console errors + pageerrors from navigation start,
+ * wait for ticker auto-analyze, then run the badge detector.
+ */
+async function checkIssuesOnPath(page, origin, routePath) {
+  const consoleErrors = [];
+  const onConsole = (msg) => {
+    if (msg.type() !== 'error') return;
+    const text = msg.text();
+    if (isIgnoredConsoleError(text)) return;
+    consoleErrors.push(text);
+  };
+  const onPageError = (err) => {
+    consoleErrors.push(String(err && err.message ? err.message : err));
+  };
+  page.on('console', onConsole);
+  page.on('pageerror', onPageError);
+  try {
+    const target = routePath.startsWith('/') ? routePath : `/${routePath}`;
+    await page.goto(origin + target, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(3000);
+    const detection = await detectNextIssues(page);
+    detection.consoleErrors = consoleErrors.slice();
+    detection.path = target;
+    return detection;
+  } finally {
+    page.off('console', onConsole);
+    page.off('pageerror', onPageError);
   }
 }
 
@@ -264,15 +323,22 @@ async function writeIssueArtifacts(outDir, label, detection, page) {
     const h1 = await page.locator('h1').first().textContent();
 
     if (cmd === 'check-issues') {
-      const detection = await detectNextIssues(page);
-      await writeIssueArtifacts(outDir, 'check-issues', detection, page);
-      if (detection.hasIssues) {
-        console.error(
-          `NEXT_ISSUES_FAIL: visible Next issues badge (${detection.matchText || 'data-error=true'}; count=${detection.issueCount})`
+      const paths = process.argv.slice(3).filter(Boolean);
+      const routePaths = paths.length > 0 ? paths : ['/'];
+      let failed = false;
+      for (const routePath of routePaths) {
+        const detection = await checkIssuesOnPath(page, origin, routePath);
+        await writeIssueArtifacts(outDir, 'check-issues', detection, page, detection.path);
+        const consoleCount = (detection.consoleErrors || []).length;
+        console.log(
+          `NEXT_ISSUES_CHECK path=${detection.path} badge=${detection.issueCount || 0} console_errors=${consoleCount}`
         );
+        if (detection.hasIssues || consoleCount > 0) failed = true;
+      }
+      if (failed) {
+        console.error('NEXT_ISSUES_FAIL: visible Next issues badge or console error');
         process.exit(1);
       }
-      console.log('NEXT_ISSUES_CHECK=pass (no visible Issues badge)');
       process.exit(0);
     }
 

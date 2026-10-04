@@ -107,7 +107,11 @@ if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" == "1" ]]; then
   echo "  next_issues=SKIPPED (SKIP_NEXT_ISSUES_CHECK=1) — prove that ignores a visible Next issues badge is invalid"
 else
   set +e
-  ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$SCRIPT_DIR/browser.cjs" check-issues 2>&1)"
+  CHECK_PATHS=("/")
+  if [[ "${BACKEND_OK:-0}" == "1" ]]; then
+    CHECK_PATHS+=("/${DOCTOR_TICKER:-AAPL}")
+  fi
+  ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$SCRIPT_DIR/browser.cjs" check-issues "${CHECK_PATHS[@]}" 2>&1)"
   ISSUE_RC=$?
   set -e
   echo "$ISSUE_OUT" | sed 's/^/  /'
@@ -117,7 +121,7 @@ else
     NEXT_ISSUES_STATUS="skipped-no-playwright"
     echo "  next_issues=HARD-FLAG skipped (Playwright/Chromium missing). A prove that ignores this gate is invalid."
   else
-    fail "Next.js issues badge visible (or check failed, rc=$ISSUE_RC). A prove that ignores a visible Next issues badge is invalid."
+    fail "Next.js issues badge or console error (or check failed, rc=$ISSUE_RC). A prove that ignores a visible Next issues badge is invalid."
   fi
 fi
 echo "  next_issues_status=$NEXT_ISSUES_STATUS"

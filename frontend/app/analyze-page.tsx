@@ -21,7 +21,6 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
-import { flushSync } from 'react-dom';
 
 type MetricRow = {
   metric: string;
@@ -329,13 +328,11 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
             : [...PLACEHOLDER_YEARS],
       };
       setElapsedMs(0);
-      flushSync(() => {
-        setView({
-          kind: 'waiting',
-          ticker: symbol,
-          startedAt,
-          skeleton,
-        });
+      setView({
+        kind: 'waiting',
+        ticker: symbol,
+        startedAt,
+        skeleton,
       });
 
       elapsedTimerRef.current = window.setInterval(() => {

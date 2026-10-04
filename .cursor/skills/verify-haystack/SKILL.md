@@ -56,7 +56,7 @@ Run before driving, and whenever anything looks off:
 .cursor/skills/verify-haystack/helpers/doctor
 ```
 
-Pass means: frontend port is not 3000, listen PID is one we started (or its descendant), GET `$FRONTEND_ORIGIN/` is HTTP 200, HTML contains `LongMuch`. If `BACKEND_OK=1`, backend port is not 8000, listen PID is ours, GET `$BACKEND_ORIGIN/health` is HTTP 200 with JSON `status=healthy` (live body also has a `message` field). Also runs `browser.cjs check-issues`: a visible Next.js `1 Issue` / `N Issues` badge is **DOCTOR FAIL**. Missing Playwright is hard-flagged (`next_issues_status=skipped-no-playwright`); a prove that ignores that gate is invalid. Fail means do not drive.
+Pass means: frontend port is not 3000, listen PID is one we started (or its descendant), GET `$FRONTEND_ORIGIN/` is HTTP 200, HTML contains `LongMuch`. If `BACKEND_OK=1`, backend port is not 8000, listen PID is ours, GET `$BACKEND_ORIGIN/health` is HTTP 200 with JSON `status=healthy` (live body also has a `message` field). Also runs `browser.cjs check-issues` on `/` and, when the backend is up, one ticker page (`/${DOCTOR_TICKER:-AAPL}`). A visible Next.js `1 Issue` / `N Issues` badge or a console `error` / `pageerror` (except "Failed to load resource") is **DOCTOR FAIL**. Missing Playwright is hard-flagged (`next_issues_status=skipped-no-playwright`); a prove that ignores that gate is invalid. Fail means do not drive.
 
 ## Drive
 
@@ -79,7 +79,7 @@ FEATURE=metrics-docs .cursor/skills/verify-haystack/helpers/http docs
 
 `backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture when `VERIFY_FIXTURE=1` or `helpers/http backend-analyze TICKER --fixture` / `--local` (CLI `--local`). Launch never sets `HAYSTACK_PREFER_FIXTURE`.
 
-Optional browser (Analyze click / screenshot) **and required Next issues gate**. `browser.cjs snapshot|analyze|check-issues` fails if the Next.js Dev Tools badge shows a visible `1 Issue` / `N Issues` (`data-next-badge[data-error=true]`). A prove that ignores that badge is **invalid**. If Playwright/Chromium is missing, `snapshot`/`analyze` write `browser-skipped.txt` and exit 0 (HTTP proof still stands), but `check-issues` exits 2 (hard-flag: gate not run). Doctor and `helpers/http home` invoke `check-issues`.
+Optional browser (Analyze click / screenshot) **and required Next issues gate**. `browser.cjs snapshot|analyze|check-issues` fails if the Next.js Dev Tools badge shows a visible `1 Issue` / `N Issues` (`data-next-badge[data-error=true]`). `check-issues` also accepts path arguments (default `/`) and fails on console `error` / `pageerror` lines other than "Failed to load resource". A prove that ignores that badge is **invalid**. If Playwright/Chromium is missing, `snapshot`/`analyze` write `browser-skipped.txt` and exit 0 (HTTP proof still stands), but `check-issues` exits 2 (hard-flag: gate not run). Doctor checks `/` plus one ticker page when the backend is up; `helpers/http home` invokes `check-issues` on `/`.
 
 ```bash
 FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot
@@ -144,7 +144,7 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 - `helpers/live-origin` — production ship gate (www.longmuch.com title + Render `/contract` vs local schema)
 - `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
 - `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)
-- `node helpers/browser.cjs check-issues` — fail if Next.js shows a visible Issues badge
+- `node helpers/browser.cjs check-issues [path...]` — fail if Next.js shows a visible Issues badge or a console error (default path `/`)
 - `python3 helpers/ensure-frontend.py` — restore Next toolchain if `node_modules` is missing (called by launch)
 
 `helpers/lib.sh`, `helpers/launch.py`, `helpers/ensure-frontend.py`, and `helpers/daemonize.py` are internals used by the scripts above.
