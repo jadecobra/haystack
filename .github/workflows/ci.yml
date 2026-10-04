@@ -9,6 +9,11 @@ on:
   # fast-forwarding main (main requires backend + frontend checks).
   workflow_dispatch:
 
+# statuses: write is only used by the dispatch status bridge below.
+permissions:
+  contents: read
+  statuses: write
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -31,6 +36,21 @@ jobs:
         run: |
           uv sync --group dev
           uv run pytest tests/
+      # Required-check bridge: checks from workflow_dispatch runs never satisfy
+      # branch protection (GitHub only evaluates push/pull_request-type job
+      # checks). The nightly screen job lands GITHUB_TOKEN commits that can't
+      # fire push/pull_request, so on dispatch only, after this job's tests
+      # passed, post a commit status with the same required context name.
+      - name: Report backend status (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -f state=success -f context=backend \
+            -f description="CI backend passed (dispatched run ${{ github.run_id }})" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
   frontend:
     runs-on: ubuntu-latest
@@ -53,3 +73,18 @@ jobs:
           pnpm run build
         env:
           BACKEND_ORIGIN: https://example.invalid
+      # Required-check bridge: checks from workflow_dispatch runs never satisfy
+      # branch protection (GitHub only evaluates push/pull_request-type job
+      # checks). The nightly screen job lands GITHUB_TOKEN commits that can't
+      # fire push/pull_request, so on dispatch only, after this job's tests
+      # passed, post a commit status with the same required context name.
+      - name: Report frontend status (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -f state=success -f context=frontend \
+            -f description="CI frontend passed (dispatched run ${{ github.run_id }})" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

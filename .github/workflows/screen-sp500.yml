@@ -50,10 +50,13 @@ jobs:
           git commit -m "chore(screen): refresh S&P 500 OE-yield snapshot"
           git pull --rebase origin main
           echo "changed=true" >> "$GITHUB_OUTPUT"
-      # main requires the CI checks (backend, frontend) on the pushed commit and
-      # github-actions[bot] cannot bypass branch protection. So: push the commit
-      # to a bot branch, dispatch CI on it (GITHUB_TOKEN may dispatch), wait for
-      # green, then fast-forward main to that already-checked sha.
+      # main requires backend + frontend on the pushed sha, and GITHUB_TOKEN
+      # pushes fire no push/pull_request workflows. So: push the commit to a
+      # bot branch, dispatch CI on it, wait for exactly that dispatched run
+      # (CI posts backend/frontend commit statuses on dispatch, which
+      # protection accepts; dispatch job checks alone do not count), then
+      # fast-forward main to that sha. GITHUB_TOKEN pushes also don't fire
+      # Deploy website, so dispatch it explicitly once main has moved.
       - name: Push snapshot through CI
         if: steps.commit.outputs.changed == 'true'
         env:
@@ -64,21 +67,30 @@ jobs:
           for attempt in 1 2 3; do
             sha=$(git rev-parse HEAD)
             git push --force origin "HEAD:refs/heads/$branch"
+            since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             gh workflow run ci.yml --ref "$branch"
             run_id=""
             for i in $(seq 1 30); do
-              run_id=$(gh run list --workflow ci.yml --branch "$branch" --event workflow_dispatch \
-                --json databaseId,headSha -q "map(select(.headSha==\"$sha\"))[0].databaseId // empty")
-              [ -n "$run_id" ] && break
               sleep 10
+              run_id=$(gh run list --workflow ci.yml --branch "$branch" --event workflow_dispatch \
+                --json databaseId,headSha,createdAt \
+                -q "map(select(.headSha==\"$sha\" and .createdAt>=\"$since\"))|sort_by(.createdAt)|last|.databaseId // empty")
+              [ -n "$run_id" ] && break
             done
-            [ -n "$run_id" ] || { echo "CI run for $sha not found"; exit 1; }
+            [ -n "$run_id" ] || { echo "dispatched CI run for $sha not found"; exit 1; }
+            echo "watching CI run $run_id for $sha"
             gh run watch "$run_id" --exit-status
             if git push origin "HEAD:main"; then
               git push origin --delete "$branch" || true
+              gh workflow run deploy.yml --ref main
+              echo "landed $sha on main; dispatched Deploy website"
               exit 0
             fi
-            echo "main moved; rebasing and re-checking"
             git pull --rebase origin main
+            if [ "$(git rev-parse HEAD)" = "$sha" ]; then
+              echo "push rejected but main did not move; not retrying the same sha"
+              exit 1
+            fi
+            echo "main moved; re-checking rebased commit"
           done
           exit 1
