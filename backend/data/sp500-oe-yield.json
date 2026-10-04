@@ -1,8 +1,8 @@
 {
   "universe": "sp500",
-  "count": 484,
-  "skipped": 19,
-  "built_at": "2026-10-03T01:04:41+00:00",
+  "count": 483,
+  "skipped": 20,
+  "built_at": "2026-10-04T01:01:27+00:00",
   "price_as_of": "2026-10-02",
   "stale": false,
   "error": null,
@@ -1747,17 +1747,6 @@
       "debt_state": "positive"
     },
     {
-      "ticker": "INCY",
-      "name": "INCYTE CORPORATION",
-      "oe_yield": 0.058051812679864964,
-      "oe_per_share": 6.800189337319382,
-      "price": 117.14,
-      "fy": 2025,
-      "price_as_of": "2026-10-02",
-      "debt": null,
-      "debt_state": "zero"
-    },
-    {
       "ticker": "GEHC",
       "name": "GE HEALTHCARE TECHNOLOGIES INC.",
       "oe_yield": 0.05801485453287122,
@@ -1899,6 +1888,17 @@
       "price_as_of": "2026-10-02",
       "debt": 48830000000.0,
       "debt_state": "positive"
+    },
+    {
+      "ticker": "INCY",
+      "name": "INCYTE CORPORATION",
+      "oe_yield": 0.05615534293112232,
+      "oe_per_share": 6.578036870951669,
+      "price": 117.14,
+      "fy": 2025,
+      "price_as_of": "2026-10-02",
+      "debt": null,
+      "debt_state": "zero"
     },
     {
       "ticker": "ALB",
@@ -3573,6 +3573,17 @@
       "debt_state": "unknown"
     },
     {
+      "ticker": "BXP",
+      "name": "BXP, INC.",
+      "oe_yield": 0.03480247162468343,
+      "oe_per_share": 2.09650089067093,
+      "price": 60.24,
+      "fy": 2025,
+      "price_as_of": "2026-10-02",
+      "debt": 9806100000.0,
+      "debt_state": "positive"
+    },
+    {
       "ticker": "GOOGL",
       "name": "Alphabet Inc.",
       "oe_yield": 0.034708308740313956,
@@ -3581,6 +3592,17 @@
       "fy": 2025,
       "price_as_of": "2026-10-02",
       "debt": 49085000000.0,
+      "debt_state": "positive"
+    },
+    {
+      "ticker": "FERG",
+      "name": "Ferguson Enterprises Inc. /DE/",
+      "oe_yield": 0.0341222608593596,
+      "oe_per_share": 7.557739557739557,
+      "price": 221.49,
+      "fy": 2024,
+      "price_as_of": "2026-10-02",
+      "debt": 3950000000.0,
       "debt_state": "positive"
     },
     {
@@ -3746,17 +3768,6 @@
       "fy": 2025,
       "price_as_of": "2026-10-02",
       "debt": 23000000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "PSKY",
-      "name": "Paramount Skydance Corporation",
-      "oe_yield": 0.03138152551133427,
-      "oe_per_share": 0.29310344827586204,
-      "price": 9.34,
-      "fy": 2025,
-      "price_as_of": "2026-10-02",
-      "debt": 13658000000.0,
       "debt_state": "positive"
     },
     {
@@ -4684,17 +4695,6 @@
       "debt_state": "positive"
     },
     {
-      "ticker": "FERG",
-      "name": "Ferguson Enterprises Inc. /DE/",
-      "oe_yield": 0.01615414534008825,
-      "oe_per_share": 3.5779816513761467,
-      "price": 221.49,
-      "fy": 2025,
-      "price_as_of": "2026-10-02",
-      "debt": 4150000000.0,
-      "debt_state": "positive"
-    },
-    {
       "ticker": "GEV",
       "name": "GE Vernova Inc.",
       "oe_yield": 0.016041905625748067,
@@ -4737,17 +4737,6 @@
       "price_as_of": "2026-10-02",
       "debt": null,
       "debt_state": "n/a"
-    },
-    {
-      "ticker": "BXP",
-      "name": "BXP, INC.",
-      "oe_yield": 0.014332918351696138,
-      "oe_per_share": 0.8634150015061753,
-      "price": 60.24,
-      "fy": 2026,
-      "price_as_of": "2026-10-02",
-      "debt": 8811158000.0,
-      "debt_state": "positive"
     },
     {
       "ticker": "LLY",
@@ -5336,7 +5325,7 @@
   "meta": {
     "debt_coverage": {
       "zero": 16,
-      "positive": 395,
+      "positive": 394,
       "unknown": 11,
       "n/a": 62,
       "unknown_tickers": [
