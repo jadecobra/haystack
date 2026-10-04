@@ -13,11 +13,14 @@ from app.edgar import (
     map_companyfacts_to_statements,
     split_adjusted_shares,
     _http_get_json,
+    _is_annual,
+    _series_for_tags,
 )
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SNIPPET = FIXTURES / "aapl_companyfacts_snippet.json"
 CPRT_SHARES = FIXTURES / "cprt_shares_companyfacts.json"
+CPRT_REVENUE = FIXTURES / "cprt_revenue_companyfacts.json"
 NVDA_SHARES = FIXTURES / "nvda_shares_companyfacts.json"
 
 AAPL_BALLPARK = {
@@ -769,3 +772,247 @@ class TestSplitAdjustedSharesFixtures(unittest.TestCase):
             shares = statements[year]["shares"]
             self.assertGreaterEqual(shares, 21e9, msg=year)
             self.assertLessEqual(shares, 27e9, msg=year)
+
+
+class TestIsAnnualDuration(unittest.TestCase):
+    def test_duration_window_and_instant(self):
+        base = {"fp": "FY", "form": "10-K", "fy": 2020, "val": 1.0}
+        self.assertTrue(
+            _is_annual({**base, "start": "2019-08-01", "end": "2020-07-30"})
+        )  # 364 days
+        self.assertTrue(
+            _is_annual({**base, "start": "2019-08-01", "end": "2020-08-06"})
+        )  # 371 days
+        self.assertFalse(
+            _is_annual({**base, "start": "2020-05-01", "end": "2020-07-31"})
+        )  # 91 days
+        self.assertFalse(
+            _is_annual({**base, "start": "2020-02-01", "end": "2020-07-31"})
+        )  # 181 days
+        self.assertTrue(_is_annual({**base, "end": "2020-07-31"}))  # instant
+        self.assertFalse(
+            _is_annual({**base, "start": "not-a-date", "end": "2020-07-31"})
+        )
+
+    def test_quarterly_fy_falls_through_ladder(self):
+        """Earlier tag with only 91-day fp=FY rows yields to a later annual tag."""
+        us_gaap = {
+            "Revenues": {
+                "units": {
+                    "USD": [
+                        {
+                            "start": "2019-05-01",
+                            "end": "2019-07-31",
+                            "val": 500_000_000,
+                            "fy": 2019,
+                            "fp": "FY",
+                            "form": "10-K",
+                            "filed": "2019-09-30",
+                        }
+                    ]
+                }
+            },
+            "RevenueFromContractWithCustomerIncludingAssessedTax": {
+                "units": {
+                    "USD": [
+                        {
+                            "start": "2018-08-01",
+                            "end": "2019-07-31",
+                            "val": 2_041_957_000,
+                            "fy": 2019,
+                            "fp": "FY",
+                            "form": "10-K",
+                            "filed": "2019-09-30",
+                        }
+                    ]
+                }
+            },
+        }
+        series = _series_for_tags(
+            us_gaap,
+            [
+                "Revenues",
+                "RevenueFromContractWithCustomerIncludingAssessedTax",
+            ],
+        )
+        self.assertEqual(series[2019], 2_041_957_000)
+
+
+def _quarter_facts(spans: list[tuple[str, str, float]], *, fy: int = 2012, filed: str = "2012-10-31") -> list[dict]:
+    return [
+        {
+            "start": start,
+            "end": end,
+            "val": val,
+            "fy": fy,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": filed,
+        }
+        for start, end, val in spans
+    ]
+
+
+_AAPL_FY2012_DIVIDEND_QUARTERS = [
+    ("2011-09-25", "2011-12-31", 0),
+    ("2012-01-01", "2012-03-31", 0),
+    ("2012-04-01", "2012-06-30", 0),
+    ("2012-07-01", "2012-09-29", 2.5e9),
+]
+
+
+class TestQuarterChainPass(unittest.TestCase):
+    def test_four_contiguous_quarters_sum_when_no_annual(self):
+        us_gaap = {
+            "PaymentsOfDividends": {
+                "units": {"USD": _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS)}
+            }
+        }
+        series = _series_for_tags(us_gaap, ["PaymentsOfDividends"])
+        self.assertEqual(series[2012], 2.5e9)
+
+    def test_annual_on_any_tag_blocks_quarter_sum(self):
+        quarters = _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS)
+        annual = {
+            "start": "2011-09-25",
+            "end": "2012-09-29",
+            "val": 9.0e9,
+            "fy": 2012,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2012-10-31",
+        }
+        us_gaap = {
+            "PaymentsOfDividends": {"units": {"USD": quarters}},
+            "PaymentsOfDividendsCommonStock": {"units": {"USD": [annual]}},
+        }
+        series = _series_for_tags(
+            us_gaap,
+            ["PaymentsOfDividends", "PaymentsOfDividendsCommonStock"],
+        )
+        self.assertEqual(series[2012], 9.0e9)
+
+    def test_three_quarters_are_not_a_year(self):
+        us_gaap = {
+            "PaymentsOfDividends": {
+                "units": {"USD": _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS[:3])}
+            }
+        }
+        series = _series_for_tags(us_gaap, ["PaymentsOfDividends"])
+        self.assertNotIn(2012, series)
+
+    def test_prefer_shares_does_not_sum_quarters(self):
+        us_gaap = {
+            "WeightedAverageNumberOfDilutedSharesOutstanding": {
+                "units": {
+                    "shares": _quarter_facts(
+                        [
+                            ("2011-09-25", "2011-12-31", 900e6),
+                            ("2012-01-01", "2012-03-31", 910e6),
+                            ("2012-04-01", "2012-06-30", 920e6),
+                            ("2012-07-01", "2012-09-29", 930e6),
+                        ]
+                    )
+                }
+            }
+        }
+        series = _series_for_tags(
+            us_gaap,
+            ["WeightedAverageNumberOfDilutedSharesOutstanding"],
+            prefer_shares=True,
+        )
+        self.assertNotIn(2012, series)
+
+
+def _fy_fact(
+    start: str,
+    end: str,
+    val: float,
+    *,
+    fy: int = 2021,
+    filed: str = "2022-02-24",
+) -> dict:
+    return {
+        "start": start,
+        "end": end,
+        "val": val,
+        "fy": fy,
+        "fp": "FY",
+        "form": "10-K",
+        "filed": filed,
+    }
+
+
+class TestAnnualEndAnchor(unittest.TestCase):
+    """Duration facts for fy=Y must end near E(Y), not a prior-year comparative."""
+
+    def test_exe_like_predecessor_successor_does_not_use_prior_year(self):
+        # EXE fy=2021 10-K: short predecessor, 324-day successor, prior-year annuals.
+        facts = [
+            _fy_fact("2021-01-01", "2021-02-09", -100e6),
+            _fy_fact("2021-02-10", "2021-12-31", -500e6),
+            _fy_fact("2020-01-01", "2020-12-31", -9_734e6),
+            _fy_fact("2019-01-01", "2019-12-31", -308e6),
+        ]
+        us_gaap = {"NetIncomeLoss": {"units": {"USD": facts}}}
+        series = _series_for_tags(us_gaap, ["NetIncomeLoss"])
+        self.assertNotIn(2021, series)
+
+        share_facts = [
+            _share_entry(start=f["start"], end=f["end"], val=abs(f["val"]), fy=2021, filed=f["filed"])
+            for f in facts
+        ]
+        # Prior-year comparative is the only annual-duration share fact.
+        shares = split_adjusted_shares(_shares_payload(share_facts)["facts"]["us-gaap"])
+        self.assertNotIn(2021, shares)
+
+    def test_current_year_annual_beats_comparatives(self):
+        facts = [
+            _fy_fact("2021-01-01", "2021-12-31", 111e6),
+            _fy_fact("2020-01-01", "2020-12-31", -9_734e6),
+            _fy_fact("2019-01-01", "2019-12-31", -308e6),
+        ]
+        us_gaap = {"NetIncomeLoss": {"units": {"USD": facts}}}
+        series = _series_for_tags(us_gaap, ["NetIncomeLoss"])
+        self.assertEqual(series[2021], 111e6)
+
+    def test_one_day_subsequent_event_does_not_block_current_annual(self):
+        # Ends 61 days after FYE. Counting it in E(Y) would reject the annual.
+        facts = [
+            _fy_fact("2021-01-01", "2021-12-31", 111e6),
+            _fy_fact("2020-01-01", "2020-12-31", -9_734e6),
+            _fy_fact("2022-03-01", "2022-03-02", 1.0, filed="2022-03-02"),
+        ]
+        us_gaap = {"NetIncomeLoss": {"units": {"USD": facts}}}
+        series = _series_for_tags(us_gaap, ["NetIncomeLoss"])
+        self.assertEqual(series[2021], 111e6)
+
+    def test_prior_year_quarter_chain_does_not_fill_current_fy(self):
+        quarters = _quarter_facts(
+            [
+                ("2020-01-01", "2020-03-31", -1e6),
+                ("2020-04-01", "2020-06-30", -2e6),
+                ("2020-07-01", "2020-09-30", -3e6),
+                ("2020-10-01", "2020-12-31", -4e6),
+            ],
+            fy=2021,
+            filed="2022-02-24",
+        )
+        successor = _fy_fact("2021-02-10", "2021-12-31", -500e6)
+        us_gaap = {"NetIncomeLoss": {"units": {"USD": [*quarters, successor]}}}
+        series = _series_for_tags(us_gaap, ["NetIncomeLoss"])
+        self.assertNotIn(2021, series)
+
+
+class TestCprtRevenueGolden(unittest.TestCase):
+    def test_cprt_fy2019_2020_are_annual_scale(self):
+        payload = json.loads(CPRT_REVENUE.read_text(encoding="utf-8"))
+        _years, statements = map_companyfacts_to_statements(payload)
+        r2019 = statements[2019]["revenue"]
+        r2020 = statements[2020]["revenue"]
+        self.assertAlmostEqual(r2019, 2.04e9, delta=0.02 * 2.04e9)
+        self.assertAlmostEqual(r2020, 2.21e9, delta=0.02 * 2.21e9)
+        for year in range(2017, 2027):
+            revenue = statements[year]["revenue"]
+            self.assertIsNotNone(revenue, msg=year)
+            self.assertGreaterEqual(revenue, 1.0e9, msg=year)

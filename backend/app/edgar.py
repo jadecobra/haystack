@@ -12,7 +12,7 @@ import os
 import threading
 import time
 from collections import defaultdict
-from datetime import date
+from datetime import date, timedelta
 from concurrent.futures import Future
 from pathlib import Path
 from statistics import median
@@ -235,13 +235,36 @@ def fetch_companyfacts(
 
 
 def _is_annual(entry: dict[str, Any]) -> bool:
+    """True when ``entry`` is an annual FY / 10-K fact (pass 1 of the ladder).
+
+    ``_series_for_tags`` uses two passes. Pass 1, this predicate: duration
+    facts (both ``start`` and ``end``) must span 350–380 days inclusive.
+    That window covers 52-week (364) and 53-week (371) fiscal years and
+    rejects quarterly/YTD breakdown rows that SEC sometimes tags ``fp=FY``
+    / ``form=10-K``. Instant facts (no ``start``) keep the FY/10-K check
+    only. Unparseable dates are not annual.
+
+    Pass 2 (flow series only, see ``_series_for_tags``) is separate: some
+    filers never tag a 12-month fact and only put four quarterly durations
+    on the 10-K. Those quarters fail this check on purpose. A lone quarter
+    is never treated as annual here.
+    """
     fp = str(entry.get("fp") or "").upper()
     form = str(entry.get("form") or "").upper()
-    if fp == "FY":
-        return True
-    if "10-K" in form:
-        return True
-    return False
+    if fp != "FY" and "10-K" not in form:
+        return False
+    start = entry.get("start")
+    end = entry.get("end")
+    if start and end:
+        try:
+            days = (
+                date.fromisoformat(str(end)[:10])
+                - date.fromisoformat(str(start)[:10])
+            ).days
+        except ValueError:
+            return False
+        return 350 <= days <= 380
+    return True
 
 
 def _unit_entries(fact_node: dict[str, Any], prefer_shares: bool = False) -> list[dict[str, Any]]:
@@ -270,8 +293,20 @@ def _unit_entries(fact_node: dict[str, Any], prefer_shares: bool = False) -> lis
 
 
 def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
-    """Pick one value per FY: prefer FY/10-K, then latest filed/end."""
-    by_year: dict[int, list[tuple[str, str, float]]] = {}
+    """Pick one value per FY: FY/10-K annual facts, then latest filed/end.
+
+    Duration facts for year Y are kept only when their ``end`` is within
+    31 days of E(Y). E(Y) is the latest ``end`` among that tag's fy=Y
+    FY/10-K facts whose duration is 80–380 days. Stubs shorter than 80
+    days (a 1-day subsequent event, a predecessor stub) do not move E(Y).
+    A prior-year comparative filed inside this 10-K stays on its own end
+    date, so it does not become the value for Y when the current year has
+    a longer fact (successor, quarter, or YTD) and no annual-duration fact
+    of its own. If no duration candidate matches, Y is absent and the
+    ladder falls through. Instant facts (no ``start``) skip the end check
+    and still resolve by max filed, then max end.
+    """
+    by_year: dict[int, list[tuple[str, str, float, dict[str, Any]]]] = {}
     for e in entries:
         if not isinstance(e, dict):
             continue
@@ -293,11 +328,198 @@ def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
             continue
         filed = str(e.get("filed") or "")
         end = str(e.get("end") or "")
-        by_year.setdefault(year, []).append((filed, end, num))
+        by_year.setdefault(year, []).append((filed, end, num, e))
     out: dict[int, float] = {}
     for year, candidates in by_year.items():
-        candidates.sort(key=lambda t: (t[0], t[1]), reverse=True)
-        out[year] = candidates[0][2]
+        anchor = _anchor_end_for_year(entries, year)
+        eligible = [
+            item
+            for item in candidates
+            if _duration_end_matches_anchor(item[3], anchor)
+        ]
+        if not eligible:
+            continue
+        eligible.sort(key=lambda t: (t[0], t[1]), reverse=True)
+        out[year] = eligible[0][2]
+    return out
+
+
+def _fy_or_10k(entry: dict[str, Any]) -> bool:
+    fp = str(entry.get("fp") or "").upper()
+    form = str(entry.get("form") or "").upper()
+    return fp == "FY" or "10-K" in form
+
+
+def _parse_iso_date(value: Any) -> date | None:
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+
+
+# Facts at least this long can set E(Y). Shorter stubs (predecessor
+# periods, 1-day subsequent events) do not.
+_ANCHOR_MIN_DAYS = 80
+# Inclusive top of the annual window used by ``_is_annual``.
+_ANCHOR_MAX_DAYS = 380
+# A current-year annual fact may end a few days off the anchor (52/53-week).
+_END_ALIGN_DAYS = 31
+
+
+def _duration_days(entry: dict[str, Any]) -> int | None:
+    start = _parse_iso_date(entry.get("start"))
+    end = _parse_iso_date(entry.get("end"))
+    if start is None or end is None:
+        return None
+    return (end - start).days
+
+
+def _anchor_end_for_year(entries: list[dict[str, Any]], year: int) -> date | None:
+    """E(Y): latest end of fy=Y FY/10-K facts spanning 80–380 days.
+
+    Ignores instants and stubs shorter than 80 days. Returns None when no
+    such fact exists.
+    """
+    latest: date | None = None
+    for entry in entries:
+        if not isinstance(entry, dict) or not _fy_or_10k(entry):
+            continue
+        try:
+            if int(entry.get("fy")) != year:
+                continue
+        except (TypeError, ValueError):
+            continue
+        days = _duration_days(entry)
+        if days is None or not (_ANCHOR_MIN_DAYS <= days <= _ANCHOR_MAX_DAYS):
+            continue
+        end = _parse_iso_date(entry.get("end"))
+        if end is None:
+            continue
+        if latest is None or end > latest:
+            latest = end
+    return latest
+
+
+def _duration_end_matches_anchor(entry: dict[str, Any], anchor: date | None) -> bool:
+    """Instant facts pass. Duration facts must end within 31 days of E(Y)."""
+    if not entry.get("start"):
+        return True
+    if anchor is None:
+        return False
+    end = _parse_iso_date(entry.get("end"))
+    if end is None:
+        return False
+    return abs((end - anchor).days) <= _END_ALIGN_DAYS
+
+
+def _best_four_quarter_chain(
+    periods: list[tuple[date, date, float]],
+) -> tuple[date, float] | None:
+    """Latest-ending chain of exactly four contiguous 80–100 day facts.
+
+    Each next start is the previous end or the next day. The chain's span
+    (first start through last end) must be 350–380 days. Returns
+    ``(end, sum)`` or None.
+    """
+    quarters = [
+        (start, end, val)
+        for start, end, val in periods
+        if 80 <= (end - start).days <= 100
+    ]
+    by_start: dict[date, list[tuple[date, date, float]]] = defaultdict(list)
+    for period in quarters:
+        by_start[period[0]].append(period)
+
+    best: tuple[date, float] | None = None
+
+    def consider(chain: list[tuple[date, date, float]]) -> None:
+        nonlocal best
+        span = (chain[-1][1] - chain[0][0]).days
+        if not (350 <= span <= 380):
+            return
+        end = chain[-1][1]
+        total = sum(part[2] for part in chain)
+        if best is None or end > best[0]:
+            best = (end, total)
+
+    def extend(
+        chain: list[tuple[date, date, float]],
+        used: set[tuple[date, date]],
+    ) -> None:
+        if len(chain) == 4:
+            consider(chain)
+            return
+        prev_end = chain[-1][1]
+        for start in (prev_end, prev_end + timedelta(days=1)):
+            for nxt in by_start.get(start, ()):
+                ident = (nxt[0], nxt[1])
+                if ident in used:
+                    continue
+                used.add(ident)
+                extend(chain + [nxt], used)
+                used.remove(ident)
+
+    for period in quarters:
+        extend([period], {(period[0], period[1])})
+    return best
+
+
+def _sum_contiguous_fy_quarters(entries: list[dict[str, Any]]) -> dict[int, float]:
+    """Sum a four-quarter FY/10-K chain per year. No annual-duration check.
+
+    Facts are grouped by ``filed``. Within a filing the chain with the
+    latest end wins; across filings the latest ``filed`` wins. The chain's
+    last end must fall within 31 days of E(Y), the same anchor as
+    ``_pick_annual_by_year`` (latest end among fy=Y FY/10-K facts of
+    80–380 days). A prior-year quarter chain tagged with the current fy
+    does not fill Y when a longer current-year fact sets a later anchor.
+    Fewer than four contiguous quarters yields nothing for that year.
+    """
+    by_year: dict[int, dict[str, dict[tuple[date, date], float]]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict) or not _fy_or_10k(entry):
+            continue
+        fy = entry.get("fy")
+        try:
+            year = int(fy)
+        except (TypeError, ValueError):
+            continue
+        start = _parse_iso_date(entry.get("start"))
+        end = _parse_iso_date(entry.get("end"))
+        if start is None or end is None:
+            continue
+        val = entry.get("val")
+        if val is None:
+            continue
+        try:
+            num = float(val)
+        except (TypeError, ValueError):
+            continue
+        filed = str(entry.get("filed") or "")
+        periods = by_year.setdefault(year, {}).setdefault(filed, {})
+        periods.setdefault((start, end), num)
+
+    out: dict[int, float] = {}
+    for year, filings in by_year.items():
+        anchor = _anchor_end_for_year(entries, year)
+        best_key: tuple[str, str] | None = None
+        best_sum: float | None = None
+        for filed, period_map in filings.items():
+            periods = [(start, end, val) for (start, end), val in period_map.items()]
+            chain = _best_four_quarter_chain(periods)
+            if chain is None:
+                continue
+            end, total = chain
+            if anchor is None or abs((end - anchor).days) > _END_ALIGN_DAYS:
+                continue
+            key = (filed, end.isoformat())
+            if best_key is None or key > best_key:
+                best_key = key
+                best_sum = total
+        if best_sum is not None:
+            out[year] = best_sum
     return out
 
 
@@ -307,13 +529,32 @@ def _series_for_tags(
     *,
     prefer_shares: bool = False,
 ) -> dict[int, float]:
-    """Per-year: first preferred tag with an annual value for that year wins.
+    """Per-year ladder. First tag that fills a year wins.
 
-    Earlier tags in the list only fill years they actually have; later tags
-    fill remaining years (so a stale Revenues FY2018 does not block
-    RevenueFromContractWithCustomer… for 2020+).
+    Pass 1 (every series, including ``prefer_shares``): the first tag with
+    an annual value for that year wins. Annual means a 12-month duration
+    (350–380 days) or an instant fact, both ``fp=FY`` or 10-K
+    (``_is_annual`` / ``_pick_annual_by_year``). Earlier tags only fill
+    years they actually have; later tags fill the rest (a stale Revenues
+    FY2018 does not block RevenueFromContractWithCustomer… for 2020+).
+
+    Pass 2 (flow series only — skipped when ``prefer_shares`` is true):
+    years that no ladder tag filled in pass 1. Some filers only tag the
+    quarterly breakdown inside the 10-K and never emit a 12-month fact
+    (AAPL FY2012 PaymentsOfDividends is four quarters whose last one
+    equals the full-year dividend). For each such year, try tags in ladder
+    order. Group that tag's ``fp=FY`` / 10-K rows by ``filed`` and accept
+    a chain of exactly four non-overlapping contiguous duration facts
+    (each 80–100 days; each next start is the previous end or the next
+    day; first start through last end is 350–380 days). The chain's last
+    end must be within 31 days of E(Y) (see ``_pick_annual_by_year``).
+    The chain with the latest end wins; if several filings qualify, the
+    latest ``filed`` wins. The year is the sum of the four. A lone quarter
+    is never accepted. Share counts are averages (``prefer_shares`` /
+    ``split_adjusted_shares``) and are never summed.
     """
     out: dict[int, float] = {}
+    flow_entries: list[list[dict[str, Any]]] = []
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
@@ -321,6 +562,14 @@ def _series_for_tags(
         entries = _unit_entries(node, prefer_shares=prefer_shares)
         series = _pick_annual_by_year(entries)
         for year, val in series.items():
+            if year not in out:
+                out[year] = val
+        if not prefer_shares:
+            flow_entries.append(entries)
+    if prefer_shares:
+        return out
+    for entries in flow_entries:
+        for year, val in _sum_contiguous_fy_quarters(entries).items():
             if year not in out:
                 out[year] = val
     return out
@@ -589,6 +838,7 @@ def _split_adjusted_shares_for_tag(
     jumps = _basis_jumps(events, same_basis)
 
     # (a) Period identity: same fy pick as _pick_annual_by_year (max filed, then max end).
+    # Duration candidates must end within 31 days of E(Y); instants do not.
     by_fy: dict[int, list[tuple[str, str, dict[str, Any]]]] = defaultdict(list)
     for entry in annual:
         year = int(entry["fy"])
@@ -598,8 +848,16 @@ def _split_adjusted_shares_for_tag(
 
     out: dict[int, float] = {}
     for year, candidates in by_fy.items():
-        candidates.sort(key=lambda t: (t[0], t[1]), reverse=True)
-        chosen = candidates[0][2]
+        anchor = _anchor_end_for_year(entries, year)
+        eligible = [
+            item
+            for item in candidates
+            if _duration_end_matches_anchor(item[2], anchor)
+        ]
+        if not eligible:
+            continue
+        eligible.sort(key=lambda t: (t[0], t[1]), reverse=True)
+        chosen = eligible[0][2]
         rows = by_period.get(_period_key(chosen)) or []
         kept = _scale_kept_chain(rows)
         if not kept:
@@ -624,10 +882,12 @@ def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
     Per tag in TAG_PREFS["shares"] order (same per-year fill semantics as
     _series_for_tags: earlier tag wins a year it has):
 
-    a) Period identity: for year Y, take the entry the existing logic picks for
-       fy=Y (annual, max filed then max end) and use its period key (start, end)
-       — or (None, end) for instant tags like CommonStockSharesOutstanding.
-       Same unit list as today (_unit_entries prefer_shares).
+    a) Period identity: for year Y, take the entry ``_pick_annual_by_year`` would
+       pick for fy=Y and use its period key (start, end) — or (None, end) for
+       instant tags like CommonStockSharesOutstanding. Duration facts must end
+       within 31 days of E(Y); a prior-year comparative in this filing is not
+       the current year. Instant facts stay max filed, then max end. Same unit
+       list as today (_unit_entries prefer_shares).
     b) Latest restatement: for that exact period key, build the filed chain
        across ALL annual filings (any fy) and take the latest kept value, so
        restated post-split figures win. Walk filings in filed order (one
