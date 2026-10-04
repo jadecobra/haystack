@@ -4,9 +4,15 @@
 # Required GitHub secrets:
 #   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
 #
+#   RENDER_DEPLOY_HOOK_URL (Render dashboard > longmuch-api > Settings >
+#   Deploy Hook). Render can't auto-deploy this service: it is linked by
+#   public Git URL, and Render only auto-deploys repos connected through its
+#   Git provider integration (#21). deploy-api calls the hook instead.
+#
 # Set BACKEND_ORIGIN (Render API URL) in the Vercel project env, not here.
-# Render longmuch-api is a separate host. Trigger it (CLI or dashboard)
-# so /contract matches this checkout before calling the job done.
+# GITHUB_TOKEN pushes (nightly screen, Dependabot auto-merge) don't fire
+# `push`; the nightly dispatches this workflow and deploy-catchup.yml
+# dispatches it for any main head that never got a deploy run.
 
 name: Deploy website
 
@@ -49,8 +55,45 @@ jobs:
       - name: Deploy
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
+  deploy-api:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      API: https://longmuch-api.onrender.com
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Deploy Render API when backend changed
+        run: |
+          set -euo pipefail
+          if [ -z "$HOOK" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK_URL is not set; Render API not deployed (#21)"
+            exit 0
+          fi
+          live_commit() { curl -fsS --max-time 90 "$API/health" | jq -r '.commit // empty' || true; }
+          live=$(live_commit)
+          echo "Render live commit: ${live:-unknown}"
+          if [ "$live" = "$GITHUB_SHA" ]; then echo "already live"; exit 0; fi
+          if [ -n "$live" ] && git cat-file -e "$live^{commit}" 2>/dev/null \
+             && git diff --quiet "$live" "$GITHUB_SHA" -- backend render.yaml; then
+            echo "no backend/ or render.yaml changes since $live; skipping Render deploy"
+            exit 0
+          fi
+          resp=$(curl -fsS -X POST "${HOOK}&ref=${GITHUB_SHA}")
+          echo "Render deploy: $(echo "$resp" | jq -r '.deploy.id // .id // "?"')"
+          for i in $(seq 1 60); do
+            sleep 20
+            live=$(live_commit)
+            if [ "$live" = "$GITHUB_SHA" ]; then echo "Render live at $live"; exit 0; fi
+          done
+          echo "::error::Render not live at $GITHUB_SHA after 20 min (live: ${live:-unknown})"
+          exit 1
+
   prove-live:
-    needs: deploy-frontend
+    needs: [deploy-frontend, deploy-api]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

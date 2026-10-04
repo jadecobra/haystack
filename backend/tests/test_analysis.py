@@ -1,5 +1,6 @@
 import os
 import unittest
+import unittest.mock
 from pathlib import Path
 from unittest import mock
 
@@ -124,6 +125,12 @@ class TestAnalysis(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["status"], "healthy")
         self.assertIn("message", body)
+        self.assertIn("commit", body)
+
+    def test_health_reports_render_commit(self):
+        with unittest.mock.patch.dict(os.environ, {"RENDER_GIT_COMMIT": "abc123"}):
+            body = self.client.get("/health").json()
+        self.assertEqual(body["commit"], "abc123")
 
     def test_analyze_ticker_endpoint(self):
         years = ["2024", "2023", "2022", "2021", "2020"]

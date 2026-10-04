@@ -1,0 +1,36 @@
+# Commits landed with GITHUB_TOKEN (Dependabot auto-merge, nightly screen
+# fast-forward) don't fire `push`, so Deploy website never runs for them.
+# Hourly: if the current main head has no Deploy website run, dispatch one.
+name: Deploy catch-up
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: deploy-catchup
+  cancel-in-progress: false
+
+jobs:
+  catchup:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      R: ${{ github.repository }}
+    steps:
+      - name: Dispatch Deploy website for an undeployed main head
+        run: |
+          set -euo pipefail
+          sha=$(gh api "repos/$R/commits/main" -q .sha)
+          n=$(gh run list -R "$R" --workflow deploy.yml --commit "$sha" --json databaseId -q length)
+          if [ "$n" -gt 0 ]; then
+            echo "main $sha already has $n Deploy website run(s)"
+            exit 0
+          fi
+          echo "main $sha has no Deploy website run; dispatching"
+          gh workflow run deploy.yml -R "$R" --ref main
