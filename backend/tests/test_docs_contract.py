@@ -1,9 +1,14 @@
 """Docs must quote LOCKED_LABELS and not revive dropped stack claims."""
 
 from pathlib import Path
+import os
 import re
 import unittest
+from unittest import mock
 
+from fastapi.testclient import TestClient
+
+from app.main import AnalysisResponse, app
 from app.metrics import LOCKED_LABELS
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -64,3 +69,16 @@ class TestDocsContract(unittest.TestCase):
     def test_metrics_catalog_labels_match_contract(self):
         listed = re.findall(r'label:\s*"([^"]+)"', METRICS_CATALOG_TS)
         self.assertEqual(listed, list(LOCKED_LABELS))
+
+    def test_analysis_response_cik_is_optional(self):
+        field = AnalysisResponse.model_fields["cik"]
+        self.assertFalse(field.is_required())
+        self.assertIsNone(field.default)
+
+    def test_analyze_fixture_returns_cik_string(self):
+        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):
+            response = TestClient(app).get("/analyze/AAPL")
+        self.assertEqual(response.status_code, 200)
+        cik = response.json().get("cik")
+        self.assertIsInstance(cik, str)
+        self.assertTrue(cik)

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { AnalyzePage } from '../analyze-page';
 import { companyNameFromScreen } from '../utils/screen-name';
 import { normalizeTickerSegment } from '../utils/ticker';
@@ -37,6 +37,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    alternates: {
+      canonical: `/${symbol}`,
+    },
     openGraph: {
       title,
       description,
@@ -44,18 +47,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title,
       description,
     },
   };
 }
 
+function decodedSegment(raw: string): string | null {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+}
+
 export default async function TickerPage({ params }: PageProps) {
   const { ticker: raw } = await params;
+  const decoded = decodedSegment(raw);
   const symbol = normalizeTickerSegment(raw);
-  if (!symbol) {
+  if (!decoded || !symbol) {
     notFound();
+  }
+  if (decoded !== symbol) {
+    permanentRedirect(`/${symbol}`);
   }
 
   return <AnalyzePage initialTicker={symbol} />;

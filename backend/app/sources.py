@@ -72,6 +72,7 @@ def analyze(
             "groups": groups_payload(),
             "schema_version": SCHEMA_VERSION,
             "labels": list(LOCKED_LABELS),
+            "cik": "320193" if ticker == "AAPL" else None,
         }
         if include_timings:
             out["timings"] = {
@@ -167,6 +168,7 @@ def analyze(
         "groups": groups_payload(),
         "schema_version": SCHEMA_VERSION,
         "labels": list(LOCKED_LABELS),
+        "cik": str(cik) if cik is not None else None,
     }
     if include_timings:
         cache_source = facts_meta.get("cache_source")

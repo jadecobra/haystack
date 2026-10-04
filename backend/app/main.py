@@ -94,6 +94,7 @@ class AnalysisResponse(pydantic.BaseModel):
     schema_version: str | None = None
     labels: list[str] | None = None
     timings: dict[str, Any] | None = None
+    cik: str | None = None
 
 
 @app.get("/health")

@@ -75,7 +75,10 @@ FEATURE=backend-analyze .cursor/skills/verify-haystack/helpers/http backend-anal
 FEATURE=backend-contract .cursor/skills/verify-haystack/helpers/http backend-contract
 FEATURE=empty-ticker .cursor/skills/verify-haystack/helpers/http empty-ticker
 FEATURE=metrics-docs .cursor/skills/verify-haystack/helpers/http docs
+FEATURE=share-preview .cursor/skills/verify-haystack/helpers/http share-preview AAPL
 ```
+
+`share-preview` checks ticker HTML for `og:title`, `og:image`, `og:url`, `twitter:card=summary_large_image`, `twitter:image`, and `link rel=canonical` `https://longmuch.com/{TICKER}`. It then GETs the `og:image` URL (200, `image/png`, PNG IHDR 1200×630), checks `/{lowercase}` redirects 307/308 to `/{TICKER}` without following it, and checks `/ZZZZQ` still serves a 1200×630 PNG. `LIVE=1` or `ORIGIN=` runs the same checks off `run.env` (default live origin `https://longmuch.com`). Refuses port 3000.
 
 `backend-analyze` GETs `/analyze/{ticker}` (**live EDGAR** by default). Fixture when `VERIFY_FIXTURE=1` or `helpers/http backend-analyze TICKER --fixture` / `--local` (CLI `--local`). Launch never sets `HAYSTACK_PREFER_FIXTURE`.
 
@@ -97,7 +100,8 @@ FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs 
 - `/screen` ranked S&P 500 OE-yield table (static JSON snapshot; not live)
 - `/screen` `button[data-testid="screen-debt-toggle"]` text `No debt` (`aria-pressed`); on syncs `?debt=none` and shows only `debt_state=zero` rows (`n/a` and `unknown` stay excluded). Caveat `data-testid="screen-debt-caveat"`: `debt-free per reported XBRL; N unknown excluded; financials excluded`
 - `/docs` SSR: `h1` `How metrics are calculated`; all 32 `LOCKED_LABELS` strings in contract order
-- After `ready`: table `h2` includes ticker plus EDGAR `entityName` when present (e.g. `AAPL · Apple Inc.`) and `Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`. Company name is not in the logo header.
+- After `ready`: table `h2` includes ticker plus EDGAR `entityName` when present (e.g. `AAPL · Apple Inc.`) and `Financial Metrics`; rows use Owner Earnings labels (schema 8) with six group headers from `groups`. Company name is not in the logo header. Visible link text `Source: SEC filings` (`data-testid="sec-source-link"`) points at the SEC EDGAR company browse URL (CIK from analyze when present, otherwise the ticker).
+- Ticker HTML sets canonical `https://longmuch.com/{TICKER}`, `og:url`, `twitter:card` `summary_large_image`, and a 1200×630 PNG from `opengraph-image` (Twitter image falls back to that file). `/{lowercase}` permanently redirects to `/{TICKER}`.
 - While `waiting`: same DataTable chrome with group headers from `/api/contract` (or cached groups), year headers from last-known years or five `…` placeholders, metric cells `—`; `h2` may be ticker-only (`AAPL Financial Metrics`); status line is `Working…` plus elapsed clock (no timer-faked pipeline stages); no `Analyzing...` button label
 - Document title `LongMuch - How much? How long?` (layout metadata)
 - Next API path `/api/analyze/:ticker` (proxies to FastAPI; prove HTTP 200 with locked metric labels from `/contract`)
@@ -140,7 +144,7 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 
 - `helpers/launch` — isolated frontend + backend
 - `helpers/doctor` — read-only health plus isolation gate
-- `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker` — curl against isolated origins
+- `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen|share-preview` — curl against isolated origins (`share-preview` also accepts `LIVE=1` or `ORIGIN=`)
 - `helpers/live-origin` — production ship gate (www.longmuch.com title + Render `/contract` vs local schema)
 - `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
 - `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)

@@ -51,3 +51,4 @@ Keep implementation details out of the map except where they change what the use
 - [Backend health](./backend-health.md) covers GET `/health` on the isolated FastAPI origin.
 - [Backend analyze](./backend-analyze.md) maps GET `/analyze/{ticker}` (live EDGAR default; fixture via env or CLI `--local`) plus `uv run longmuch analyze TICKER --local`.
 - [Empty ticker](./empty-ticker.md) covers Analyze disabled when the input is empty.
+- [Share preview](./share-preview.md) covers canonical ticker URLs, Open Graph / Twitter card tags, and the 1200×630 share image.

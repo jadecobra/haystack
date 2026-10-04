@@ -11,6 +11,9 @@
 #   FEATURE=backend-contract helpers/http backend-contract
 #   FEATURE=empty-ticker helpers/http empty-ticker
 #   FEATURE=metrics-docs helpers/http docs
+#   FEATURE=share-preview helpers/http share-preview AAPL
+#   LIVE=1 FEATURE=share-preview helpers/http share-preview AAPL
+#   ORIGIN=https://longmuch.com FEATURE=share-preview helpers/http share-preview AAPL
 #
 # backend-analyze defaults to live EDGAR. Fixture only when VERIFY_FIXTURE=1
 # or --fixture/--local (runs `uv run longmuch analyze TICKER --local`).
@@ -25,8 +28,21 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib.sh"
 
-load_run
-refuse_frontend_origin "$FRONTEND_ORIGIN"
+# share-preview can target production without a local run.env.
+# LIVE=1 defaults ORIGIN to https://longmuch.com. Never attach to :3000.
+if [[ "${1:-}" == "share-preview" && ( -n "${ORIGIN:-}" || "${LIVE:-0}" == "1" ) ]]; then
+  if [[ -n "${ORIGIN:-}" ]]; then
+    FRONTEND_ORIGIN="${ORIGIN%/}"
+  else
+    FRONTEND_ORIGIN="https://longmuch.com"
+  fi
+  if [[ "$FRONTEND_ORIGIN" == *":3000"* ]]; then
+    die "refusing frontend origin $FRONTEND_ORIGIN (port 3000)"
+  fi
+else
+  load_run
+  refuse_frontend_origin "$FRONTEND_ORIGIN"
+fi
 
 FEATURE="${FEATURE:-adhoc}"
 EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
@@ -319,8 +335,156 @@ PY
     [[ "$disabled" == "yes" ]] || die "Analyze button is not disabled on empty ticker SSR HTML (got $disabled)"
     echo "empty-ticker ok: Analyze disabled=$disabled on empty input"
     ;;
+  share-preview)
+    FEATURE="${FEATURE:-share-preview}"
+    EVIDENCE="$ARTIFACTS_DIR/$FEATURE"
+    mkdir -p "$EVIDENCE"
+    ticker="${1:-AAPL}"
+    ticker="$(printf '%s' "$ticker" | tr '[:lower:]' '[:upper:]')"
+    lower="$(printf '%s' "$ticker" | tr '[:upper:]' '[:lower:]')"
+    page="$EVIDENCE/page.html"
+    page_url="${FRONTEND_ORIGIN}/${ticker}"
+    code="$(curl -sS -o "$page" -w '%{http_code}' --max-time 30 "$page_url" || echo "000")"
+    echo "$code" > "$EVIDENCE/page.status"
+    {
+      echo "feature=$FEATURE"
+      echo "origin=$FRONTEND_ORIGIN"
+      echo "url=$page_url"
+      echo "http_status=$code"
+      echo "live=${LIVE:-0}"
+    } > "$EVIDENCE/page.meta.txt"
+    echo "GET $page_url -> HTTP $code"
+    [[ "$code" == "200" ]] || die "ticker page not 200 (got $code)"
+    python3 - "$page" "$ticker" "$EVIDENCE/og-image.url" <<'PY' || die "ticker HTML missing share meta"
+import re, sys
+html = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+ticker = sys.argv[2]
+canonical = f"https://longmuch.com/{ticker}"
+
+def attrs(tag):
+    return dict(re.findall(r'([:\w-]+)\s*=\s*"([^"]*)"', tag))
+
+need = {
+    "og:title": False,
+    "og:image": None,
+    "og:url": False,
+    "twitter:card": False,
+    "twitter:image": False,
+    "canonical": False,
+}
+for tag in re.findall(r"<meta\b[^>]*>", html, flags=re.I):
+    a = attrs(tag)
+    prop = a.get("property") or a.get("name") or ""
+    content = a.get("content", "")
+    if prop == "og:title" and content:
+        need["og:title"] = True
+    elif prop == "og:image" and content:
+        need["og:image"] = content
+    elif prop == "og:url" and content:
+        need["og:url"] = True
+    elif prop == "twitter:card" and content == "summary_large_image":
+        need["twitter:card"] = True
+    elif prop == "twitter:image" and content:
+        need["twitter:image"] = True
+for tag in re.findall(r"<link\b[^>]*>", html, flags=re.I):
+    a = attrs(tag)
+    rel = a.get("rel", "")
+    href = a.get("href", "")
+    if "canonical" in rel.split() and href == canonical:
+        need["canonical"] = True
+missing = [k for k, v in need.items() if not v]
+print("share-meta", {k: bool(v) for k, v in need.items()})
+if need["og:image"]:
+    open(sys.argv[3], "w", encoding="utf-8").write(need["og:image"])
+    print("og:image", need["og:image"])
+raise SystemExit(1 if missing else 0)
+PY
+    og_url="$(cat "$EVIDENCE/og-image.url")"
+    case "$og_url" in
+      http://*|https://*) img_url="$og_url" ;;
+      /*) img_url="${FRONTEND_ORIGIN}${og_url}" ;;
+      *) die "og:image is not a URL path: $og_url" ;;
+    esac
+    if [[ "$img_url" == *":3000"* ]]; then
+      die "refusing og:image on port 3000: $img_url"
+    fi
+    img="$EVIDENCE/og-image.png"
+    img_code="$(curl -sS -D "$EVIDENCE/og-image.headers" -o "$img" -w '%{http_code}' --max-time 60 "$img_url" || echo "000")"
+    echo "$img_code" > "$EVIDENCE/og-image.status"
+    echo "GET $img_url -> HTTP $img_code"
+    [[ "$img_code" == "200" ]] || die "og:image not 200 (got $img_code)"
+    grep -qi 'content-type: image/png' "$EVIDENCE/og-image.headers" || die "og:image content-type is not image/png"
+    python3 - "$img" <<'PY' || die "og:image PNG is not 1200x630"
+import struct, sys
+data = open(sys.argv[1], "rb").read(24)
+sig = b"\x89PNG\r\n\x1a\n"
+if data[:8] != sig or data[12:16] != b"IHDR":
+    raise SystemExit("not a png")
+w, h = struct.unpack(">II", data[16:24])
+print(f"png {w}x{h}")
+raise SystemExit(0 if (w, h) == (1200, 630) else 1)
+PY
+    redir_headers="$EVIDENCE/lower.headers"
+    redir_url="${FRONTEND_ORIGIN}/${lower}"
+    redir_code="$(curl -sS -D "$redir_headers" -o /dev/null -w '%{http_code}' --max-redirs 0 --max-time 30 "$redir_url" || echo "000")"
+    echo "$redir_code" > "$EVIDENCE/lower.status"
+    location="$(awk 'tolower($1)=="location:" {print $2}' "$redir_headers" | tr -d '\r' | tail -n 1)"
+    echo "GET $redir_url -> HTTP $redir_code location=$location"
+    [[ "$redir_code" == "307" || "$redir_code" == "308" ]] || die "lowercase ticker did not 307/308 (got $redir_code)"
+    loc_path="${location%%\?*}"
+    case "$loc_path" in
+      *"/$ticker") ;;
+      *) die "Location does not end with /$ticker ($location)" ;;
+    esac
+    # Name-only card: ticker absent from the snapshot must still be a 1200x630 PNG.
+    miss="$EVIDENCE/missing.html"
+    miss_url="${FRONTEND_ORIGIN}/ZZZZQ"
+    miss_code="$(curl -sS -o "$miss" -w '%{http_code}' --max-time 30 "$miss_url" || echo "000")"
+    echo "$miss_code" > "$EVIDENCE/missing.status"
+    [[ "$miss_code" == "200" ]] || die "ZZZZQ page not 200 (got $miss_code)"
+    python3 - "$miss" "$EVIDENCE/missing-og.url" <<'PY' || die "ZZZZQ HTML missing og:image"
+import re, sys
+html = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+found = None
+for tag in re.findall(r"<meta\b[^>]*>", html, flags=re.I):
+    attrs = dict(re.findall(r'([:\w-]+)\s*=\s*"([^"]*)"', tag))
+    prop = attrs.get("property") or attrs.get("name") or ""
+    if prop == "og:image" and attrs.get("content"):
+        found = attrs["content"]
+        break
+if not found:
+    raise SystemExit(1)
+open(sys.argv[2], "w", encoding="utf-8").write(found)
+print(found)
+PY
+    miss_og="$(cat "$EVIDENCE/missing-og.url")"
+    case "$miss_og" in
+      http://*|https://*) miss_img_url="$miss_og" ;;
+      /*) miss_img_url="${FRONTEND_ORIGIN}${miss_og}" ;;
+      *) miss_img_url="${FRONTEND_ORIGIN}/ZZZZQ/opengraph-image" ;;
+    esac
+    if [[ "$miss_img_url" == *":3000"* ]]; then
+      die "refusing ZZZZQ image on port 3000"
+    fi
+    miss_img="$EVIDENCE/missing-og.png"
+    miss_img_code="$(curl -sS -D "$EVIDENCE/missing-og.headers" -o "$miss_img" -w '%{http_code}' --max-time 60 "$miss_img_url" || echo "000")"
+    echo "$miss_img_code" > "$EVIDENCE/missing-og.status"
+    echo "GET $miss_img_url -> HTTP $miss_img_code"
+    [[ "$miss_img_code" == "200" ]] || die "ZZZZQ og:image not 200 (got $miss_img_code)"
+    grep -qi 'content-type: image/png' "$EVIDENCE/missing-og.headers" || die "ZZZZQ image content-type is not image/png"
+    python3 - "$miss_img" <<'PY' || die "ZZZZQ PNG is not 1200x630"
+import struct, sys
+data = open(sys.argv[1], "rb").read(24)
+if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+    raise SystemExit("not a png")
+w, h = struct.unpack(">II", data[16:24])
+print(f"png {w}x{h}")
+raise SystemExit(0 if (w, h) == (1200, 630) else 1)
+PY
+    echo "share-preview ok ticker=$ticker origin=$FRONTEND_ORIGIN"
+    ;;
   "")
-    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen"
+    die "usage: helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen|share-preview"
     ;;
   *)
     die "unknown http subcommand: $cmd"

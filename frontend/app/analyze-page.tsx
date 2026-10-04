@@ -49,6 +49,7 @@ type Analysis = {
   previous_close?: number | null;
   previous_close_as_of?: string | null;
   groups?: MetricGroup[];
+  cik?: string | null;
 };
 
 const WAIT_STATUS = 'Working…';
@@ -174,6 +175,7 @@ function parseAnalysis(value: unknown): Analysis | null {
     previous_close: optionalNumber(value.previous_close),
     previous_close_as_of: optionalString(value.previous_close_as_of),
     groups,
+    cik: optionalString(value.cik),
   };
 }
 
@@ -586,6 +588,18 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
               ? `${cardTicker} Financial Metrics`
               : `${headingWithCompany(cardTicker, ready?.company_name)} Financial Metrics | source : ${sourceLabel}`}
           </h2>
+          {view.kind === 'ready' && ready ? (
+            <p className="mb-4">
+              <TextLink
+                href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent((ready.cik && ready.cik.trim()) || ready.ticker)}&type=10-K&dateb=&owner=include&count=40`}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="sec-source-link"
+              >
+                Source: SEC filings
+              </TextLink>
+            </p>
+          ) : null}
           {view.kind === 'waiting' && (
             <p
               className="text-sm sm:text-base text-zinc-400 mb-4"
