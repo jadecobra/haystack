@@ -86,6 +86,10 @@ TAG_PREFS: dict[str, list[str]] = {
         "PaymentsOfDividendsCommonStock",
         "Dividends",
         "PaymentsOfDividendsCommonStockAndPreferredStockAndUnits",
+        # Last: cash-flow ordinary dividends. Fills only years no tag above has.
+        # JNJ tags its cash-flow dividends only as PaymentsOfOrdinaryDividends
+        # (no PaymentsOfDividends* / Dividends), so DPS was blank every year.
+        "PaymentsOfOrdinaryDividends",
     ],
     "dividends_per_share": DPS_TAGS,
     # Owner earnings components — not FIELDS keys; edgar composes owner_earnings from these.

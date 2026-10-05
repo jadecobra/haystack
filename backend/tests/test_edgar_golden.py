@@ -1501,3 +1501,46 @@ def _payer_us_gaap(
         "CommonStockDividendsPerShareDeclared": {"units": {"USD/shares": dps_facts}},
         "CommonStockSharesOutstanding": {"units": {"shares": share_facts}},
     }
+
+
+JNJ_DIVIDENDS = FIXTURES / "jnj_dividends_companyfacts.json"
+
+
+class TestJnjDividendsGolden(unittest.TestCase):
+    """Issue #32: JNJ tags cash-flow dividends only as PaymentsOfOrdinaryDividends.
+
+    10-K (FY2025, filed 2026-02-11): dividends to shareholders $11,770M /
+    $11,823M / $12,381M and cash dividends paid per share $4.70 / $4.91 /
+    $5.14 for FY2023 / FY2024 / FY2025. DPS here is dividends / diluted
+    weighted shares, so it runs up to ~2.5% below the basic-share 10-K figure.
+    """
+
+    def test_jnj_dividends_and_dps_match_10k(self):
+        from app.metrics import compute_year
+
+        payload = json.loads(JNJ_DIVIDENDS.read_text(encoding="utf-8"))
+        _years, statements = map_companyfacts_to_statements(payload)
+        expected = {
+            2023: (11_770_000_000, 4.70),
+            2024: (11_823_000_000, 4.91),
+            2025: (12_381_000_000, 5.14),
+        }
+        for year, (dividends, dps_10k) in expected.items():
+            self.assertEqual(statements[year]["dividends"], dividends, msg=year)
+            dps = compute_year(statements[year], None)["Dividends per Share"]
+            self.assertIsNotNone(dps, msg=year)
+            self.assertAlmostEqual(dps, dps_10k, delta=0.025 * dps_10k, msg=year)
+
+    def test_ordinary_dividends_tag_is_last_resort(self):
+        def annual(val: float) -> dict:
+            return _fy_fact("2025-01-01", "2025-12-31", val, fy=2025, filed="2026-02-20")
+
+        us_gaap = {
+            "PaymentsOfDividends": {"units": {"USD": [annual(100.0)]}},
+            "PaymentsOfOrdinaryDividends": {"units": {"USD": [annual(90.0)]}},
+        }
+        series = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+        self.assertEqual(series[2025], 100.0)
+        del us_gaap["PaymentsOfDividends"]
+        series = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+        self.assertEqual(series[2025], 90.0)
