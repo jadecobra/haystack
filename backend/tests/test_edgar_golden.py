@@ -1363,9 +1363,8 @@ class TestDpsDividends(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 15.2e9)
         self.assertEqual(statements[2025]["dividends"], 15.2e9)
-        # Declared DPS wins the per-share row when present (#33).
-        self.assertEqual(statements[2024]["dividends_per_share"], 15.0)
-        self.assertEqual(statements[2025]["dividends_per_share"], 15.0)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
+        self.assertIsNone(statements[2025]["dividends_per_share"])
 
     def test_single_candidate_year_is_not_overridden(self):
         shares = 1_000_000_000.0
@@ -1378,15 +1377,14 @@ class TestDpsDividends(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 1_000_000.0)
         self.assertEqual(statements[2025]["dividends"], 15.0e9)
-        # 2024 cash is under 1/60 of DPS x shares (scale gap): no declared DPS.
         self.assertIsNone(statements[2024]["dividends_per_share"])
-        self.assertEqual(statements[2025]["dividends_per_share"], 15.0)
+        self.assertIsNone(statements[2025]["dividends_per_share"])
 
     def test_zero_falls_through_to_common_stock_tag(self):
         us_gaap = _zero_dividend_us_gaap(common=46e6, dps=0.48)
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 46e6)
-        self.assertEqual(statements[2024]["dividends_per_share"], 0.48)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
 
     def test_zero_without_dps_stays(self):
         us_gaap = _zero_dividend_us_gaap(common=None, dps=None)
@@ -1397,7 +1395,7 @@ class TestDpsDividends(unittest.TestCase):
         us_gaap = _zero_dividend_us_gaap(common=None, dps=0.48)
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertIsNone(statements[2024]["dividends"])
-        self.assertEqual(statements[2024]["dividends_per_share"], 0.48)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
 
     def test_reject_none_matches_default_on_cprt_revenue(self):
         payload = json.loads(CPRT_REVENUE.read_text())
@@ -1515,9 +1513,8 @@ class TestJnjDividendsGolden(unittest.TestCase):
 
     10-K (FY2025, filed 2026-02-11): dividends to shareholders $11,770M /
     $11,823M / $12,381M and cash dividends paid per share $4.70 / $4.91 /
-    $5.14 for FY2023 / FY2024 / FY2025. Since #33 the per-share row is the
-    declared DPS tag (CommonStockDividendsPerShareCashPaid), not dividends /
-    diluted shares (which ran up to ~2.2% low).
+    $5.14 for FY2023 / FY2024 / FY2025. DPS here is dividends / diluted
+    weighted shares, so it runs up to ~2.5% below the basic-share 10-K figure.
     """
 
     def test_jnj_dividends_and_dps_match_10k(self):
@@ -1534,8 +1531,7 @@ class TestJnjDividendsGolden(unittest.TestCase):
             self.assertEqual(statements[year]["dividends"], dividends, msg=year)
             dps = compute_year(statements[year], None)["Dividends per Share"]
             self.assertIsNotNone(dps, msg=year)
-            # #33: declared DPS tag wins; within 0.5% of the 10-K.
-            self.assertAlmostEqual(dps, dps_10k, delta=0.005 * dps_10k, msg=year)
+            self.assertAlmostEqual(dps, dps_10k, delta=0.025 * dps_10k, msg=year)
 
     def test_ordinary_dividends_tag_is_last_resort(self):
         def annual(val: float) -> dict:
@@ -1611,47 +1607,3 @@ class TestDividendUpperBound(unittest.TestCase):
             "units": {"USD/shares": [_fy_fact("2024-01-01", "2024-12-31", 3.84, fy=2024, filed="2025-02-15")]}
         }
         self.assertEqual(_dividends_per_share_aligned(us_gaap)[2024], 3.84)
-
-
-class TestDerivedDpsShares(unittest.TestCase):
-    """Issue #33: declared DPS wins when credible; else dividends / basic shares."""
-
-    def _payload(self, *, dividends, dps):
-        us_gaap = _payer_us_gaap(
-            years=(2024, 2025), dividends=dividends, dps=dps, shares=1_000_000_000.0
-        )
-        basic = [
-            _fy_fact(f"{y}-01-01", f"{y}-12-31", 980_000_000.0, fy=y, filed=f"{y + 1}-02-15")
-            for y in (2024, 2025)
-        ]
-        diluted = [
-            _fy_fact(f"{y}-01-01", f"{y}-12-31", 1_000_000_000.0, fy=y, filed=f"{y + 1}-02-15")
-            for y in (2024, 2025)
-        ]
-        us_gaap["WeightedAverageNumberOfSharesOutstandingBasic"] = {"units": {"shares": basic}}
-        us_gaap["WeightedAverageNumberOfDilutedSharesOutstanding"] = {"units": {"shares": diluted}}
-        _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
-        return statements
-
-    def test_declared_dps_wins(self):
-        st = self._payload(dividends=1.0e9, dps=1.05)
-        self.assertEqual(compute_year(st[2025], None)["Dividends per Share"], 1.05)
-
-    def test_quarterly_rate_tag_falls_back_to_basic_shares(self):
-        st = self._payload(dividends=4.0e9, dps=1.0)
-        self.assertIsNone(st[2025]["dividends_per_share"])
-        self.assertEqual(st[2025]["dividend_shares"], 980_000_000.0)
-        self.assertEqual(st[2025]["shares"], 1_000_000_000.0)
-        self.assertAlmostEqual(
-            compute_year(st[2025], None)["Dividends per Share"], 4.0e9 / 980_000_000.0
-        )
-
-    def test_basic_outside_band_uses_ladder_shares(self):
-        from app.edgar import _dividend_shares
-
-        us_gaap = {
-            "WeightedAverageNumberOfSharesOutstandingBasic": {
-                "units": {"shares": [_fy_fact("2025-01-01", "2025-12-31", 980.0, fy=2025, filed="2026-02-15")]}
-            }
-        }
-        self.assertEqual(_dividend_shares(us_gaap, {2025: 980_000_000.0}), {2025: 980_000_000.0})

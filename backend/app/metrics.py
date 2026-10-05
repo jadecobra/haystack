@@ -167,10 +167,9 @@ def compute_year(
     oe_ps = _ratio(owner_earnings, shares)
     cash_ps = _ratio(s["cash"], shares)
     revenue_ps = _ratio(s["revenue"], shares)
-    # Declared DPS when edgar set it; else dividends / basic shares (#33).
     div_ps = _num(stmt.get("dividends_per_share"))
     if div_ps is None:
-        div_ps = _ratio(div, _num(stmt.get("dividend_shares")) or shares)
+        div_ps = _ratio(div, shares)
     ni_ps = _ratio(ni, shares)
     assets_ps = _ratio(s["assets"], shares)
     equity_ps = _ratio(s["equity"], shares)

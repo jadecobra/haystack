@@ -1343,85 +1343,9 @@ def _compose_dividends(
                 over[year] = per_share * raw[year] / adjusted
     if len(candidates) < _DPS_OVERRIDE_MIN_YEARS:
         candidates = {}
-    blanked = {**candidates, **over}
-    out = {year: val for year, val in ladder.items() if year not in blanked}
-    overrides = _declared_dps(dps, raw, adj_shares, ladder)
-    overrides.update(blanked)
+    overrides = {**candidates, **over}
+    out = {year: val for year, val in ladder.items() if year not in overrides}
     return out, overrides
-
-
-def _declared_dps(
-    dps: dict[int, float],
-    raw: dict[int, float],
-    adj_shares: dict[int, float],
-    ladder: dict[int, float],
-) -> dict[int, float]:
-    """Declared DPS on the split-adjusted basis, per year it is credible (#33).
-
-    A declared-DPS tag wins the per-share row when present:
-    ``dps * raw / adj``. It is skipped (the row falls back to dividends /
-    basic shares in ``metrics.compute_year``) when the raw/adjusted share
-    scale is outside 1/60..60, or when the year has a nonzero ladder value
-    and ``ladder / (dps * raw)`` is in ``QUARTERLY_RATE_RATIO_BAND`` (the
-    tag holds one quarter's rate: AIG 0.32, CEG 0.3525) or outside
-    1/60..60 (a unit-scale error, XYL FY2015 DPS 0.0056).
-    """
-    band_lo, band_hi = QUARTERLY_RATE_RATIO_BAND
-    out: dict[int, float] = {}
-    for year, per_share in dps.items():
-        if per_share is None or per_share <= 0:
-            continue
-        if year not in raw or not adj_shares.get(year):
-            continue
-        scale = raw[year] / adj_shares[year]
-        if not (_SPLIT_ABS_LO <= scale <= _SPLIT_ABS_HI):
-            continue
-        cash = abs(ladder.get(year) or 0.0)
-        if cash:
-            ratio = cash / (per_share * raw[year])
-            if not (_SPLIT_ABS_LO <= ratio <= _SPLIT_ABS_HI):
-                continue
-            if band_lo <= ratio <= band_hi:
-                continue
-        out[year] = per_share * scale
-    return out
-
-
-# Basic weighted shares within this band of the ladder count are used as the
-# derived-DPS denominator; outside it (a scale or split glitch on one tag) the
-# ladder count is used.
-_BASIC_TO_LADDER_SHARES_BAND = (0.8, 1.1)
-
-
-def _dividend_shares(
-    us_gaap: dict[str, Any], adj_shares: dict[int, float]
-) -> dict[int, float]:
-    """Denominator for derived DPS (dividends / shares) when no declared DPS.
-
-    Split-adjusted ``WeightedAverageNumberOfSharesOutstandingBasic``
-    (issue #33). Over 506 cached names, cash dividends / basic weighted
-    shares matched the declared DPS tag with a median error of 0.7% (signed
-    -0.0%), against 1.3% (-0.8%) for diluted weighted, 1.7% for year-end
-    ``CommonStockSharesOutstanding`` and 1.8% for the cover-page
-    ``dei:EntityCommonStockSharesOutstanding``. Dividends are paid on basic
-    shares across the year; diluted adds unexercised awards, and point-in-time
-    counts miss buybacks and issuance during the year. A year without a basic
-    count, or whose basic count is outside ``_BASIC_TO_LADDER_SHARES_BAND`` of
-    ``adj_shares``, uses ``adj_shares``.
-    """
-    node = us_gaap.get("WeightedAverageNumberOfSharesOutstandingBasic")
-    basic: dict[int, float] = {}
-    if isinstance(node, dict):
-        basic = _split_adjusted_shares_for_tag(_unit_entries(node, prefer_shares=True))
-    lo, hi = _BASIC_TO_LADDER_SHARES_BAND
-    out: dict[int, float] = {}
-    for year, shares in adj_shares.items():
-        b = basic.get(year)
-        if b and shares and lo <= b / shares <= hi:
-            out[year] = b
-        else:
-            out[year] = shares
-    return out
 
 
 def _merge_sum_series(a: dict[int, float], b: dict[int, float]) -> dict[int, float]:
@@ -1829,7 +1753,6 @@ def map_companyfacts_to_statements(
     cash = _series_for_tags(us_gaap, TAG_PREFS["cash"])
     shares = split_adjusted_shares(us_gaap)
     dividends, dividends_per_share = _compose_dividends(us_gaap, shares)
-    dividend_shares = _dividend_shares(us_gaap, shares)
 
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])
     if not liabilities:
@@ -1892,7 +1815,6 @@ def map_companyfacts_to_statements(
         row["dividends_per_share"] = (
             dividends_per_share[y] if y in dividends_per_share else None
         )
-        row["dividend_shares"] = dividend_shares.get(y)
         statements[y] = row
     return years, statements
 
