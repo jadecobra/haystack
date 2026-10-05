@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Production ship gate. Isolated helpers/http is not this.
-# Default origins: https://www.longmuch.com and https://longmuch-api.onrender.com
-# Override with LIVE_WEB and LIVE_API.
+# Default origins: https://longmuch.com and https://longmuch-api.onrender.com
+# Override with LIVE_WEB and LIVE_API. LIVE_WWW (default https://www.longmuch.com)
+# must permanently redirect (301/308) to $LIVE_WEB keeping path + query;
+# set LIVE_WWW= (empty) to skip that check.
 #
 # Usage:
 #   FEATURE=live-origin helpers/live-origin
@@ -15,7 +17,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib.sh"
 
-LIVE_WEB="${LIVE_WEB:-https://www.longmuch.com}"
+LIVE_WEB="${LIVE_WEB:-https://longmuch.com}"
+LIVE_WWW="${LIVE_WWW-https://www.longmuch.com}"
 LIVE_API="${LIVE_API:-https://longmuch-api.onrender.com}"
 EXPECTED_TITLE="LongMuch - How much? How long?"
 
@@ -55,6 +58,20 @@ echo "GET $LIVE_WEB/ -> HTTP $web_code title=$title"
 [[ "$title" == "$EXPECTED_TITLE" ]] || die "live title is not $EXPECTED_TITLE (got $title). Isolated prove is not production."
 if grep -q 'Create Next App' "$web_html"; then
   die "live HTML still contains Create Next App"
+fi
+
+# www -> apex permanent redirect (Vercel project domain redirect, 308).
+if [[ -n "$LIVE_WWW" ]]; then
+  for path in "/" "/AAPL?x=1"; do
+    set +e
+    hdr="$(curl -sS -o /dev/null -D - --max-time 25 "$LIVE_WWW$path")"
+    set -e
+    code="$(printf '%s' "$hdr" | awk 'toupper($1) ~ /^HTTP/ {c=$2} END {print c}')"
+    loc="$(printf '%s' "$hdr" | awk 'tolower($1)=="location:" {print $2}' | tr -d '\r' | tail -1)"
+    echo "GET $LIVE_WWW$path -> HTTP $code location=$loc" | tee -a "$EVIDENCE/www-redirect.txt"
+    [[ "$code" == "301" || "$code" == "308" ]] || die "www not a permanent redirect (got $code for $LIVE_WWW$path)"
+    [[ "$loc" == "$LIVE_WEB$path" ]] || die "www redirect location $loc != $LIVE_WEB$path"
+  done
 fi
 
 contract_body="$EVIDENCE/contract.json"

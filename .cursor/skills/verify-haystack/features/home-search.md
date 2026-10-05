@@ -34,7 +34,7 @@ Preconditions:
 
 ## Gotchas
 
-- Document title and the visually hidden `h1` both say LongMuch. The visible identity is the SVG lockup. Isolated `helpers/http home` does not prove www.longmuch.com. Use `helpers/live-origin` for that.
+- Document title and the visually hidden `h1` both say LongMuch. The visible identity is the SVG lockup. Isolated `helpers/http home` does not prove longmuch.com. Use `helpers/live-origin` for that.
 - Homepage is `'use client'`. SSR still emits the logo, hidden `h1`, placeholder, and Analyze button; KPI cards and the metrics table are not in the first HTML.
 - Agent orchestrator `ao start` also wants :3000. This skill never uses that origin.
 - Analyze is disabled while the ticker is empty, so the SSR button has a `disabled` attribute. That is expected on first paint.

@@ -1,6 +1,6 @@
 ---
 name: verify-haystack
-description: "Drive LongMuch / haystack Next.js web UI (ticker search, available annual 10-K metrics) plus FastAPI sidecar on isolated ports, or prove www.longmuch.com is shipped. Use when proving homepage Analyze, KPI/table rendering, GET /health, GET /analyze, or production title+/contract after merge, without attaching to :3000 or :8000."
+description: "Drive LongMuch / haystack Next.js web UI (ticker search, available annual 10-K metrics) plus FastAPI sidecar on isolated ports, or prove longmuch.com is shipped. Use when proving homepage Analyze, KPI/table rendering, GET /health, GET /analyze, or production title+/contract after merge, without attaching to :3000 or :8000."
 ---
 
 # Verify haystack (LongMuch)
@@ -124,7 +124,7 @@ Proof standards:
 - Homepage GET has no side effects (no writes, no EDGAR).
 - Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (CLI `--local`, `VERIFY_FIXTURE=1` / helper `--fixture` via CLI, or backend-process `HAYSTACK_PREFER_FIXTURE=1`). The `?fixture=` query is ignored. The table appears only after client `data` is set; SSR `/` has no metric rows.
 - **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`helpers/browser.cjs check-issues`); SSR/curl cannot see it.
-- **Live origin (ship).** Isolated doctor on 3457–3464 / 8015–8022 is not production. Merged `main` is git, not runtime. A green **Deploy website** / `deploy-frontend` job is not ship. Vercel HTML and Render `/contract` deploy independently. Do not tell the user the job is done until `helpers/live-origin` passes: public HTML `<title>` is `LongMuch - How much? How long?` (no `Create Next App`) **and** `GET {LIVE_API}/contract` `schema_version` matches `uv run longmuch contract` from this checkout. Frontend 200 with an `h1` of LongMuch is not enough. If the API host is asleep or still on an old schema, that is a failed ship. Deploy or wake `longmuch-api`, then re-run the gate. Defaults: `LIVE_WEB=https://www.longmuch.com`, `LIVE_API=https://longmuch-api.onrender.com`. GitHub job `prove-live` after `deploy-frontend` is the same check. Do not treat isolated `helpers/http home` as that gate.
+- **Live origin (ship).** Isolated doctor on 3457–3464 / 8015–8022 is not production. Merged `main` is git, not runtime. A green **Deploy website** / `deploy-frontend` job is not ship. Vercel HTML and Render `/contract` deploy independently. Do not tell the user the job is done until `helpers/live-origin` passes: public HTML `<title>` is `LongMuch - How much? How long?` (no `Create Next App`) **and** `GET {LIVE_API}/contract` `schema_version` matches `uv run longmuch contract` from this checkout. Frontend 200 with an `h1` of LongMuch is not enough. If the API host is asleep or still on an old schema, that is a failed ship. Deploy or wake `longmuch-api`, then re-run the gate. Defaults: `LIVE_WEB=https://longmuch.com`, `LIVE_API=https://longmuch-api.onrender.com`. It also requires `LIVE_WWW=https://www.longmuch.com` `/` and `/AAPL?x=1` to answer 301/308 with `location` on the apex, same path and query (Vercel project-domain redirect; `LIVE_WWW=` skips). GitHub job `prove-live` after `deploy-frontend` is the same check. Do not treat isolated `helpers/http home` as that gate.
 
 Feature recipes: `features/README.md` and one file per feature.
 
@@ -145,7 +145,7 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 - `helpers/launch` — isolated frontend + backend
 - `helpers/doctor` — read-only health plus isolation gate
 - `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen|share-preview` — curl against isolated origins (`share-preview` also accepts `LIVE=1` or `ORIGIN=`)
-- `helpers/live-origin` — production ship gate (www.longmuch.com title + Render `/contract` vs local schema)
+- `helpers/live-origin` — production ship gate (longmuch.com title + www→apex 308 + Render `/contract` vs local schema)
 - `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
 - `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)
 - `node helpers/browser.cjs check-issues [path...]` — fail if Next.js shows a visible Issues badge or a console error (default path `/`)
