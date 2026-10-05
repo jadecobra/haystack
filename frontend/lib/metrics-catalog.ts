@@ -70,7 +70,7 @@ const CATALOG: MetricDocDraft[] = [
   },
   {
     label: "Dividends per Share / Last Close Price",
-    formula: "(Dividends ÷ Shares) ÷ Last Close Price",
+    formula: "Dividends per Share ÷ Last Close Price",
     meaning: "Dividends per share compared with the latest closing share price.",
   },
   {
@@ -170,8 +170,8 @@ const CATALOG: MetricDocDraft[] = [
   },
   {
     label: "Dividends per Share",
-    formula: "Dividends ÷ Shares",
-    meaning: "Cash dividends on a per-share basis.",
+    formula: "Declared dividends per share; if not reported, Dividends ÷ Basic Shares",
+    meaning: "Common dividends per share as declared in the 10-K.",
   },
   {
     label: "Net Income per Share",
