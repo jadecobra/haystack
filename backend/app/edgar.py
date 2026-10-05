@@ -531,44 +531,44 @@ def _series_for_tags(
 ) -> dict[int, float]:
     """Per-year ladder. First tag that fills a year wins.
 
-    Pass 1 (every series, including ``prefer_shares``): the first tag with
-    an annual value for that year wins. Annual means a 12-month duration
-    (350–380 days) or an instant fact, both ``fp=FY`` or 10-K
-    (``_is_annual`` / ``_pick_annual_by_year``). Earlier tags only fill
-    years they actually have; later tags fill the rest (a stale Revenues
-    FY2018 does not block RevenueFromContractWithCustomer… for 2020+).
+    Walk the ladder one tag at a time. For each tag, take its annual values
+    first (``_pick_annual_by_year``): a 12-month duration (350–380 days) or
+    an instant fact, both ``fp=FY`` or 10-K. Then — only for flow series
+    (``prefer_shares`` is false) — fill years that tag still lacks from its
+    four-quarter chain sums (``_sum_contiguous_fy_quarters``). The next tag
+    runs only after both of those steps, and only fills years still empty.
+    An earlier tag's quarter chain therefore beats a later tag's annual
+    (ARES 2025 #28: ``PaymentsOfDividends`` four 10-K quarters sum to
+    $84.569M, while the later ``Dividends`` equity-statement annual,
+    including NCI distributions, is $2.6B). Within one tag an annual still
+    beats its own quarter chain. Earlier tags only fill years they actually
+    have; later tags fill the rest (a stale Revenues FY2018 does not block
+    RevenueFromContractWithCustomer… for 2020+). ``prefer_shares`` is
+    annual-only and never sums.
 
-    Pass 2 (flow series only — skipped when ``prefer_shares`` is true):
-    years that no ladder tag filled in pass 1. Some filers only tag the
-    quarterly breakdown inside the 10-K and never emit a 12-month fact
-    (AAPL FY2012 PaymentsOfDividends is four quarters whose last one
-    equals the full-year dividend). For each such year, try tags in ladder
-    order. Group that tag's ``fp=FY`` / 10-K rows by ``filed`` and accept
-    a chain of exactly four non-overlapping contiguous duration facts
-    (each 80–100 days; each next start is the previous end or the next
-    day; first start through last end is 350–380 days). The chain's last
-    end must be within 31 days of E(Y) (see ``_pick_annual_by_year``).
-    The chain with the latest end wins; if several filings qualify, the
-    latest ``filed`` wins. The year is the sum of the four. A lone quarter
-    is never accepted. Share counts are averages (``prefer_shares`` /
+    A chain is exactly four non-overlapping contiguous ``fp=FY`` / 10-K
+    duration facts for that tag, grouped by ``filed`` (each 80–100 days;
+    each next start is the previous end or the next day; first start through
+    last end is 350–380 days). The chain's last end must be within 31 days
+    of E(Y) (see ``_pick_annual_by_year``). The chain with the latest end
+    wins; if several filings qualify, the latest ``filed`` wins. A lone
+    quarter is never accepted. Some filers only tag the quarterly breakdown
+    inside the 10-K and never emit a 12-month fact (AAPL FY2012
+    PaymentsOfDividends is four quarters whose last one equals the full-year
+    dividend). Share counts are averages (``prefer_shares`` /
     ``split_adjusted_shares``) and are never summed.
     """
     out: dict[int, float] = {}
-    flow_entries: list[list[dict[str, Any]]] = []
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
             continue
         entries = _unit_entries(node, prefer_shares=prefer_shares)
-        series = _pick_annual_by_year(entries)
-        for year, val in series.items():
+        for year, val in _pick_annual_by_year(entries).items():
             if year not in out:
                 out[year] = val
-        if not prefer_shares:
-            flow_entries.append(entries)
-    if prefer_shares:
-        return out
-    for entries in flow_entries:
+        if prefer_shares:
+            continue
         for year, val in _sum_contiguous_fy_quarters(entries).items():
             if year not in out:
                 out[year] = val

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from unittest import mock
 
+from app.tags import TAG_PREFS
 from app.edgar import (
     entity_name,
     map_companyfacts_to_statements,
@@ -871,8 +872,44 @@ class TestQuarterChainPass(unittest.TestCase):
         series = _series_for_tags(us_gaap, ["PaymentsOfDividends"])
         self.assertEqual(series[2012], 2.5e9)
 
-    def test_annual_on_any_tag_blocks_quarter_sum(self):
+    def test_earlier_tag_quarter_chain_beats_later_tag_annual(self):
         quarters = _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS)
+        annual = {
+            "start": "2011-09-25",
+            "end": "2012-09-29",
+            "val": 9.0e9,
+            "fy": 2012,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2012-10-31",
+        }
+        us_gaap = {
+            "PaymentsOfDividends": {"units": {"USD": quarters}},
+            "PaymentsOfDividendsCommonStock": {"units": {"USD": [annual]}},
+        }
+        series = _series_for_tags(
+            us_gaap,
+            ["PaymentsOfDividends", "PaymentsOfDividendsCommonStock"],
+        )
+        self.assertEqual(series[2012], 2.5e9)
+
+    def test_same_tag_annual_beats_its_quarter_chain(self):
+        quarters = _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS)
+        annual = {
+            "start": "2011-09-25",
+            "end": "2012-09-29",
+            "val": 9.0e9,
+            "fy": 2012,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2012-10-31",
+        }
+        us_gaap = {"PaymentsOfDividends": {"units": {"USD": [*quarters, annual]}}}
+        series = _series_for_tags(us_gaap, ["PaymentsOfDividends"])
+        self.assertEqual(series[2012], 9.0e9)
+
+    def test_later_tag_annual_fills_year_earlier_tag_lacks(self):
+        quarters = _quarter_facts(_AAPL_FY2012_DIVIDEND_QUARTERS[:3])
         annual = {
             "start": "2011-09-25",
             "end": "2012-09-29",
@@ -922,6 +959,44 @@ class TestQuarterChainPass(unittest.TestCase):
             prefer_shares=True,
         )
         self.assertNotIn(2012, series)
+
+
+class TestAresDividendsGolden(unittest.TestCase):
+    """ARES #28: PaymentsOfDividends quarter chains beat later Dividends annuals."""
+
+    def test_quarter_chains_beat_equity_statement_dividends(self):
+        fy2024 = _quarter_facts(
+            [
+                ("2024-01-01", "2024-03-31", 16_294_000),
+                ("2024-04-01", "2024-06-30", 16_008_000),
+                ("2024-07-01", "2024-09-30", 16_242_000),
+                ("2024-10-01", "2024-12-31", 16_098_000),
+            ],
+            fy=2024,
+            filed="2025-02-27",
+        )
+        fy2025 = _quarter_facts(
+            [
+                ("2025-01-01", "2025-03-31", 21_489_000),
+                ("2025-04-01", "2025-06-30", 20_958_000),
+                ("2025-07-01", "2025-09-30", 21_095_000),
+                ("2025-10-01", "2025-12-31", 21_027_000),
+            ],
+            fy=2025,
+            filed="2026-02-25",
+        )
+        dividends_annual = [
+            _fy_fact("2023-01-01", "2023-12-31", 1_128_911_000, fy=2025, filed="2026-02-25"),
+            _fy_fact("2024-01-01", "2024-12-31", 1_457_396_000, fy=2025, filed="2026-02-25"),
+            _fy_fact("2025-01-01", "2025-12-31", 2_600_142_000, fy=2025, filed="2026-02-25"),
+        ]
+        us_gaap = {
+            "PaymentsOfDividends": {"units": {"USD": [*fy2024, *fy2025]}},
+            "Dividends": {"units": {"USD": dividends_annual}},
+        }
+        series = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+        self.assertEqual(series[2024], 64_642_000)
+        self.assertEqual(series[2025], 84_569_000)
 
 
 def _fy_fact(
