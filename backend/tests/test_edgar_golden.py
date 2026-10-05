@@ -19,6 +19,7 @@ from app.edgar import (
     _dividends_per_share_aligned,
     _is_annual,
     _series_for_tags,
+    rescale_share_facts,
 )
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -1607,3 +1608,96 @@ class TestDividendUpperBound(unittest.TestCase):
             "units": {"USD/shares": [_fy_fact("2024-01-01", "2024-12-31", 3.84, fy=2024, filed="2025-02-15")]}
         }
         self.assertEqual(_dividends_per_share_aligned(us_gaap)[2024], 3.84)
+
+
+MCD_SHARES = FIXTURES / "mcd_shares_companyfacts.json"
+COP_SHARES = FIXTURES / "cop_shares_companyfacts.json"
+
+
+def _cover(accn: str, end: str, val: float, fy: int) -> dict:
+    return {"end": end, "val": val, "accn": accn, "fy": fy, "fp": "FY", "form": "10-K", "filed": end}
+
+
+def _share_fact(accn: str, start: str, end: str, val: float, fy: int, filed: str) -> dict:
+    return {"start": start, "end": end, "val": val, "accn": accn, "fy": fy, "fp": "FY", "form": "10-K", "filed": filed}
+
+
+class TestShareUnitScale(unittest.TestCase):
+    """Issue #34: share facts tagged without their thousands/millions scale."""
+
+    def test_mcd_shares_and_dps_match_10k(self):
+        payload = json.loads(MCD_SHARES.read_text(encoding="utf-8"))
+        _years, statements = map_companyfacts_to_statements(payload)
+        # 10-K weighted diluted shares (millions): 732.3 / 721.9 / 716.4.
+        self.assertEqual(statements[2023]["shares"], 732_300_000)
+        self.assertEqual(statements[2024]["shares"], 721_900_000)
+        self.assertEqual(statements[2025]["shares"], 716_400_000)
+        self.assertEqual(statements[2022]["shares"], 741_300_000)
+        # 10-K dividends declared per share: $6.23 / $6.78 / $7.17 (FY2023-25).
+        # Derived DPS is dividends / diluted shares, ~0.5% under.
+        for year, dps_10k in ((2023, 6.23), (2024, 6.78), (2025, 7.17)):
+            dps = compute_year(statements[year], None)["Dividends per Share"]
+            self.assertAlmostEqual(dps, dps_10k, delta=0.01 * dps_10k, msg=year)
+
+    def test_cop_thousands_and_overscaled_years(self):
+        payload = json.loads(COP_SHARES.read_text(encoding="utf-8"))
+        shares = split_adjusted_shares(rescale_share_facts(payload))
+        for year in (2010, 2011, 2012, 2013, 2014):
+            self.assertTrue(1.0e9 < shares[year] < 1.6e9, msg=(year, shares[year]))
+
+    def _payload(self, facts: list[dict], covers: list[dict]) -> dict:
+        return {
+            "facts": {
+                "us-gaap": {"WeightedAverageNumberOfDilutedSharesOutstanding": {"units": {"shares": facts}}},
+                "dei": {"EntityCommonStockSharesOutstanding": {"units": {"shares": covers}}},
+            }
+        }
+
+    def _vals(self, payload: dict) -> list[float]:
+        node = rescale_share_facts(payload)["WeightedAverageNumberOfDilutedSharesOutstanding"]
+        return [e["val"] for e in node["units"]["shares"]]
+
+    def test_millions_fact_is_rescaled_against_its_cover(self):
+        payload = self._payload(
+            [
+                _share_fact("a1", "2022-01-01", "2022-12-31", 741_300_000, 2022, "2023-02-24"),
+                _share_fact("a2", "2023-01-01", "2023-12-31", 732.3, 2023, "2024-02-22"),
+            ],
+            [_cover("a1", "2023-01-31", 731_496_951, 2022), _cover("a2", "2024-01-31", 722_051_488, 2023)],
+        )
+        self.assertEqual(self._vals(payload), [741_300_000, 732_300_000])
+
+    def test_misscaled_cover_does_not_move_a_correct_fact(self):
+        payload = self._payload(
+            [
+                _share_fact("a1", "2022-01-01", "2022-12-31", 92_700_000, 2022, "2023-02-24"),
+                _share_fact("a2", "2023-01-01", "2023-12-31", 89_500_000, 2023, "2024-02-22"),
+            ],
+            [_cover("a1", "2023-01-31", 89_900_000, 2022), _cover("a2", "2024-01-31", 89_932_185_000, 2023)],
+        )
+        self.assertEqual(self._vals(payload), [92_700_000, 89_500_000])
+
+    def test_hundredfold_typo_and_real_split_are_not_scale_errors(self):
+        payload = self._payload(
+            [
+                _share_fact("a1", "2022-01-01", "2022-12-31", 800_000_000, 2022, "2023-02-24"),
+                _share_fact("a2", "2023-01-01", "2023-12-31", 8_000_000, 2023, "2024-02-22"),
+                _share_fact("a3", "2024-01-01", "2024-12-31", 16_000_000_000, 2024, "2025-02-22"),
+            ],
+            [
+                _cover("a1", "2023-01-31", 800_000_000, 2022),
+                _cover("a2", "2024-01-31", 800_000_000, 2023),
+                _cover("a3", "2025-01-31", 800_000_000, 2024),  # 20:1 split after the cover date
+            ],
+        )
+        self.assertEqual(self._vals(payload), [800_000_000, 8_000_000, 16_000_000_000])
+
+    def test_filer_always_on_another_unit_is_left_alone(self):
+        payload = self._payload(
+            [
+                _share_fact("a1", "2022-01-01", "2022-12-31", 1_600_000, 2022, "2023-02-24"),
+                _share_fact("a2", "2023-01-01", "2023-12-31", 1_580_000, 2023, "2024-02-22"),
+            ],
+            [_cover("a1", "2023-01-31", 1_400_000_000, 2022), _cover("a2", "2024-01-31", 1_390_000_000, 2023)],
+        )
+        self.assertEqual(self._vals(payload), [1_600_000, 1_580_000])

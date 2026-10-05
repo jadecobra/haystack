@@ -1014,6 +1014,137 @@ def _split_adjusted_shares_for_tag(
     return out
 
 
+# A share fact whose ratio to its own filing's cover-page share count is
+# within this many decades (~3.2x) of 10^(3k), k != 0, is a missing (or
+# doubled) thousands/millions scale. Real splits (2-50x) never land there;
+# a ~100x typo (FITB's 2010 nine-month 8,000,000) does not either.
+_SHARE_SCALE_TOLERANCE_DECADES = 0.5
+# The rescaled fact must also land within this band of the same tag's nearest
+# (by period end) on-scale fact. Cover counts are themselves sometimes
+# mis-scaled (PKG's Q1 2023 10-Q cover: 89,932,185,000), so the cover ratio
+# alone is not enough. 4x leaves room for a typical split between the facts.
+_SHARE_SCALE_CONTINUITY_BAND = (1.0 / 4.0, 4.0)
+
+
+def _cover_shares_by_accn(dei: dict[str, Any]) -> dict[str, float]:
+    """Max ``dei:EntityCommonStockSharesOutstanding`` per accession (units)."""
+    node = dei.get("EntityCommonStockSharesOutstanding") if isinstance(dei, dict) else None
+    out: dict[str, float] = {}
+    if not isinstance(node, dict):
+        return out
+    for entry in _unit_entries(node, prefer_shares=True):
+        if not isinstance(entry, dict):
+            continue
+        accn = entry.get("accn")
+        try:
+            val = float(entry.get("val"))
+        except (TypeError, ValueError):
+            continue
+        if accn and val > 0:
+            out[accn] = max(out.get(accn, 0.0), val)
+    return out
+
+
+def _share_scale_exponent(val: float, cover: float) -> int:
+    """k such that ``val`` is ~10^(3k) times ``cover``; 0 when on the same scale."""
+    if val <= 0 or cover <= 0:
+        return 0
+    decades = math.log10(val / cover)
+    k = round(decades / 3)
+    if k != 0 and abs(decades - 3 * k) <= _SHARE_SCALE_TOLERANCE_DECADES:
+        return k
+    return 0
+
+
+def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
+    """us-gaap facts with thousand/million-scale share errors corrected (#34).
+
+    Some filings tag share counts without their scale. MCD's FY2023-FY2025
+    10-Ks tag weighted diluted shares as 732.3 (millions) while the same
+    filing's cover page reports 722,051,488 shares. COP FY2012-FY2019 and EG
+    FY2012-FY2019 used thousands; COP FY2010-FY2011 tagged 1000x too large.
+
+    Anchor: the cover-page ``dei:EntityCommonStockSharesOutstanding`` of the
+    same accession, always in units. For each fact on a ``TAG_PREFS["shares"]``
+    tag (plus ``WeightedAverageNumberOfSharesOutstandingBasic``), k is the
+    nearest multiple of three decades in val / cover. When k != 0 and the
+    ratio is within ``_SHARE_SCALE_TOLERANCE_DECADES`` of 10^(3k), the fact
+    is divided by 10^(3k), but only when the result is within
+    ``_SHARE_SCALE_CONTINUITY_BAND`` of the tag's nearest on-scale fact, so
+    the series stays continuous and a mis-scaled cover count (PKG, QCOM
+    10-Qs) cannot move a correct fact. A tag is corrected only when at least
+    one of its filings is already on the cover scale (k == 0), so a filer that always
+    reports in a different unit (BRK class-A equivalents vs class-B cover
+    count) is left alone. A fact whose filing has no cover count is scaled
+    against the nearest cover-verified on-scale fact of the same tag instead
+    (same 10^(3k) test). Runs before ``split_adjusted_shares``; real splits (2-50x)
+    never reach the 1000x band, so the #20 split logic is unaffected.
+    """
+    facts = companyfacts.get("facts") or {}
+    us_gaap = facts.get("us-gaap") or {}
+    cover = _cover_shares_by_accn(facts.get("dei") or {})
+    if not cover or not isinstance(us_gaap, dict):
+        return us_gaap
+    out = dict(us_gaap)
+    tags = list(dict.fromkeys([*TAG_PREFS["shares"], "WeightedAverageNumberOfSharesOutstandingBasic"]))
+    for tag in tags:
+        node = us_gaap.get(tag)
+        if not isinstance(node, dict):
+            continue
+        units = node.get("units") or {}
+        entries = units.get("shares") if isinstance(units, dict) else None
+        if not isinstance(entries, list):
+            continue
+        exps: list[tuple[int, int]] = []
+        uncovered: list[int] = []
+        for idx, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                continue
+            try:
+                val = float(entry.get("val"))
+            except (TypeError, ValueError):
+                continue
+            if entry.get("accn") not in cover:
+                uncovered.append(idx)
+                continue
+            exps.append((idx, _share_scale_exponent(val, cover[entry["accn"]])))
+        refs = [
+            (end, float(entries[idx]["val"]))
+            for idx, k in exps
+            if k == 0 and (end := _parse_iso_date(entries[idx].get("end"))) is not None
+        ]
+        if not refs:
+            continue
+        fixed = list(entries)
+        changed = False
+        # No cover count for the filing (BRK's FY2011 10-K tags only per-class
+        # cover counts): scale against the nearest cover-verified fact itself.
+        for idx in uncovered:
+            end = _parse_iso_date(entries[idx].get("end"))
+            if end is None:
+                continue
+            ref = min(refs, key=lambda item: abs((item[0] - end).days))[1]
+            k = _share_scale_exponent(float(entries[idx]["val"]), ref)
+            if k:
+                fixed[idx] = {**entries[idx], "val": float(entries[idx]["val"]) / (10 ** (3 * k))}
+                changed = True
+        for idx, k in exps:
+            if not k:
+                continue
+            end = _parse_iso_date(entries[idx].get("end"))
+            if end is None:
+                continue
+            corrected = float(entries[idx]["val"]) / (10 ** (3 * k))
+            ref = min(refs, key=lambda item: abs((item[0] - end).days))[1]
+            lo, hi = _SHARE_SCALE_CONTINUITY_BAND
+            if ref > 0 and lo <= corrected / ref <= hi:
+                fixed[idx] = {**entries[idx], "val": corrected}
+                changed = True
+        if changed:
+            out[tag] = {**node, "units": {**units, "shares": fixed}}
+    return out
+
+
 def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
     """Annual diluted/basic/outstanding shares on a post-split basis.
 
@@ -1743,6 +1874,7 @@ def map_companyfacts_to_statements(
     us_gaap = facts.get("us-gaap") or {}
     if not isinstance(us_gaap, dict) or not us_gaap:
         raise ValueError("companyfacts missing us-gaap facts")
+    us_gaap = rescale_share_facts(companyfacts)
 
     revenue = _series_for_tags(
         us_gaap, TAG_PREFS["revenue"], short_context_annual=True
