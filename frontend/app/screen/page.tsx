@@ -4,6 +4,7 @@ import { Card, DataTable, PageShell, TextLink } from "../components";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { formatBuiltLabel } from "@/lib/formatBuilt";
 
 const WAIT_STATUS = "Working…";
 const SKELETON_ROW_COUNT = 12;
@@ -256,7 +257,7 @@ function ScreenPageInner() {
         >
           Prices as of {data.price_as_of ?? "—"}
           <span className="block text-base sm:text-xl text-zinc-400 mt-1">
-            Built {data.built_at ?? "—"}
+            {formatBuiltLabel(data.built_at)}
           </span>
         </p>
       ) : waiting ? (
