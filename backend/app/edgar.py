@@ -16,7 +16,7 @@ from datetime import date, timedelta
 from concurrent.futures import Future
 from pathlib import Path
 from statistics import median
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
@@ -615,8 +615,17 @@ def _series_for_tags(
     *,
     prefer_shares: bool = False,
     short_context_annual: bool = False,
+    reject: Callable[[int, float], bool] | None = None,
 ) -> dict[int, float]:
     """Per-year ladder. First tag that fills a year wins.
+
+    ``reject``, when given, receives ``(year, value)`` before a value is
+    stored. A flagged pair never fills that year, in pass 1 (annual), pass 2
+    (quarter chain), or pass 3. The walk continues to later steps and later
+    tags for that year. Default ``None`` leaves the ladder unchanged (issue
+    #31: a $0 ``PaymentsOfDividends`` must not block a later common-stock
+    tag when aligned declared DPS is positive).
+
 
     Walk the ladder one tag at a time. For each tag, take its annual values
     first (``_pick_annual_by_year``): a 12-month duration (350–380 days) or
@@ -664,12 +673,12 @@ def _series_for_tags(
         entries = _unit_entries(node, prefer_shares=prefer_shares)
         cached.append(entries)
         for year, val in _pick_annual_by_year(entries).items():
-            if year not in out:
+            if year not in out and not (reject is not None and reject(year, val)):
                 out[year] = val
         if prefer_shares:
             continue
         for year, val in _sum_contiguous_fy_quarters(entries).items():
-            if year not in out:
+            if year not in out and not (reject is not None and reject(year, val)):
                 out[year] = val
     if short_context_annual:
         pending: set[int] = set()
@@ -688,7 +697,9 @@ def _series_for_tags(
                 break
             found = _short_context_annual_by_year(entries, out, pending)
             for year, val in found.items():
-                if year not in out:
+                if year not in out and not (
+                    reject is not None and reject(year, val)
+                ):
                     out[year] = val
                     pending.discard(year)
     return out
@@ -1212,15 +1223,21 @@ def _dividends_per_share_aligned(us_gaap: dict[str, Any]) -> dict[int, float]:
 def _compose_dividends(
     us_gaap: dict[str, Any],
     adj_shares: dict[int, float],
-) -> dict[int, float]:
-    """Dividends ladder, overridden by DPS × as-reported shares when guarded.
+) -> tuple[dict[int, float], dict[int, float]]:
+    """Dividends ladder, with junk years left blank (issue #31).
+
+    Replaces 734899f's DPS × shares numerator. Dual-class shares that
+    receive no dividends make that product too high. DPS × shares is only
+    the junk yardstick.
 
     ``adj_shares`` is the final ``split_adjusted_shares`` result, including
-    the continuation fill. The ladder is ``TAG_PREFS["dividends"]`` (the
-    per-tag rule from #28). Raw counts are ``TAG_PREFS["shares"]`` with
-    ``prefer_shares``, plus continuation years the raw series lacks. Those
-    counts come from the same fy filing as the DPS, so DPS × raw stays
-    basis-consistent across later splits.
+    the continuation fill. Aligned DPS is ``_dividends_per_share_aligned``.
+    The ladder is ``TAG_PREFS["dividends"]`` (the per-tag rule from #28),
+    except a $0 cash-flow value never wins a year where aligned declared
+    DPS is positive. The walk falls through to the next step and tag; if
+    none has a sane value the year stays absent (ALLE, LDOS, FCX). Raw
+    counts are ``TAG_PREFS["shares"]`` with ``prefer_shares``, plus
+    continuation years the raw series lacks.
 
     For each year with ``dps > 0``, raw and adjusted shares present,
     ``1/60 <= raw/adj <= 60`` (a wider gap is a source scale glitch), and a
@@ -1230,24 +1247,29 @@ def _compose_dividends(
     dividend. ARES FY2024 is $64.6M against 3.72 × 313.17M shares; FY2025
     is $84.6M against 4.48 × 327.03M.
 
-    The override runs only when the ticker has at least two candidate years
+    The blanking runs only when the ticker has at least two candidate years
     (a structural mislabel, not a one-off special or a suspension year).
-    Candidate years then take ``implied``. Every other year keeps the
-    ladder. A year the ladder does not have stays empty.
+    Candidate years are deleted from the dividends series, so Dividends /
+    Net Income, / Equity, and / Owner Earnings stay blank. Those years
+    record ``dps * raw / adj`` on the per-share override (declared DPS on
+    the current split-adjusted share basis; ARES 2025 is 4.48 because raw
+    equals adjusted). Non-candidate years keep the ladder and return no
+    per-share override. A year the ladder does not have stays empty.
 
-    ALLE, LDOS, and FCX report ``PaymentsOfDividends`` at zero while common
-    DPS is positive. Zero is below a quarter of the implied common dividend,
-    so those years are candidates and, once a second year agrees, take
-    DPS × shares.
+    Returns ``(dividends, dividends_per_share_override)``.
     """
-    ladder = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+    dps = _dividends_per_share_aligned(us_gaap)
+    ladder = _series_for_tags(
+        us_gaap,
+        TAG_PREFS["dividends"],
+        reject=lambda y, v: v == 0 and dps.get(y, 0) > 0,
+    )
     raw = _series_for_tags(us_gaap, TAG_PREFS["shares"], prefer_shares=True)
     continuation = _continuation_share_series(us_gaap)
     if continuation is not None:
         for year, val in continuation[1].items():
             if year not in raw:
                 raw[year] = val
-    dps = _dividends_per_share_aligned(us_gaap)
     candidates: dict[int, float] = {}
     for year, per_share in dps.items():
         if per_share is None or per_share <= 0:
@@ -1262,12 +1284,13 @@ def _compose_dividends(
             continue
         implied = per_share * raw[year]
         if abs(ladder[year]) < _DPS_OVERRIDE_RATIO * implied:
-            candidates[year] = implied
+            candidates[year] = per_share * raw[year] / adjusted
     if len(candidates) < _DPS_OVERRIDE_MIN_YEARS:
-        return ladder
+        return ladder, {}
     out = dict(ladder)
-    out.update(candidates)
-    return out
+    for year in candidates:
+        del out[year]
+    return out, candidates
 
 
 def _merge_sum_series(a: dict[int, float], b: dict[int, float]) -> dict[int, float]:
@@ -1674,7 +1697,7 @@ def map_companyfacts_to_statements(
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
     cash = _series_for_tags(us_gaap, TAG_PREFS["cash"])
     shares = split_adjusted_shares(us_gaap)
-    dividends = _compose_dividends(us_gaap, shares)
+    dividends, dividends_per_share = _compose_dividends(us_gaap, shares)
 
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])
     if not liabilities:
@@ -1732,8 +1755,11 @@ def map_companyfacts_to_statements(
         row: dict[str, float | str | None] = {
             k: (series[y] if y in series else None) for k, series in field_series.items()
         }
-        # Extra key is not a FIELDS member; compute_year ignores it.
+        # Extra keys are not FIELDS members; the sources gap note is unchanged.
         row["debt_state"] = debt_states.get(y, "unknown")
+        row["dividends_per_share"] = (
+            dividends_per_share[y] if y in dividends_per_share else None
+        )
         statements[y] = row
     return years, statements
 

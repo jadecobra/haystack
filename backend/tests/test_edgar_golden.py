@@ -8,6 +8,7 @@ from pathlib import Path
 
 from unittest import mock
 
+from app.metrics import compute_year
 from app.tags import TAG_PREFS
 from app.edgar import (
     entity_name,
@@ -1289,7 +1290,7 @@ class TestShareContinuation(unittest.TestCase):
 
 
 class TestDpsDividends(unittest.TestCase):
-    def test_ares_dps_times_shares_replaces_financing_line(self):
+    def test_ares_candidate_years_blank_aggregate_and_keep_adjusted_dps(self):
         fy2024 = _quarter_facts(
             [
                 ("2024-01-01", "2024-03-31", 16_294_000),
@@ -1319,6 +1320,14 @@ class TestDpsDividends(unittest.TestCase):
                     ]
                 }
             },
+            "StockholdersEquity": {
+                "units": {
+                    "USD": [
+                        _fy_fact("2024-01-01", "2024-12-31", 5e9, fy=2024, filed="2025-02-27"),
+                        _fy_fact("2025-01-01", "2025-12-31", 5e9, fy=2025, filed="2026-02-25"),
+                    ]
+                }
+            },
             "PaymentsOfDividends": {"units": {"USD": [*fy2024, *fy2025]}},
             "CommonStockDividendsPerShareDeclared": {
                 "units": {
@@ -1331,14 +1340,15 @@ class TestDpsDividends(unittest.TestCase):
             **_ares_share_nodes(),
         }
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
-        self.assertEqual(statements[2025]["dividends"], 4.48 * _ARES_SHARES_2025)
-        self.assertEqual(statements[2024]["dividends"], 3.72 * _ARES_CSO_2024)
+        self.assertIsNone(statements[2024]["dividends"])
+        self.assertIsNone(statements[2025]["dividends"])
+        self.assertEqual(statements[2024]["dividends_per_share"], 3.72)
+        self.assertEqual(statements[2025]["dividends_per_share"], 4.48)
         self.assertEqual(statements[2025]["shares"], _ARES_SHARES_2025)
-        self.assertAlmostEqual(
-            statements[2025]["dividends"] / statements[2025]["shares"],
-            4.48,
-            places=6,
-        )
+        metrics = compute_year(statements[2025], None)
+        self.assertAlmostEqual(metrics["Dividends per Share"], 4.48, places=6)
+        self.assertIsNone(metrics["Dividends / Net Income"])
+        self.assertIsNone(metrics["Dividends / Equity"])
 
     def test_normal_payer_keeps_the_ladder(self):
         shares = 1_000_000_000.0
@@ -1351,6 +1361,8 @@ class TestDpsDividends(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 15.2e9)
         self.assertEqual(statements[2025]["dividends"], 15.2e9)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
+        self.assertIsNone(statements[2025]["dividends_per_share"])
 
     def test_single_candidate_year_is_not_overridden(self):
         shares = 1_000_000_000.0
@@ -1363,6 +1375,34 @@ class TestDpsDividends(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 1_000_000.0)
         self.assertEqual(statements[2025]["dividends"], 15.0e9)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
+        self.assertIsNone(statements[2025]["dividends_per_share"])
+
+    def test_zero_falls_through_to_common_stock_tag(self):
+        us_gaap = _zero_dividend_us_gaap(common=46e6, dps=0.48)
+        _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
+        self.assertEqual(statements[2024]["dividends"], 46e6)
+        self.assertIsNone(statements[2024]["dividends_per_share"])
+
+    def test_zero_without_dps_stays(self):
+        us_gaap = _zero_dividend_us_gaap(common=None, dps=None)
+        _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
+        self.assertEqual(statements[2024]["dividends"], 0.0)
+
+    def test_zero_with_dps_and_no_later_tag_is_absent(self):
+        us_gaap = _zero_dividend_us_gaap(common=None, dps=0.48)
+        _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
+        self.assertIsNone(statements[2024]["dividends"])
+        self.assertIsNone(statements[2024]["dividends_per_share"])
+
+    def test_reject_none_matches_default_on_cprt_revenue(self):
+        payload = json.loads(CPRT_REVENUE.read_text())
+        us_gaap = payload["facts"]["us-gaap"]
+        tags = TAG_PREFS["revenue"]
+        self.assertEqual(
+            _series_for_tags(us_gaap, tags),
+            _series_for_tags(us_gaap, tags, reject=None),
+        )
 
     def test_prior_year_dps_comparative_is_ignored(self):
         shares = 1_000_000_000.0
@@ -1386,6 +1426,47 @@ class TestDpsDividends(unittest.TestCase):
         _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
         self.assertEqual(statements[2024]["dividends"], 1_000_000.0)
         self.assertEqual(statements[2025]["dividends"], 1_000_000.0)
+
+
+def _zero_dividend_us_gaap(*, common: float | None, dps: float | None) -> dict:
+    year = 2024
+    filed = "2025-02-15"
+    us_gaap: dict = {
+        "NetIncomeLoss": {
+            "units": {
+                "USD": [
+                    _fy_fact(f"{year}-01-01", f"{year}-12-31", 1e9, fy=year, filed=filed)
+                ]
+            }
+        },
+        "PaymentsOfDividends": {
+            "units": {
+                "USD": [_fy_fact(f"{year}-01-01", f"{year}-12-31", 0, fy=year, filed=filed)]
+            }
+        },
+        "CommonStockSharesOutstanding": {
+            "units": {"shares": [_instant_share(f"{year}-12-31", 100_000_000.0, year, filed)]}
+        },
+    }
+    if common is not None:
+        us_gaap["PaymentsOfDividendsCommonStock"] = {
+            "units": {
+                "USD": [
+                    _fy_fact(
+                        f"{year}-01-01", f"{year}-12-31", common, fy=year, filed=filed
+                    )
+                ]
+            }
+        }
+    if dps is not None:
+        us_gaap["CommonStockDividendsPerShareDeclared"] = {
+            "units": {
+                "USD/shares": [
+                    _fy_fact(f"{year}-01-01", f"{year}-12-31", dps, fy=year, filed=filed)
+                ]
+            }
+        }
+    return us_gaap
 
 
 def _payer_us_gaap(
