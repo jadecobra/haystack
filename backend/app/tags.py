@@ -2,6 +2,13 @@
 
 from __future__ import annotations
 
+# Declared/paid common DPS. edgar composes a dividends candidate from these
+# times as-reported shares; see ``_compose_dividends``.
+DPS_TAGS = [
+    "CommonStockDividendsPerShareDeclared",
+    "CommonStockDividendsPerShareCashPaid",
+]
+
 # Keys align with app.metrics.FIELDS (plus owner-earnings component tags).
 TAG_PREFS: dict[str, list[str]] = {
     "revenue": [
@@ -80,6 +87,7 @@ TAG_PREFS: dict[str, list[str]] = {
         "Dividends",
         "PaymentsOfDividendsCommonStockAndPreferredStockAndUnits",
     ],
+    "dividends_per_share": DPS_TAGS,
     # Owner earnings components — not FIELDS keys; edgar composes owner_earnings from these.
     "operating_cf": [
         "NetCashProvidedByUsedInOperatingActivities",

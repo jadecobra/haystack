@@ -27,6 +27,11 @@ _SPLIT_RATIO_HI = 1.15
 # Largest real splits are ~50:1 (CMG 2024). Outside this band is a unit-scale error.
 _SPLIT_ABS_LO = 1.0 / 60.0
 _SPLIT_ABS_HI = 60.0
+# Cash-flow dividend below this fraction of declared common DPS × shares
+# is not the common dividend (ARES financing line vs declared DPS).
+_DPS_OVERRIDE_RATIO = 0.25
+# One candidate year is a special or a suspension; two or more is a mislabel.
+_DPS_OVERRIDE_MIN_YEARS = 2
 
 # backend/.cache/companyfacts/{cik}.json
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "companyfacts"
@@ -1045,6 +1050,9 @@ def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
        never shows up in the share counts is not an adjustment.
     e) Values must stay positive floats; if a tag has no usable data fall
        through to the next tag as today.
+    f) Years the ladder still lacks are filled from
+       ``_continuation_share_series`` when that value is positive. Overlap
+       years stay on the ladder (ARES 2024 stays CommonStockSharesOutstanding).
     """
     out: dict[int, float] = {}
     for tag in TAG_PREFS["shares"]:
@@ -1056,6 +1064,209 @@ def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
         for year, val in series.items():
             if year not in out and val > 0:
                 out[year] = val
+    continuation = _continuation_share_series(us_gaap)
+    if continuation is not None:
+        for year, val in continuation[1].items():
+            if year not in out and val > 0:
+                out[year] = val
+    return out
+
+
+def _continuation_share_series(
+    us_gaap: dict[str, Any],
+) -> tuple[str, dict[int, float]] | None:
+    """Instant share tag that continues ``CommonStockSharesOutstanding``.
+
+    From the FY2025 10-K on, ARES stopped tagging non-dimensional
+    ``CommonStockSharesOutstanding`` and moved the same total to
+    ``InvestmentOwnedBalanceShares``. The two series agree within 1,000
+    shares on every year-end from 2020–2024 (2024: 313,170,171 vs
+    313,169,171). FY2025 is 327,034,461. Weighted-average basic and diluted
+    counts are dimensional (per class) since 2016, so they are absent from
+    companyfacts. This is a tag switch, not a latest-filed or duration miss.
+
+    Base is ``_pick_annual_by_year`` on the shares unit of
+    ``CommonStockSharesOutstanding``. Every other us-gaap tag that is not in
+    ``TAG_PREFS["shares"]`` and that has a ``shares`` unit list is scanned.
+    Only instant facts (no ``start``) are used, picked per fy with
+    ``_pick_annual_by_year``. A tag qualifies when its last two fiscal years
+    that overlap the base both agree within 0.5 percent
+    (``|v/base-1| <= 0.005`` and ``base > 0``). It contributes only years
+    after ``max(base)``. When several tags qualify, the alphabetically first
+    name wins. Returns ``(tag, years)`` or None.
+    """
+    outstanding = us_gaap.get("CommonStockSharesOutstanding")
+    if not isinstance(outstanding, dict):
+        return None
+    base = _pick_annual_by_year(_unit_entries(outstanding, prefer_shares=True))
+    if not base:
+        return None
+    ladder_tags = set(TAG_PREFS["shares"])
+    base_max = max(base)
+    best: tuple[str, dict[int, float]] | None = None
+    for tag, node in us_gaap.items():
+        if tag in ladder_tags or not isinstance(node, dict):
+            continue
+        units = node.get("units") or {}
+        if not isinstance(units, dict):
+            continue
+        entries = units.get("shares")
+        if not isinstance(entries, list) or not entries:
+            continue
+        instants = [
+            entry
+            for entry in entries
+            if isinstance(entry, dict) and not entry.get("start")
+        ]
+        if not instants:
+            continue
+        series = _pick_annual_by_year(instants)
+        overlap = sorted(year for year in series if year in base)[-2:]
+        if len(overlap) < 2:
+            continue
+        if any(
+            base[year] <= 0 or abs(series[year] / base[year] - 1) > 0.005
+            for year in overlap
+        ):
+            continue
+        extension = {
+            year: val for year, val in series.items() if year > base_max
+        }
+        if extension and (best is None or tag < best[0]):
+            best = (tag, extension)
+    return best
+
+
+def _net_income_period_ends(us_gaap: dict[str, Any]) -> dict[int, date]:
+    """E_ni(Y): anchor end of the first net-income tag with an annual duration for Y."""
+    ends: dict[int, date] = {}
+    for tag in TAG_PREFS["net_income"]:
+        node = us_gaap.get(tag)
+        if not isinstance(node, dict):
+            continue
+        entries = _unit_entries(node)
+        for entry in entries:
+            if not isinstance(entry, dict) or not entry.get("start"):
+                continue
+            if not _is_annual(entry):
+                continue
+            try:
+                year = int(entry.get("fy"))
+            except (TypeError, ValueError):
+                continue
+            if year in ends:
+                continue
+            anchor = _anchor_end_for_year(entries, year)
+            if anchor is not None:
+                ends[year] = anchor
+    return ends
+
+
+def _dividends_per_share_aligned(us_gaap: dict[str, Any]) -> dict[int, float]:
+    """DPS per fy, kept only when a FY/10-K fact ends near that year's net income.
+
+    Each ``TAG_PREFS["dividends_per_share"]`` tag in order contributes its
+    annual value (``_pick_annual_by_year``), else its four-quarter sum.
+    The first tag that fills a year wins. A year is kept only when that tag
+    has at least one FY/10-K fact with ``fy == Y`` whose ``end`` is within
+    31 days of ``E_ni(Y)`` (see ``_net_income_period_ends``). That drops
+    prior-year DPS comparatives left in a filing whose current year paid
+    nothing (CCL, BA, WYNN, HCA suspensions).
+    """
+    ni_end = _net_income_period_ends(us_gaap)
+    out: dict[int, float] = {}
+    for tag in TAG_PREFS["dividends_per_share"]:
+        node = us_gaap.get(tag)
+        if not isinstance(node, dict):
+            continue
+        entries = _unit_entries(node)
+        annual = _pick_annual_by_year(entries)
+        quarters = _sum_contiguous_fy_quarters(entries)
+        for year in set(annual) | set(quarters):
+            if year in out or year not in ni_end:
+                continue
+            aligned = False
+            for entry in entries:
+                if not isinstance(entry, dict) or not _fy_or_10k(entry):
+                    continue
+                try:
+                    if int(entry.get("fy")) != year:
+                        continue
+                except (TypeError, ValueError):
+                    continue
+                end = _parse_iso_date(entry.get("end"))
+                if (
+                    end is not None
+                    and abs((end - ni_end[year]).days) <= _END_ALIGN_DAYS
+                ):
+                    aligned = True
+                    break
+            if not aligned:
+                continue
+            value = annual[year] if year in annual else quarters.get(year)
+            if value is not None:
+                out[year] = value
+    return out
+
+
+def _compose_dividends(
+    us_gaap: dict[str, Any],
+    adj_shares: dict[int, float],
+) -> dict[int, float]:
+    """Dividends ladder, overridden by DPS × as-reported shares when guarded.
+
+    ``adj_shares`` is the final ``split_adjusted_shares`` result, including
+    the continuation fill. The ladder is ``TAG_PREFS["dividends"]`` (the
+    per-tag rule from #28). Raw counts are ``TAG_PREFS["shares"]`` with
+    ``prefer_shares``, plus continuation years the raw series lacks. Those
+    counts come from the same fy filing as the DPS, so DPS × raw stays
+    basis-consistent across later splits.
+
+    For each year with ``dps > 0``, raw and adjusted shares present,
+    ``1/60 <= raw/adj <= 60`` (a wider gap is a source scale glitch), and a
+    ladder value: ``implied = dps * raw``. The year is a candidate when
+    ``abs(ladder) < 0.25 * implied`` — the cash-flow figure is under a
+    quarter of what declared common DPS implies, so it is not the common
+    dividend. ARES FY2024 is $64.6M against 3.72 × 313.17M shares; FY2025
+    is $84.6M against 4.48 × 327.03M.
+
+    The override runs only when the ticker has at least two candidate years
+    (a structural mislabel, not a one-off special or a suspension year).
+    Candidate years then take ``implied``. Every other year keeps the
+    ladder. A year the ladder does not have stays empty.
+
+    ALLE, LDOS, and FCX report ``PaymentsOfDividends`` at zero while common
+    DPS is positive. Zero is below a quarter of the implied common dividend,
+    so those years are candidates and, once a second year agrees, take
+    DPS × shares.
+    """
+    ladder = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+    raw = _series_for_tags(us_gaap, TAG_PREFS["shares"], prefer_shares=True)
+    continuation = _continuation_share_series(us_gaap)
+    if continuation is not None:
+        for year, val in continuation[1].items():
+            if year not in raw:
+                raw[year] = val
+    dps = _dividends_per_share_aligned(us_gaap)
+    candidates: dict[int, float] = {}
+    for year, per_share in dps.items():
+        if per_share is None or per_share <= 0:
+            continue
+        if year not in raw or year not in adj_shares or year not in ladder:
+            continue
+        adjusted = adj_shares[year]
+        if adjusted == 0:
+            continue
+        scale = raw[year] / adjusted
+        if not (_SPLIT_ABS_LO <= scale <= _SPLIT_ABS_HI):
+            continue
+        implied = per_share * raw[year]
+        if abs(ladder[year]) < _DPS_OVERRIDE_RATIO * implied:
+            candidates[year] = implied
+    if len(candidates) < _DPS_OVERRIDE_MIN_YEARS:
+        return ladder
+    out = dict(ladder)
+    out.update(candidates)
     return out
 
 
@@ -1463,7 +1674,7 @@ def map_companyfacts_to_statements(
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
     cash = _series_for_tags(us_gaap, TAG_PREFS["cash"])
     shares = split_adjusted_shares(us_gaap)
-    dividends = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
+    dividends = _compose_dividends(us_gaap, shares)
 
     liabilities = _series_for_tags(us_gaap, ["Liabilities"])
     if not liabilities:
