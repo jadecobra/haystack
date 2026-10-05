@@ -1091,3 +1091,134 @@ class TestCprtRevenueGolden(unittest.TestCase):
             revenue = statements[year]["revenue"]
             self.assertIsNotNone(revenue, msg=year)
             self.assertGreaterEqual(revenue, 1.0e9, msg=year)
+
+
+def _usd(tag: str, facts: list[dict]) -> dict:
+    return {tag: {"units": {"USD": facts}}}
+
+
+def _lhx_revenue_facts(
+    *,
+    q4: float = 21_865_000_000,
+    ytd: float | None = 16_217_000_000,
+) -> list[dict]:
+    """LHX-shaped revenue facts. FY2025 has no 12-month fact (#29)."""
+    facts = [
+        {
+            "start": "2023-12-30",
+            "end": "2025-01-03",
+            "val": 21_325_000_000,
+            "fy": 2024,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2025-02-14",
+        },
+        {
+            "start": "2025-10-04",
+            "end": "2026-01-02",
+            "val": q4,
+            "fy": 2025,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2026-02-12",
+        },
+        {
+            "start": "2023-12-30",
+            "end": "2025-01-03",
+            "val": 21_325_000_000,
+            "fy": 2025,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2026-02-12",
+        },
+        {
+            "start": "2024-09-28",
+            "end": "2025-01-03",
+            "val": 21_325_000_000,
+            "fy": 2025,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2026-02-12",
+        },
+    ]
+    if ytd is not None:
+        facts.append(
+            {
+                "start": "2025-01-04",
+                "end": "2025-10-03",
+                "val": ytd,
+                "fy": 2025,
+                "fp": "Q3",
+                "form": "10-Q",
+                "filed": "2025-10-24",
+            }
+        )
+    return facts
+
+
+def _lhx_payload(
+    *,
+    q4: float = 21_865_000_000,
+    ytd: float | None = 16_217_000_000,
+) -> dict:
+    ni = [
+        {
+            "start": "2023-12-30",
+            "end": "2025-01-03",
+            "val": 1_000_000_000,
+            "fy": 2024,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2025-02-14",
+        },
+        {
+            "start": "2024-12-29",
+            "end": "2026-01-02",
+            "val": 1_100_000_000,
+            "fy": 2025,
+            "fp": "FY",
+            "form": "10-K",
+            "filed": "2026-02-12",
+        },
+    ]
+    return {
+        "facts": {
+            "us-gaap": {
+                **_usd(
+                    "RevenueFromContractWithCustomerExcludingAssessedTax",
+                    _lhx_revenue_facts(q4=q4, ytd=ytd),
+                ),
+                **_usd("NetIncomeLoss", ni),
+            }
+        }
+    }
+
+
+class TestShortContextAnnualRevenue(unittest.TestCase):
+    def test_lhx_fy2025_short_context_fills_revenue(self):
+        _years, statements = map_companyfacts_to_statements(_lhx_payload())
+        self.assertEqual(statements[2025]["revenue"], 21_865_000_000)
+        self.assertEqual(statements[2024]["revenue"], 21_325_000_000)
+
+    def test_genuine_q4_is_rejected(self):
+        _years, statements = map_companyfacts_to_statements(
+            _lhx_payload(q4=5.648e9)
+        )
+        self.assertIsNone(statements[2025]["revenue"])
+
+    def test_missing_nine_month_ytd_is_rejected(self):
+        _years, statements = map_companyfacts_to_statements(
+            _lhx_payload(ytd=None)
+        )
+        self.assertIsNone(statements[2025]["revenue"])
+
+    def test_out_of_band_is_rejected(self):
+        _years, statements = map_companyfacts_to_statements(
+            _lhx_payload(q4=40e9, ytd=16.2e9)
+        )
+        self.assertIsNone(statements[2025]["revenue"])
+
+    def test_flag_off_for_other_series(self):
+        us_gaap = _usd("NetIncomeLoss", _lhx_revenue_facts())
+        series = _series_for_tags(us_gaap, ["NetIncomeLoss"])
+        self.assertNotIn(2025, series)

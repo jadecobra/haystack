@@ -523,11 +523,93 @@ def _sum_contiguous_fy_quarters(entries: list[dict[str, Any]]) -> dict[int, floa
     return out
 
 
+def _short_context_annual_by_year(
+    entries: list[dict[str, Any]],
+    prior: dict[int, float],
+    years: set[int],
+) -> dict[int, float]:
+    """Last-resort FY value from an ~90-day 10-K stub plus a nine-month YTD.
+
+    Some filers never emit a 12-month fact or a four-quarter chain. LHX
+    FY2025 (#29) tags full-year revenue $21.865B on a 90-day context
+    (2025-10-04 -> 2026-01-02, ``fp=FY`` / 10-K) and a nine-month YTD of
+    $16.217B on the Q3 10-Q (2025-01-04 -> 2025-10-03). A prior-year
+    comparative on that same 10-K (2024-09-28 -> 2025-01-03, fy tagged
+    2025) must not fill 2025.
+
+    For each requested year Y, accept fact ``c`` when all of these hold:
+
+    1. ``c`` is ``fp=FY`` or 10-K, ``fy == Y``, has start and end, and
+       lasts 80–100 days.
+    2. ``c``'s end is within ``_END_ALIGN_DAYS`` of E(Y).
+    3. The same tag has a fact of any form/fp lasting 250–290 days whose
+       end is 0–7 days before ``c``'s start, and ``c.val`` is strictly
+       greater than the largest such YTD (a full year exceeds its first
+       nine months; a lone Q4 does not).
+    4. ``prior[Y-1]`` exists and ``2/3 <= c.val / prior[Y-1] <= 3/2``.
+
+    Several qualifiers: latest ``filed``, then latest end.
+    """
+    out: dict[int, float] = {}
+    if not years:
+        return out
+    parsed: list[tuple[dict[str, Any], date, date, int, float, str]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        start = _parse_iso_date(entry.get("start"))
+        end = _parse_iso_date(entry.get("end"))
+        if start is None or end is None:
+            continue
+        days = (end - start).days
+        try:
+            num = float(entry.get("val"))
+        except (TypeError, ValueError):
+            continue
+        parsed.append((entry, start, end, days, num, str(entry.get("filed") or "")))
+
+    for year in years:
+        anchor = _anchor_end_for_year(entries, year)
+        if anchor is None:
+            continue
+        prev = prior.get(year - 1)
+        if prev is None or prev == 0:
+            continue
+        best: tuple[str, str, float] | None = None
+        for entry, start, end, days, num, filed in parsed:
+            if not _fy_or_10k(entry) or not (80 <= days <= 100):
+                continue
+            try:
+                if int(entry.get("fy")) != year:
+                    continue
+            except (TypeError, ValueError):
+                continue
+            if abs((end - anchor).days) > _END_ALIGN_DAYS:
+                continue
+            ytd = [
+                yval
+                for _e, ystart, yend, ydays, yval, _filed in parsed
+                if 250 <= ydays <= 290 and 0 <= (start - yend).days <= 7
+            ]
+            if not ytd or not num > max(ytd):
+                continue
+            ratio = num / prev
+            if not (2 / 3 <= ratio <= 3 / 2):
+                continue
+            key = (filed, end.isoformat())
+            if best is None or (key[0], key[1]) > (best[0], best[1]):
+                best = (filed, end.isoformat(), num)
+        if best is not None:
+            out[year] = best[2]
+    return out
+
+
 def _series_for_tags(
     us_gaap: dict[str, Any],
     tags: list[str],
     *,
     prefer_shares: bool = False,
+    short_context_annual: bool = False,
 ) -> dict[int, float]:
     """Per-year ladder. First tag that fills a year wins.
 
@@ -546,6 +628,16 @@ def _series_for_tags(
     RevenueFromContractWithCustomer… for 2020+). ``prefer_shares`` is
     annual-only and never sums.
 
+    Pass 3 (revenue only). After every tag's annual and quarter-chain walk,
+    ``short_context_annual`` (default false; ``map_companyfacts_to_statements``
+    sets it only for revenue) fills years still empty via
+    ``_short_context_annual_by_year``. Tags are tried in ladder order; the
+    first accepted value wins. A ~90-day FY/10-K stub counts only when a
+    same-tag nine-month YTD ends just before it, the stub exceeds that YTD,
+    and the value stays inside 2/3–3/2 of the already-resolved prior year
+    (LHX FY2025 #29). Other series leave the flag off, so a lone quarter
+    stays absent.
+
     A chain is exactly four non-overlapping contiguous ``fp=FY`` / 10-K
     duration facts for that tag, grouped by ``filed`` (each 80–100 days;
     each next start is the previous end or the next day; first start through
@@ -559,11 +651,13 @@ def _series_for_tags(
     ``split_adjusted_shares``) and are never summed.
     """
     out: dict[int, float] = {}
+    cached: list[list[dict[str, Any]]] = []
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
             continue
         entries = _unit_entries(node, prefer_shares=prefer_shares)
+        cached.append(entries)
         for year, val in _pick_annual_by_year(entries).items():
             if year not in out:
                 out[year] = val
@@ -572,6 +666,26 @@ def _series_for_tags(
         for year, val in _sum_contiguous_fy_quarters(entries).items():
             if year not in out:
                 out[year] = val
+    if short_context_annual:
+        pending: set[int] = set()
+        for entries in cached:
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                try:
+                    year = int(entry.get("fy"))
+                except (TypeError, ValueError):
+                    continue
+                if year not in out:
+                    pending.add(year)
+        for entries in cached:
+            if not pending:
+                break
+            found = _short_context_annual_by_year(entries, out, pending)
+            for year, val in found.items():
+                if year not in out:
+                    out[year] = val
+                    pending.discard(year)
     return out
 
 
@@ -1341,7 +1455,9 @@ def map_companyfacts_to_statements(
     if not isinstance(us_gaap, dict) or not us_gaap:
         raise ValueError("companyfacts missing us-gaap facts")
 
-    revenue = _series_for_tags(us_gaap, TAG_PREFS["revenue"])
+    revenue = _series_for_tags(
+        us_gaap, TAG_PREFS["revenue"], short_context_annual=True
+    )
     net_income = _series_for_tags(us_gaap, TAG_PREFS["net_income"])
     equity = _series_for_tags(us_gaap, TAG_PREFS["equity"])
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
