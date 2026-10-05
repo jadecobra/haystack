@@ -15,6 +15,8 @@ from app.edgar import (
     map_companyfacts_to_statements,
     split_adjusted_shares,
     _http_get_json,
+    MAX_DIVIDEND_TO_DPS_SHARES_RATIO,
+    _dividends_per_share_aligned,
     _is_annual,
     _series_for_tags,
 )
@@ -1544,3 +1546,64 @@ class TestJnjDividendsGolden(unittest.TestCase):
         del us_gaap["PaymentsOfDividends"]
         series = _series_for_tags(us_gaap, TAG_PREFS["dividends"])
         self.assertEqual(series[2025], 90.0)
+
+
+class TestDividendUpperBound(unittest.TestCase):
+    """Issue #33: cash-flow aggregate above 1.5 x declared DPS x shares is blank."""
+
+    shares = 1_000_000_000.0
+
+    def _statements(self, dividends):
+        us_gaap = _payer_us_gaap(
+            years=(2024, 2025), dividends=dividends, dps=1.0, shares=self.shares
+        )
+        _years, statements = map_companyfacts_to_statements(_companyfacts(us_gaap))
+        return statements
+
+    def test_constant_is_one_and_a_half(self):
+        self.assertEqual(MAX_DIVIDEND_TO_DPS_SHARES_RATIO, 1.5)
+
+    def test_above_ratio_blanks_aggregate_and_payouts_keeps_dps(self):
+        st = self._statements({2024: 1.2e9, 2025: 2.0e9})
+        self.assertEqual(st[2024]["dividends"], 1.2e9)
+        self.assertIsNone(st[2025]["dividends"])
+        self.assertEqual(st[2025]["dividends_per_share"], 1.0)
+        metrics = compute_year(st[2025], None)
+        self.assertEqual(metrics["Dividends per Share"], 1.0)
+        self.assertIsNone(metrics["Dividends / Net Income"])
+        self.assertIsNone(metrics["Dividends / Equity"])
+
+    def test_at_ratio_keeps_aggregate(self):
+        st = self._statements(1.5e9)
+        self.assertEqual(st[2025]["dividends"], 1.5e9)
+        self.assertAlmostEqual(compute_year(st[2025], None)["Dividends / Net Income"], 1.5)
+
+    def test_quarterly_rate_tag_does_not_blank(self):
+        # DPS tag holds one quarter's rate: cash is ~4x DPS x shares.
+        st = self._statements(3.9e9)
+        self.assertEqual(st[2025]["dividends"], 3.9e9)
+
+    def test_unit_scale_gap_does_not_blank(self):
+        st = self._statements(100e9)
+        self.assertEqual(st[2025]["dividends"], 100e9)
+
+    def test_instant_dps_fact_is_ignored(self):
+        us_gaap = _payer_us_gaap(
+            years=(2024, 2025), dividends=4.0e9, dps=4.0, shares=self.shares
+        )
+        us_gaap["CommonStockDividendsPerShareDeclared"]["units"]["USD/shares"] = [
+            {"end": "2026-01-04", "val": 1.0, "fy": 2025, "fp": "FY", "form": "10-K", "filed": "2026-02-15"},
+        ]
+        us_gaap["CommonStockDividendsPerShareCashPaid"] = {
+            "units": {"USD/shares": [_fy_fact("2025-01-01", "2025-12-31", 4.0, fy=2025, filed="2026-02-15")]}
+        }
+        self.assertEqual(_dividends_per_share_aligned(us_gaap)[2025], 4.0)
+
+    def test_tiny_first_dps_tag_yields_to_later_tag(self):
+        us_gaap = _payer_us_gaap(
+            years=(2024,), dividends=3.8e9, dps=0.01, shares=self.shares
+        )
+        us_gaap["CommonStockDividendsPerShareCashPaid"] = {
+            "units": {"USD/shares": [_fy_fact("2024-01-01", "2024-12-31", 3.84, fy=2024, filed="2025-02-15")]}
+        }
+        self.assertEqual(_dividends_per_share_aligned(us_gaap)[2024], 3.84)

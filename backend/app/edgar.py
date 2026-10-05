@@ -32,6 +32,14 @@ _SPLIT_ABS_HI = 60.0
 _DPS_OVERRIDE_RATIO = 0.25
 # One candidate year is a special or a suspension; two or more is a mislabel.
 _DPS_OVERRIDE_MIN_YEARS = 2
+# Cash-flow dividend above this multiple of declared common DPS × shares for
+# the same FY also pays preferred dividends or specials the DPS tag does not
+# cover (OXY, GE, BAC 2022/23, EOG 2022). Per year; no minimum count.
+MAX_DIVIDEND_TO_DPS_SHARES_RATIO = 1.5
+# Cash / (DPS × shares) in this band means the DPS tag holds one quarter's
+# rate in an annual context (AIG 0.32, CEG 0.3525, AMAT 0.10 per year), not
+# that cash is too high. The upper guard does not fire there.
+QUARTERLY_RATE_RATIO_BAND = (3.0, 4.6)
 
 # backend/.cache/companyfacts/{cik}.json
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "companyfacts"
@@ -1183,40 +1191,71 @@ def _dividends_per_share_aligned(us_gaap: dict[str, Any]) -> dict[int, float]:
     31 days of ``E_ni(Y)`` (see ``_net_income_period_ends``). That drops
     prior-year DPS comparatives left in a filing whose current year paid
     nothing (CCL, BA, WYNN, HCA suspensions).
+
+    Only duration facts count (issue #33). An instant DPS fact is a single
+    declaration (JNJ FY2020 ``Declared`` 1.01 dated 2021-01-04; AMGN FY2016
+    1.15), not the year's DPS. One-day "durations" (AIG's 0.32 per payment
+    date) fail both the annual window and the quarter chain.
+
+    A tag's year is skipped when a later DPS tag has the same year and the
+    first value is below ``_DPS_OVERRIDE_RATIO`` of it (PLD FY2024
+    ``Declared`` 0.01 vs ``CashPaid`` 3.84). That is not the common DPS.
     """
     ni_end = _net_income_period_ends(us_gaap)
-    out: dict[int, float] = {}
+    per_tag: list[dict[int, float]] = []
     for tag in TAG_PREFS["dividends_per_share"]:
-        node = us_gaap.get(tag)
-        if not isinstance(node, dict):
+        per_tag.append(_dps_series_for_tag(us_gaap, tag, ni_end))
+    out: dict[int, float] = {}
+    for idx, series in enumerate(per_tag):
+        for year, value in series.items():
+            if year in out:
+                continue
+            later = [s[year] for s in per_tag[idx + 1 :] if year in s]
+            if later and value < _DPS_OVERRIDE_RATIO * max(later):
+                continue
+            out[year] = value
+    return out
+
+
+def _dps_series_for_tag(
+    us_gaap: dict[str, Any], tag: str, ni_end: dict[int, date]
+) -> dict[int, float]:
+    """One DPS tag's NI-aligned annual series (see ``_dividends_per_share_aligned``)."""
+    out: dict[int, float] = {}
+    node = us_gaap.get(tag)
+    if not isinstance(node, dict):
+        return out
+    entries = [
+        entry
+        for entry in _unit_entries(node)
+        if isinstance(entry, dict) and entry.get("start")
+    ]
+    annual = _pick_annual_by_year(entries)
+    quarters = _sum_contiguous_fy_quarters(entries)
+    for year in set(annual) | set(quarters):
+        if year not in ni_end:
             continue
-        entries = _unit_entries(node)
-        annual = _pick_annual_by_year(entries)
-        quarters = _sum_contiguous_fy_quarters(entries)
-        for year in set(annual) | set(quarters):
-            if year in out or year not in ni_end:
+        aligned = False
+        for entry in entries:
+            if not isinstance(entry, dict) or not _fy_or_10k(entry):
                 continue
-            aligned = False
-            for entry in entries:
-                if not isinstance(entry, dict) or not _fy_or_10k(entry):
+            try:
+                if int(entry.get("fy")) != year:
                     continue
-                try:
-                    if int(entry.get("fy")) != year:
-                        continue
-                except (TypeError, ValueError):
-                    continue
-                end = _parse_iso_date(entry.get("end"))
-                if (
-                    end is not None
-                    and abs((end - ni_end[year]).days) <= _END_ALIGN_DAYS
-                ):
-                    aligned = True
-                    break
-            if not aligned:
+            except (TypeError, ValueError):
                 continue
-            value = annual[year] if year in annual else quarters.get(year)
-            if value is not None:
-                out[year] = value
+            end = _parse_iso_date(entry.get("end"))
+            if (
+                end is not None
+                and abs((end - ni_end[year]).days) <= _END_ALIGN_DAYS
+            ):
+                aligned = True
+                break
+        if not aligned:
+            continue
+        value = annual[year] if year in annual else quarters.get(year)
+        if value is not None:
+            out[year] = value
     return out
 
 
@@ -1256,6 +1295,17 @@ def _compose_dividends(
     equals adjusted). Non-candidate years keep the ladder and return no
     per-share override. A year the ladder does not have stays empty.
 
+    Upper bound (issue #33): a year whose ladder value exceeds
+    ``MAX_DIVIDEND_TO_DPS_SHARES_RATIO * implied`` is blank on its own (no
+    two-year minimum). That cash-flow line also carries preferred dividends
+    or specials, so Dividends / Net Income and / Equity would overstate the
+    common payout. The year gets the same per-share override as a junk
+    year, so Dividends per Share stays on declared DPS. Two ratios are not
+    "cash too high" and keep the ladder: ``QUARTERLY_RATE_RATIO_BAND``
+    (the DPS tag is one quarter's rate) and above ``_SPLIT_ABS_HI`` (a unit
+    scale error in shares or DPS, e.g. MCD FY2023 diluted shares in
+    millions, XYL FY2015 DPS 0.0056).
+
     Returns ``(dividends, dividends_per_share_override)``.
     """
     dps = _dividends_per_share_aligned(us_gaap)
@@ -1271,6 +1321,7 @@ def _compose_dividends(
             if year not in raw:
                 raw[year] = val
     candidates: dict[int, float] = {}
+    over: dict[int, float] = {}
     for year, per_share in dps.items():
         if per_share is None or per_share <= 0:
             continue
@@ -1285,12 +1336,16 @@ def _compose_dividends(
         implied = per_share * raw[year]
         if abs(ladder[year]) < _DPS_OVERRIDE_RATIO * implied:
             candidates[year] = per_share * raw[year] / adjusted
+        elif abs(ladder[year]) > MAX_DIVIDEND_TO_DPS_SHARES_RATIO * implied:
+            ratio = abs(ladder[year]) / implied
+            band_lo, band_hi = QUARTERLY_RATE_RATIO_BAND
+            if ratio <= _SPLIT_ABS_HI and not (band_lo <= ratio <= band_hi):
+                over[year] = per_share * raw[year] / adjusted
     if len(candidates) < _DPS_OVERRIDE_MIN_YEARS:
-        return ladder, {}
-    out = dict(ladder)
-    for year in candidates:
-        del out[year]
-    return out, candidates
+        candidates = {}
+    overrides = {**candidates, **over}
+    out = {year: val for year, val in ladder.items() if year not in overrides}
+    return out, overrides
 
 
 def _merge_sum_series(a: dict[int, float], b: dict[int, float]) -> dict[int, float]:
