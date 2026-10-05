@@ -34,9 +34,10 @@ def _want_analyze_timings(
         return True
     return _flag_on(debug) or _flag_on(timings)
 
+# www.longmuch.com 308-redirects to the apex (Vercel domain redirect), so
+# the browser origin is always https://longmuch.com.
 _PROD_ORIGINS = [
     "https://longmuch.com",
-    "https://www.longmuch.com",
 ]
 _LOCAL_VERIFY_ORIGINS = [
     *(f"http://127.0.0.1:{p}" for p in range(3457, 3465)),
