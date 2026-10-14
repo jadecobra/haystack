@@ -117,6 +117,7 @@ def _row_from_facts(
         return None
     as_of = quote.get("as_of")
     debt, debt_state = _debt_for_row(stmt)
+    extra = sector_columns(stmt, price=price, oe_per_share=float(oe_ps), debt=debt, debt_state=debt_state)
     return {
         "ticker": ticker,
         "name": company_name,
@@ -127,7 +128,53 @@ def _row_from_facts(
         "price_as_of": str(as_of) if as_of else None,
         "debt": debt,
         "debt_state": debt_state,
+        **extra,
     }
+
+
+SECTOR_COLUMNS = ("payback_years", "ni_to_equity", "debt_to_equity", "no_debt")
+
+
+def _num(value: Any) -> float | None:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if out == out else None  # drop NaN
+
+
+def sector_columns(
+    stmt: dict[str, Any],
+    *,
+    price: float,
+    oe_per_share: float,
+    debt: float | None,
+    debt_state: str,
+) -> dict[str, Any]:
+    """Sector-table columns (#43) from the row's own fiscal year.
+
+    payback_years: price / OE per share (latest FY), only when OE > 0.
+    ni_to_equity / debt_to_equity: only when equity > 0, as in the analyze metrics.
+    no_debt: True/False from debt_state; None when unknown or n/a (Financials).
+    """
+    equity = _num(stmt.get("equity"))
+    ni = _num(stmt.get("net_income"))
+    pos_equity = equity is not None and equity > 0
+    return {
+        "payback_years": price / oe_per_share if oe_per_share > 0 else None,
+        "ni_to_equity": ni / equity if pos_equity and ni is not None else None,
+        "debt_to_equity": debt / equity if pos_equity and debt is not None else None,
+        "no_debt": {"zero": True, "positive": False}.get(debt_state),
+    }
+
+
+def column_coverage(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    """Known vs unknown counts per sector-table column, like debt_coverage."""
+    out: dict[str, dict[str, int]] = {}
+    for col in SECTOR_COLUMNS:
+        known = sum(1 for r in rows if r.get(col) is not None)
+        out[col] = {"known": known, "unknown": len(rows) - known}
+    return out
 
 
 def _debt_for_row(stmt: dict[str, Any]) -> tuple[float | None, str]:
@@ -197,6 +244,14 @@ def log_debt_coverage(payload: dict[str, Any]) -> None:
         f"unknown={cov.get('unknown', 0)} n/a={cov.get('n/a', 0)} "
         f"unknown_tickers={names}\n"
     )
+    cols = meta.get("column_coverage")
+    if isinstance(cols, dict):
+        parts = " ".join(
+            f"{name}={c.get('known', 0)}/{c.get('known', 0) + c.get('unknown', 0)}"
+            for name, c in cols.items()
+            if isinstance(c, dict)
+        )
+        sys.stderr.write(f"column_coverage known/total {parts}\n")
 
 
 def rank_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -239,10 +294,14 @@ def build_payload(
             continue
         if sector_by_ticker.get(str(row["ticker"]).upper()) == "Financials":
             row["debt_state"] = "n/a"
+            row["no_debt"] = None
         if row.get("price_as_of"):
             price_dates.append(str(row["price_as_of"]))
         rows.append(row)
     ranked = rank_rows(rows)
+    # GICS on the stored rows too, so the static seed the frontend falls back
+    # to can still group sector tables (#43).
+    with_gics({"rows": ranked})
     as_of = max(price_dates) if price_dates else None
     stamp = built_at or _now_iso()
     return {
@@ -255,7 +314,10 @@ def build_payload(
         "error": error,
         "caveat": CAVEAT,
         "rows": ranked,
-        "meta": {"debt_coverage": debt_coverage(ranked)},
+        "meta": {
+            "debt_coverage": debt_coverage(ranked),
+            "column_coverage": column_coverage(ranked),
+        },
     }
 
 

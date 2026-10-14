@@ -135,7 +135,7 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(block["sic"], 3711)
         self.assertEqual(block["sector"], "Manufacturing")
         self.assertEqual(block["industry"], body["sicDescription"])
-        self.assertEqual(block["link"], "/screen?sic=3711")
+        self.assertIsNone(block["link"])
 
 
 class TestAnalyzeClassificationContract(unittest.TestCase):
@@ -183,7 +183,7 @@ class TestAnalyzeClassificationContract(unittest.TestCase):
                 "industry": "Motor Vehicles & Passenger Car Bodies",
                 "sic": 3711,
                 "sic_description": "Motor Vehicles & Passenger Car Bodies",
-                "link": "/screen?sic=3711",
+                "link": None,
             },
             "payback": None,
         }

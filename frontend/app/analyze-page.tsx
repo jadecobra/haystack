@@ -17,6 +17,7 @@ import {
   type ClassificationBlock,
 } from '../lib/classificationLabel';
 import { peersHeading, peersMore, type PeersBlock } from '../lib/peersCopy';
+import { SectorTable } from './sector-table';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
 
@@ -736,6 +737,15 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                 {peersExtra ? <li className="text-zinc-500">{peersExtra}</li> : null}
               </ul>
             </section>
+          ) : null}
+          {ready && ready.classification?.scheme === 'gics' ? (
+            <SectorTable
+              key={ready.ticker}
+              kind="ticker"
+              ticker={ready.ticker}
+              subIndustry={ready.classification.industry ?? null}
+              sector={ready.classification.sector ?? null}
+            />
           ) : null}
         </Card>
       )}

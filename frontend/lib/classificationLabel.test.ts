@@ -27,7 +27,7 @@ describe("classificationLabel", () => {
       sector: "Manufacturing",
       industry: "Motor Vehicles & Passenger Car Bodies",
       sic: 3711,
-      link: "/screen?sic=3711",
+      link: null,
     };
     assert.equal(
       classificationLabel(block),

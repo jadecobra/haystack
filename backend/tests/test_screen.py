@@ -312,3 +312,28 @@ class ScreenApiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSectorColumns(unittest.TestCase):
+    def test_columns_and_coverage(self):
+        from app.screen import column_coverage, sector_columns
+
+        cols = sector_columns(
+            {"equity": 200.0, "net_income": 50.0},
+            price=100.0, oe_per_share=5.0, debt=100.0, debt_state="positive",
+        )
+        self.assertEqual(cols, {"payback_years": 20.0, "ni_to_equity": 0.25,
+                                "debt_to_equity": 0.5, "no_debt": False})
+        neg = sector_columns(
+            {"equity": -10.0, "net_income": 5.0},
+            price=100.0, oe_per_share=-1.0, debt=None, debt_state="unknown",
+        )
+        self.assertEqual(neg, {"payback_years": None, "ni_to_equity": None,
+                               "debt_to_equity": None, "no_debt": None})
+        zero = sector_columns({"equity": 10.0, "net_income": 1.0}, price=10.0,
+                              oe_per_share=1.0, debt=0.0, debt_state="zero")
+        self.assertTrue(zero["no_debt"])
+        self.assertEqual(zero["debt_to_equity"], 0.0)
+        cov = column_coverage([cols, neg])
+        self.assertEqual(cov["payback_years"], {"known": 1, "unknown": 1})
+        self.assertEqual(cov["no_debt"], {"known": 1, "unknown": 1})

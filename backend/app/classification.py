@@ -217,7 +217,9 @@ def classify(ticker: str, cik: str | None = None) -> dict[str, Any] | None:
             "industry": desc,
             "sic": sic,
             "sic_description": desc,
-            "link": f"/screen?sic={sic:04d}" if sic < 10000 else f"/screen?sic={sic}",
+            # Non-S&P names get no comparison link (#43: S&P-only tables,
+            # no SIC→GICS mapping).
+            "link": None,
         }
     except Exception:
         return None
