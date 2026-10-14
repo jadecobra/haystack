@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   groupForTicker, groupRows, parseSectorRow, resolveSlug, sectorCells, sectorSlug,
-  groupCountNote, type SectorRow,
+  groupCountNote, debtCell, SECTOR_TABLE_HEADERS, DEBT_TOOLTIP_NA, DEBT_TOOLTIP_UNKNOWN,
+  DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
 } from "./sectorTable.ts";
 
 const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
   ticker, name: `${ticker} Inc`, oe_yield: oe, payback_years: null, ni_to_equity: null,
-  debt_to_equity: null, no_debt: null, fy: 2025, sector, sub_industry: sub, ...extra,
+  debt_to_equity: null, no_debt: null, debt_state: "unknown", fy: 2025, sector, sub_industry: sub, ...extra,
 });
 const HW = "Technology Hardware, Storage & Peripherals";
 const IT = "Information Technology";
@@ -58,7 +59,7 @@ describe("parse and cells", () => {
     const r = parseSectorRow({ ticker: "jpm", name: "JPMorgan", oe_yield: 0.05, fy: 2025, payback_years: 20,
       ni_to_equity: 0.165, debt_to_equity: null, no_debt: null, sector: "Financials", sub_industry: "Diversified Banks" });
     assert.ok(r);
-    assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "—", "2025"]);
+    assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "2025"]);
     assert.equal(parseSectorRow({ ticker: "X" }), null);
   });
 });
@@ -86,5 +87,25 @@ describe("blank OE yields (#52)", () => {
     const g = groupRows(fin, "sector", "Financials", 40, "jpm");
     assert.equal(g.rows.length, 40);
     assert.equal(g.rows[39].ticker, "JPM");
+  });
+});
+
+describe("D/E cell folds no-debt (#51)", () => {
+  it("drops the No debt column", () => {
+    assert.ok(!SECTOR_TABLE_HEADERS.includes("No debt"));
+    assert.equal(SECTOR_TABLE_HEADERS[5], "Debt / equity");
+  });
+  it("ratio with debt, 0 (no debt) only with evidence, dash plus tooltip otherwise", () => {
+    const base = row("X", 0.02, HW, IT);
+    assert.deepEqual(debtCell({ ...base, debt_state: "positive", debt_to_equity: 1.338 }), { text: "1.34", title: null });
+    assert.equal(debtCell({ ...base, debt_state: "zero", debt_to_equity: 0 }).text, "0 (no debt)");
+    assert.deepEqual(debtCell({ ...base, debt_state: "n/a", debt_to_equity: 0.18 }), { text: "—", title: DEBT_TOOLTIP_NA });
+    assert.deepEqual(debtCell({ ...base, debt_state: "unknown" }), { text: "—", title: DEBT_TOOLTIP_UNKNOWN });
+    assert.deepEqual(debtCell({ ...base, debt_state: "positive", debt_to_equity: null }), { text: "—", title: DEBT_TOOLTIP_NO_EQUITY });
+  });
+  it("parses debt_state, falling back to no_debt for older seeds", () => {
+    assert.equal(parseSectorRow({ ticker: "JPM", fy: 2025, debt_state: "n/a" })?.debt_state, "n/a");
+    assert.equal(parseSectorRow({ ticker: "OLD", fy: 2025, no_debt: true })?.debt_state, "zero");
+    assert.equal(parseSectorRow({ ticker: "OLD", fy: 2025 })?.debt_state, "unknown");
   });
 });

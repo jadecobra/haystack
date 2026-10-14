@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DataTable } from "./components";
 import {
+  DEBT_CELL_INDEX,
   SECTOR_TABLE_HEADERS,
+  debtCell,
   groupCountNote,
   groupForTicker,
   groupHeading,
@@ -84,7 +86,20 @@ export function SectorTable(props: SectorTableProps) {
       >
         {row.ticker}
       </Link>,
-      ...sectorCells(row),
+      ...sectorCells(row).map((text, i) => {
+        if (i !== DEBT_CELL_INDEX) return text;
+        const { title } = debtCell(row);
+        return (
+          <span
+            key="de"
+            data-testid="sector-de"
+            title={title ?? undefined}
+            className={title ? "cursor-help underline decoration-dotted underline-offset-4" : undefined}
+          >
+            {text}
+          </span>
+        );
+      }),
     ],
   }));
   const widen =
