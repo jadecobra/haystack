@@ -1866,6 +1866,98 @@ def compose_debt(
     return totals, states
 
 
+def fiscal_year_label(end: date) -> int:
+    """Fiscal-year label for an annual period, derived from its end date.
+
+    The label is the calendar year of the period end. One exception covers
+    52/53-week filers whose "December" year runs a few days into January:
+    a year ending in the first 7 days of January (for example 2026-01-03)
+    belongs to the prior year (FY2025). Years that end early in any other
+    month keep the end date's year: STX's 53-week year ended 2026-07-03 is
+    FY2026, and AAPL's ended 2025-09-27 is FY2025.
+    """
+    if end.month == 1 and end.day <= 7:
+        return end.year - 1
+    return end.year
+
+
+def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
+    """Label each 10-K's facts by that filing's period end, not the filer's ``fy``.
+
+    companyfacts ``fy`` is the filing's DocumentFiscalYearFocus, and every
+    comparative fact in a 10-K inherits it. Filers get it wrong (STX's 10-K
+    for the year ended 2025-06-27 says fy=2027, FRT's for 2025-12-31 says
+    fy=2024, CRWD's FY2023-25 10-Ks are one year low) and some rename years
+    midstream (TJX in 2022). So each 10-K accession is re-keyed to
+    ``fiscal_year_label(own period end)``. The period end is the latest
+    ~annual (300-380 day) duration in the filing; comparatives always end
+    earlier, and facts dated after the filing date are ignored. That keeps
+    the existing "one filing = one fiscal-year group" semantics. A filer
+    that names a late-January year after the prior calendar year therefore
+    shows the end-date year instead (e.g. a year ended 2026-01-31 is FY2026).
+    """
+    facts = companyfacts.get("facts") or {}
+    us_gaap = facts.get("us-gaap") or {}
+    if not isinstance(us_gaap, dict):
+        return companyfacts
+    accn_end: dict[str, date] = {}
+    accn_fy: dict[str, int] = {}
+    for node in us_gaap.values():
+        units = (node or {}).get("units") if isinstance(node, dict) else None
+        for entries in (units or {}).values():
+            for e in entries if isinstance(entries, list) else []:
+                if not isinstance(e, dict) or e.get("fp") != "FY":
+                    continue
+                if not str(e.get("form") or "").startswith("10-K"):
+                    continue
+                accn = e.get("accn")
+                start = _parse_iso_date(e.get("start"))
+                end = _parse_iso_date(e.get("end"))
+                try:
+                    fy = int(e.get("fy"))
+                except (TypeError, ValueError):
+                    continue
+                filed = _parse_iso_date(e.get("filed"))
+                if not accn or start is None or end is None:
+                    continue
+                if not 300 <= (end - start).days <= 380:
+                    continue
+                # A period can't end after its filing date (TEL's FY2024
+                # 10-K carries a stray annual fact ending 2025-03-28).
+                if filed is not None and end > filed:
+                    continue
+                accn_fy.setdefault(accn, fy)
+                # The filing's own year is its latest annual end;
+                # comparatives always end earlier.
+                if accn not in accn_end or end > accn_end[accn]:
+                    accn_end[accn] = end
+    fixes = {
+        a: fiscal_year_label(end)
+        for a, end in accn_end.items()
+        if fiscal_year_label(end) != accn_fy[a]
+    }
+    if not fixes:
+        return companyfacts
+    new_gaap: dict[str, Any] = {}
+    for tag, node in us_gaap.items():
+        if not isinstance(node, dict):
+            new_gaap[tag] = node
+            continue
+        new_units = {}
+        for unit, entries in (node.get("units") or {}).items():
+            if not isinstance(entries, list):
+                new_units[unit] = entries
+                continue
+            new_units[unit] = [
+                {**e, "fy": fixes[e["accn"]]}
+                if isinstance(e, dict) and e.get("fp") == "FY" and e.get("accn") in fixes
+                else e
+                for e in entries
+            ]
+        new_gaap[tag] = {**node, "units": new_units}
+    return {**companyfacts, "facts": {**facts, "us-gaap": new_gaap}}
+
+
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
 ) -> tuple[list[int], dict[int, dict[str, float | str | None]]]:
@@ -1874,6 +1966,7 @@ def map_companyfacts_to_statements(
     us_gaap = facts.get("us-gaap") or {}
     if not isinstance(us_gaap, dict) or not us_gaap:
         raise ValueError("companyfacts missing us-gaap facts")
+    companyfacts = normalize_fiscal_years(companyfacts)
     us_gaap = rescale_share_facts(companyfacts)
 
     revenue = _series_for_tags(

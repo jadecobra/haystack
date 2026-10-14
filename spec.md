@@ -13,6 +13,7 @@ Users type a ticker and see available annual years of ratios and per-share metri
 **Sources.**
 
 - SEC companyfacts JSON (US-GAAP FY series tied to 10-K), every mapped annual year (newest-first). Not a per-filing XBRL instance parse.
+- **Fiscal-year labels** come from each 10-K's own period end, not the filer's `fy` (DocumentFiscalYearFocus), which filers sometimes tag wrong (STX fy=2027 for the year ended 2025-06-27; FRT fy=2024 for 2025-12-31). Label = calendar year of the period end. 52/53-week convention: a year ending in the first 7 days of January (e.g. 2026-01-03) is the prior year's FY. Early ends in other months keep the end year (STX 2026-07-03 → FY2026, AAPL 2025-09-27 → FY2025). Retailers whose year ends in late January or early February show the end year (HD year ended 2026-02-01 → FY2026), even where the company calls it "fiscal 2025".
 - FRED series DGS30 (30-year Treasury).
 - Previous close from Yahoo, then NASDAQ. The same last close is used for every year column in rows that divide by Last Close Price.
 
