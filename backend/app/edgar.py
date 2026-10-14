@@ -1902,6 +1902,7 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
         return companyfacts
     accn_end: dict[str, date] = {}
     accn_fy: dict[str, int] = {}
+    accn_form: dict[str, str] = {}
     for node in us_gaap.values():
         units = (node or {}).get("units") if isinstance(node, dict) else None
         for entries in (units or {}).values():
@@ -1911,6 +1912,8 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
                 if not str(e.get("form") or "").startswith("10-K"):
                     continue
                 accn = e.get("accn")
+                if accn:
+                    accn_form.setdefault(accn, str(e.get("form")).upper())
                 start = _parse_iso_date(e.get("start"))
                 end = _parse_iso_date(e.get("end"))
                 try:
@@ -1936,8 +1939,31 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
         for a, end in accn_end.items()
         if fiscal_year_label(end) != accn_fy[a]
     }
-    if not fixes:
+    # Transition periods (#49): a 10-KT after a fiscal year-end change also
+    # reports the short stub between the old and new year-ends (FERG:
+    # 2025-08-01 -> 2025-12-31, five months). The stub is not a fiscal year,
+    # so its facts (durations and stub-end instants, i.e. anything ending
+    # after the filing's own latest ~annual period) are dropped from annual
+    # selection. The 10-KT's full-year comparatives stay and are labelled
+    # by their own end like any 10-K.
+    stubs = {
+        a: end
+        for a, end in accn_end.items()
+        if a in accn_form and accn_form[a].startswith("10-KT")
+    }
+    for a, form in accn_form.items():
+        if form.startswith("10-KT") and a not in stubs:
+            stubs[a] = date.min  # no full-year fact at all: whole filing is a stub
+    if not fixes and not stubs:
         return companyfacts
+
+    def _is_stub(e: dict[str, Any]) -> bool:
+        cutoff = stubs.get(e.get("accn"))
+        if cutoff is None:
+            return False
+        end = _parse_iso_date(e.get("end"))
+        return end is not None and end > cutoff
+
     new_gaap: dict[str, Any] = {}
     for tag, node in us_gaap.items():
         if not isinstance(node, dict):
@@ -1953,6 +1979,7 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
                 if isinstance(e, dict) and e.get("fp") == "FY" and e.get("accn") in fixes
                 else e
                 for e in entries
+                if not (isinstance(e, dict) and _is_stub(e))
             ]
         new_gaap[tag] = {**node, "units": new_units}
     return {**companyfacts, "facts": {**facts, "us-gaap": new_gaap}}
@@ -2088,8 +2115,20 @@ def merge_predecessor_facts(
             dnode = dest.setdefault(tag, {k: v for k, v in node.items() if k != "units"} | {"units": {}})
             for unit, entries in (node.get("units") or {}).items():
                 existing = dnode["units"].setdefault(unit, [])
-                have = {(e.get("start"), e.get("end")) for e in existing}
-                existing.extend(e for e in entries if (e.get("start"), e.get("end")) not in have)
+                # Keep each predecessor filing whole (#49). Deduping on the
+                # period alone dropped a predecessor 10-K's own current year
+                # whenever the successor repeated it as a comparative, so the
+                # predecessor's prior-year comparative became that year's
+                # value (FERG FY2022/2023 showed FY2021). A filing the
+                # successor also carries (same accession) is still skipped.
+                have = {(e.get("accn"), e.get("start"), e.get("end")) for e in existing}
+                succ_periods = {(e.get("start"), e.get("end")) for e in existing}
+                existing.extend(
+                    e
+                    for e in entries
+                    if (e.get("accn"), e.get("start"), e.get("end")) not in have
+                    and (e.get("accn") or (e.get("start"), e.get("end")) not in succ_periods)
+                )
     return out
 
 
