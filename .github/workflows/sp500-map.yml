@@ -1,0 +1,82 @@
+# Monthly refresh of backend/data/sp500_tickers.json (tickers, GICS sector,
+# GICS sub-industry) from Wikipedia's S&P 500 constituents table (#46).
+# Opens a PR only when the data changes. NO auto-merge: index changes move
+# the screen universe, so a human reviews and merges. GITHUB_TOKEN PRs do not
+# fire CI; the reviewer re-runs checks (close/reopen or push) before merging.
+
+name: S&P 500 map refresh
+
+on:
+  schedule:
+    - cron: "0 14 1 * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report the diff; never push or open a PR"
+        type: boolean
+        default: false
+      base:
+        description: "Base branch to diff against and target the PR at"
+        type: string
+        default: main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sp500-map
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ inputs.base || 'main' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.BASE }}
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install backend
+        working-directory: backend
+        run: uv sync
+      - name: Regenerate map
+        id: gen
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          args=()
+          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
+          uv run python -m app.sp500_map "${args[@]}" | tee /tmp/sp500-map.txt
+          grep -q '^changed=true$' /tmp/sp500-map.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+      - name: Summary
+        run: |
+          { echo "### S&P 500 map refresh (base: $BASE, dry_run: $DRY_RUN)"; echo '```'; cat /tmp/sp500-map.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Open PR if changed
+        if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="bot/sp500-map-$BASE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add backend/data/sp500_tickers.json
+          git commit -m "chore(data): refresh S&P 500 map from Wikipedia constituents"
+          git push --force origin "HEAD:refs/heads/$branch"
+          body=$(printf 'Automated monthly refresh (#46). Review index changes before merging; no auto-merge.\n\nRe-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR.\n\n```\n%s\n```\n' "$(cat /tmp/sp500-map.txt)")
+          existing=$(gh pr list --head "$branch" --base "$BASE" --state open --json number -q '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --body "$body"
+            echo "updated PR #$existing"
+          else
+            gh pr create --base "$BASE" --head "$branch" --title "chore(data): S&P 500 map refresh ($(date -u +%Y-%m))" --body "$body"
+          fi

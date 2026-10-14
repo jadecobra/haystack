@@ -58,8 +58,10 @@ class TestLoadGics(unittest.TestCase):
         tickers = set(raw["tickers"])
         sectors = set(raw["sectors"])
         subs = set(raw.get("sub_industries") or {})
-        self.assertEqual(len(tickers), 503)
-        self.assertEqual(len(sectors), 500)
+        # Counts move with the monthly refresh PR (#46); keep sane bounds.
+        self.assertGreaterEqual(len(tickers), 495)
+        self.assertGreaterEqual(len(sectors), len(tickers) - 10)
+        self.assertTrue(sectors.issubset(tickers))
         self.assertTrue(subs.issubset(tickers))
         self.assertEqual(load_sectors(), {k: v for k, v in raw["sectors"].items()})
 

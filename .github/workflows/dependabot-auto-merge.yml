@@ -1,4 +1,5 @@
 # Auto-merge Dependabot PRs whose (highest) update type is semver patch/minor.
+# Never touches the S&P map refresh PRs (bot/sp500-map-*, #46): humans review those.
 # Grouped PRs report the highest update type in the group. Majors stay manual.
 # The merge waits for required status checks (backend, frontend) via --auto.
 name: Dependabot auto-merge
@@ -12,7 +13,7 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.actor == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.actor == 'dependabot[bot]' && !startsWith(github.event.pull_request.head.ref, 'bot/sp500-map')
     steps:
       - name: Fetch Dependabot metadata
         id: meta
