@@ -1,6 +1,6 @@
 # Sector comparison table (#43)
 
-`/sector/{slug}` and the `/{TICKER}` section render from the daily screen snapshot (`/api/screen/sp500-oe-yield`, static JSON with a seed fallback; no new API). Rows are S&P 500 only, grouped by GICS from the S&P map, sorted by OE yield, capped at 40.
+`/sector/{slug}` and the `/{TICKER}` section render from the daily screen snapshot (`/api/screen/sp500-oe-yield`, static JSON with a seed fallback; no new API). Rows are S&P 500 only, grouped by GICS from the S&P map, sorted by OE yield (blank-OE rows last, #52). Ticker-page tables cap at 40 and always keep the page's own row. Standalone `/sector/{slug}` pages are uncapped.
 
 - **Columns:** Ticker, Name, OE yield, Payback (yrs), NI / equity, Debt / equity, No debt, FY.
 - **Slug resolution:** a slug matches a sub-industry first, then a sector (`technology-hardware-storage-and-peripherals`, `information-technology`).

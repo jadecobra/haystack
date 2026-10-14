@@ -5,7 +5,7 @@ export const SECTOR_TABLE_CAP = 40;
 export type SectorRow = {
   ticker: string;
   name: string | null;
-  oe_yield: number;
+  oe_yield: number | null;
   payback_years: number | null;
   ni_to_equity: number | null;
   debt_to_equity: number | null;
@@ -47,11 +47,11 @@ function num(v: unknown): number | null {
 export function parseSectorRow(value: unknown): SectorRow | null {
   if (typeof value !== "object" || value === null) return null;
   const r = value as Record<string, unknown>;
-  if (typeof r.ticker !== "string" || num(r.oe_yield) === null || num(r.fy) === null) return null;
+  if (typeof r.ticker !== "string" || num(r.fy) === null) return null;
   return {
     ticker: r.ticker.toUpperCase(),
     name: typeof r.name === "string" ? r.name : null,
-    oe_yield: r.oe_yield as number,
+    oe_yield: num(r.oe_yield),
     payback_years: num(r.payback_years),
     ni_to_equity: num(r.ni_to_equity),
     debt_to_equity: num(r.debt_to_equity),
@@ -62,27 +62,45 @@ export function parseSectorRow(value: unknown): SectorRow | null {
   };
 }
 
-/** Rows of one group, sorted by OE yield (highest first), capped. */
+/** OE yield high to low; blank OE yields (#52) last, by ticker. */
+export function byOeYield(a: SectorRow, b: SectorRow): number {
+  if (a.oe_yield === null || b.oe_yield === null) {
+    if (a.oe_yield !== b.oe_yield) return a.oe_yield === null ? 1 : -1;
+    return a.ticker.localeCompare(b.ticker);
+  }
+  return b.oe_yield - a.oe_yield;
+}
+
+/**
+ * Rows of one group, sorted by OE yield (highest first), capped. A capped
+ * group still includes `keep` (the ticker page's own row) in place of the
+ * last row when it would fall below the cap.
+ */
 export function groupRows(
   rows: SectorRow[],
   level: SectorLevel,
   name: string,
   cap: number = SECTOR_TABLE_CAP,
+  keep: string | null = null,
 ): SectorGroup {
   const members = rows
     .filter((r) => (level === "sector" ? r.sector : r.sub_industry) === name)
-    .sort((a, b) => b.oe_yield - a.oe_yield);
+    .sort(byOeYield);
   const sector = level === "sector" ? name : (members[0]?.sector ?? null);
-  return { level, name, sector, total: members.length, rows: members.slice(0, cap) };
+  let shown = members.slice(0, cap);
+  const own = keep ? members.find((r) => r.ticker === keep.toUpperCase()) : undefined;
+  if (own && !shown.includes(own) && shown.length > 0) shown = [...shown.slice(0, -1), own];
+  return { level, name, sector, total: members.length, rows: shown };
 }
 
 /** Resolve a /sector/{slug}: sub-industry first, then sector. */
 export function resolveSlug(rows: SectorRow[], slug: string): SectorGroup | null {
   const want = slug.toLowerCase();
   const sub = rows.find((r) => r.sub_industry && sectorSlug(r.sub_industry) === want);
-  if (sub?.sub_industry) return groupRows(rows, "sub_industry", sub.sub_industry);
+  // Standalone pages list the whole group (Financials has ~70 names).
+  if (sub?.sub_industry) return groupRows(rows, "sub_industry", sub.sub_industry, Infinity);
   const sec = rows.find((r) => r.sector && sectorSlug(r.sector) === want);
-  if (sec?.sector) return groupRows(rows, "sector", sec.sector);
+  if (sec?.sector) return groupRows(rows, "sector", sec.sector, Infinity);
   return null;
 }
 
@@ -96,11 +114,11 @@ export function groupForTicker(
   const own = rows.find((r) => r.ticker === ticker.toUpperCase());
   const sub = own?.sub_industry ?? subIndustry;
   if (sub) {
-    const g = groupRows(rows, "sub_industry", sub);
+    const g = groupRows(rows, "sub_industry", sub, SECTOR_TABLE_CAP, ticker);
     if (g.total > 0) return g;
   }
   const sec = own?.sector ?? sector;
-  return sec ? groupRows(rows, "sector", sec) : null;
+  return sec ? groupRows(rows, "sector", sec, SECTOR_TABLE_CAP, ticker) : null;
 }
 
 export const SECTOR_TABLE_HEADERS = [

@@ -121,7 +121,7 @@ export function SectorTable(props: SectorTableProps) {
       </p>
       {current && !group.rows.some((r) => r.ticker === current) && snap?.rows.every((r) => r.ticker !== current) ? (
         <p className="text-sm text-zinc-500 mb-2" data-testid="sector-table-own-missing">
-          {current} is not in the snapshot: no owner earnings for its latest 10-K year.
+          {current} is not in the snapshot: no SEC annual facts or no price for it.
         </p>
       ) : null}
       <DataTable headers={SECTOR_TABLE_HEADERS} rows={rows} />

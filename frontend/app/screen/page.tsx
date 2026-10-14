@@ -27,8 +27,8 @@ type DebtCoverage = {
 type ScreenRow = {
   ticker: string;
   name: string | null;
-  oe_yield: number;
-  oe_per_share: number;
+  oe_yield: number | null;
+  oe_per_share: number | null;
   price: number;
   fy: number;
   price_as_of: string | null;
@@ -70,15 +70,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function parseRow(value: unknown): ScreenRow | null {
   if (!isRecord(value)) return null;
   if (typeof value.ticker !== "string") return null;
-  if (typeof value.oe_yield !== "number") return null;
-  if (typeof value.oe_per_share !== "number") return null;
+  // Rows with a blank OE yield (banks, multi-class share counts, #52) stay in.
+  const oeYield = typeof value.oe_yield === "number" ? value.oe_yield : null;
+  const oePerShare = typeof value.oe_per_share === "number" ? value.oe_per_share : null;
   if (typeof value.price !== "number") return null;
   if (typeof value.fy !== "number") return null;
   return {
     ticker: value.ticker.toUpperCase(),
     name: typeof value.name === "string" ? value.name : null,
-    oe_yield: value.oe_yield,
-    oe_per_share: value.oe_per_share,
+    oe_yield: oeYield,
+    oe_per_share: oePerShare,
     price: value.price,
     fy: value.fy,
     price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
@@ -128,11 +129,13 @@ function parsePayload(value: unknown): ScreenPayload | null {
   };
 }
 
-function fmtPct(value: number): string {
+function fmtPct(value: number | null): string {
+  if (value === null) return "—";
   return `${(value * 100).toFixed(2)}%`;
 }
 
-function fmtMoney(value: number): string {
+function fmtMoney(value: number | null): string {
+  if (value === null) return "—";
   return `$${value.toFixed(2)}`;
 }
 

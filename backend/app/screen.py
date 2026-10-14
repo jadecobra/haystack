@@ -85,6 +85,15 @@ def _quote_candidates(ticker: str) -> list[str]:
     return [primary, alt]
 
 
+# Why a row's OE yield is blank (the row is still kept, #52).
+OE_NOTE_NO_OE = "no owner earnings: no operating cash flow with capex or D&A in the latest 10-K year"
+OE_NOTE_NO_SHARES = "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)"
+OE_NOTE_SCALE = "OE yield outside -100%..100%: companyfacts unit/scale error"
+# Why a ticker has no row at all.
+EXCLUDE_NO_FACTS = "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map)"
+EXCLUDE_NO_PRICE = "no previous close quote"
+
+
 def _row_from_facts(
     ticker: str,
     *,
@@ -93,43 +102,63 @@ def _row_from_facts(
     company_name: str | None,
     quote: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
+    row, _reason = _row_or_reason(
+        ticker, years=years, statements=statements, company_name=company_name, quote=quote
+    )
+    return row
+
+
+def _row_or_reason(
+    ticker: str,
+    *,
+    years: list[int],
+    statements: dict[int, dict[str, Any]],
+    company_name: str | None,
+    quote: dict[str, Any] | None,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """A snapshot row, or (None, exclusion reason).
+
+    A ticker with 10-K years and a price always gets a row. When owner
+    earnings per share cannot be computed (banks/insurers without capex or
+    D&A tags, multi-class share counts, scale errors) the OE columns are
+    blank and ``oe_note`` says why; NI/equity and debt/equity still fill.
+    """
     if not years:
-        return None
+        return None, EXCLUDE_NO_FACTS
     fy = max(years)
     stmt = statements.get(fy) or {}
     if not quote or quote.get("price") is None:
-        return None
+        return None, EXCLUDE_NO_PRICE
     try:
         price = float(quote["price"])
     except (TypeError, ValueError):
-        return None
+        return None, EXCLUDE_NO_PRICE
     computed = compute_year(stmt, None, previous_close=price)
-    oe_yield = computed.get("Owner Earnings / Last Close Price")
-    oe_ps = computed.get("Owner Earnings per Share")
+    oe_yield = _num(computed.get("Owner Earnings / Last Close Price"))
+    oe_ps = _num(computed.get("Owner Earnings per Share"))
+    note: str | None = None
     if oe_yield is None or oe_ps is None:
-        return None
-    # Skip pathological companyfacts units (e.g. shares in millions → OE/share absurd).
-    try:
-        yv = float(oe_yield)
-    except (TypeError, ValueError):
-        return None
-    if yv > 1.0 or yv < -1.0:
-        return None
+        note = OE_NOTE_NO_OE if _num(stmt.get("owner_earnings")) is None else OE_NOTE_NO_SHARES
+        oe_yield = oe_ps = None
+    elif oe_yield > 1.0 or oe_yield < -1.0:
+        note = OE_NOTE_SCALE
+        oe_yield = oe_ps = None
     as_of = quote.get("as_of")
     debt, debt_state = _debt_for_row(stmt)
-    extra = sector_columns(stmt, price=price, oe_per_share=float(oe_ps), debt=debt, debt_state=debt_state)
+    extra = sector_columns(stmt, price=price, oe_per_share=oe_ps, debt=debt, debt_state=debt_state)
     return {
         "ticker": ticker,
         "name": company_name,
-        "oe_yield": float(oe_yield),
-        "oe_per_share": float(oe_ps),
+        "oe_yield": oe_yield,
+        "oe_per_share": oe_ps,
+        "oe_note": note,
         "price": price,
         "fy": int(fy),
         "price_as_of": str(as_of) if as_of else None,
         "debt": debt,
         "debt_state": debt_state,
         **extra,
-    }
+    }, None
 
 
 SECTOR_COLUMNS = ("payback_years", "ni_to_equity", "debt_to_equity", "no_debt")
@@ -147,7 +176,7 @@ def sector_columns(
     stmt: dict[str, Any],
     *,
     price: float,
-    oe_per_share: float,
+    oe_per_share: float | None,
     debt: float | None,
     debt_state: str,
 ) -> dict[str, Any]:
@@ -161,7 +190,7 @@ def sector_columns(
     ni = _num(stmt.get("net_income"))
     pos_equity = equity is not None and equity > 0
     return {
-        "payback_years": price / oe_per_share if oe_per_share > 0 else None,
+        "payback_years": price / oe_per_share if oe_per_share is not None and oe_per_share > 0 else None,
         "ni_to_equity": ni / equity if pos_equity and ni is not None else None,
         "debt_to_equity": debt / equity if pos_equity and debt is not None else None,
         "no_debt": {"zero": True, "positive": False}.get(debt_state),
@@ -252,11 +281,20 @@ def log_debt_coverage(payload: dict[str, Any]) -> None:
             if isinstance(c, dict)
         )
         sys.stderr.write(f"column_coverage known/total {parts}\n")
+    for ex in payload.get("excluded") or []:
+        if isinstance(ex, dict):
+            sys.stderr.write(f"excluded {ex.get('ticker')}: {ex.get('reason')}\n")
+    blanks = [r for r in payload.get("rows") or [] if isinstance(r, dict) and r.get("oe_note")]
+    for r in blanks:
+        sys.stderr.write(f"blank_oe {r.get('ticker')}: {r.get('oe_note')}\n")
 
 
 def rank_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
-    valid = [r for r in rows if isinstance(r, dict) and r.get("oe_yield") is not None]
-    return sorted(valid, key=lambda r: float(r["oe_yield"]), reverse=True)
+    """OE yield high to low; rows with a blank OE yield last, by ticker."""
+    valid = [r for r in rows if isinstance(r, dict)]
+    known = sorted((r for r in valid if r.get("oe_yield") is not None), key=lambda r: float(r["oe_yield"]), reverse=True)
+    blank = sorted((r for r in valid if r.get("oe_yield") is None), key=lambda r: str(r.get("ticker")))
+    return known + blank
 
 
 def build_payload(
@@ -270,7 +308,7 @@ def build_payload(
 ) -> dict[str, Any]:
     sector_by_ticker = load_sectors() if sectors is None else sectors
     rows: list[dict[str, Any]] = []
-    skipped = 0
+    excluded: list[dict[str, str]] = []
     price_dates: list[str] = []
     for ticker in tickers:
         try:
@@ -280,17 +318,17 @@ def build_payload(
                 quote = fetch_quote(candidate)
                 if quote:
                     break
-            row = _row_from_facts(
+            row, reason = _row_or_reason(
                 ticker,
                 years=years,
                 statements=statements,
                 company_name=name,
                 quote=quote,
             )
-        except Exception:
-            row = None
+        except Exception as exc:
+            row, reason = None, f"{EXCLUDE_NO_FACTS}: {exc}"[:200]
         if row is None:
-            skipped += 1
+            excluded.append({"ticker": ticker, "reason": reason or "unknown"})
             continue
         if sector_by_ticker.get(str(row["ticker"]).upper()) == "Financials":
             row["debt_state"] = "n/a"
@@ -307,7 +345,9 @@ def build_payload(
     return {
         "universe": UNIVERSE,
         "count": len(ranked),
-        "skipped": skipped,
+        "ranked": sum(1 for r in ranked if r.get("oe_yield") is not None),
+        "skipped": len(excluded),
+        "excluded": excluded,
         "built_at": stamp,
         "price_as_of": as_of,
         "stale": False,

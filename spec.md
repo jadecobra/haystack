@@ -62,6 +62,8 @@ OCF is the reported operating-cash tag when present. If missing: `ΔCash − CFI
 
 **UI.** Next.js App Router page: ticker, previous close when present, one metric×year table with six group header rows from the API `groups` field. No KPI cards. No charts.
 
+**S&P 500 screen snapshot.** Every ticker in the S&P map gets a row when SEC has annual 10-K facts and a previous close exists. When owner earnings per share can't be computed, the row stays with a blank OE yield, OE/share and payback, and `oe_note` gives the reason: no operating cash flow with capex or D&A (common for banks and insurers), no undimensioned share count (multi-class issuers), or a scale error (|yield| > 100%). NI/equity and debt/equity still fill. Blank-OE rows rank last. Tickers without facts or price go to `excluded[]` with a reason. `count` is rows, `ranked` is rows with an OE yield, and `skipped` is `len(excluded)`.
+
 ### 3. Stack
 
 - Backend: Python FastAPI (`GET /health`, `/analyze/{ticker}`, `/contract`).

@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from app import screen
 from app.main import app
 from app.metrics import compute_year
 from app.screen import (
@@ -179,7 +180,7 @@ class ScreenRankingTests(unittest.TestCase):
             return [2024], {2024: _stmt(oe=400.0, shares=10.0)}, "1", "Bad Co"
 
         def quote(ticker: str):
-            return {"price": 10.0, "as_of": "2026-09-16"}  # yield 4.0 → skipped
+            return {"price": 10.0, "as_of": "2026-09-16"}  # yield 4.0 → blank OE
 
         payload = build_payload(
             ["BAD"],
@@ -187,8 +188,13 @@ class ScreenRankingTests(unittest.TestCase):
             fetch_quote=quote,
             built_at="2026-09-17T02:00:00+00:00",
         )
-        self.assertEqual(payload["count"], 0)
-        self.assertEqual(payload["skipped"], 1)
+        self.assertEqual(payload["count"], 1)
+        self.assertEqual(payload["ranked"], 0)
+        self.assertEqual(payload["skipped"], 0)
+        row = payload["rows"][0]
+        self.assertIsNone(row["oe_yield"])
+        self.assertIsNone(row["payback_years"])
+        self.assertIn("scale", row["oe_note"])
 
     def test_rank_rows_high_to_low(self):
         ranked = rank_rows(
@@ -198,7 +204,7 @@ class ScreenRankingTests(unittest.TestCase):
                 {"ticker": "C", "oe_yield": None},
             ]
         )
-        self.assertEqual([r["ticker"] for r in ranked], ["A", "B"])
+        self.assertEqual([r["ticker"] for r in ranked], ["A", "B", "C"])
 
     def test_fail_soft_keeps_previous_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -310,8 +316,6 @@ class ScreenApiTests(unittest.TestCase):
             self.assertTrue(response.json().get("stale"))
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class TestSectorColumns(unittest.TestCase):
@@ -337,3 +341,63 @@ class TestSectorColumns(unittest.TestCase):
         cov = column_coverage([cols, neg])
         self.assertEqual(cov["payback_years"], {"known": 1, "unknown": 1})
         self.assertEqual(cov["no_debt"], {"known": 1, "unknown": 1})
+
+
+class ScreenCoverageTests(unittest.TestCase):
+    """#52: every S&P map ticker gets a row or an explicit exclusion reason."""
+
+    def test_bank_without_oe_is_a_row_with_blanks(self):
+        stmt = {
+            "net_income": 57048e6, "equity": 362438e6, "shares": 2781.5e6,
+            "revenue": 182447e6, "debt": 400e9, "owner_earnings": None,
+        }
+
+        payload = build_payload(
+            ["JPM", "MULTI", "NEW", "NOQ"],
+            fetch_facts=lambda t: {
+                "JPM": ([2025], {2025: stmt}, "19617", "JPMorgan Chase & Co"),
+                "MULTI": ([2025], {2025: {**stmt, "owner_earnings": 5e9, "shares": None}}, "1", "Multi"),
+                "NEW": ([], {}, "2", "New"),
+                "NOQ": ([2025], {2025: stmt}, "3", "NoQuote"),
+            }[t],
+            fetch_quote=lambda t: None if t == "NOQ" else {"price": 331.43, "as_of": "2026-10-14"},
+            sectors={"JPM": "Financials"},
+            built_at="2026-10-14T22:00:00+00:00",
+        )
+        rows = {r["ticker"]: r for r in payload["rows"]}
+        jpm = rows["JPM"]
+        self.assertIsNone(jpm["oe_yield"])
+        self.assertIsNone(jpm["payback_years"])
+        self.assertAlmostEqual(jpm["ni_to_equity"], 57048 / 362438)
+        self.assertEqual(jpm["debt_state"], "n/a")
+        self.assertIn("no owner earnings", jpm["oe_note"])
+        self.assertIn("no share count", rows["MULTI"]["oe_note"])
+        self.assertEqual(
+            {e["ticker"]: e["reason"] for e in payload["excluded"]},
+            {"NEW": screen.EXCLUDE_NO_FACTS, "NOQ": screen.EXCLUDE_NO_PRICE},
+        )
+        self.assertEqual(payload["count"] + payload["skipped"], 4)
+
+    def test_snapshot_covers_every_map_ticker(self):
+        snap = json.loads(screen.BACKEND_SEED_PATH.read_text(encoding="utf-8"))
+        if "excluded" not in snap:
+            self.skipTest("snapshot predates #52 exclusion reasons")
+        have = {r["ticker"] for r in snap["rows"]} | {e["ticker"] for e in snap["excluded"]}
+        self.assertEqual(set(load_universe()) - have, set())
+        for e in snap["excluded"]:
+            self.assertTrue(e.get("reason"), e)
+
+    def test_snapshot_jpm_row_golden(self):
+        snap = json.loads(screen.BACKEND_SEED_PATH.read_text(encoding="utf-8"))
+        if "excluded" not in snap:
+            self.skipTest("snapshot predates #52 exclusion reasons")
+        jpm = next(r for r in snap["rows"] if r["ticker"] == "JPM")
+        self.assertEqual(jpm["sector"], "Financials")
+        self.assertEqual(jpm["sub_industry"], "Diversified Banks")
+        self.assertGreaterEqual(jpm["fy"], 2025)
+        self.assertGreater(jpm["ni_to_equity"], 0.10)
+        self.assertLess(jpm["ni_to_equity"], 0.25)
+
+
+if __name__ == "__main__":
+    unittest.main()

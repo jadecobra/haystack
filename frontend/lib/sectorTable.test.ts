@@ -5,7 +5,7 @@ import {
   groupCountNote, type SectorRow,
 } from "./sectorTable.ts";
 
-const row = (ticker: string, oe: number, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
+const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
   ticker, name: `${ticker} Inc`, oe_yield: oe, payback_years: null, ni_to_equity: null,
   debt_to_equity: null, no_debt: null, fy: 2025, sector, sub_industry: sub, ...extra,
 });
@@ -60,5 +60,31 @@ describe("parse and cells", () => {
     assert.ok(r);
     assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "—", "2025"]);
     assert.equal(parseSectorRow({ ticker: "X" }), null);
+  });
+});
+
+describe("blank OE yields (#52)", () => {
+  const fin = [
+    row("JPM", null, "Diversified Banks", "Financials", { ni_to_equity: 0.157 }),
+    row("BAC", 0.025, "Diversified Banks", "Financials"),
+    row("AAA", null, "Diversified Banks", "Financials"),
+    ...Array.from({ length: 45 }, (_, i) => row(`F${i}`, 0.01 + i / 1000, "Regional Banks", "Financials")),
+  ];
+  it("keeps rows with a null OE yield, sorted last by ticker", () => {
+    const r = parseSectorRow({ ticker: "JPM", oe_yield: null, fy: 2025 });
+    assert.equal(r?.oe_yield, null);
+    assert.equal(sectorCells(r!)[1], "—");
+    const g = groupRows(fin, "sub_industry", "Diversified Banks");
+    assert.deepEqual(g.rows.map((x) => x.ticker), ["BAC", "AAA", "JPM"]);
+  });
+  it("standalone sector pages are not capped", () => {
+    const g = resolveSlug(fin, "financials");
+    assert.equal(g?.rows.length, 48);
+    assert.ok(g?.rows.some((x) => x.ticker === "JPM"));
+  });
+  it("a capped ticker-page group still shows its own row", () => {
+    const g = groupRows(fin, "sector", "Financials", 40, "jpm");
+    assert.equal(g.rows.length, 40);
+    assert.equal(g.rows[39].ticker, "JPM");
   });
 });
