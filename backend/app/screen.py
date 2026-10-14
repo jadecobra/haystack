@@ -140,7 +140,11 @@ def _row_or_reason(
     oe_ps = _num(computed.get("Owner Earnings per Share"))
     note: str | None = None
     if oe_yield is None or oe_ps is None:
-        note = OE_NOTE_NO_OE if _num(stmt.get("owner_earnings")) is None else OE_NOTE_NO_SHARES
+        note = (
+            OE_NOTE_NO_OE
+            if _num(stmt.get("owner_earnings")) is None
+            else f"no share count: {stmt['shares_note']}" if stmt.get("shares_note") else OE_NOTE_NO_SHARES
+        )
         oe_yield = oe_ps = None
     elif oe_yield > 1.0 or oe_yield < -1.0:
         note = OE_NOTE_SCALE

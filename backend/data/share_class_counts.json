@@ -1,0 +1,1452 @@
+{
+ "filings": {
+  "1067983": {
+   "0000950170-23-004451": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1468876.0,
+     "brka:EquivalentClassBMember": 2203313642.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 590835.0,
+     "us-gaap:CommonClassBMember": 1301100243.0
+    },
+    "cover_date": "2023-02-13",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": -15535.0,
+     "brka:EquivalentClassBMember": -10.36
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20221231_htm.xml",
+    "period_end": "2022-12-31"
+   },
+   "0000950170-24-019719": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1448880.0,
+     "brka:EquivalentClassBMember": 2173319709.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 566618.0,
+     "us-gaap:CommonClassBMember": 1310805008.0
+    },
+    "cover_date": "2024-02-12",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 66412.0,
+     "brka:EquivalentClassBMember": 44.27
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20231231_htm.xml",
+    "period_end": "2023-12-31"
+   },
+   "0000950170-25-025210": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1437720.0,
+     "brka:EquivalentClassBMember": 2156580296.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 546189.0,
+     "us-gaap:CommonClassBMember": 1338051639.0
+    },
+    "cover_date": "2025-02-10",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 61900.0,
+     "brka:EquivalentClassBMember": 41.27
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20241231_htm.xml",
+    "period_end": "2024-12-31"
+   },
+   "0001193125-15-070966": {
+    "basic": {
+     "": 1643456.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 825522.0,
+     "us-gaap:CommonClassBMember": 1226158699.0
+    },
+    "cover_date": "2015-02-18",
+    "diluted": {},
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 12092.0,
+     "us-gaap:CommonClassBMember": 8.06
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20141231.xml",
+    "period_end": "2014-12-31"
+   },
+   "0001193125-16-483023": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1643183.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 807811.0,
+     "us-gaap:CommonClassBMember": 1253479359.0
+    },
+    "cover_date": "2016-02-17",
+    "diluted": {},
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 14656.0,
+     "us-gaap:CommonClassBMember": 9.77
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20151231.xml",
+    "period_end": "2015-12-31"
+   },
+   "0001193125-17-056969": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1643826.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 774680.0,
+     "us-gaap:CommonClassBMember": 1304592522.0
+    },
+    "cover_date": "2017-02-16",
+    "diluted": {},
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 14645.0,
+     "us-gaap:CommonClassBMember": 9.76
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20161231.xml",
+    "period_end": "2016-12-31"
+   },
+   "0001193125-18-057033": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1644615.0,
+     "brka:EquivalentClassBMember": 2466923163.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 748745.0,
+     "us-gaap:CommonClassBMember": 1344332039.0
+    },
+    "cover_date": "2018-02-13",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 27326.0,
+     "brka:EquivalentClassBMember": 18.22
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20171231.xml",
+    "period_end": "2017-12-31"
+   },
+   "0001193125-19-048926": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1643795.0,
+     "brka:EquivalentClassBMember": 2465692368.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 725807.0,
+     "us-gaap:CommonClassBMember": 1372751831.0
+    },
+    "cover_date": "2019-02-14",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 2446.0,
+     "brka:EquivalentClassBMember": 1.63
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20181231.xml",
+    "period_end": "2018-12-31"
+   },
+   "0001193125-26-083899": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1438223.0,
+     "brka:EquivalentClassBMember": 2157335139.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 511820.0,
+     "us-gaap:CommonClassBMember": 1389605139.0
+    },
+    "cover_date": "2026-01-31",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 46563.0,
+     "brka:EquivalentClassBMember": 31.04
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-20251231_htm.xml",
+    "period_end": "2025-12-31"
+   },
+   "0001564590-20-005874": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1633946.0,
+     "brka:EquivalentClassBMember": 2450919020.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 700396.0,
+     "us-gaap:CommonClassBMember": 1385994959.0
+    },
+    "cover_date": "2020-02-13",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 49828.0,
+     "brka:EquivalentClassBMember": 33.22
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-10k_20191231_htm.xml",
+    "period_end": "2019-12-31"
+   },
+   "0001564590-21-009611": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1594469.0,
+     "brka:EquivalentClassBMember": 2391703454.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 640586.0,
+     "us-gaap:CommonClassBMember": 1336348609.0
+    },
+    "cover_date": "2021-02-16",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 26668.0,
+     "brka:EquivalentClassBMember": 17.78
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-10k_20201231_htm.xml",
+    "period_end": "2020-12-31"
+   },
+   "0001564590-22-007322": {
+    "basic": {
+     "brka:EquivalentClassAMember": 1510180.0,
+     "brka:EquivalentClassBMember": 2265269867.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 615333.0,
+     "us-gaap:CommonClassBMember": 1291212661.0
+    },
+    "cover_date": "2022-02-14",
+    "diluted": {},
+    "eps_basic": {
+     "brka:EquivalentClassAMember": 59460.0,
+     "brka:EquivalentClassBMember": 39.64
+    },
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "brka-10k_20211231_htm.xml",
+    "period_end": "2021-12-31"
+   }
+  },
+  "1403161": {
+   "0001403161-14-000017": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 498000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 26000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 493201965.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 23876238.0
+    },
+    "cover_date": "2014-11-14",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 631000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 26000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 8.65,
+     "us-gaap:CommonClassBMember": 3.63,
+     "us-gaap:CommonClassCMember": 8.65
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 8.62,
+     "us-gaap:CommonClassBMember": 3.62,
+     "us-gaap:CommonClassCMember": 8.62
+    },
+    "form": "10-K",
+    "instance": "v-20140930.xml",
+    "period_end": "2014-09-30"
+   },
+   "0001403161-15-000013": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1954000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 22000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1946442415.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 19587524.0
+    },
+    "cover_date": "2015-11-13",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2457000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 22000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 2.58,
+     "us-gaap:CommonClassBMember": 4.26,
+     "us-gaap:CommonClassCMember": 10.33
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 2.58,
+     "us-gaap:CommonClassBMember": 4.25,
+     "us-gaap:CommonClassCMember": 10.3
+    },
+    "form": "10-K",
+    "instance": "v-20150930.xml",
+    "period_end": "2015-09-30"
+   },
+   "0001403161-16-000058": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1906000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 19000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1867580597.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 16814896.0
+    },
+    "cover_date": "2016-11-09",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2414000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 19000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 2.49,
+     "us-gaap:CommonClassBMember": 4.1,
+     "us-gaap:CommonClassCMember": 9.94
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 2.48,
+     "us-gaap:CommonClassBMember": 4.09,
+     "us-gaap:CommonClassCMember": 9.93
+    },
+    "form": "10-K",
+    "instance": "v-20160930.xml",
+    "period_end": "2016-09-30"
+   },
+   "0001403161-17-000044": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1845000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 14000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1813463251.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 12665935.0
+    },
+    "cover_date": "2017-11-10",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2395000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 14000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 2.8,
+     "us-gaap:CommonClassBMember": 4.62,
+     "us-gaap:CommonClassCMember": 11.21
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 2.8,
+     "us-gaap:CommonClassBMember": 4.61,
+     "us-gaap:CommonClassCMember": 11.19
+    },
+    "form": "10-K",
+    "instance": "v-20170930.xml",
+    "period_end": "2017-09-30"
+   },
+   "0001403161-18-000055": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1792000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 12000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1759797999.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 11706272.0
+    },
+    "cover_date": "2018-11-09",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2329000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 12000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 4.43,
+     "us-gaap:CommonClassBMember": 7.28,
+     "us-gaap:CommonClassCMember": 17.72
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 4.42,
+     "us-gaap:CommonClassBMember": 7.27,
+     "us-gaap:CommonClassCMember": 17.69
+    },
+    "form": "10-K",
+    "instance": "v-20180930.xml",
+    "period_end": "2018-09-30"
+   },
+   "0001403161-19-000050": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1742000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 12000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1712677044.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 11133345.0
+    },
+    "cover_date": "2019-11-08",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2272000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 12000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 5.32,
+     "us-gaap:CommonClassBMember": 8.68,
+     "us-gaap:CommonClassCMember": 21.3
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.32,
+     "us-gaap:CommonClassBMember": 8.66,
+     "us-gaap:CommonClassCMember": 21.26
+    },
+    "form": "10-K",
+    "instance": "v093019form10k_htm.xml",
+    "period_end": "2019-09-30"
+   },
+   "0001403161-20-000070": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1697000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 11000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1692383762.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 10684539.0
+    },
+    "cover_date": "2020-11-13",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2223000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 11000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 4.9,
+     "us-gaap:CommonClassBMember": 7.94,
+     "us-gaap:CommonClassCMember": 19.58
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 4.89,
+     "us-gaap:CommonClassBMember": 7.93,
+     "us-gaap:CommonClassCMember": 19.56
+    },
+    "form": "10-K",
+    "instance": "v-20200930_htm.xml",
+    "period_end": "2020-09-30"
+   },
+   "0001403161-21-000060": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1691000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1669730762.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 10099892.0
+    },
+    "cover_date": "2021-11-10",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2188000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 5.63,
+     "us-gaap:CommonClassBMember": 9.14,
+     "us-gaap:CommonClassCMember": 22.53
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.63,
+     "us-gaap:CommonClassBMember": 9.13,
+     "us-gaap:CommonClassCMember": 22.51
+    },
+    "form": "10-K",
+    "instance": "v-20210930_htm.xml",
+    "period_end": "2021-09-30"
+   },
+   "0001403161-22-000081": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1651000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1628169181.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 9812105.0
+    },
+    "cover_date": "2022-11-09",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2136000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 7.01,
+     "us-gaap:CommonClassBMember": 11.33,
+     "us-gaap:CommonClassCMember": 28.03
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 7.0,
+     "us-gaap:CommonClassBMember": 11.31,
+     "us-gaap:CommonClassCMember": 28.0
+    },
+    "form": "10-K",
+    "instance": "v-20220930_htm.xml",
+    "period_end": "2022-09-30"
+   },
+   "0001403161-23-000099": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1618000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1580679900.0,
+     "us-gaap:CommonClassBMember": 245513385.0,
+     "us-gaap:CommonClassCMember": 9453068.0
+    },
+    "cover_date": "2023-11-08",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2085000000.0,
+     "us-gaap:CommonClassBMember": 245000000.0,
+     "us-gaap:CommonClassCMember": 10000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 8.29,
+     "us-gaap:CommonClassBMember": 13.26,
+     "us-gaap:CommonClassCMember": 33.17
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 8.28,
+     "us-gaap:CommonClassBMember": 13.24,
+     "us-gaap:CommonClassCMember": 33.13
+    },
+    "form": "10-K",
+    "instance": "v-20230930_htm.xml",
+    "period_end": "2023-09-30"
+   },
+   "0001403161-24-000058": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1621000000.0,
+     "us-gaap:CommonClassCMember": 16000000.0,
+     "v:CommonClassB1Member": 148000000.0,
+     "v:CommonClassB2Member": 49000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1728105021.0,
+     "us-gaap:CommonClassCMember": 9595774.0,
+     "v:CommonClassB1Member": 4835384.0,
+     "v:CommonClassB2Member": 120338948.0
+    },
+    "cover_date": "2024-11-06",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 2029000000.0,
+     "us-gaap:CommonClassCMember": 16000000.0,
+     "v:CommonClassB1Member": 148000000.0,
+     "v:CommonClassB2Member": 49000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 9.74,
+     "us-gaap:CommonClassCMember": 38.97,
+     "v:CommonClassB1Member": 15.46,
+     "v:CommonClassB2Member": 15.45
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 9.73,
+     "us-gaap:CommonClassCMember": 38.92,
+     "v:CommonClassB1Member": 15.45,
+     "v:CommonClassB2Member": 15.43
+    },
+    "form": "10-K",
+    "instance": "v-20240930_htm.xml",
+    "period_end": "2024-09-30"
+   },
+   "0001403161-25-000089": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 1714000000.0,
+     "us-gaap:CommonClassCMember": 9000000.0,
+     "v:CommonClassB1Member": 5000000.0,
+     "v:CommonClassB2Member": 120000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 1687629770.0,
+     "us-gaap:CommonClassCMember": 8938707.0,
+     "v:CommonClassB1Member": 4835384.0,
+     "v:CommonClassB2Member": 120338948.0
+    },
+    "cover_date": "2025-10-30",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 1966000000.0,
+     "us-gaap:CommonClassCMember": 9000000.0,
+     "v:CommonClassB1Member": 5000000.0,
+     "v:CommonClassB2Member": 120000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 10.22,
+     "us-gaap:CommonClassCMember": 40.87,
+     "v:CommonClassB1Member": 15.97,
+     "v:CommonClassB2Member": 15.72
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 10.2,
+     "us-gaap:CommonClassCMember": 40.82,
+     "v:CommonClassB1Member": 15.95,
+     "v:CommonClassB2Member": 15.7
+    },
+    "form": "10-K",
+    "instance": "v-20250930_htm.xml",
+    "period_end": "2025-09-30"
+   }
+  },
+  "16918": {
+   "0000016918-15-000016": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 169325000.0,
+     "us-gaap:CommonClassBMember": 23397000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 171373750.0,
+     "us-gaap:CommonClassBMember": 23370208.0,
+     "us-gaap:ConvertibleCommonStockMember": 0.0
+    },
+    "cover_date": "2015-04-22",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 201224000.0,
+     "us-gaap:CommonClassBMember": 23397000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 4.4,
+     "us-gaap:CommonClassBMember": 4.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 4.17,
+     "us-gaap:CommonClassBMember": 3.83
+    },
+    "form": "10-K",
+    "instance": "stz-20150228.xml",
+    "period_end": "2015-02-28"
+   },
+   "0000016918-16-000075": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 173383000.0,
+     "us-gaap:CommonClassBMember": 23363000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 176413448.0,
+     "us-gaap:CommonClassBMember": 23352729.0,
+     "us-gaap:ConvertibleCommonStockMember": 2000.0
+    },
+    "cover_date": "2016-04-19",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 203821000.0,
+     "us-gaap:CommonClassBMember": 23363000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 5.42,
+     "us-gaap:CommonClassBMember": 4.92
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.18,
+     "us-gaap:CommonClassBMember": 4.79
+    },
+    "form": "10-K",
+    "instance": "stz-20160229.xml",
+    "period_end": "2016-02-29"
+   },
+   "0000016918-17-000029": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 175934000.0,
+     "us-gaap:CommonClassBMember": 23353000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 171447198.0,
+     "us-gaap:CommonClassBMember": 23345727.0,
+     "us-gaap:ConvertibleCommonStockMember": 7720.0
+    },
+    "cover_date": "2017-04-21",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 204099000.0,
+     "us-gaap:CommonClassBMember": 23353000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 7.79,
+     "us-gaap:CommonClassBMember": 7.07
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 7.52,
+     "us-gaap:CommonClassBMember": 6.93
+    },
+    "form": "10-K",
+    "instance": "stz-20170228.xml",
+    "period_end": "2017-02-28"
+   },
+   "0000016918-18-000033": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 171457000.0,
+     "us-gaap:CommonClassBMember": 23336000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 168057947.0,
+     "us-gaap:CommonClassBMember": 23326443.0,
+     "us-gaap:ConvertibleCommonStockMember": 7088.0
+    },
+    "cover_date": "2018-04-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 200745000.0,
+     "us-gaap:CommonClassBMember": 23336000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 12.04,
+     "us-gaap:CommonClassBMember": 10.93
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 11.55,
+     "us-gaap:CommonClassBMember": 10.66
+    },
+    "form": "10-K",
+    "instance": "stz-20180228.xml",
+    "period_end": "2018-02-28"
+   },
+   "0000016918-19-000024": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 167249000.0,
+     "us-gaap:CommonClassBMember": 23321000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 166883483.0,
+     "us-gaap:CommonClassBMember": 23316614.0,
+     "us-gaap:ConvertibleCommonStockMember": 1149714.0
+    },
+    "cover_date": "2019-04-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 195532000.0,
+     "us-gaap:CommonClassBMember": 23321000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 18.24,
+     "us-gaap:CommonClassBMember": 16.57
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 17.57,
+     "us-gaap:CommonClassBMember": 16.21
+    },
+    "form": "10-K",
+    "instance": "stz-20190228.xml",
+    "period_end": "2019-02-28"
+   },
+   "0000016918-20-000078": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 168329000.0,
+     "us-gaap:CommonClassBMember": 23313000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 167852917.0,
+     "us-gaap:CommonClassBMember": 23293136.0,
+     "us-gaap:ConvertibleCommonStockMember": 1694803.0
+    },
+    "cover_date": "2020-04-15",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 168329000.0,
+     "us-gaap:CommonClassBMember": 23313000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.07,
+     "us-gaap:CommonClassBMember": -0.07
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": -0.07,
+     "us-gaap:CommonClassBMember": -0.07
+    },
+    "form": "10-K",
+    "instance": "stz229202010k_htm.xml",
+    "period_end": "2020-02-29"
+   },
+   "0000016918-21-000060": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 170239000.0,
+     "us-gaap:CommonClassBMember": 23280000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 170152810.0,
+     "us-gaap:CommonClassBMember": 23261188.0,
+     "us-gaap:ConvertibleCommonStockMember": 613717.0
+    },
+    "cover_date": "2021-04-14",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 195308000.0,
+     "us-gaap:CommonClassBMember": 23280000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 10.44,
+     "us-gaap:CommonClassBMember": 9.48
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 10.23,
+     "us-gaap:CommonClassBMember": 9.42
+    },
+    "form": "10-K",
+    "instance": "stz-20210228_htm.xml",
+    "period_end": "2021-02-28"
+   },
+   "0000016918-22-000069": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 167431000.0,
+     "us-gaap:CommonClassBMember": 23225000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 162762867.0,
+     "us-gaap:CommonClassBMember": 23205885.0,
+     "us-gaap:ConvertibleCommonStockMember": 2248714.0
+    },
+    "cover_date": "2022-04-14",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 167431000.0,
+     "us-gaap:CommonClassBMember": 23225000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.22,
+     "us-gaap:CommonClassBMember": -0.2
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": -0.22,
+     "us-gaap:CommonClassBMember": -0.2
+    },
+    "form": "10-K",
+    "instance": "stz-20220228_htm.xml",
+    "period_end": "2022-02-28"
+   },
+   "0000016918-23-000045": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 169337000.0,
+     "us-gaap:CommonClassBMember": 23206000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 183231968.0,
+     "us-gaap:ConvertibleCommonStockMember": 22705.0
+    },
+    "cover_date": "2023-04-13",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 169337000.0,
+     "us-gaap:CommonClassBMember": 23206000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.11,
+     "us-gaap:CommonClassBMember": -2.02
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": -0.11,
+     "us-gaap:CommonClassBMember": -2.02
+    },
+    "form": "10-K",
+    "instance": "stz-20230228_htm.xml",
+    "period_end": "2023-02-28"
+   },
+   "0000016918-24-000054": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 183307000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 182952680.0,
+     "us-gaap:ConvertibleCommonStockMember": 23661.0
+    },
+    "cover_date": "2024-04-16",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 183959000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 9.42
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 9.39
+    },
+    "form": "10-K",
+    "instance": "stz-20240229_htm.xml",
+    "period_end": "2024-02-29"
+   },
+   "0000016918-25-000022": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 181476000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 177993028.0,
+     "us-gaap:ConvertibleCommonStockMember": 27167.0
+    },
+    "cover_date": "2025-04-16",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 181476000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.45
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": -0.45,
+     "us-gaap:CommonClassBMember": -0.45
+    },
+    "form": "10-K",
+    "instance": "stz-20250228_htm.xml",
+    "period_end": "2025-02-28"
+   },
+   "0000016918-26-000011": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 175414000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 172172544.0,
+     "us-gaap:ConvertibleCommonStockMember": 25923.0
+    },
+    "cover_date": "2026-04-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 175568000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 9.62
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 9.61
+    },
+    "form": "10-K",
+    "instance": "stz-20260228_htm.xml",
+    "period_end": "2026-02-28"
+   }
+  },
+  "1701605": {
+   "0001701605-18-000029": {
+    "basic": {},
+    "cover": {
+     "us-gaap:CommonClassAMember": 422581873.0,
+     "us-gaap:CommonClassBMember": 706984255.0
+    },
+    "cover_date": "2018-02-08",
+    "diluted": {},
+    "eps_basic": {
+     "": -0.17
+    },
+    "eps_diluted": {
+     "": -0.17
+    },
+    "form": "10-K",
+    "instance": "bhi-20171231.xml",
+    "period_end": "2017-12-31"
+   },
+   "0001701605-19-000021": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 427000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 514871270.0,
+     "us-gaap:CommonClassBMember": 521543095.0
+    },
+    "cover_date": "2019-02-08",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 429000000.0
+    },
+    "eps_basic": {
+     "": 0.46,
+     "us-gaap:CommonClassAMember": 0.46
+    },
+    "eps_diluted": {
+     "": 0.45,
+     "us-gaap:CommonClassAMember": 0.45
+    },
+    "form": "10-K",
+    "instance": "bhge-20181231.xml",
+    "period_end": "2018-12-31"
+   },
+   "0001701605-20-000019": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 555000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 653509914.0,
+     "us-gaap:CommonClassBMember": 377427884.0
+    },
+    "cover_date": "2020-02-06",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 557000000.0
+    },
+    "eps_basic": {
+     "": 0.23,
+     "us-gaap:CommonClassAMember": 0.23
+    },
+    "eps_diluted": {
+     "": 0.23,
+     "us-gaap:CommonClassAMember": 0.23
+    },
+    "form": "10-K",
+    "instance": "fiscalyear2019form10-k_htm.xml",
+    "period_end": "2019-12-31"
+   },
+   "0001701605-21-000026": {
+    "basic": {
+     "bkr:CommonClassAAndBMember": 1034000000.0,
+     "us-gaap:CommonClassAMember": 675000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 728963146.0,
+     "us-gaap:CommonClassBMember": 311432660.0
+    },
+    "cover_date": "2021-02-19",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 675000000.0
+    },
+    "eps_basic": {
+     "": -14.73,
+     "us-gaap:CommonClassAMember": -14.73
+    },
+    "eps_diluted": {
+     "": -14.73,
+     "us-gaap:CommonClassAMember": -14.73
+    },
+    "form": "10-K",
+    "instance": "bkr-20201231_htm.xml",
+    "period_end": "2020-12-31"
+   },
+   "0001701605-22-000050": {
+    "basic": {
+     "bkr:CommonClassAAndBMember": 1039000000.0,
+     "us-gaap:CommonClassAMember": 824000000.0,
+     "us-gaap:CommonClassBMember": 215000000.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 953340976.0,
+     "us-gaap:CommonClassBMember": 74129913.0
+    },
+    "cover_date": "2022-02-07",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 824000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.27
+    },
+    "eps_diluted": {
+     "": -0.27,
+     "us-gaap:CommonClassAMember": -0.27
+    },
+    "form": "10-K",
+    "instance": "bkr-20211231_htm.xml",
+    "period_end": "2021-12-31"
+   },
+   "0001701605-23-000044": {
+    "basic": {
+     "bkr:CommonClassAAndBMember": 1017000000.0,
+     "us-gaap:CommonClassAMember": 987000000.0,
+     "us-gaap:CommonClassBMember": 30000000.0
+    },
+    "cover": {
+     "": 1011217705.0
+    },
+    "cover_date": "2023-02-06",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 987000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": -0.61
+    },
+    "eps_diluted": {
+     "": -0.61,
+     "us-gaap:CommonClassAMember": -0.61
+    },
+    "form": "10-K",
+    "instance": "bkr-20221231_htm.xml",
+    "period_end": "2022-12-31"
+   },
+   "0001701605-24-000033": {
+    "basic": {
+     "bkr:CommonClassAAndBMember": 1008000000.0,
+     "us-gaap:CommonClassAMember": 1008000000.0,
+     "us-gaap:CommonClassBMember": 0.0
+    },
+    "cover": {
+     "": 1000881406.0
+    },
+    "cover_date": "2024-01-26",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 1015000000.0
+    },
+    "eps_basic": {
+     "": 1.93,
+     "us-gaap:CommonClassAMember": 1.93
+    },
+    "eps_diluted": {
+     "": 1.91,
+     "us-gaap:CommonClassAMember": 1.91
+    },
+    "form": "10-K",
+    "instance": "bkr-20231231_htm.xml",
+    "period_end": "2023-12-31"
+   },
+   "0001701605-25-000035": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 994000000.0
+    },
+    "cover": {
+     "": 990111854.0
+    },
+    "cover_date": "2025-01-22",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 1001000000.0
+    },
+    "eps_basic": {
+     "": 3.0,
+     "us-gaap:CommonClassAMember": 3.0
+    },
+    "eps_diluted": {
+     "": 2.98,
+     "us-gaap:CommonClassAMember": 2.98
+    },
+    "form": "10-K",
+    "instance": "bkr-20241231_htm.xml",
+    "period_end": "2024-12-31"
+   },
+   "0001701605-26-000007": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 988000000.0
+    },
+    "cover": {
+     "": 988236510.0
+    },
+    "cover_date": "2026-01-27",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 994000000.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 2.62
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 2.6
+    },
+    "form": "10-K",
+    "instance": "bkr-20251231_htm.xml",
+    "period_end": "2025-12-31"
+   }
+  },
+  "922621": {
+   "0000922621-15-000008": {
+    "basic": {},
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2015-02-20",
+    "diluted": {},
+    "eps_basic": {},
+    "eps_diluted": {},
+    "form": "10-K",
+    "instance": "erie-20141231.xml",
+    "period_end": "2014-12-31"
+   },
+   "0000922621-16-000067": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46186671.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2016-02-19",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52498811.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 3.75,
+     "us-gaap:CommonClassBMember": 563.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 3.33,
+     "us-gaap:CommonClassBMember": 562.0
+    },
+    "form": "10-K",
+    "instance": "erie-20151231.xml",
+    "period_end": "2015-12-31"
+   },
+   "0000922621-17-000008": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188952.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2017-02-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52435303.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 4.52,
+     "us-gaap:CommonClassBMember": 678.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 4.01,
+     "us-gaap:CommonClassBMember": 677.0
+    },
+    "form": "10-K",
+    "instance": "erie-20161231.xml",
+    "period_end": "2016-12-31"
+   },
+   "0000922621-18-000016": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46186831.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2018-02-16",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52337463.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 4.23,
+     "us-gaap:CommonClassBMember": 635.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 3.76,
+     "us-gaap:CommonClassBMember": 634.0
+    },
+    "form": "10-K",
+    "instance": "erie-20171231.xml",
+    "period_end": "2017-12-31"
+   },
+   "0000922621-19-000008": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188637.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2019-02-15",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52315213.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 6.19,
+     "us-gaap:CommonClassBMember": 928.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.51,
+     "us-gaap:CommonClassBMember": 928.0
+    },
+    "form": "10-K",
+    "instance": "erie-20181231.xml",
+    "period_end": "2018-12-31"
+   },
+   "0000922621-20-000009": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188836.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2020-02-21",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52319860.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 6.8,
+     "us-gaap:CommonClassBMember": 1020.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 6.06,
+     "us-gaap:CommonClassBMember": 1020.0
+    },
+    "form": "10-K",
+    "instance": "erie10-k12312019_htm.xml",
+    "period_end": "2019-12-31"
+   },
+   "0000922621-21-000010": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188659.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2021-02-19",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52313360.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 6.3,
+     "us-gaap:CommonClassBMember": 945.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.61,
+     "us-gaap:CommonClassBMember": 945.0
+    },
+    "form": "10-K",
+    "instance": "erie-20201231_htm.xml",
+    "period_end": "2020-12-31"
+   },
+   "0000922621-22-000013": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188806.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2022-02-18",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52307302.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 6.4,
+     "us-gaap:CommonClassBMember": 959.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.69,
+     "us-gaap:CommonClassBMember": 959.0
+    },
+    "form": "10-K",
+    "instance": "erie-20211231_htm.xml",
+    "period_end": "2021-12-31"
+   },
+   "0000922621-23-000007": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188916.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2023-02-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52297990.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 6.41,
+     "us-gaap:CommonClassBMember": 962.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 5.71,
+     "us-gaap:CommonClassBMember": 962.0
+    },
+    "form": "10-K",
+    "instance": "erie-20221231_htm.xml",
+    "period_end": "2022-12-31"
+   },
+   "0000922621-24-000006": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46188981.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2024-02-20",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52299411.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 9.58,
+     "us-gaap:CommonClassBMember": 1437.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 8.53,
+     "us-gaap:CommonClassBMember": 1437.0
+    },
+    "form": "10-K",
+    "instance": "erie-20231231_htm.xml",
+    "period_end": "2023-12-31"
+   },
+   "0000922621-25-000004": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46189044.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2025-02-21",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52306266.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 12.89,
+     "us-gaap:CommonClassBMember": 1934.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 11.48,
+     "us-gaap:CommonClassBMember": 1933.0
+    },
+    "form": "10-K",
+    "instance": "erie-20241231_htm.xml",
+    "period_end": "2024-12-31"
+   },
+   "0001628280-26-010666": {
+    "basic": {
+     "us-gaap:CommonClassAMember": 46189024.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover": {
+     "us-gaap:CommonClassAMember": 46189068.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "cover_date": "2026-02-17",
+    "diluted": {
+     "us-gaap:CommonClassAMember": 52305424.0,
+     "us-gaap:CommonClassBMember": 2542.0
+    },
+    "eps_basic": {
+     "us-gaap:CommonClassAMember": 12.01,
+     "us-gaap:CommonClassBMember": 1802.0
+    },
+    "eps_diluted": {
+     "us-gaap:CommonClassAMember": 10.69,
+     "us-gaap:CommonClassBMember": 1801.0
+    },
+    "form": "10-K",
+    "instance": "erie-20251231_htm.xml",
+    "period_end": "2025-12-31"
+   }
+  }
+ },
+ "note": "Per-class share facts extracted from each 10-K XBRL instance (#53). Generated by `longmuch share-classes-refresh`; do not hand-edit."
+}

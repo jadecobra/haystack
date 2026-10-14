@@ -187,6 +187,9 @@ def main(argv: list[str] | None = None) -> int:
         help="also write frontend/public/screen/sp500-oe-yield.json",
     )
 
+    p_sc = sub.add_parser("share-classes-refresh")
+    p_sc.add_argument("--limit", type=int, default=12, help="10-Ks per issuer")
+
     args = parser.parse_args(argv)
     if args.cmd == "health":
         return cmd_health(args.base)
@@ -199,6 +202,11 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.cmd == "contract":
         return cmd_contract(args.base)
+    if args.cmd == "share-classes-refresh":
+        from app import share_classes
+
+        _dump(share_classes.refresh_counts(limit=args.limit))
+        return 0
     if args.cmd == "screen-build":
         return cmd_screen_build(args.tickers, args.seed)
     parser.error("unknown command")

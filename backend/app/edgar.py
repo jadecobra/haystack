@@ -2149,6 +2149,11 @@ def statements_for_ticker(
         except Exception:  # noqa: BLE001, S112 - predecessor is best-effort history
             continue
     years, statements = map_companyfacts_to_statements(payload)
+    # Multi-class issuers (#53): traded-class equivalent shares from each
+    # 10-K's per-class XBRL facts, only where companyfacts has none.
+    from app import share_classes
+
+    share_classes.apply(cik, statements)
     if not years:
         raise ValueError(f"unknown ticker / no annual us-gaap facts for {ticker}")
     return years, statements, cik, entity_name(payload)

@@ -1,0 +1,96 @@
+{
+  "note": "Multi-class issuers (#53): conversion ratios to the traded class, with filing evidence. Per-class counts come from each 10-K's XBRL instance (share_class_counts.json). A class with no ratio here leaves that year's shares blank.",
+  "map": {
+    "1067983": {
+      "ticker": "BRK.B",
+      "traded_class": "us-gaap:CommonClassBMember",
+      "ratios": {
+        "us-gaap:CommonClassBMember": {
+          "ratio": 1
+        },
+        "us-gaap:CommonClassAMember": {
+          "ratio": 1500,
+          "evidence": "10-K 0001193125-26-083899, Notes to Consolidated Financial Statements, Common stock: 'Each share of Class A common stock is convertible, at the option of the holder, into 1,500 shares of Class B common stock'; Class B has 1/1,500 of Class A's dividend and distribution rights."
+        }
+      },
+      "diluted_includes_other_classes": false,
+      "diluted_evidence": "No per-class diluted share count is tagged; Berkshire reports EPS on 'average equivalent Class B shares outstanding' (2,157,335,139 for 2025), which the cover counts x 1,500 reproduce."
+    },
+    "1403161": {
+      "ticker": "V",
+      "traded_class": "us-gaap:CommonClassAMember",
+      "ratios": {
+        "us-gaap:CommonClassAMember": {
+          "ratio": 1
+        },
+        "us-gaap:CommonClassBMember": {
+          "ratio": "eps_basic_ratio",
+          "evidence": "10-K 0001403161-24-000058, Note 16\u2014Earnings Per Share (two-class method; class B allocated on its as-converted class A rate, which changes with U.S. retrospective responsibility plan deposits, Note 5)."
+        },
+        "v:CommonClassB1Member": {
+          "ratio": "eps_basic_ratio",
+          "evidence": "10-K 0001403161-25-000089, Note 16\u2014Earnings Per Share: class B-1 basic EPS $15.97 vs class A $10.22 (as-converted rate ~1.56; Note 15\u2014Stockholders' Equity)."
+        },
+        "v:CommonClassB2Member": {
+          "ratio": "eps_basic_ratio",
+          "evidence": "10-K 0001403161-25-000089, Note 16\u2014Earnings Per Share: class B-2 basic EPS $15.72 vs class A $10.22 (as-converted rate ~1.54)."
+        },
+        "us-gaap:CommonClassCMember": {
+          "ratio": "eps_basic_ratio",
+          "evidence": "10-K 0001403161-25-000089, Note 16\u2014Earnings Per Share: class C basic EPS $40.87 vs class A $10.22 (as-converted rate 4)."
+        }
+      },
+      "diluted_includes_other_classes": true,
+      "diluted_evidence": "10-K 0001403161-25-000089, Note 16\u2014Earnings Per Share: class A diluted weighted-average shares (1,966M for FY2025) assume conversion of class B-1, B-2 and C common and series A/B/C preferred into class A on an as-converted basis; class A diluted EPS $10.20 = net income $20,058M / 1,966M."
+    },
+    "922621": {
+      "ticker": "ERIE",
+      "traded_class": "us-gaap:CommonClassAMember",
+      "ratios": {
+        "us-gaap:CommonClassAMember": {
+          "ratio": 1
+        },
+        "us-gaap:CommonClassBMember": {
+          "ratio": 2400,
+          "evidence": "10-K 0001628280-26-010666, balance sheet and Note 13\u2014Capital Stock: 'Class B common stock, convertible at a rate of 2,400 Class A shares for one Class B share'."
+        }
+      },
+      "diluted_includes_other_classes": true,
+      "diluted_evidence": "10-K 0001628280-26-010666, Earnings per share note: 'Class A diluted earnings per share are calculated under the if-converted method, which reflects the conversion of Class B shares to Class A shares' (52,305,424 diluted Class A shares for 2025)."
+    },
+    "16918": {
+      "ticker": "STZ",
+      "traded_class": "us-gaap:CommonClassAMember",
+      "ratios": {
+        "us-gaap:CommonClassAMember": {
+          "ratio": 1
+        },
+        "us-gaap:ConvertibleCommonStockMember": {
+          "ratio": 1,
+          "evidence": "10-K 0000016918-26-000011, Item 8 Notes, Stockholders' equity: 'Class 1 Stock shares are convertible into shares of Class A Stock on a one-to-one basis' (25,923 Class 1 shares on the cover page)."
+        },
+        "us-gaap:CommonClassBMember": {
+          "ratio": 1,
+          "evidence": "Class B Convertible Common Stock (eliminated by the 2022 Reclassification; 10-K 0000016918-26-000011 glossary 'Reclassification'). 1:1 if-converted basis is shown in the filer's own XBRL: 10-K 0000016918-18-000033 Note EPS, diluted Class A 200,745 thousand >= basic Class A 171,457 + basic Class B 23,336 thousand."
+        }
+      },
+      "diluted_includes_other_classes": "auto",
+      "diluted_evidence": "Profit years: STZ's diluted Class A count is if-converted (includes Class B), e.g. FY2018 200,745 thousand. Loss years (FY2020, FY2022, FY2023, FY2025) report diluted = basic Class A (conversion anti-dilutive), so Class B/Class 1 are added at 1:1. 'auto' picks per filing."
+    },
+    "1701605": {
+      "ticker": "BKR",
+      "traded_class": "us-gaap:CommonClassAMember",
+      "ratios": {
+        "us-gaap:CommonClassAMember": {
+          "ratio": 1
+        },
+        "us-gaap:CommonClassBMember": {
+          "ratio": 1,
+          "evidence": "10-K 0001701605-21-000026, Note Equity: 'Each share of Class A and Class B common stock and the associated membership interest in BHH LLC form a paired interest ... GE is entitled through BHH LLC Units to receive distributions on an equal per share amount of any dividend paid'. Owner earnings are consolidated (include GE's LLC interest), so paired Class B + LLC units count 1:1 as Class A (fully exchanged basis)."
+        }
+      },
+      "diluted_includes_other_classes": false,
+      "diluted_evidence": "Class A diluted weighted-average shares exclude the paired Class B/LLC units (noncontrolling interest), so those are added at 1:1 using the per-class basic count when tagged, else the cover count. Class B was fully exchanged by 2023 (10-K 0001701605-24-000033 basic Class B 0)."
+    }
+  }
+}
