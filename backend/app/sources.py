@@ -17,6 +17,7 @@ from app.metrics import (
 )
 from app.classification import classify
 from app.payback import build_payback
+from app.peers import peers_for
 
 
 def _env_force_fixture() -> bool:
@@ -34,6 +35,13 @@ def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str |
     last_y = max(treasury.keys())
     rate = float(treasury[last_y])
     return round(rate * 100.0, 2), f"{last_y}-12-31"
+
+
+def _safe_peers(ticker: str) -> dict[str, Any] | None:
+    try:
+        return peers_for(ticker)
+    except Exception:  # noqa: BLE001 - peers are optional; never fail analyze
+        return None
 
 
 def _ms(start: float) -> float:
@@ -84,6 +92,7 @@ def analyze(
                 treasury_rate_decimal=fixture_rate,
             ),
             "classification": classify(ticker),
+            "peers": _safe_peers(ticker),
         }
         if include_timings:
             out["timings"] = {
@@ -190,6 +199,7 @@ def analyze(
             treasury_rate_decimal=dgs30_rate,
         ),
         "classification": classify(ticker, str(cik) if cik is not None else None),
+        "peers": _safe_peers(ticker),
     }
     if include_timings:
         cache_source = facts_meta.get("cache_source")

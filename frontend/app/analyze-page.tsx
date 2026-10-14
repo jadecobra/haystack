@@ -16,6 +16,7 @@ import {
   classificationSchemeLabel,
   type ClassificationBlock,
 } from '../lib/classificationLabel';
+import { peersHeading, peersMore, type PeersBlock } from '../lib/peersCopy';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
 
@@ -58,6 +59,7 @@ type Analysis = {
   cik?: string | null;
   payback?: PaybackBlock | null;
   classification?: ClassificationBlock | null;
+  peers?: PeersBlock | null;
 };
 
 const WAIT_STATUS = 'Working…';
@@ -163,6 +165,7 @@ function parseAnalysis(value: unknown): Analysis | null {
   };
   const payback = parsePayback(value.payback);
   const classification = parseClassification(value.classification);
+  const peers = parsePeers(value.peers);
 
   return {
     ticker: value.ticker,
@@ -188,7 +191,27 @@ function parseAnalysis(value: unknown): Analysis | null {
     cik: optionalString(value.cik),
     payback,
     classification,
+    peers,
   };
+}
+
+function parsePeers(value: unknown): PeersBlock | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (!isRecord(value)) return undefined;
+  const { basis, group, sub_industry, fallback, total, peers } = value;
+  if (basis !== 'sub_industry' && basis !== 'industry_group') return undefined;
+  if (typeof group !== 'string' || typeof sub_industry !== 'string') return undefined;
+  if (typeof fallback !== 'boolean' || typeof total !== 'number' || !Array.isArray(peers)) {
+    return undefined;
+  }
+  const items = peers
+    .filter((p): p is Record<string, unknown> => isRecord(p) && typeof p.ticker === 'string')
+    .map((p) => ({
+      ticker: String(p.ticker),
+      name: typeof p.name === 'string' ? p.name : null,
+    }));
+  return { basis, group, sub_industry, fallback, total, peers: items };
 }
 
 function parseClassification(value: unknown): ClassificationBlock | null | undefined {
@@ -580,6 +603,9 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const classLabel = ready ? classificationLabel(ready.classification) : null;
   const classScheme = ready ? classificationSchemeLabel(ready.classification) : null;
   const classLink = ready?.classification?.link || null;
+  const peersBlock = ready?.peers ?? null;
+  const peersTitle = peersHeading(peersBlock);
+  const peersExtra = peersMore(peersBlock);
   const cardTicker =
     view.kind === 'waiting' ? view.ticker : ready ? ready.ticker : null;
 
@@ -691,6 +717,26 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
             </p>
           )}
           <DataTable headers={headers} rows={rows} />
+          {peersTitle && peersBlock ? (
+            <section className="mt-6" data-testid="peers-section">
+              <h3 className="text-base sm:text-lg text-zinc-300 mb-2">{peersTitle}</h3>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base">
+                {peersBlock.peers.map((peer) => (
+                  <li key={peer.ticker}>
+                    <Link
+                      href={`/${peer.ticker}`}
+                      data-testid="peer-link"
+                      title={peer.name ?? undefined}
+                      className="underline underline-offset-4 text-zinc-200 hover:text-white"
+                    >
+                      {peer.ticker}
+                    </Link>
+                  </li>
+                ))}
+                {peersExtra ? <li className="text-zinc-500">{peersExtra}</li> : null}
+              </ul>
+            </section>
+          ) : null}
         </Card>
       )}
 

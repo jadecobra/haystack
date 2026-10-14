@@ -97,6 +97,20 @@ class Classification(pydantic.BaseModel):
     link: str | None = None
 
 
+class Peer(pydantic.BaseModel):
+    ticker: str
+    name: str | None = None
+
+
+class Peers(pydantic.BaseModel):
+    basis: Literal["sub_industry", "industry_group"]
+    group: str
+    sub_industry: str
+    fallback: bool
+    total: int
+    peers: list[Peer]
+
+
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
     company_name: str | None = None
@@ -117,6 +131,7 @@ class AnalysisResponse(pydantic.BaseModel):
     cik: str | None = None
     payback: PaybackBlock | None = None
     classification: Classification | None = None
+    peers: Peers | None = None
 
 
 @app.get("/health")

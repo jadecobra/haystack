@@ -73,5 +73,6 @@ export default async function TickerPage({ params }: PageProps) {
     permanentRedirect(`/${symbol}`);
   }
 
-  return <AnalyzePage initialTicker={symbol} />;
+  // key: peer links navigate /A -> /B client-side; remount so B analyzes fresh (#42).
+  return <AnalyzePage key={symbol} initialTicker={symbol} />;
 }
