@@ -1,7 +1,7 @@
 {
   "universe": "sp500",
   "count": 501,
-  "ranked": 485,
+  "ranked": 490,
   "skipped": 2,
   "excluded": [
     {
@@ -13,7 +13,7 @@
       "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): companyfacts missing us-gaap facts"
     }
   ],
-  "built_at": "2026-10-14T17:03:44+00:00",
+  "built_at": "2026-10-14T23:47:42+00:00",
   "price_as_of": "2026-10-14",
   "stale": false,
   "error": null,
@@ -864,6 +864,24 @@
       "no_debt": false,
       "sector": "Communication Services",
       "sub_industry": "Integrated Telecommunication Services"
+    },
+    {
+      "ticker": "STZ",
+      "name": "CONSTELLATION BRANDS, INC.",
+      "oe_yield": 0.10081734183510033,
+      "oe_per_share": 12.809851453567848,
+      "oe_note": null,
+      "price": 127.06,
+      "fy": 2026,
+      "price_as_of": "2026-10-14",
+      "debt": 10568500000.0,
+      "debt_state": "positive",
+      "payback_years": 9.9189284481992,
+      "ni_to_equity": 0.2086880134613481,
+      "debt_to_equity": 1.3075942789270514,
+      "no_debt": false,
+      "sector": "Consumer Staples",
+      "sub_industry": "Distillers & Vintners"
     },
     {
       "ticker": "KR",
@@ -1809,7 +1827,7 @@
       "oe_note": null,
       "price": 27.29,
       "fy": 2026,
-      "price_as_of": null,
+      "price_as_of": "2026-10-14",
       "debt": 2502000000.0,
       "debt_state": "positive",
       "payback_years": 14.027691156387665,
@@ -3458,6 +3476,24 @@
       "sub_industry": "Electronic Manufacturing Services"
     },
     {
+      "ticker": "ERIE",
+      "name": "ERIE INDEMNITY COMPANY",
+      "oe_yield": 0.05111790545074188,
+      "oe_per_share": 11.800057294249255,
+      "oe_note": null,
+      "price": 230.84,
+      "fy": 2025,
+      "price_as_of": "2026-10-14",
+      "debt": null,
+      "debt_state": "n/a",
+      "payback_years": 19.56261687919936,
+      "ni_to_equity": 0.24495987078770276,
+      "debt_to_equity": null,
+      "no_debt": null,
+      "sector": "Financials",
+      "sub_industry": "Insurance Brokers"
+    },
+    {
       "ticker": "SYY",
       "name": "Sysco Corporation",
       "oe_yield": 0.05102311830221101,
@@ -3978,6 +4014,24 @@
       "no_debt": false,
       "sector": "Energy",
       "sub_industry": "Oil & Gas Exploration & Production"
+    },
+    {
+      "ticker": "BKR",
+      "name": "Baker Hughes Company",
+      "oe_yield": 0.04672855556723868,
+      "oe_per_share": 2.6378269617706236,
+      "oe_note": null,
+      "price": 56.45,
+      "fy": 2025,
+      "price_as_of": "2026-10-14",
+      "debt": 6087000000.0,
+      "debt_state": "positive",
+      "payback_years": 21.400190694126625,
+      "ni_to_equity": 0.1374110650950409,
+      "debt_to_equity": 0.3231920993947117,
+      "no_debt": false,
+      "sector": "Energy",
+      "sub_industry": "Oil & Gas Equipment & Services"
     },
     {
       "ticker": "UNH",
@@ -5438,6 +5492,24 @@
       "sub_industry": "Environmental & Facilities Services"
     },
     {
+      "ticker": "FERG",
+      "name": "Ferguson Enterprises Inc. /DE/",
+      "oe_yield": 0.036108717378713455,
+      "oe_per_share": 8.04718875502008,
+      "oe_note": null,
+      "price": 222.86,
+      "fy": 2025,
+      "price_as_of": "2026-10-14",
+      "debt": 4175000000.0,
+      "debt_state": "positive",
+      "payback_years": 27.694143480973178,
+      "ni_to_equity": 0.31824417009602196,
+      "debt_to_equity": 0.715877914951989,
+      "no_debt": false,
+      "sector": "Industrials",
+      "sub_industry": "Trading Companies & Distributors"
+    },
+    {
       "ticker": "ITW",
       "name": "ILLINOIS TOOL WORKS INC",
       "oe_yield": 0.036084371194698164,
@@ -5662,11 +5734,11 @@
       "price": 174.08,
       "fy": 2025,
       "price_as_of": "2026-10-14",
-      "debt": 41710000000.0,
+      "debt": 43537000000.0,
       "debt_state": "positive",
       "payback_years": 28.849151172190787,
-      "ni_to_equity": 0.10937979939705353,
-      "debt_to_equity": 0.15816916630325553,
+      "ni_to_equity": 0.11120106713546606,
+      "debt_to_equity": 0.16784637567177874,
       "no_debt": false,
       "sector": "Energy",
       "sub_industry": "Integrated Oil & Gas"
@@ -5850,24 +5922,6 @@
       "no_debt": false,
       "sector": "Industrials",
       "sub_industry": "Industrial Machinery & Supplies & Components"
-    },
-    {
-      "ticker": "FERG",
-      "name": "Ferguson Enterprises Inc. /DE/",
-      "oe_yield": 0.033912499137303945,
-      "oe_per_share": 7.557739557739557,
-      "oe_note": null,
-      "price": 222.86,
-      "fy": 2024,
-      "price_as_of": "2026-10-14",
-      "debt": 3950000000.0,
-      "debt_state": "positive",
-      "payback_years": 29.487652795838756,
-      "ni_to_equity": 0.3089387464387464,
-      "debt_to_equity": 0.7033475783475783,
-      "no_debt": false,
-      "sector": "Industrials",
-      "sub_industry": "Trading Companies & Distributors"
     },
     {
       "ticker": "MSI",
@@ -6302,6 +6356,24 @@
       "sub_industry": "Electronic Manufacturing Services"
     },
     {
+      "ticker": "BRK.B",
+      "name": "BERKSHIRE HATHAWAY INC",
+      "oe_yield": 0.028931861117140894,
+      "oe_per_share": 15.061637578972379,
+      "oe_note": null,
+      "price": 520.59,
+      "fy": 2025,
+      "price_as_of": null,
+      "debt": null,
+      "debt_state": "n/a",
+      "payback_years": 34.56397070175146,
+      "ni_to_equity": 0.09334572962243821,
+      "debt_to_equity": null,
+      "no_debt": null,
+      "sector": "Financials",
+      "sub_industry": "Multi-Sector Holdings"
+    },
+    {
       "ticker": "AJG",
       "name": "ARTHUR J. GALLAGHER & CO.",
       "oe_yield": 0.02890401636731841,
@@ -6480,6 +6552,24 @@
       "no_debt": false,
       "sector": "Industrials",
       "sub_industry": "Aerospace & Defense"
+    },
+    {
+      "ticker": "V",
+      "name": "VISA INC.",
+      "oe_yield": 0.028047118645617625,
+      "oe_per_share": 11.108341810783317,
+      "oe_note": null,
+      "price": 396.06,
+      "fy": 2025,
+      "price_as_of": "2026-10-14",
+      "debt": 25392000000.0,
+      "debt_state": "n/a",
+      "payback_years": 35.65428636842346,
+      "ni_to_equity": 0.5291091825160252,
+      "debt_to_equity": 0.669814555910206,
+      "no_debt": null,
+      "sector": "Financials",
+      "sub_industry": "Transaction & Payment Processing Services"
     },
     {
       "ticker": "ECL",
@@ -8768,42 +8858,6 @@
       "sub_industry": "Multi-line Insurance"
     },
     {
-      "ticker": "BKR",
-      "name": "Baker Hughes Company",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)",
-      "price": 56.45,
-      "fy": 2025,
-      "price_as_of": "2026-10-14",
-      "debt": 6087000000.0,
-      "debt_state": "positive",
-      "payback_years": null,
-      "ni_to_equity": 0.1374110650950409,
-      "debt_to_equity": 0.3231920993947117,
-      "no_debt": false,
-      "sector": "Energy",
-      "sub_industry": "Oil & Gas Equipment & Services"
-    },
-    {
-      "ticker": "BRK.B",
-      "name": "BERKSHIRE HATHAWAY INC",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)",
-      "price": 520.59,
-      "fy": 2025,
-      "price_as_of": null,
-      "debt": null,
-      "debt_state": "n/a",
-      "payback_years": null,
-      "ni_to_equity": 0.09334572962243821,
-      "debt_to_equity": null,
-      "no_debt": null,
-      "sector": "Financials",
-      "sub_industry": "Multi-Sector Holdings"
-    },
-    {
       "ticker": "CB",
       "name": "CHUBB LIMITED",
       "oe_yield": null,
@@ -8838,24 +8892,6 @@
       "no_debt": null,
       "sector": "Financials",
       "sub_industry": "Reinsurance"
-    },
-    {
-      "ticker": "ERIE",
-      "name": "ERIE INDEMNITY COMPANY",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)",
-      "price": 230.84,
-      "fy": 2025,
-      "price_as_of": "2026-10-14",
-      "debt": null,
-      "debt_state": "n/a",
-      "payback_years": null,
-      "ni_to_equity": 0.24495987078770276,
-      "debt_to_equity": null,
-      "no_debt": null,
-      "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
     },
     {
       "ticker": "IBKR",
@@ -8966,24 +9002,6 @@
       "sub_industry": "Movies & Entertainment"
     },
     {
-      "ticker": "STZ",
-      "name": "CONSTELLATION BRANDS, INC.",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)",
-      "price": 127.06,
-      "fy": 2026,
-      "price_as_of": "2026-10-14",
-      "debt": 10568500000.0,
-      "debt_state": "positive",
-      "payback_years": null,
-      "ni_to_equity": 0.2086880134613481,
-      "debt_to_equity": 1.3075942789270514,
-      "no_debt": false,
-      "sector": "Consumer Staples",
-      "sub_industry": "Distillers & Vintners"
-    },
-    {
       "ticker": "TFC",
       "name": "TRUIST FINANCIAL CORPORATION",
       "oe_yield": null,
@@ -9018,24 +9036,6 @@
       "no_debt": null,
       "sector": "Financials",
       "sub_industry": "Diversified Banks"
-    },
-    {
-      "ticker": "V",
-      "name": "VISA INC.",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)",
-      "price": 396.06,
-      "fy": 2025,
-      "price_as_of": "2026-10-14",
-      "debt": 25392000000.0,
-      "debt_state": "n/a",
-      "payback_years": null,
-      "ni_to_equity": 0.5291091825160252,
-      "debt_to_equity": 0.669814555910206,
-      "no_debt": null,
-      "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
     }
   ],
   "meta": {
@@ -9061,8 +9061,8 @@
     },
     "column_coverage": {
       "payback_years": {
-        "known": 466,
-        "unknown": 35
+        "known": 471,
+        "unknown": 30
       },
       "ni_to_equity": {
         "known": 469,
