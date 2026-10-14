@@ -78,6 +78,16 @@ class MetricGroup(pydantic.BaseModel):
     labels: list[str]
 
 
+class PaybackBlock(pydantic.BaseModel):
+    price: float
+    oe_per_share_latest: float | None = None
+    oe_per_share_5y_avg: float | None = None
+    years_at_latest: float | None = None
+    years_at_5y_avg: float | None = None
+    treasury_years: float | None = None
+    pays_back: bool
+
+
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
     company_name: str | None = None
@@ -96,6 +106,7 @@ class AnalysisResponse(pydantic.BaseModel):
     labels: list[str] | None = None
     timings: dict[str, Any] | None = None
     cik: str | None = None
+    payback: PaybackBlock | None = None
 
 
 @app.get("/health")

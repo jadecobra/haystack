@@ -10,6 +10,7 @@ import {
   isTransientAnalyzeStatus,
   parseAnalyzeBody,
 } from './utils/analyze-error';
+import { paybackSentence, type PaybackBlock } from '../lib/paybackCopy';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
 
@@ -50,6 +51,7 @@ type Analysis = {
   previous_close_as_of?: string | null;
   groups?: MetricGroup[];
   cik?: string | null;
+  payback?: PaybackBlock | null;
 };
 
 const WAIT_STATUS = 'Working…';
@@ -153,6 +155,7 @@ function parseAnalysis(value: unknown): Analysis | null {
     if (field === null || typeof field === 'string') return field;
     return undefined;
   };
+  const payback = parsePayback(value.payback);
 
   return {
     ticker: value.ticker,
@@ -176,6 +179,29 @@ function parseAnalysis(value: unknown): Analysis | null {
     previous_close_as_of: optionalString(value.previous_close_as_of),
     groups,
     cik: optionalString(value.cik),
+    payback,
+  };
+}
+
+function optionalPaybackNumber(field: unknown): number | null | undefined {
+  if (field === undefined) return undefined;
+  if (field === null || typeof field === 'number') return field;
+  return undefined;
+}
+
+function parsePayback(value: unknown): PaybackBlock | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (!isRecord(value) || typeof value.price !== 'number') return undefined;
+  if (typeof value.pays_back !== 'boolean') return undefined;
+  return {
+    price: value.price,
+    oe_per_share_latest: optionalPaybackNumber(value.oe_per_share_latest),
+    oe_per_share_5y_avg: optionalPaybackNumber(value.oe_per_share_5y_avg),
+    years_at_latest: optionalPaybackNumber(value.years_at_latest),
+    years_at_5y_avg: optionalPaybackNumber(value.years_at_5y_avg),
+    treasury_years: optionalPaybackNumber(value.treasury_years),
+    pays_back: value.pays_back,
   };
 }
 
@@ -526,6 +552,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
       : [];
 
   const sourceLabel = (ready?.source || 'api').toUpperCase();
+  const paybackLine = ready ? paybackSentence(ready.ticker, ready.payback) : null;
   const cardTicker =
     view.kind === 'waiting' ? view.ticker : ready ? ready.ticker : null;
 
@@ -599,6 +626,14 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                 Source: SEC filings
               </TextLink>
             </p>
+          ) : null}
+          {paybackLine ? (
+            <section
+              className="text-sm sm:text-base text-zinc-300 mb-4"
+              data-testid="payback-section"
+            >
+              {paybackLine}
+            </section>
           ) : null}
           {view.kind === 'waiting' && (
             <p

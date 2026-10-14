@@ -153,6 +153,7 @@ case "$cmd" in
     grep -q 'Owner Earnings / 30 Year Treasury per Share' "$body" || die "analyze JSON missing Owner Earnings / 30 Year Treasury per Share"
     grep -q 'Owner Earnings / Last Close Price' "$body" || die "analyze JSON missing Owner Earnings / Last Close Price"
     grep -q '"rows"' "$body" || die "analyze JSON missing rows"
+    grep -q '"payback"' "$body" || die "analyze JSON missing payback"
     python3 - "$body" "$ticker" <<'PY' || die "analyze JSON missing company_name"
 import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))

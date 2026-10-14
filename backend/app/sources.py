@@ -15,6 +15,7 @@ from app.metrics import (
     build_table,
     groups_payload,
 )
+from app.payback import build_payback
 
 
 def _env_force_fixture() -> bool:
@@ -55,11 +56,13 @@ def analyze(
         prev_close = 100.0
         rows = build_table(years, statements, treasury, previous_close=prev_close)
         pct, as_of = _fixture_dgs30_meta(treasury)
+        fixture_rate = float(treasury[max(treasury)]) if treasury else None
+        year_labels = [str(y) for y in years]
         company_name = "Apple Inc." if ticker == "AAPL" else None
         out: dict[str, Any] = {
             "ticker": ticker,
             "company_name": company_name,
-            "years": [str(y) for y in years],
+            "years": year_labels,
             "rows": rows,
             "source": "fixture",
             "status": "success",
@@ -73,6 +76,12 @@ def analyze(
             "schema_version": SCHEMA_VERSION,
             "labels": list(LOCKED_LABELS),
             "cik": "320193" if ticker == "AAPL" else None,
+            "payback": build_payback(
+                price=prev_close,
+                years=year_labels,
+                rows=rows,
+                treasury_rate_decimal=fixture_rate,
+            ),
         }
         if include_timings:
             out["timings"] = {
@@ -122,10 +131,12 @@ def analyze(
 
     dgs30_pct: float | None = None
     dgs30_as_of: str | None = None
+    dgs30_rate: float | None = None
     try:
         latest = fred.latest_dgs30()
         dgs30_pct = float(latest["pct"])
         dgs30_as_of = str(latest["as_of"])
+        dgs30_rate = float(latest["rate"])
     except Exception:
         pass
     metrics_part_ms = _ms(t_metrics)
@@ -148,11 +159,12 @@ def analyze(
     t_table = time.perf_counter()
     rows = build_table(years, statements, treasury, previous_close=prev_close)
     metrics_ms = round(metrics_part_ms + _ms(t_table), 1)
+    year_labels = [str(y) for y in years]
 
     out = {
         "ticker": ticker,
         "company_name": company_name,
-        "years": [str(y) for y in years],
+        "years": year_labels,
         "rows": rows,
         "source": "edgar",
         "status": "success",
@@ -169,6 +181,12 @@ def analyze(
         "schema_version": SCHEMA_VERSION,
         "labels": list(LOCKED_LABELS),
         "cik": str(cik) if cik is not None else None,
+        "payback": build_payback(
+            price=prev_close,
+            years=year_labels,
+            rows=rows,
+            treasury_rate_decimal=dgs30_rate,
+        ),
     }
     if include_timings:
         cache_source = facts_meta.get("cache_source")
