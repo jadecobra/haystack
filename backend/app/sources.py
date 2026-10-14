@@ -7,6 +7,7 @@ import time
 from typing import Any
 
 from app import fixture
+from app.classification import classify
 from app.metrics import (
     FIELDS,
     LOCKED_LABELS,
@@ -15,7 +16,6 @@ from app.metrics import (
     build_table,
     groups_payload,
 )
-from app.classification import classify
 from app.payback import build_payback
 from app.peers import peers_for
 
@@ -126,7 +126,7 @@ def analyze(
     t_metrics = time.perf_counter()
     try:
         treasury = fred.treasury_for_years(years)
-    except Exception:
+    except Exception:  # noqa: BLE001 - fail-soft: treasury columns blank
         treasury = {}
 
     gaps: list[str] = []
@@ -148,7 +148,7 @@ def analyze(
         dgs30_pct = float(latest["pct"])
         dgs30_as_of = str(latest["as_of"])
         dgs30_rate = float(latest["rate"])
-    except Exception:
+    except Exception:  # noqa: BLE001, S110 - fail-soft: DGS30 is optional
         pass
     metrics_part_ms = _ms(t_metrics)
 
@@ -163,7 +163,7 @@ def analyze(
             prev_close = float(quote["price"])
             as_of_q = quote.get("as_of")
             prev_close_as_of = str(as_of_q) if as_of_q else None
-    except Exception:
+    except Exception:  # noqa: BLE001, S110 - fail-soft: previous close is optional
         pass
     quote_ms = _ms(t_quote)
 

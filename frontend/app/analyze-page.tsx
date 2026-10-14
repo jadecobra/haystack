@@ -337,6 +337,8 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const [elapsedMs, setElapsedMs] = useState(0);
 
   const groupsCacheRef = useRef<MetricGroup[]>([]);
+  // Render-safe mirror of groupsCacheRef (react-hooks/refs: no ref reads in render).
+  const [cachedGroups, setCachedGroups] = useState<MetricGroup[]>([]);
   const yearsCacheRef = useRef<string[]>([]);
   const contractPromiseRef = useRef<Promise<MetricGroup[]> | null>(null);
   const waitTimersRef = useRef<number[]>([]);
@@ -378,6 +380,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           return [] as MetricGroup[];
         }
         groupsCacheRef.current = contract.groups;
+        setCachedGroups(contract.groups);
         return contract.groups;
       })
       .catch(() => {
@@ -452,6 +455,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
       const succeed = (result: Analysis) => {
         if (result.groups?.length) {
           groupsCacheRef.current = result.groups;
+          setCachedGroups(result.groups);
         }
         yearsCacheRef.current = result.years;
         clearWaitTimers();
@@ -568,7 +572,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
       ? view.skeleton.groups
       : ready?.groups?.length
         ? ready.groups
-        : groupsCacheRef.current;
+        : cachedGroups;
   const displayYears =
     view.kind === 'waiting'
       ? view.skeleton.years

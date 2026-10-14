@@ -110,7 +110,7 @@ def cmd_screen_build(tickers: str | None, also_seed: bool) -> int:
         allowlist = [part.strip().upper() for part in tickers.split(",") if part.strip()]
     try:
         payload = screen_build(allowlist, fail_soft=True, also_seed=also_seed)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - CLI reports any failure as JSON error
         _dump({"error": str(exc)})
         return 1
     _dump(

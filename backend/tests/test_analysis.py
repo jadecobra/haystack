@@ -5,12 +5,17 @@ from pathlib import Path
 from unittest import mock
 
 import httpx
-
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.cli import main as cli_main
-from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL, build_table, compute_year
+from app.main import app
+from app.metrics import (
+    LOCKED_LABELS,
+    SCHEMA_VERSION,
+    TREASURY_LABEL,
+    build_table,
+    compute_year,
+)
 from app.sources import analyze
 
 
@@ -185,12 +190,14 @@ class TestAnalysis(unittest.TestCase):
             "message": "mocked live",
             "treasury_label": TREASURY_LABEL,
         }
-        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": ""}, clear=False):
-            with mock.patch("app.main.analyze", return_value=fake) as mocked:
-                response = self.client.get("/analyze/AAPL?fixture=1")
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json()["source"], "edgar")
-                mocked.assert_called_once_with("AAPL", include_timings=False)
+        with (
+            mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": ""}, clear=False),
+            mock.patch("app.main.analyze", return_value=fake) as mocked,
+        ):
+            response = self.client.get("/analyze/AAPL?fixture=1")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["source"], "edgar")
+            mocked.assert_called_once_with("AAPL", include_timings=False)
 
     def test_analyze_env_force_fixture(self):
         with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):

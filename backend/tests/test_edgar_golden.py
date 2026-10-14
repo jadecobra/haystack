@@ -5,22 +5,21 @@ from __future__ import annotations
 import json
 import unittest
 from pathlib import Path
-
 from unittest import mock
 
-from app.metrics import compute_year
-from app.tags import TAG_PREFS
 from app.edgar import (
-    entity_name,
-    map_companyfacts_to_statements,
-    split_adjusted_shares,
-    _http_get_json,
     MAX_DIVIDEND_TO_DPS_SHARES_RATIO,
     _dividends_per_share_aligned,
+    _http_get_json,
     _is_annual,
     _series_for_tags,
+    entity_name,
+    map_companyfacts_to_statements,
     rescale_share_facts,
+    split_adjusted_shares,
 )
+from app.metrics import compute_year
+from app.tags import TAG_PREFS
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SNIPPET = FIXTURES / "aapl_companyfacts_snippet.json"
@@ -192,11 +191,11 @@ class TestCompanyfacts404(unittest.TestCase):
             def get(self, url):
                 return Resp()
 
-        with mock.patch("app.edgar.httpx.Client", Client):
-            with self.assertRaises(ValueError) as ctx:
-                _http_get_json(
-                    "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json"
-                )
+        with (
+            mock.patch("app.edgar.httpx.Client", Client),
+            self.assertRaises(ValueError) as ctx,
+        ):
+            _http_get_json("https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json")
         self.assertIn("unknown ticker", str(ctx.exception).lower())
         self.assertNotIn("sec.gov", str(ctx.exception).lower())
 

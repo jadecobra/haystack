@@ -120,7 +120,7 @@ class TestOcfFallbacks(unittest.TestCase):
 
     def test_map_null_without_ocf_or_maint(self):
         payload = _facts(NetIncomeLoss=[_usd(2024, 100)])
-        years, statements = map_companyfacts_to_statements(payload)
+        _years, statements = map_companyfacts_to_statements(payload)
         self.assertIsNone(statements[2024]["owner_earnings"])
 
     def test_map_end_to_end_reported(self):

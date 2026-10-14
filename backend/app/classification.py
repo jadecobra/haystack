@@ -158,7 +158,7 @@ def fetch_sic(cik: str) -> dict[str, Any] | None:
         )
         _sic_mem[key] = (time.time(), result)
         return dict(result)
-    except Exception:
+    except Exception:  # noqa: BLE001 - fail-soft: serve stale SIC cache on any fetch error
         stale = _read_sic_disk(key, max_age_s=None)
         if stale is not None:
             result = {
@@ -221,5 +221,5 @@ def classify(ticker: str, cik: str | None = None) -> dict[str, Any] | None:
             # no SIC→GICS mapping).
             "link": None,
         }
-    except Exception:
+    except Exception:  # noqa: BLE001 - classification is optional page decoration
         return None

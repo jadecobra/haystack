@@ -1,9 +1,9 @@
 """Docs must quote LOCKED_LABELS and not revive dropped stack claims."""
 
-from pathlib import Path
 import os
 import re
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from fastapi.testclient import TestClient

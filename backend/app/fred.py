@@ -120,7 +120,7 @@ def _fetch_fred_csv() -> dict[str, float]:
             date = next(iter(row.values()), "") or ""
         val_raw = row.get("DGS30")
         if val_raw is None:
-            keys = [k for k in row.keys() if k and k.lower() not in {"observation_date", "date"}]
+            keys = [k for k in row if k and k.lower() not in {"observation_date", "date"}]
             val_raw = row.get(keys[0]) if keys else None
         val = _parse_yield(str(val_raw or ""))
         if date and val is not None:

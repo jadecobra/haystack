@@ -71,7 +71,7 @@ class TestFetchSic(unittest.TestCase):
         self._tmpdir = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmpdir.cleanup)
         self.cache = Path(self._tmpdir.name)
-        import app.classification as classification
+        from app import classification
 
         self._patch_cache = mock.patch.object(classification, "_CACHE_DIR", self.cache)
         self._patch_mem = mock.patch.object(classification, "_sic_mem", {})
@@ -94,7 +94,7 @@ class TestFetchSic(unittest.TestCase):
         body = {"sic": "7372", "sicDescription": "Prepackaged Software"}
         with mock.patch("app.edgar._http_get_json", return_value=body):
             fetch_sic("320193")
-        import app.classification as classification
+        from app import classification
 
         classification._sic_mem.clear()
         with mock.patch(

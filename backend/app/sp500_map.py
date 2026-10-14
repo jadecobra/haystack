@@ -41,13 +41,13 @@ def parse_constituents(page: str) -> list[dict[str, str]]:
     end = page.find("</table>", start)
     table = page[start:end]
     rows = re.split(r"<tr[^>]*>", table)
-    header = [_clean(c) for c in re.findall(r"<th[^>]*>(.*?)</th>", rows[1], re.S)] if len(rows) > 1 else []
+    header = [_clean(c) for c in re.findall(r"<th[^>]*>(.*?)</th>", rows[1], re.DOTALL)] if len(rows) > 1 else []
     want = ["Symbol", "Security", "GICS Sector", "GICS Sub-Industry"]
     if header[:4] != want:
         raise ValueError(f"unexpected constituents header: {header[:4]}")
     out: list[dict[str, str]] = []
     for row in rows[2:]:
-        cells = [_clean(c) for c in re.findall(r"<t[dh][^>]*>(.*?)(?=<t[dh]|$)", row, re.S)]
+        cells = [_clean(c) for c in re.findall(r"<t[dh][^>]*>(.*?)(?=<t[dh]|$)", row, re.DOTALL)]
         if len(cells) >= 4 and cells[0]:
             out.append(
                 {"ticker": cells[0].upper(), "name": cells[1], "sector": cells[2], "sub_industry": cells[3]}

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
-from datetime import datetime, timezone
+from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from app.metrics import compute_year
 
@@ -32,7 +34,7 @@ CAVEAT = (
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def load_sectors(path: Path | None = None) -> dict[str, str]:
@@ -59,7 +61,7 @@ def load_universe(path: Path | None = None) -> list[str]:
     raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
     tickers = raw.get("tickers") if isinstance(raw, dict) else raw
     if not isinstance(tickers, list):
-        raise ValueError("sp500 ticker list missing tickers[]")
+        raise ValueError("sp500 ticker list missing tickers[]")  # noqa: TRY004 - ValueError is the documented contract
     out: list[str] = []
     seen: set[str] = set()
     for item in tickers:
@@ -169,7 +171,7 @@ def _num(value: Any) -> float | None:
         out = float(value)
     except (TypeError, ValueError):
         return None
-    return out if out == out else None  # drop NaN
+    return None if math.isnan(out) else out
 
 
 def sector_columns(
@@ -325,7 +327,7 @@ def build_payload(
                 company_name=name,
                 quote=quote,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - one bad ticker becomes an exclusion, not a failed build
             row, reason = None, f"{EXCLUDE_NO_FACTS}: {exc}"[:200]
         if row is None:
             excluded.append({"ticker": ticker, "reason": reason or "unknown"})
@@ -388,12 +390,12 @@ def _age_s(payload: dict[str, Any]) -> float | None:
     if not isinstance(stamp, str) or not stamp:
         return None
     try:
-        dt = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(stamp)
     except ValueError:
         return None
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return (datetime.now(timezone.utc) - dt).total_seconds()
+        dt = dt.replace(tzinfo=UTC)
+    return (datetime.now(UTC) - dt).total_seconds()
 
 
 def _snapshot_paths() -> list[Path]:

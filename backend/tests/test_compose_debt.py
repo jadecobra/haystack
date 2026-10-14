@@ -173,7 +173,7 @@ class TestComposeDebt(unittest.TestCase):
         self.assertEqual(states[2024], "unknown")
 
     def test_missing_revenue_any_interest_is_unknown(self):
-        totals, states = compose_debt(
+        _totals, states = compose_debt(
             _gaap(
                 Liabilities=[_usd(2024, 500.0)],
                 InterestExpense=[_usd(2024, 0.1)],
@@ -261,7 +261,7 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
         totals, states = compose_debt(payload["facts"]["us-gaap"])
         self.assertEqual(totals[2025], 0.0)
         self.assertEqual(states[2025], "zero")
-        years, statements = map_companyfacts_to_statements(payload)
+        _years, statements = map_companyfacts_to_statements(payload)
         self.assertEqual(statements[2025]["debt"], 0.0)
         self.assertEqual(statements[2025]["debt_state"], "zero")
 
@@ -281,7 +281,7 @@ class TestComposeDebtRealGoldens(unittest.TestCase):
                 }
             }
         }
-        years, statements = map_companyfacts_to_statements(payload)
+        _years, statements = map_companyfacts_to_statements(payload)
         self.assertIsNone(statements[2024]["debt"])
         self.assertEqual(statements[2024]["debt_state"], "unknown")
 

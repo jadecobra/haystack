@@ -12,11 +12,12 @@ import os
 import threading
 import time
 from collections import defaultdict
-from datetime import date, timedelta
+from collections.abc import Callable
 from concurrent.futures import Future
+from datetime import date, timedelta
 from pathlib import Path
 from statistics import median
-from typing import Any, Callable
+from typing import Any
 
 import httpx
 
@@ -72,7 +73,7 @@ def _ensure_identity() -> None:
         import edgar
 
         edgar.set_identity(ua)
-    except Exception:
+    except Exception:  # noqa: BLE001, S110 - optional edgartools identity; absence is fine
         pass
     _identity_set = True
 
@@ -745,7 +746,7 @@ def _median_by_filed(rows: list[tuple[str, float]]) -> list[tuple[str, float]]:
 class _BasisJump:
     """A basis change that happened after filing ``lo`` and by filing ``hi``."""
 
-    __slots__ = ("lo", "hi", "ratio")
+    __slots__ = ("hi", "lo", "ratio")
 
     def __init__(self, lo: str, hi: str, ratio: float) -> None:
         self.lo = lo
@@ -1580,7 +1581,7 @@ def _resolve_ocf(
 
 def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int, float]) -> dict[int, float]:
     out: dict[int, float] = {}
-    for y in ocf:
+    for y, ocf_y in ocf.items():
         has_capex = y in capex
         has_da = y in da
         if not has_capex and not has_da:
@@ -1591,7 +1592,7 @@ def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int
             maint = capex[y]
         else:
             maint = da[y]
-        out[y] = ocf[y] - maint
+        out[y] = ocf_y - maint
     return out
 
 
@@ -2060,13 +2061,11 @@ def map_companyfacts_to_statements(
     statements: dict[int, dict[str, float | str | None]] = {}
     for y in years:
         row: dict[str, float | str | None] = {
-            k: (series[y] if y in series else None) for k, series in field_series.items()
+            k: series.get(y) for k, series in field_series.items()
         }
         # Extra keys are not FIELDS members; the sources gap note is unchanged.
         row["debt_state"] = debt_states.get(y, "unknown")
-        row["dividends_per_share"] = (
-            dividends_per_share[y] if y in dividends_per_share else None
-        )
+        row["dividends_per_share"] = dividends_per_share.get(y)
         statements[y] = row
     return years, statements
 
@@ -2147,7 +2146,7 @@ def statements_for_ticker(
     for pred in predecessor_ciks(cik):
         try:
             payload = merge_predecessor_facts(payload, fetch_companyfacts(pred))
-        except Exception:  # noqa: BLE001 - predecessor is best-effort history
+        except Exception:  # noqa: BLE001, S112 - predecessor is best-effort history
             continue
     years, statements = map_companyfacts_to_statements(payload)
     if not years:

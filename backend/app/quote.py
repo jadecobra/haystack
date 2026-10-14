@@ -11,7 +11,7 @@ import json
 import threading
 import time
 from concurrent.futures import Future
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -72,7 +72,7 @@ def _parse_yahoo(payload: dict[str, Any]) -> dict[str, Any] | None:
     as_of = None
     ts = meta.get("regularMarketTime")
     if isinstance(ts, (int, float)):
-        as_of = datetime.fromtimestamp(int(ts), tz=timezone.utc).date().isoformat()
+        as_of = datetime.fromtimestamp(int(ts), tz=UTC).date().isoformat()
     return {"price": price, "as_of": as_of}
 
 
@@ -120,13 +120,13 @@ def _fetch_nasdaq(ticker: str) -> dict[str, Any] | None:
 def _fetch_quote(ticker: str) -> dict[str, Any] | None:
     try:
         yahoo = _fetch_yahoo(ticker)
-    except Exception:
+    except Exception:  # noqa: BLE001 - fail-soft: fall back to Nasdaq quote
         yahoo = None
     if yahoo is not None:
         return yahoo
     try:
         return _fetch_nasdaq(ticker)
-    except Exception:
+    except Exception:  # noqa: BLE001 - fail-soft: no quote
         return None
 
 
@@ -152,7 +152,7 @@ def previous_close(ticker: str) -> dict[str, Any] | None:
     if waiter is not None:
         try:
             result = waiter.result()
-        except Exception:
+        except Exception:  # noqa: BLE001 - fail-soft: coalesced waiter gets no quote
             return None
         return dict(result) if result else None
 
@@ -181,7 +181,7 @@ def previous_close(ticker: str) -> dict[str, Any] | None:
 
         future.set_result(None)
         return None
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - fail-soft: serve stale quote cache
         stale = _read_disk(symbol, max_age_s=None)
         if stale is not None:
             with _lock:
