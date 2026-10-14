@@ -36,6 +36,8 @@ jobs:
         run: |
           uv sync --group dev
           uv run pytest tests/
+      - name: Lint (ruff)
+        run: uv run ruff check .
       # Required-check bridge: checks from workflow_dispatch runs never satisfy
       # branch protection (GitHub only evaluates push/pull_request-type job
       # checks). The nightly screen job lands GITHUB_TOKEN commits that can't
@@ -71,6 +73,9 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
+      - name: Lint (eslint)
+        # Warnings (the logo <img>) don't fail; errors do.
+        run: pnpm run lint
         env:
           BACKEND_ORIGIN: https://example.invalid
       # Required-check bridge: checks from workflow_dispatch runs never satisfy
