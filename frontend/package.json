@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts"
+    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts lib/classificationLabel.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

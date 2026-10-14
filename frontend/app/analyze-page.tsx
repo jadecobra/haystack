@@ -11,6 +11,11 @@ import {
   parseAnalyzeBody,
 } from './utils/analyze-error';
 import { paybackSentence, type PaybackBlock } from '../lib/paybackCopy';
+import {
+  classificationLabel,
+  classificationSchemeLabel,
+  type ClassificationBlock,
+} from '../lib/classificationLabel';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
 
@@ -52,6 +57,7 @@ type Analysis = {
   groups?: MetricGroup[];
   cik?: string | null;
   payback?: PaybackBlock | null;
+  classification?: ClassificationBlock | null;
 };
 
 const WAIT_STATUS = 'Working…';
@@ -156,6 +162,7 @@ function parseAnalysis(value: unknown): Analysis | null {
     return undefined;
   };
   const payback = parsePayback(value.payback);
+  const classification = parseClassification(value.classification);
 
   return {
     ticker: value.ticker,
@@ -180,6 +187,23 @@ function parseAnalysis(value: unknown): Analysis | null {
     groups,
     cik: optionalString(value.cik),
     payback,
+    classification,
+  };
+}
+
+function parseClassification(value: unknown): ClassificationBlock | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (!isRecord(value)) return undefined;
+  if (value.scheme !== 'gics' && value.scheme !== 'sic') return undefined;
+  const str = (field: unknown) => (typeof field === 'string' ? field : null);
+  return {
+    scheme: value.scheme,
+    sector: str(value.sector),
+    industry: str(value.industry),
+    sic: typeof value.sic === 'number' ? value.sic : null,
+    sic_description: str(value.sic_description),
+    link: str(value.link),
   };
 }
 
@@ -553,6 +577,9 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
 
   const sourceLabel = (ready?.source || 'api').toUpperCase();
   const paybackLine = ready ? paybackSentence(ready.ticker, ready.payback) : null;
+  const classLabel = ready ? classificationLabel(ready.classification) : null;
+  const classScheme = ready ? classificationSchemeLabel(ready.classification) : null;
+  const classLink = ready?.classification?.link || null;
   const cardTicker =
     view.kind === 'waiting' ? view.ticker : ready ? ready.ticker : null;
 
@@ -615,6 +642,24 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
               ? `${cardTicker} Financial Metrics`
               : `${headingWithCompany(cardTicker, ready?.company_name)} Financial Metrics | source : ${sourceLabel}`}
           </h2>
+          {classLabel ? (
+            <p className="mb-2 text-sm sm:text-base" data-testid="classification">
+              {classLink ? (
+                <Link
+                  href={classLink}
+                  data-testid="classification-link"
+                  className="underline underline-offset-4 text-zinc-200 hover:text-white"
+                >
+                  {classLabel}
+                </Link>
+              ) : (
+                <span>{classLabel}</span>
+              )}
+              {classScheme ? (
+                <span className="ml-2 text-xs text-zinc-500">{classScheme}</span>
+              ) : null}
+            </p>
+          ) : null}
           {view.kind === 'ready' && ready ? (
             <p className="mb-4">
               <TextLink

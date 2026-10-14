@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Literal
 
 import dotenv
 import fastapi
@@ -88,6 +88,15 @@ class PaybackBlock(pydantic.BaseModel):
     pays_back: bool
 
 
+class Classification(pydantic.BaseModel):
+    scheme: Literal["gics", "sic"]
+    sector: str | None = None
+    industry: str | None = None
+    sic: int | None = None
+    sic_description: str | None = None
+    link: str | None = None
+
+
 class AnalysisResponse(pydantic.BaseModel):
     ticker: str
     company_name: str | None = None
@@ -107,6 +116,7 @@ class AnalysisResponse(pydantic.BaseModel):
     timings: dict[str, Any] | None = None
     cik: str | None = None
     payback: PaybackBlock | None = None
+    classification: Classification | None = None
 
 
 @app.get("/health")

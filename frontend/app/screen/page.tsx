@@ -34,6 +34,8 @@ type ScreenRow = {
   price_as_of: string | null;
   debt: number | null;
   debt_state: DebtState;
+  sector: string | null;
+  sub_industry: string | null;
 };
 
 type ScreenPayload = {
@@ -82,6 +84,8 @@ function parseRow(value: unknown): ScreenRow | null {
     price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
     debt: parseDebt(value.debt),
     debt_state: parseDebtState(value.debt_state),
+    sector: typeof value.sector === "string" ? value.sector : null,
+    sub_industry: typeof value.sub_industry === "string" ? value.sub_industry : null,
   };
 }
 
@@ -148,6 +152,8 @@ function ScreenPageInner() {
   const router = useRouter();
   const pathname = usePathname();
   const debtNone = searchParams.get("debt") === "none";
+  const sectorFilter = searchParams.get("sector");
+  const sicFilter = searchParams.get("sic");
   const [data, setData] = useState<ScreenPayload | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(true);
@@ -202,10 +208,11 @@ function ScreenPageInner() {
   }, []);
 
   const shownRows = data
-    ? debtNone
-      ? data.rows.filter((row) => row.debt_state === "zero")
-      : data.rows
+    ? data.rows
+        .filter((row) => !debtNone || row.debt_state === "zero")
+        .filter((row) => !sectorFilter || row.sector === sectorFilter)
     : [];
+  const filtered = debtNone || Boolean(sectorFilter);
   const unknownExcluded = data
     ? data.rows.length > 0
       ? data.rows.filter((row) => row.debt_state === "unknown").length
@@ -287,7 +294,7 @@ function ScreenPageInner() {
             <div className="mb-3">
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-sm text-zinc-400">
-                  {debtNone
+                  {filtered
                     ? `${shownRows.length} of ${data.count} names`
                     : `${data.count} names`}
                   {" · S&P 500 constituents (list may lag index changes)"}
@@ -318,6 +325,26 @@ function ScreenPageInner() {
                 </p>
               ) : null}
             </div>
+          ) : null}
+          {sectorFilter ? (
+            <p
+              className="text-sm text-zinc-300 mb-3"
+              data-testid="screen-sector-filter"
+            >
+              Sector: {sectorFilter} · <TextLink href="/screen">clear</TextLink>
+              {sectorFilter === "Financials"
+                ? " · Financials are excluded from this screen."
+                : ""}
+            </p>
+          ) : null}
+          {sicFilter ? (
+            <p
+              className="text-sm text-zinc-300 mb-3"
+              data-testid="screen-sic-note"
+            >
+              SIC {sicFilter}: this screen covers S&P 500 names only; sector
+              comparison for non-S&P tickers comes with the comparison page.
+            </p>
           ) : null}
           <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />
         </Card>

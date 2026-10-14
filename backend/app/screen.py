@@ -298,10 +298,28 @@ def _snapshot_paths() -> list[Path]:
     return [CACHE_PATH, BACKEND_SEED_PATH, PUBLIC_SEED_PATH]
 
 
+def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
+    """Stamp GICS sector / sub-industry on each row at serve time (#41)."""
+    from app.classification import load_gics
+
+    try:
+        gics = load_gics()
+    except Exception:  # noqa: BLE001 - fail-soft: rows still serve without labels
+        return payload
+    for row in payload.get("rows") or []:
+        if not isinstance(row, dict):
+            continue
+        hit = gics.get(str(row.get("ticker") or "").upper()) or {}
+        row.setdefault("sector", hit.get("sector"))
+        row.setdefault("sub_industry", hit.get("sub_industry"))
+    return payload
+
+
 def load_snapshot() -> dict[str, Any] | None:
     for path in _snapshot_paths():
         payload = _read_json(path)
         if payload and isinstance(payload.get("rows"), list):
+            payload = with_gics(payload)
             age = _age_s(payload)
             if age is not None and age > STALE_AFTER_S:
                 return _mark_stale(payload)

@@ -15,6 +15,7 @@ from app.metrics import (
     build_table,
     groups_payload,
 )
+from app.classification import classify
 from app.payback import build_payback
 
 
@@ -82,6 +83,7 @@ def analyze(
                 rows=rows,
                 treasury_rate_decimal=fixture_rate,
             ),
+            "classification": classify(ticker),
         }
         if include_timings:
             out["timings"] = {
@@ -187,6 +189,7 @@ def analyze(
             rows=rows,
             treasury_rate_decimal=dgs30_rate,
         ),
+        "classification": classify(ticker, str(cik) if cik is not None else None),
     }
     if include_timings:
         cache_source = facts_meta.get("cache_source")
