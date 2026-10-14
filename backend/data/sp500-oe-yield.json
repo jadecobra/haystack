@@ -2,7 +2,7 @@
   "universe": "sp500",
   "count": 485,
   "skipped": 18,
-  "built_at": "2026-10-14T15:54:14+00:00",
+  "built_at": "2026-10-14T16:11:03+00:00",
   "price_as_of": "2026-10-14",
   "stale": false,
   "error": null,
@@ -531,7 +531,7 @@
       "oe_yield": 0.10001332170407216,
       "oe_per_share": 6.074809160305343,
       "price": 60.74,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 15875000000.0,
       "debt_state": "positive"
@@ -553,7 +553,7 @@
       "oe_yield": 0.09848315664351479,
       "oe_per_share": 9.290900997749185,
       "price": 94.34,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 0.0,
       "debt_state": "zero"
@@ -652,7 +652,7 @@
       "oe_yield": 0.09376876466166094,
       "oe_per_share": 11.721095582707617,
       "price": 125.0,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 4648666000.0,
       "debt_state": "positive"
@@ -1081,7 +1081,7 @@
       "oe_yield": 0.0725677046276813,
       "oe_per_share": 13.696428571428571,
       "price": 188.74,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 39819000000.0,
       "debt_state": "positive"
@@ -1367,7 +1367,7 @@
       "oe_yield": 0.06430564163824062,
       "oe_per_share": 7.477460009694619,
       "price": 116.28,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 2450000000.0,
       "debt_state": "positive"
@@ -1444,7 +1444,7 @@
       "oe_yield": 0.06329504456319211,
       "oe_per_share": 15.064853556485355,
       "price": 238.01,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 14500000000.0,
       "debt_state": "positive"
@@ -2280,7 +2280,7 @@
       "oe_yield": 0.04950420413153885,
       "oe_per_share": 7.52414398595259,
       "price": 151.99,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 14398000000.0,
       "debt_state": "positive"
@@ -2500,7 +2500,7 @@
       "oe_yield": 0.04614271539780994,
       "oe_per_share": 26.716632215331956,
       "price": 579.0,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 62287000.0,
       "debt_state": "positive"
@@ -2709,7 +2709,7 @@
       "oe_yield": 0.04380571885010244,
       "oe_per_share": 12.87537688442211,
       "price": 293.92,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 53861000000.0,
       "debt_state": "positive"
@@ -3237,7 +3237,7 @@
       "oe_yield": 0.03665935510405697,
       "oe_per_share": 8.797512037871591,
       "price": 239.98,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": null,
       "debt_state": "zero"
@@ -3512,7 +3512,7 @@
       "oe_yield": 0.034385295488721435,
       "oe_per_share": 7.760073485894654,
       "price": 225.68,
-      "fy": 2025,
+      "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 1517606000.0,
       "debt_state": "positive"
@@ -3974,7 +3974,7 @@
       "oe_yield": 0.027856719065733518,
       "oe_per_share": 2.9458480412013195,
       "price": 105.75,
-      "fy": 2024,
+      "fy": 2025,
       "price_as_of": "2026-10-14",
       "debt": 4963602000.0,
       "debt_state": "positive"
@@ -4483,6 +4483,17 @@
       "fy": 2025,
       "price_as_of": "2026-10-14",
       "debt": 14150000000.0,
+      "debt_state": "positive"
+    },
+    {
+      "ticker": "STX",
+      "name": "Seagate Technology Holdings plc",
+      "oe_yield": 0.01985870977997625,
+      "oe_per_share": 14.838427947598253,
+      "price": 747.2,
+      "fy": 2026,
+      "price_as_of": "2026-10-14",
+      "debt": 3603000000.0,
       "debt_state": "positive"
     },
     {
@@ -5033,17 +5044,6 @@
       "fy": 2026,
       "price_as_of": "2026-10-14",
       "debt": 4970400000.0,
-      "debt_state": "positive"
-    },
-    {
-      "ticker": "STX",
-      "name": "Seagate Technology Holdings plc",
-      "oe_yield": 0.005131292000118414,
-      "oe_per_share": 3.834101382488479,
-      "price": 747.2,
-      "fy": 2027,
-      "price_as_of": "2026-10-14",
-      "debt": 5046000000.0,
       "debt_state": "positive"
     },
     {
