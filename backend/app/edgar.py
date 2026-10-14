@@ -1959,6 +1959,47 @@ def entity_name(companyfacts: dict[str, Any]) -> str | None:
     return name or None
 
 
+_PREDECESSORS_PATH = Path(__file__).resolve().parent.parent / "data" / "cik_predecessors.json"
+
+
+def predecessor_ciks(cik: str | int, path: Path | None = None) -> list[str]:
+    """Predecessor CIKs for a successor issuer (8-K12B reorganizations)."""
+    try:
+        raw = json.loads((path or _PREDECESSORS_PATH).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    entry = (raw.get("map") or {}).get(_normalize_cik(cik)) if isinstance(raw, dict) else None
+    if not isinstance(entry, dict):
+        return []
+    return [_normalize_cik(p) for p in entry.get("predecessors") or [] if str(p).strip()]
+
+
+def _period_id(entry: dict[str, Any]) -> tuple[Any, ...]:
+    return (entry.get("start"), entry.get("end"), entry.get("fy"), entry.get("fp"), entry.get("form"))
+
+
+def merge_predecessor_facts(
+    successor: dict[str, Any], predecessor: dict[str, Any]
+) -> dict[str, Any]:
+    """Merge predecessor us-gaap/dei facts under the successor.
+
+    For each tag/unit, predecessor entries are added only for periods
+    (start, end) the successor does not already report, so successor
+    values win wherever both exist. Entity name and CIK stay the successor's.
+    """
+    out = {**successor, "facts": {ns: {t: {**node, "units": {u: list(v) for u, v in (node.get("units") or {}).items()}} for t, node in tags.items()} for ns, tags in (successor.get("facts") or {}).items()}}
+    for ns in ("us-gaap", "dei"):
+        pred_tags = (predecessor.get("facts") or {}).get(ns) or {}
+        dest = out["facts"].setdefault(ns, {})
+        for tag, node in pred_tags.items():
+            dnode = dest.setdefault(tag, {k: v for k, v in node.items() if k != "units"} | {"units": {}})
+            for unit, entries in (node.get("units") or {}).items():
+                existing = dnode["units"].setdefault(unit, [])
+                have = {(e.get("start"), e.get("end")) for e in existing}
+                existing.extend(e for e in entries if (e.get("start"), e.get("end")) not in have)
+    return out
+
+
 def statements_for_ticker(
     ticker: str,
     *,
@@ -1971,6 +2012,11 @@ def statements_for_ticker(
     """
     cik = resolve_cik(ticker)
     payload = fetch_companyfacts(cik, meta=meta)
+    for pred in predecessor_ciks(cik):
+        try:
+            payload = merge_predecessor_facts(payload, fetch_companyfacts(pred))
+        except Exception:  # noqa: BLE001 - predecessor is best-effort history
+            continue
     years, statements = map_companyfacts_to_statements(payload)
     if not years:
         raise ValueError(f"unknown ticker / no annual us-gaap facts for {ticker}")

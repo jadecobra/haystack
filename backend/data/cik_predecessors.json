@@ -1,0 +1,15 @@
+{
+  "note": "Successor CIK -> predecessor CIKs whose annual us-gaap facts are merged under the successor (successor wins per period). Used when a reorganization (holding company / redomicile, SEC Form 8-K12B) moves the ticker to a new CIK whose companyfacts lack prior 10-K history. Add an entry only with filing evidence.",
+  "map": {
+    "2115436": {
+      "predecessors": ["34088"],
+      "ticker": "XOM",
+      "evidence": "ExxonMobil Holdings Corp 8-K12B filed 2026-07-01; 10-K history under EXXON MOBIL CORP (CIK 34088)."
+    },
+    "2011641": {
+      "predecessors": ["1832433"],
+      "ticker": "FERG",
+      "evidence": "Ferguson Enterprises Inc. /DE/ 8-K12B filed 2024-08-01; FY2022-2023 10-Ks under Ferguson plc (CIK 1832433)."
+    }
+  }
+}
