@@ -45,8 +45,10 @@ class TestAverageOe(unittest.TestCase):
         self.assertEqual(average_oe([5.0, 4.0, 3.0, 2.0, 1.0]), 3.0)
 
     def test_sparse_stays_inside_window(self):
-        # Leading window has two values; the sixth year is outside the window.
-        self.assertEqual(average_oe([None, 4.0, None, None, 2.0, 100.0]), 3.0)
+        # A None inside the newest five years voids the average. Older years do not fill in.
+        self.assertIsNone(average_oe([None, 4.0, None, None, 2.0, 100.0]))
+        self.assertIsNone(average_oe([5.0, 4.0, 3.0, None]))
+        self.assertEqual(average_oe([5.0, 4.0, 3.0, 2.0, 1.0, 100.0]), 3.0)
 
     def test_empty(self):
         self.assertIsNone(average_oe([]))
@@ -73,7 +75,8 @@ class TestBuildPayback(unittest.TestCase):
         )
         assert block is not None
         self.assertEqual(block["oe_per_share_latest"], 10.0)
-        self.assertAlmostEqual(block["oe_per_share_5y_avg"], 20.0 / 3.0)
+        self.assertIsNone(block["oe_per_share_5y_avg"])
+        self.assertIsNone(block["years_at_5y_avg"])
         self.assertEqual(block["years_at_latest"], 10.0)
         self.assertEqual(block["treasury_years"], 20.0)
         self.assertTrue(block["pays_back"])
@@ -98,7 +101,23 @@ class TestBuildPayback(unittest.TestCase):
         assert block is not None
         self.assertFalse(block["pays_back"])
         self.assertIsNone(block["years_at_latest"])
-        self.assertEqual(block["years_at_5y_avg"], payback_years(50.0, 1.5))
+        self.assertIsNone(block["oe_per_share_5y_avg"])
+        self.assertIsNone(block["years_at_5y_avg"])
+
+    def test_missing_year_inside_window(self):
+        block = build_payback(
+            price=100.0,
+            years=["2025", "2024", "2023", "2022", "2021"],
+            rows=_oe_rows(
+                {"2025": 10.0, "2024": 8.0, "2023": None, "2022": 6.0, "2021": 4.0}
+            ),
+            treasury_rate_decimal=0.05,
+        )
+        assert block is not None
+        self.assertTrue(block["pays_back"])
+        self.assertEqual(block["years_at_latest"], 10.0)
+        self.assertIsNone(block["oe_per_share_5y_avg"])
+        self.assertIsNone(block["years_at_5y_avg"])
 
 
 class TestAnalyzePaybackContract(unittest.TestCase):
@@ -157,4 +176,22 @@ class TestAnalyzePaybackContract(unittest.TestCase):
         self.assertFalse(payback["pays_back"])
         self.assertLess(payback["oe_per_share_latest"], 0)
         self.assertIsNone(payback["years_at_latest"])
+        self.assertIsNone(payback["oe_per_share_5y_avg"])
+        self.assertIsNone(payback["years_at_5y_avg"])
         self.assertEqual(payback["price"], 100.0)
+
+    def test_fixture_missing_year_contract(self):
+        from app import fixture
+
+        oldest = min(fixture.AAPL_STATEMENTS)
+        patched = dict(fixture.AAPL_STATEMENTS[oldest], owner_earnings=None)
+        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}), mock.patch.dict(
+            fixture.AAPL_STATEMENTS, {oldest: patched}
+        ):
+            response = self.client.get("/analyze/AAPL")
+        self.assertEqual(response.status_code, 200)
+        payback = response.json()["payback"]
+        self.assertTrue(payback["pays_back"])
+        self.assertEqual(payback["years_at_latest"], 15.0)
+        self.assertIsNone(payback["oe_per_share_5y_avg"])
+        self.assertIsNone(payback["years_at_5y_avg"])
