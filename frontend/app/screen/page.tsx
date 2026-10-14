@@ -333,7 +333,7 @@ function ScreenPageInner() {
             >
               Sector: {sectorFilter} · <TextLink href="/screen">clear</TextLink>
               {sectorFilter === "Financials"
-                ? " · Financials are excluded from this screen."
+                ? " · Owner earnings fit banks and insurers poorly; Financials are left out of the No debt view."
                 : ""}
             </p>
           ) : null}
