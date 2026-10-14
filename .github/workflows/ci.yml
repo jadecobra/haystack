@@ -73,11 +73,11 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
+        env:
+          BACKEND_ORIGIN: https://example.invalid
       - name: Lint (eslint)
         # Warnings (the logo <img>) don't fail; errors do.
         run: pnpm run lint
-        env:
-          BACKEND_ORIGIN: https://example.invalid
       # Required-check bridge: checks from workflow_dispatch runs never satisfy
       # branch protection (GitHub only evaluates push/pull_request-type job
       # checks). The nightly screen job lands GITHUB_TOKEN commits that can't
