@@ -33,16 +33,10 @@ jobs:
         run: uv sync
       - name: Refresh per-class share counts (multi-class issuers, #53)
         working-directory: backend
-        env:
-          HAYSTACK_SEC_USER_AGENT: ${{ secrets.HAYSTACK_SEC_USER_AGENT }}
-          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         # Fail-soft: a SEC hiccup keeps the committed seed.
         run: uv run longmuch share-classes-refresh || echo "share-classes-refresh failed; keeping seed"
       - name: Build screen snapshot
         working-directory: backend
-        env:
-          HAYSTACK_SEC_USER_AGENT: ${{ secrets.HAYSTACK_SEC_USER_AGENT }}
-          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         run: uv run longmuch screen-build --seed
       - name: Commit snapshot if changed
         id: commit

@@ -53,7 +53,7 @@ describe("SEC SIC peers (#54)", () => {
   it("explains the 3-digit widening", () => {
     assert.match(
       peersHeading({ ...sic, basis: "sic3", group: "SIC 565x", fallback: true }) ?? "",
-      /same SEC industry group SIC 565x \(fewer than 3 others in Retail-Family Clothing Stores \(SIC 5651\)\)/,
+      /same SEC industry group SIC 565x \(fewer than 5 others in Retail-Family Clothing Stores \(SIC 5651\)\)/,
     );
   });
   it("gives a reason when blank", () => {

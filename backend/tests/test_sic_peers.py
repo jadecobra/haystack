@@ -62,9 +62,10 @@ class RankTests(unittest.TestCase):
             "6": _co("F", 3571, 30_000_000),
         }
         sic_peers.rank_peers(cos)
-        self.assertEqual(cos["4"]["p"], ["1", "6", "2"])
-        self.assertEqual(cos["4"]["b"], "sic")
-        # A sees only F and B in 3571 (<3), widens to 357x by revenue; C/D never appear.
+        # D sees A, F, B in 3571 (3 < 5 clear the floor): widens to 357x by revenue.
+        self.assertEqual(cos["4"]["p"], ["1", "6", "5", "2"])
+        self.assertEqual(cos["4"]["b"], "sic3")
+        # A sees only F and B in 3571, widens too; C/D never appear.
         self.assertEqual(cos["1"]["b"], "sic3")
         self.assertEqual(cos["1"]["p"], ["6", "5", "2"])
         for co in cos.values():
@@ -76,6 +77,23 @@ class RankTests(unittest.TestCase):
         for co in cos.values():
             for c in co.get("p") or []:
                 self.assertGreaterEqual(cos[c]["r"], sic_peers.MIN_REVENUE)
+
+
+class WidenThresholdTests(unittest.TestCase):
+    def test_five_same_sic_stays_four_widens(self):
+        self.assertEqual(sic_peers.MIN_PEERS, 5)
+        five = {str(i): _co(f"T{i}", 2834, (i + 1) * 20_000_000) for i in range(6)}
+        five["99"] = _co("COUSIN", 2836, 9_000_000_000)
+        sic_peers.rank_peers(five)
+        self.assertEqual(five["0"]["b"], "sic")  # 5 others in 2834
+        self.assertNotIn("99", five["0"]["p"])
+        four = {str(i): _co(f"T{i}", 2834, (i + 1) * 20_000_000) for i in range(5)}
+        four["98"] = _co("SMALL", 2834, 5_000_000)  # below floor: does not count
+        four["99"] = _co("COUSIN", 2836, 9_000_000_000)
+        sic_peers.rank_peers(four)
+        self.assertEqual(four["0"]["b"], "sic3")  # only 4 others clear the floor
+        self.assertEqual(four["0"]["p"][0], "99")
+        self.assertNotIn("98", four["0"]["p"])
 
 
 class LatestRevenueTests(unittest.TestCase):
@@ -104,6 +122,8 @@ class RuntimeTests(unittest.TestCase):
             "2": _co("BBB", 5651, 5e9),
             "3": _co("CCC", 5651, 1e9),
             "4": _co("DDD", 5651),
+            "5": _co("EEE", 5651, 9e6),  # below the floor
+            "6": _co("FFF", 5652, 2e9),  # 3-digit cousin
         }
         sic_peers.rank_peers(cos)
         data = {
@@ -112,9 +132,12 @@ class RuntimeTests(unittest.TestCase):
             "sics": {"5651": "Retail-Family Clothing Stores"},
         }
         b = sic_peers.sic_peers_for("ddd.p", data)
-        self.assertEqual(b["basis"], "sic")
+        self.assertEqual(b["basis"], "sic3")  # 3 same-SIC peers < MIN_PEERS (5)
+        self.assertEqual(b["group"], "SIC 565x")
         self.assertEqual(b["sub_industry"], "Retail-Family Clothing Stores")
-        self.assertEqual([p["ticker"] for p in b["peers"]], ["AAA", "BBB", "CCC"])
+        self.assertEqual(
+            [p["ticker"] for p in b["peers"]], ["AAA", "BBB", "FFF", "CCC"]
+        )
         self.assertEqual(b["peers"][0]["revenue"], 9e9)
         self.assertIsNone(sic_peers.sic_peers_for("ZZZZ", data))
 
@@ -170,3 +193,23 @@ class UserAgentTests(unittest.TestCase):
                 os.environ.pop(k, None)
                 if v is not None:
                     os.environ[k] = v
+
+
+class ApiContractTests(unittest.TestCase):
+    def test_fixture_aapl_peers_shape(self):
+        import os
+        from unittest import mock
+
+        from fastapi.testclient import TestClient
+
+        from app.main import app
+
+        with mock.patch.dict(os.environ, {"HAYSTACK_PREFER_FIXTURE": "1"}):
+            r = TestClient(app).get("/analyze/AAPL")
+        self.assertEqual(r.status_code, 200)
+        p = r.json()["peers"]
+        self.assertEqual(p["basis"], "sic")
+        self.assertEqual(p["sic"], 3571)
+        self.assertEqual(p["total"], len(p["peers"]))
+        self.assertNotIn("AAPL", [x["ticker"] for x in p["peers"]])
+        self.assertTrue(all(x["revenue"] >= sic_peers.MIN_REVENUE for x in p["peers"]))

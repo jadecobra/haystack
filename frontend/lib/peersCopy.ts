@@ -31,7 +31,7 @@ export function peersHeading(block: PeersBlock | null | undefined): string | nul
     if (block.basis === "sic") {
       return `Peers in the same SEC industry: ${sicLabel(block)}, by latest annual revenue`;
     }
-    return `Peers in the same SEC industry group ${block.group} (fewer than 3 others in ${sicLabel(block)}), by latest annual revenue`;
+    return `Peers in the same SEC industry group ${block.group} (fewer than 5 others in ${sicLabel(block)}), by latest annual revenue`;
   }
   if (block.peers.length === 0) return null;
   if (block.basis === "sub_industry") {
