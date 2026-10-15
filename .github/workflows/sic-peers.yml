@@ -1,0 +1,85 @@
+# Monthly refresh of backend/data/sic_peers.json: non-S&P peers by SEC SIC,
+# ranked by latest annual revenue (#54). Opens a PR only when the data changes.
+# NO auto-merge: a human reviews peer changes and merges. Takes ~25 min (one
+# rate-gated SEC submissions request per filer). GITHUB_TOKEN PRs do not
+# fire CI; the reviewer re-runs checks (close/reopen or push) before merging.
+
+name: SIC peers map refresh
+
+on:
+  schedule:
+    - cron: "0 15 2 * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report the diff; never push or open a PR"
+        type: boolean
+        default: false
+      base:
+        description: "Base branch to diff against and target the PR at"
+        type: string
+        default: main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sic-peers
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BASE: ${{ inputs.base || 'main' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.BASE }}
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install backend
+        working-directory: backend
+        run: uv sync
+      - name: Regenerate map
+        id: gen
+        working-directory: backend
+        env:
+          HAYSTACK_SEC_USER_AGENT: ${{ secrets.HAYSTACK_SEC_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          args=()
+          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
+          uv run python -m app.sic_peers "${args[@]}" | tee /tmp/sic-peers.txt
+          grep -q '^changed=true$' /tmp/sic-peers.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+      - name: Summary
+        run: |
+          { echo "### SIC peers map refresh (base: $BASE, dry_run: $DRY_RUN)"; echo '```'; cat /tmp/sic-peers.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Open PR if changed
+        if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="bot/sic-peers-$BASE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add backend/data/sic_peers.json
+          git commit -m "chore(data): refresh SEC SIC peers map"
+          git push --force origin "HEAD:refs/heads/$branch"
+          body=$(printf 'Automated monthly refresh (#54). Review peer changes before merging; no auto-merge.\n\nRe-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR.\n\n```\n%s\n```\n' "$(cat /tmp/sic-peers.txt)")
+          existing=$(gh pr list --head "$branch" --base "$BASE" --state open --json number -q '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --body "$body"
+            echo "updated PR #$existing"
+          else
+            gh pr create --base "$BASE" --head "$branch" --title "chore(data): SIC peers map refresh ($(date -u +%Y-%m))" --body "$body"
+          fi

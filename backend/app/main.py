@@ -100,15 +100,23 @@ class Classification(pydantic.BaseModel):
 class Peer(pydantic.BaseModel):
     ticker: str
     name: str | None = None
+    # SEC SIC peers (#54) only: latest annual revenue (USD) and its year.
+    revenue: float | None = None
+    revenue_fy: int | None = None
+    sic: int | None = None
 
 
 class Peers(pydantic.BaseModel):
-    basis: Literal["sub_industry", "industry_group"]
+    # sub_industry / industry_group: S&P 500 by GICS (#42).
+    # sic / sic3: non-S&P by SEC SIC, 4-digit or widened 3-digit group (#54).
+    basis: Literal["sub_industry", "industry_group", "sic", "sic3"]
     group: str
     sub_industry: str
     fallback: bool
     total: int
     peers: list[Peer]
+    sic: int | None = None
+    reason: str | None = None
 
 
 class AnalysisResponse(pydantic.BaseModel):

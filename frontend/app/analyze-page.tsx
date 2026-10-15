@@ -16,7 +16,7 @@ import {
   classificationSchemeLabel,
   type ClassificationBlock,
 } from '../lib/classificationLabel';
-import { peersHeading, peersMore, type PeersBlock } from '../lib/peersCopy';
+import { peerRevenue, peersHeading, peersMore, peersReason, type PeersBlock } from '../lib/peersCopy';
 import { SectorTable } from './sector-table';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
@@ -201,7 +201,9 @@ function parsePeers(value: unknown): PeersBlock | null | undefined {
   if (value === null) return null;
   if (!isRecord(value)) return undefined;
   const { basis, group, sub_industry, fallback, total, peers } = value;
-  if (basis !== 'sub_industry' && basis !== 'industry_group') return undefined;
+  if (basis !== 'sub_industry' && basis !== 'industry_group' && basis !== 'sic' && basis !== 'sic3') {
+    return undefined;
+  }
   if (typeof group !== 'string' || typeof sub_industry !== 'string') return undefined;
   if (typeof fallback !== 'boolean' || typeof total !== 'number' || !Array.isArray(peers)) {
     return undefined;
@@ -211,8 +213,12 @@ function parsePeers(value: unknown): PeersBlock | null | undefined {
     .map((p) => ({
       ticker: String(p.ticker),
       name: typeof p.name === 'string' ? p.name : null,
+      revenue: typeof p.revenue === 'number' ? p.revenue : null,
+      revenue_fy: typeof p.revenue_fy === 'number' ? p.revenue_fy : null,
     }));
-  return { basis, group, sub_industry, fallback, total, peers: items };
+  const sic = typeof value.sic === 'number' ? value.sic : null;
+  const reason = typeof value.reason === 'string' ? value.reason : null;
+  return { basis, group, sub_industry, fallback, total, peers: items, sic, reason };
 }
 
 function parseClassification(value: unknown): ClassificationBlock | null | undefined {
@@ -611,6 +617,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const peersBlock = ready?.peers ?? null;
   const peersTitle = peersHeading(peersBlock);
   const peersExtra = peersMore(peersBlock);
+  const peersBlank = peersReason(peersBlock);
   const cardTicker =
     view.kind === 'waiting' ? view.ticker : ready ? ready.ticker : null;
 
@@ -736,10 +743,20 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                     >
                       {peer.ticker}
                     </Link>
+                    {peerRevenue(peer) ? (
+                      <span className="ml-1 text-zinc-500 text-xs sm:text-sm" data-testid="peer-revenue">
+                        {peerRevenue(peer)}
+                      </span>
+                    ) : null}
                   </li>
                 ))}
                 {peersExtra ? <li className="text-zinc-500">{peersExtra}</li> : null}
               </ul>
+              {peersBlank ? (
+                <p className="text-sm text-zinc-500" data-testid="peers-reason">
+                  {peersBlank}
+                </p>
+              ) : null}
             </section>
           ) : null}
           {ready && ready.classification?.scheme === 'gics' ? (

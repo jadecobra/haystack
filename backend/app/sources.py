@@ -7,7 +7,7 @@ import time
 from typing import Any
 
 from app import fixture
-from app.classification import classify
+from app.classification import classify, load_gics
 from app.metrics import (
     FIELDS,
     LOCKED_LABELS,
@@ -18,6 +18,7 @@ from app.metrics import (
 )
 from app.payback import build_payback
 from app.peers import peers_for
+from app.sic_peers import sic_peers_for
 
 
 def _env_force_fixture() -> bool:
@@ -39,7 +40,13 @@ def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str |
 
 def _safe_peers(ticker: str) -> dict[str, Any] | None:
     try:
-        return peers_for(ticker)
+        gics = peers_for(ticker)
+        if gics is not None:
+            return gics
+        symbol = ticker.upper().strip()
+        if {symbol, symbol.replace("-", "."), symbol.replace(".", "-")} & set(load_gics()):
+            return None  # S&P 500 name: GICS only, never SIC (#54)
+        return sic_peers_for(ticker)  # precomputed map; no SEC request (#54)
     except Exception:  # noqa: BLE001 - peers are optional; never fail analyze
         return None
 
