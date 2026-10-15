@@ -7,7 +7,7 @@ import time
 from typing import Any
 
 from app import fixture
-from app.classification import classify, load_gics
+from app.classification import classify
 from app.metrics import (
     FIELDS,
     LOCKED_LABELS,
@@ -17,7 +17,6 @@ from app.metrics import (
     groups_payload,
 )
 from app.payback import build_payback
-from app.peers import peers_for
 from app.sic_peers import sic_peers_for
 
 
@@ -39,14 +38,10 @@ def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str |
 
 
 def _safe_peers(ticker: str) -> dict[str, Any] | None:
+    # Every ticker, S&P 500 included, gets SEC SIC peers from the precomputed
+    # map (no SEC request). GICS stays for the sector labels / sector tables.
     try:
-        gics = peers_for(ticker)
-        if gics is not None:
-            return gics
-        symbol = ticker.upper().strip()
-        if {symbol, symbol.replace("-", "."), symbol.replace(".", "-")} & set(load_gics()):
-            return None  # S&P 500 name: GICS only, never SIC (#54)
-        return sic_peers_for(ticker)  # precomputed map; no SEC request (#54)
+        return sic_peers_for(ticker)
     except Exception:  # noqa: BLE001 - peers are optional; never fail analyze
         return None
 

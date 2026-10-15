@@ -68,10 +68,12 @@ class TestPeersContract(unittest.TestCase):
             r = TestClient(app).get("/analyze/AAPL")
         self.assertEqual(r.status_code, 200)
         p = r.json()["peers"]
-        self.assertEqual(set(p), {"basis", "group", "sub_industry", "fallback", "total", "peers"})
-        self.assertEqual(p["basis"], "sub_industry")
-        self.assertEqual(p["sub_industry"], "Technology Hardware, Storage & Peripherals")
+        # #55: every ticker (S&P included) gets SEC SIC peers, not GICS.
+        self.assertEqual(set(p), {"basis", "group", "sub_industry", "fallback", "total", "peers", "sic", "reason"})
+        self.assertEqual(p["basis"], "sic")
+        self.assertEqual(p["sic"], 3571)
         self.assertFalse(p["fallback"])
         self.assertEqual(p["total"], len(p["peers"]))
-        self.assertTrue(all(set(x) == {"ticker", "name"} for x in p["peers"]))
+        self.assertTrue(all(set(x) == {"ticker", "name", "revenue", "revenue_fy", "sic"} for x in p["peers"]))
+        self.assertTrue(all(x["revenue"] >= 10_000_000 for x in p["peers"]))
         self.assertNotIn("AAPL", [x["ticker"] for x in p["peers"]])

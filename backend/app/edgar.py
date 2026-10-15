@@ -44,7 +44,9 @@ QUARTERLY_RATE_RATIO_BAND = (3.0, 4.6)
 
 # backend/.cache/companyfacts/{cik}.json
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "companyfacts"
-_TICKERS_CACHE = Path(__file__).resolve().parent.parent / ".cache" / "company_tickers.json"
+_TICKERS_CACHE = (
+    Path(__file__).resolve().parent.parent / ".cache" / "company_tickers.json"
+)
 _CACHE_TTL_S = 24 * 3600
 _MAX_RPS = 8.0
 _MIN_INTERVAL = 1.0 / _MAX_RPS
@@ -56,11 +58,17 @@ _inflight: dict[str, Future] = {}
 _identity_set = False
 
 
+# SEC fair access: User-Agent must name the requester and give a reachable
+# contact email. longmuch.com has no MX, so the default uses the maintainer's
+# public commit email. Env overrides still win (Render/CI may set them).
+DEFAULT_SEC_USER_AGENT = "LongMuch Jacob Itegboje jakeitegsy@yahoo.com"
+
+
 def sec_user_agent() -> str:
     return (
-        os.environ.get("HAYSTACK_SEC_USER_AGENT")
-        or os.environ.get("EDGAR_IDENTITY")
-        or "LongMuch contact@longmuch.local"
+        os.environ.get("HAYSTACK_SEC_USER_AGENT", "").strip()
+        or os.environ.get("EDGAR_IDENTITY", "").strip()
+        or DEFAULT_SEC_USER_AGENT
     )
 
 
@@ -96,7 +104,9 @@ def _http_get_json(url: str, *, timeout: float = 60.0) -> dict[str, Any]:
         "Accept": "application/json",
         "Accept-Encoding": "gzip, deflate",
     }
-    with httpx.Client(timeout=timeout, headers=headers, follow_redirects=True) as client:
+    with httpx.Client(
+        timeout=timeout, headers=headers, follow_redirects=True
+    ) as client:
         resp = client.get(url)
         if resp.status_code == 404:
             raise ValueError("unknown ticker / no companyfacts")
@@ -272,8 +282,7 @@ def _is_annual(entry: dict[str, Any]) -> bool:
     if start and end:
         try:
             days = (
-                date.fromisoformat(str(end)[:10])
-                - date.fromisoformat(str(start)[:10])
+                date.fromisoformat(str(end)[:10]) - date.fromisoformat(str(start)[:10])
             ).days
         except ValueError:
             return False
@@ -281,7 +290,9 @@ def _is_annual(entry: dict[str, Any]) -> bool:
     return True
 
 
-def _unit_entries(fact_node: dict[str, Any], prefer_shares: bool = False) -> list[dict[str, Any]]:
+def _unit_entries(
+    fact_node: dict[str, Any], prefer_shares: bool = False
+) -> list[dict[str, Any]]:
     units = fact_node.get("units") or {}
     if not isinstance(units, dict):
         return []
@@ -295,7 +306,11 @@ def _unit_entries(fact_node: dict[str, Any], prefer_shares: bool = False) -> lis
             return list(units[key])
     for key, vals in units.items():
         if isinstance(vals, list) and vals:
-            if prefer_shares and "share" not in key.lower() and key.lower() not in {"pure", "shares"}:
+            if (
+                prefer_shares
+                and "share" not in key.lower()
+                and key.lower() not in {"pure", "shares"}
+            ):
                 continue
             return list(vals)
     if prefer_shares:
@@ -347,9 +362,7 @@ def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
     for year, candidates in by_year.items():
         anchor = _anchor_end_for_year(entries, year)
         eligible = [
-            item
-            for item in candidates
-            if _duration_end_matches_anchor(item[3], anchor)
+            item for item in candidates if _duration_end_matches_anchor(item[3], anchor)
         ]
         if not eligible:
             continue
@@ -706,9 +719,7 @@ def _series_for_tags(
                 break
             found = _short_context_annual_by_year(entries, out, pending)
             for year, val in found.items():
-                if year not in out and not (
-                    reject is not None and reject(year, val)
-                ):
+                if year not in out and not (reject is not None and reject(year, val)):
                     out[year] = val
                     pending.discard(year)
     return out
@@ -807,7 +818,11 @@ def _scale_kept_chain(rows: list[tuple[str, float]]) -> list[tuple[str, float]]:
             continue
         if abandoned:
             a_filed, a_val = abandoned[-1]
-            if a_val > 0 and a_filed < filed and _SPLIT_ABS_LO <= (val / a_val) <= _SPLIT_ABS_HI:
+            if (
+                a_val > 0
+                and a_filed < filed
+                and _SPLIT_ABS_LO <= (val / a_val) <= _SPLIT_ABS_HI
+            ):
                 kept = [*abandoned, (filed, val)]
                 abandoned = None
                 continue
@@ -866,7 +881,9 @@ def _subset_products_matching(
     ``|intersecting| > 10`` does not enumerate: the only candidate is the full set.
     """
     if len(intersecting) > 10:
-        product = math.prod(jump.ratio for jump in intersecting) if intersecting else 1.0
+        product = (
+            math.prod(jump.ratio for jump in intersecting) if intersecting else 1.0
+        )
         if _ratio_in_band(product, ratio):
             return [list(intersecting)]
         return []
@@ -897,7 +914,12 @@ def _basis_jumps(
     """Basis-jump intervals from split events, then same-basis narrowing."""
     ordered = sorted(
         events,
-        key=lambda item: (abs(math.log(item[2])), _filed_span_days(item[0], item[1]), item[0], item[1]),
+        key=lambda item: (
+            abs(math.log(item[2])),
+            _filed_span_days(item[0], item[1]),
+            item[0],
+            item[1],
+        ),
     )
     jumps: list[_BasisJump] = []
     for prev, new, ratio in ordered:
@@ -907,9 +929,7 @@ def _basis_jumps(
             if _jump_intervals_intersect(jump.lo, jump.hi, prev, new)
         ]
         contained = [
-            jump
-            for jump in intersecting
-            if prev <= jump.lo and jump.hi <= new
+            jump for jump in intersecting if prev <= jump.lo and jump.hi <= new
         ]
         matches = _subset_products_matching(intersecting, contained, ratio)
         if len(matches) == 1:
@@ -922,7 +942,9 @@ def _basis_jumps(
             continue
         if len(matches) > 1:
             continue
-        contained_prod = math.prod(jump.ratio for jump in contained) if contained else 1.0
+        contained_prod = (
+            math.prod(jump.ratio for jump in contained) if contained else 1.0
+        )
         residual = ratio / contained_prod
         if _ratio_in_band(residual):
             continue
@@ -989,9 +1011,7 @@ def _split_adjusted_shares_for_tag(
     for year, candidates in by_fy.items():
         anchor = _anchor_end_for_year(entries, year)
         eligible = [
-            item
-            for item in candidates
-            if _duration_end_matches_anchor(item[2], anchor)
+            item for item in candidates if _duration_end_matches_anchor(item[2], anchor)
         ]
         if not eligible:
             continue
@@ -1029,7 +1049,9 @@ _SHARE_SCALE_CONTINUITY_BAND = (1.0 / 4.0, 4.0)
 
 def _cover_shares_by_accn(dei: dict[str, Any]) -> dict[str, float]:
     """Max ``dei:EntityCommonStockSharesOutstanding`` per accession (units)."""
-    node = dei.get("EntityCommonStockSharesOutstanding") if isinstance(dei, dict) else None
+    node = (
+        dei.get("EntityCommonStockSharesOutstanding") if isinstance(dei, dict) else None
+    )
     out: dict[str, float] = {}
     if not isinstance(node, dict):
         return out
@@ -1087,7 +1109,11 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
     if not cover or not isinstance(us_gaap, dict):
         return us_gaap
     out = dict(us_gaap)
-    tags = list(dict.fromkeys([*TAG_PREFS["shares"], "WeightedAverageNumberOfSharesOutstandingBasic"]))
+    tags = list(
+        dict.fromkeys(
+            [*TAG_PREFS["shares"], "WeightedAverageNumberOfSharesOutstandingBasic"]
+        )
+    )
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
@@ -1127,7 +1153,10 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
             ref = min(refs, key=lambda item: abs((item[0] - end).days))[1]
             k = _share_scale_exponent(float(entries[idx]["val"]), ref)
             if k:
-                fixed[idx] = {**entries[idx], "val": float(entries[idx]["val"]) / (10 ** (3 * k))}
+                fixed[idx] = {
+                    **entries[idx],
+                    "val": float(entries[idx]["val"]) / (10 ** (3 * k)),
+                }
                 changed = True
         for idx, k in exps:
             if not k:
@@ -1280,9 +1309,7 @@ def _continuation_share_series(
             for year in overlap
         ):
             continue
-        extension = {
-            year: val for year, val in series.items() if year > base_max
-        }
+        extension = {year: val for year, val in series.items() if year > base_max}
         if extension and (best is None or tag < best[0]):
             best = (tag, extension)
     return best
@@ -1377,10 +1404,7 @@ def _dps_series_for_tag(
             except (TypeError, ValueError):
                 continue
             end = _parse_iso_date(entry.get("end"))
-            if (
-                end is not None
-                and abs((end - ni_end[year]).days) <= _END_ALIGN_DAYS
-            ):
+            if end is not None and abs((end - ni_end[year]).days) <= _END_ALIGN_DAYS:
                 aligned = True
                 break
         if not aligned:
@@ -1579,7 +1603,9 @@ def _resolve_ocf(
     return ocf
 
 
-def _owner_earnings(ocf: dict[int, float], capex: dict[int, float], da: dict[int, float]) -> dict[int, float]:
+def _owner_earnings(
+    ocf: dict[int, float], capex: dict[int, float], da: dict[int, float]
+) -> dict[int, float]:
     out: dict[int, float] = {}
     for y, ocf_y in ocf.items():
         has_capex = y in capex
@@ -1778,7 +1804,9 @@ def compose_debt(
             series[tag][year] for tag in _SUPPLEMENTAL_LONG_TAGS if _has(tag, year)
         ]
         if _has("SecuredDebt", year) and _has("UnsecuredDebt", year):
-            long_vals.append(series["SecuredDebt"][year] + series["UnsecuredDebt"][year])
+            long_vals.append(
+                series["SecuredDebt"][year] + series["UnsecuredDebt"][year]
+            )
         short_vals = [
             series[tag][year] for tag in _SUPPLEMENTAL_SHORT_TAGS if _has(tag, year)
         ]
@@ -1845,11 +1873,7 @@ def compose_debt(
                 total = max(candidates)
                 totals[year] = total
                 present_tags = [tag for tag in ladder if _has(tag, year)]
-                present_zero = [
-                    tag
-                    for tag in present_tags
-                    if series[tag][year] == 0
-                ]
+                present_zero = [tag for tag in present_tags if series[tag][year] == 0]
                 all_present_zero = len(present_zero) == len(present_tags)
                 zero_on_total = any(tag in _DEBT_TOTAL_TAGS for tag in present_zero)
                 if total > 0:
@@ -1977,7 +2001,9 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
                 continue
             new_units[unit] = [
                 {**e, "fy": fixes[e["accn"]]}
-                if isinstance(e, dict) and e.get("fp") == "FY" and e.get("accn") in fixes
+                if isinstance(e, dict)
+                and e.get("fp") == "FY"
+                and e.get("accn") in fixes
                 else e
                 for e in entries
                 if not (isinstance(e, dict) and _is_stub(e))
@@ -1997,9 +2023,7 @@ def map_companyfacts_to_statements(
     companyfacts = normalize_fiscal_years(companyfacts)
     us_gaap = rescale_share_facts(companyfacts)
 
-    revenue = _series_for_tags(
-        us_gaap, TAG_PREFS["revenue"], short_context_annual=True
-    )
+    revenue = _series_for_tags(us_gaap, TAG_PREFS["revenue"], short_context_annual=True)
     net_income = _series_for_tags(us_gaap, TAG_PREFS["net_income"])
     equity = _series_for_tags(us_gaap, TAG_PREFS["equity"])
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
@@ -2016,11 +2040,7 @@ def map_companyfacts_to_statements(
     if not liabilities:
         lae = _series_for_tags(us_gaap, TAG_PREFS["liabilities_and_equity"])
         if lae and equity:
-            liabilities = {
-                y: lae[y] - equity[y]
-                for y in lae
-                if y in equity
-            }
+            liabilities = {y: lae[y] - equity[y] for y in lae if y in equity}
 
     debt, debt_states = compose_debt(us_gaap)
 
@@ -2078,7 +2098,9 @@ def entity_name(companyfacts: dict[str, Any]) -> str | None:
     return name or None
 
 
-_PREDECESSORS_PATH = Path(__file__).resolve().parent.parent / "data" / "cik_predecessors.json"
+_PREDECESSORS_PATH = (
+    Path(__file__).resolve().parent.parent / "data" / "cik_predecessors.json"
+)
 
 
 def predecessor_ciks(cik: str | int, path: Path | None = None) -> list[str]:
@@ -2087,14 +2109,26 @@ def predecessor_ciks(cik: str | int, path: Path | None = None) -> list[str]:
         raw = json.loads((path or _PREDECESSORS_PATH).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
-    entry = (raw.get("map") or {}).get(_normalize_cik(cik)) if isinstance(raw, dict) else None
+    entry = (
+        (raw.get("map") or {}).get(_normalize_cik(cik))
+        if isinstance(raw, dict)
+        else None
+    )
     if not isinstance(entry, dict):
         return []
-    return [_normalize_cik(p) for p in entry.get("predecessors") or [] if str(p).strip()]
+    return [
+        _normalize_cik(p) for p in entry.get("predecessors") or [] if str(p).strip()
+    ]
 
 
 def _period_id(entry: dict[str, Any]) -> tuple[Any, ...]:
-    return (entry.get("start"), entry.get("end"), entry.get("fy"), entry.get("fp"), entry.get("form"))
+    return (
+        entry.get("start"),
+        entry.get("end"),
+        entry.get("fy"),
+        entry.get("fp"),
+        entry.get("form"),
+    )
 
 
 def merge_predecessor_facts(
@@ -2106,12 +2140,26 @@ def merge_predecessor_facts(
     (start, end) the successor does not already report, so successor
     values win wherever both exist. Entity name and CIK stay the successor's.
     """
-    out = {**successor, "facts": {ns: {t: {**node, "units": {u: list(v) for u, v in (node.get("units") or {}).items()}} for t, node in tags.items()} for ns, tags in (successor.get("facts") or {}).items()}}
+    out = {
+        **successor,
+        "facts": {
+            ns: {
+                t: {
+                    **node,
+                    "units": {u: list(v) for u, v in (node.get("units") or {}).items()},
+                }
+                for t, node in tags.items()
+            }
+            for ns, tags in (successor.get("facts") or {}).items()
+        },
+    }
     for ns in ("us-gaap", "dei"):
         pred_tags = (predecessor.get("facts") or {}).get(ns) or {}
         dest = out["facts"].setdefault(ns, {})
         for tag, node in pred_tags.items():
-            dnode = dest.setdefault(tag, {k: v for k, v in node.items() if k != "units"} | {"units": {}})
+            dnode = dest.setdefault(
+                tag, {k: v for k, v in node.items() if k != "units"} | {"units": {}}
+            )
             for unit, entries in (node.get("units") or {}).items():
                 existing = dnode["units"].setdefault(unit, [])
                 # Keep each predecessor filing whole (#49). Deduping on the
@@ -2126,7 +2174,10 @@ def merge_predecessor_facts(
                     e
                     for e in entries
                     if (e.get("accn"), e.get("start"), e.get("end")) not in have
-                    and (e.get("accn") or (e.get("start"), e.get("end")) not in succ_periods)
+                    and (
+                        e.get("accn")
+                        or (e.get("start"), e.get("end")) not in succ_periods
+                    )
                 )
     return out
 
