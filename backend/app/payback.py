@@ -98,7 +98,7 @@ def build_payback(
     avg_years = len(present) if avg is not None else None
     years_at_latest = payback_years(price, latest)
     years_at_5y_avg = payback_years(price, avg)
-    if pays_back:
+    if pays_back and not (avg is not None and avg <= 0):
         years_conservative, conservative_basis = conservative_pair(
             years_at_latest,
             years_at_5y_avg,

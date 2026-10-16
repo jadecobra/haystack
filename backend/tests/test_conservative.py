@@ -119,15 +119,16 @@ class TestConservativeRows(unittest.TestCase):
         self.assertAlmostEqual(row["payback_cons"], row["payback_years"])
         self.assertEqual(row["payback_basis"], "2y avg")
 
-        # Average payback is null (mean OE/sh <= 0); latest still pays back.
+        # Mean OE/sh <= 0 never pays back, so the longer (conservative)
+        # payback is null even though the latest year alone would.
         shrinking_mean = {
             2025: _stmt(oe=20, shares=10, ni=1, rev=10),
             2024: _stmt(oe=-40, shares=10, ni=1, rev=10),
         }
         other = _row([2024, 2025], shrinking_mean, price=20.0)
         self.assertIsNone(other["payback_years"])
-        self.assertAlmostEqual(other["payback_cons"], 10.0)
-        self.assertEqual(other["payback_basis"], "latest")
+        self.assertIsNone(other["payback_cons"])
+        self.assertIsNone(other["payback_basis"])
 
     def test_latest_yield_uses_the_same_scale_null(self):
         statements = {2025: _stmt(oe=300, shares=10, ni=1, rev=10)}
@@ -255,3 +256,16 @@ class TestLoadSnapshotPrefersNewerSeed(unittest.TestCase):
             assert got is not None
             self.assertEqual(got["rows"][0]["ticker"], "PUBLIC")
             self.assertTrue(got["stale"])
+
+
+class NegativeAverageConservativeTests(unittest.TestCase):
+    def test_payback_block_null_when_average_oe_negative(self):
+        from app.payback import OE_PER_SHARE
+
+        years = ["2025", "2024", "2023"]
+        rows = [{"metric": OE_PER_SHARE, "raw": {"2025": 2.0, "2024": -5.0, "2023": -4.0}}]
+        block = build_payback(price=50.0, years=years, rows=rows, treasury_rate_decimal=0.05)
+        self.assertEqual(block["years_at_latest"], 25.0)
+        self.assertIsNone(block["years_at_5y_avg"])
+        self.assertIsNone(block["years_conservative"])
+        self.assertIsNone(block["conservative_basis"])

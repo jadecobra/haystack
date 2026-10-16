@@ -287,7 +287,11 @@ def sector_columns(
         ni_margin_latest, margin, years=n_years, prefer_longer=False
     )
     payback_avg = price / oe_per_share if oe_per_share is not None and oe_per_share > 0 else None
-    if latest_oe is not None and latest_oe <= 0:
+    # #59: a non-positive latest OR average OE/sh never pays back, so the
+    # longer (conservative) payback is null.
+    if (latest_oe is not None and latest_oe <= 0) or (
+        oe_per_share is not None and oe_per_share <= 0
+    ):
         payback_cons, payback_basis = None, None
     else:
         payback_latest = price / latest_oe if latest_oe is not None and latest_oe > 0 else None
