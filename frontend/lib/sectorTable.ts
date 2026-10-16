@@ -7,7 +7,7 @@ export type SectorRow = {
   name: string | null;
   oe_yield: number | null;
   payback_years: number | null;
-  ni_to_equity: number | null;
+  ni_margin: number | null;
   debt_to_equity: number | null;
   no_debt: boolean | null;
   debt_state: DebtState;
@@ -19,7 +19,11 @@ export type SectorRow = {
   current?: boolean;
   /** Peers table (#56): set when metrics were unavailable. */
   missing?: string | null;
+  /** Annual years in the ratio-of-sums window (#58). */
+  years?: number | null;
 };
+
+export type PeerSortKey = "oe_yield" | "ni_margin";
 
 export type DebtState = "zero" | "positive" | "unknown" | "n/a";
 
@@ -69,7 +73,8 @@ export function parseSectorRow(value: unknown): SectorRow | null {
     name: typeof r.name === "string" ? r.name : null,
     oe_yield: num(r.oe_yield),
     payback_years: num(r.payback_years),
-    ni_to_equity: num(r.ni_to_equity),
+    ni_margin: num(r.ni_margin),
+    years: num(r.years),
     debt_to_equity: num(r.debt_to_equity),
     no_debt: typeof r.no_debt === "boolean" ? r.no_debt : null,
     debt_state: parseDebtState(r.debt_state, r.no_debt),
@@ -77,6 +82,32 @@ export function parseSectorRow(value: unknown): SectorRow | null {
     sector: typeof r.sector === "string" ? r.sector : null,
     sub_industry: typeof r.sub_industry === "string" ? r.sub_industry : null,
   };
+}
+
+/**
+ * OE yield or NI margin, high to low. Null metrics follow numbers.
+ * Dash rows (`missing`) stay last on every key.
+ */
+export function sortPeerRows<T extends SectorRow>(rows: T[], key: PeerSortKey = "oe_yield"): T[] {
+  const dash: T[] = [];
+  const rest: T[] = [];
+  for (const row of rows) {
+    if (row.missing) dash.push(row);
+    else rest.push(row);
+  }
+  const cmp = (a: T, b: T) => {
+    const av = a[key];
+    const bv = b[key];
+    if (av === null || bv === null) {
+      if (av !== bv) return av === null ? 1 : -1;
+      return a.ticker.localeCompare(b.ticker);
+    }
+    if (av !== bv) return bv - av;
+    return a.ticker.localeCompare(b.ticker);
+  };
+  rest.sort(cmp);
+  dash.sort((a, b) => a.ticker.localeCompare(b.ticker));
+  return [...rest, ...dash];
 }
 
 /** OE yield high to low; blank OE yields (#52) last, by ticker. */
@@ -143,20 +174,27 @@ export const SECTOR_TABLE_HEADERS = [
   "Name",
   "OE yield",
   "Payback (yrs)",
-  "NI / equity",
+  "NI margin",
   "Debt / equity",
   "FY",
 ];
 
 const pct = (v: number | null) => (v === null ? "—" : `${(v * 100).toFixed(1)}%`);
 
+function oeYieldCell(row: SectorRow): string {
+  const base = pct(row.oe_yield);
+  const years = row.years;
+  if (typeof years !== "number" || !Number.isFinite(years) || years <= 0) return base;
+  return `${base} ${years}y`;
+}
+
 /** Display cells after the ticker link, in header order (minus Ticker). */
 export function sectorCells(row: SectorRow): string[] {
   return [
     row.name ?? "—",
-    pct(row.oe_yield),
+    oeYieldCell(row),
     row.payback_years === null ? "—" : row.payback_years.toFixed(1),
-    pct(row.ni_to_equity),
+    pct(row.ni_margin),
     debtCell(row).text,
     row.fy === null ? "—" : String(row.fy),
   ];

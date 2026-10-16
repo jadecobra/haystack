@@ -13,6 +13,8 @@ import {
   parseSectorRow,
   resolveSlug,
   sectorCells,
+  sortPeerRows,
+  type PeerSortKey,
   sectorHref,
   type SectorGroup,
   type SectorRow,
@@ -44,6 +46,7 @@ export type SectorTableProps =
 
 export function SectorTable(props: SectorTableProps) {
   const [snap, setSnap] = useState<Snapshot | null | undefined>(undefined);
+  const [sortKey, setSortKey] = useState<PeerSortKey>("oe_yield");
   useEffect(() => {
     let cancelled = false;
     void loadSnapshot().then((s) => {
@@ -72,7 +75,23 @@ export function SectorTable(props: SectorTableProps) {
     ) : null;
   }
   const current = props.kind === "ticker" ? props.ticker.toUpperCase() : null;
-  const rows = group.rows.map((row) => ({
+  const shown = sortPeerRows(group.rows, sortKey);
+  const headers = SECTOR_TABLE_HEADERS.map((header) => {
+    const key = header === "OE yield" ? "oe_yield" : header === "NI margin" ? "ni_margin" : null;
+    if (!key) return header;
+    const active = sortKey === key;
+    return (
+      <button
+        key={header}
+        type="button"
+        onClick={() => setSortKey(key)}
+        className={active ? "text-white" : "hover:text-white"}
+      >
+        {header}
+      </button>
+    );
+  });
+  const rows = shown.map((row) => ({
     kind: "data" as const,
     cells: [
       <Link
@@ -139,7 +158,7 @@ export function SectorTable(props: SectorTableProps) {
           {current} is not in the snapshot: no SEC annual facts or no price for it.
         </p>
       ) : null}
-      <DataTable headers={SECTOR_TABLE_HEADERS} rows={rows} />
+      <DataTable headers={headers} rows={rows} />
     </section>
   );
 }

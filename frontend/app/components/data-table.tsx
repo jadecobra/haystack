@@ -16,7 +16,7 @@ export type DataTableRow = DataTableGroupRow | DataTableDataRow | React.ReactNod
 export interface DataTableProps {
   className?: string;
   framed?: boolean;
-  headers: string[];
+  headers: React.ReactNode[];
   rows: DataTableRow[];
 }
 

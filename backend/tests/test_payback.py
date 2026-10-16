@@ -44,10 +44,10 @@ class TestAverageOe(unittest.TestCase):
     def test_five_years(self):
         self.assertEqual(average_oe([5.0, 4.0, 3.0, 2.0, 1.0]), 3.0)
 
-    def test_sparse_stays_inside_window(self):
-        # A None inside the newest five years voids the average. Older years do not fill in.
-        self.assertIsNone(average_oe([None, 4.0, None, None, 2.0, 100.0]))
-        self.assertIsNone(average_oe([5.0, 4.0, 3.0, None]))
+    def test_sparse_skips_missing_and_stays_inside_window(self):
+        # None years inside the newest five are skipped. Older years do not fill in.
+        self.assertEqual(average_oe([None, 4.0, None, None, 2.0, 100.0]), 3.0)
+        self.assertEqual(average_oe([5.0, 4.0, 3.0, None]), 4.0)
         self.assertEqual(average_oe([5.0, 4.0, 3.0, 2.0, 1.0, 100.0]), 3.0)
 
     def test_empty(self):
@@ -75,8 +75,9 @@ class TestBuildPayback(unittest.TestCase):
         )
         assert block is not None
         self.assertEqual(block["oe_per_share_latest"], 10.0)
-        self.assertIsNone(block["oe_per_share_5y_avg"])
-        self.assertIsNone(block["years_at_5y_avg"])
+        self.assertAlmostEqual(block["oe_per_share_5y_avg"], 20 / 3)
+        self.assertEqual(block["oe_avg_years"], 3)
+        self.assertEqual(block["years_at_5y_avg"], 15.0)
         self.assertEqual(block["years_at_latest"], 10.0)
         self.assertEqual(block["treasury_years"], 20.0)
         self.assertTrue(block["pays_back"])
@@ -103,6 +104,7 @@ class TestBuildPayback(unittest.TestCase):
         self.assertIsNone(block["years_at_latest"])
         self.assertIsNone(block["oe_per_share_5y_avg"])
         self.assertIsNone(block["years_at_5y_avg"])
+        self.assertIsNone(block["oe_avg_years"])
 
     def test_missing_year_inside_window(self):
         block = build_payback(
@@ -116,8 +118,9 @@ class TestBuildPayback(unittest.TestCase):
         assert block is not None
         self.assertTrue(block["pays_back"])
         self.assertEqual(block["years_at_latest"], 10.0)
-        self.assertIsNone(block["oe_per_share_5y_avg"])
-        self.assertIsNone(block["years_at_5y_avg"])
+        self.assertAlmostEqual(block["oe_per_share_5y_avg"], 7.0)
+        self.assertEqual(block["oe_avg_years"], 4)
+        self.assertEqual(block["years_at_5y_avg"], 14.3)
 
 
 class TestAnalyzePaybackContract(unittest.TestCase):
@@ -154,8 +157,10 @@ class TestAnalyzePaybackContract(unittest.TestCase):
                 "years_at_5y_avg",
                 "treasury_years",
                 "pays_back",
+                "oe_avg_years",
             },
         )
+        self.assertEqual(payback["oe_avg_years"], 5)
         self.assertAlmostEqual(payback["oe_per_share_latest"], 6.650, places=2)
         self.assertAlmostEqual(payback["oe_per_share_5y_avg"], 6.495, places=2)
         self.assertEqual(payback["years_at_latest"], 15.0)
@@ -178,6 +183,7 @@ class TestAnalyzePaybackContract(unittest.TestCase):
         self.assertIsNone(payback["years_at_latest"])
         self.assertIsNone(payback["oe_per_share_5y_avg"])
         self.assertIsNone(payback["years_at_5y_avg"])
+        self.assertIsNone(payback["oe_avg_years"])
         self.assertEqual(payback["price"], 100.0)
 
     def test_fixture_missing_year_contract(self):
@@ -193,5 +199,8 @@ class TestAnalyzePaybackContract(unittest.TestCase):
         payback = response.json()["payback"]
         self.assertTrue(payback["pays_back"])
         self.assertEqual(payback["years_at_latest"], 15.0)
-        self.assertIsNone(payback["oe_per_share_5y_avg"])
-        self.assertIsNone(payback["years_at_5y_avg"])
+        self.assertEqual(payback["oe_avg_years"], 4)
+        self.assertAlmostEqual(
+            payback["years_at_5y_avg"],
+            round(100.0 / payback["oe_per_share_5y_avg"], 1),
+        )

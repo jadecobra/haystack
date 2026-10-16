@@ -34,13 +34,14 @@ def oe_per_share_from_rows(
 
 
 def average_oe(values: list[float | None], *, window: int = 5) -> float | None:
-    """Mean of the newest `window` years. Every year in that window must be present."""
-    if len(values) < window:
+    """Mean of the newest `window` years that have a value. Missing years are skipped.
+
+    One present year is enough. Years older than the window are ignored.
+    """
+    present = [value for value in values[:window] if value is not None]
+    if not present:
         return None
-    windowed = values[:window]
-    if any(value is None for value in windowed):
-        return None
-    return sum(windowed) / window
+    return sum(present) / len(present)
 
 
 def payback_years(price: float | None, oe_ps: float | None) -> float | None:
@@ -67,11 +68,13 @@ def build_payback(
     series = oe_per_share_from_rows(years, rows)
     latest = series[0] if series else None
     pays_back = not (latest is not None and latest <= 0)
+    present = [value for value in series[:5] if value is not None]
     avg = average_oe(series, window=5) if pays_back else None
     return {
         "price": float(price),
         "oe_per_share_latest": latest,
         "oe_per_share_5y_avg": avg,
+        "oe_avg_years": len(present) if avg is not None else None,
         "years_at_latest": payback_years(price, latest),
         "years_at_5y_avg": payback_years(price, avg),
         "treasury_years": treasury_payback_years(treasury_rate_decimal),

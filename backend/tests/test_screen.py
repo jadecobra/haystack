@@ -323,19 +323,21 @@ class TestSectorColumns(unittest.TestCase):
         from app.screen import column_coverage, sector_columns
 
         cols = sector_columns(
-            {"equity": 200.0, "net_income": 50.0},
-            price=100.0, oe_per_share=5.0, debt=100.0, debt_state="positive",
+            {2024: {"equity": 200.0, "net_income": 50.0, "revenue": 100.0, "debt": 100.0}},
+            years=[2024], price=100.0, oe_per_share=5.0, debt_state="positive",
         )
-        self.assertEqual(cols, {"payback_years": 20.0, "ni_to_equity": 0.25,
-                                "debt_to_equity": 0.5, "no_debt": False})
+        self.assertEqual(cols, {"payback_years": 20.0, "ni_margin": 0.5,
+                                "debt_to_equity": 0.5, "no_debt": False, "years": 1})
         neg = sector_columns(
-            {"equity": -10.0, "net_income": 5.0},
-            price=100.0, oe_per_share=-1.0, debt=None, debt_state="unknown",
+            {2024: {"equity": -10.0, "net_income": 5.0, "revenue": 20.0}},
+            years=[2024], price=100.0, oe_per_share=-1.0, debt_state="unknown",
         )
-        self.assertEqual(neg, {"payback_years": None, "ni_to_equity": None,
-                               "debt_to_equity": None, "no_debt": None})
-        zero = sector_columns({"equity": 10.0, "net_income": 1.0}, price=10.0,
-                              oe_per_share=1.0, debt=0.0, debt_state="zero")
+        self.assertEqual(neg, {"payback_years": None, "ni_margin": 0.25,
+                               "debt_to_equity": None, "no_debt": None, "years": 1})
+        zero = sector_columns(
+            {2024: {"equity": 10.0, "net_income": 1.0, "revenue": 10.0, "debt": 0.0}},
+            years=[2024], price=10.0, oe_per_share=1.0, debt_state="zero",
+        )
         self.assertTrue(zero["no_debt"])
         self.assertEqual(zero["debt_to_equity"], 0.0)
         cov = column_coverage([cols, neg])
@@ -368,7 +370,9 @@ class ScreenCoverageTests(unittest.TestCase):
         jpm = rows["JPM"]
         self.assertIsNone(jpm["oe_yield"])
         self.assertIsNone(jpm["payback_years"])
-        self.assertAlmostEqual(jpm["ni_to_equity"], 57048 / 362438)
+        self.assertAlmostEqual(jpm["ni_margin"], 57048 / 182447)
+        self.assertEqual(jpm["years"], 1)
+        self.assertNotIn("ni_to_equity", jpm)
         self.assertEqual(jpm["debt_state"], "n/a")
         self.assertIn("no owner earnings", jpm["oe_note"])
         self.assertIn("no share count", rows["MULTI"]["oe_note"])

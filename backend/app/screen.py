@@ -11,8 +11,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from app.metrics import compute_year
-
 UNIVERSE = "sp500"
 ARTIFACT_NAME = "sp500-oe-yield.json"
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp500_tickers.json"
@@ -123,7 +121,7 @@ def _row_or_reason(
     A ticker with 10-K years and a price always gets a row. When owner
     earnings per share cannot be computed (banks/insurers without capex or
     D&A tags, multi-class share counts, scale errors) the OE columns are
-    blank and ``oe_note`` says why; NI/equity and debt/equity still fill.
+    blank and ``oe_note`` says why; NI margin and debt/equity still fill.
     """
     if not years:
         return None, EXCLUDE_NO_FACTS
@@ -135,11 +133,11 @@ def _row_or_reason(
         price = float(quote["price"])
     except (TypeError, ValueError):
         return None, EXCLUDE_NO_PRICE
-    computed = compute_year(stmt, None, previous_close=price)
-    oe_yield = _num(computed.get("Owner Earnings / Last Close Price"))
-    oe_ps = _num(computed.get("Owner Earnings per Share"))
+    window = _window_years(years)
+    oe_ps = _mean_oe_per_share(window, statements)
+    oe_yield = (oe_ps / price) if oe_ps is not None and price else None
     note: str | None = None
-    if oe_yield is None or oe_ps is None:
+    if oe_ps is None or oe_yield is None:
         note = (
             OE_NOTE_NO_OE
             if _num(stmt.get("owner_earnings")) is None
@@ -151,7 +149,9 @@ def _row_or_reason(
         oe_yield = oe_ps = None
     as_of = quote.get("as_of")
     debt, debt_state = _debt_for_row(stmt)
-    extra = sector_columns(stmt, price=price, oe_per_share=oe_ps, debt=debt, debt_state=debt_state)
+    extra = sector_columns(
+        statements, years=window, price=price, oe_per_share=oe_ps, debt_state=debt_state
+    )
     return {
         "ticker": ticker,
         "name": company_name,
@@ -167,7 +167,46 @@ def _row_or_reason(
     }, None
 
 
-SECTOR_COLUMNS = ("payback_years", "ni_to_equity", "debt_to_equity", "no_debt")
+SECTOR_COLUMNS = ("payback_years", "ni_margin", "debt_to_equity", "no_debt")
+
+
+def _window_years(years: list[int], limit: int = 5) -> list[int]:
+    """Newest annual years, at most `limit`, oldest dropped."""
+    cleaned: list[int] = []
+    for year in years:
+        try:
+            cleaned.append(int(year))
+        except (TypeError, ValueError):
+            continue
+    return sorted(set(cleaned), reverse=True)[:limit]
+
+
+def _mean_oe_per_share(window: list[int], statements: dict[int, dict[str, Any]]) -> float | None:
+    """Mean owner earnings per share. Years missing OE or shares are skipped."""
+    values: list[float] = []
+    for year in window:
+        stmt = statements.get(year) or {}
+        oe = _num(stmt.get("owner_earnings"))
+        shares = _num(stmt.get("shares"))
+        if oe is None or shares is None or shares == 0:
+            continue
+        values.append(oe / shares)
+    if not values:
+        return None
+    return sum(values) / len(values)
+
+
+def _sum_field(window: list[int], statements: dict[int, dict[str, Any]], key: str) -> float | None:
+    """Sum of one field. Years missing that field are skipped. Negatives count."""
+    total = 0.0
+    seen = False
+    for year in window:
+        value = _num((statements.get(year) or {}).get(key))
+        if value is None:
+            continue
+        total += value
+        seen = True
+    return total if seen else None
 
 
 def _num(value: Any) -> float | None:
@@ -179,27 +218,45 @@ def _num(value: Any) -> float | None:
 
 
 def sector_columns(
-    stmt: dict[str, Any],
+    statements: dict[int, dict[str, Any]],
     *,
+    years: list[int],
     price: float,
     oe_per_share: float | None,
-    debt: float | None,
     debt_state: str,
 ) -> dict[str, Any]:
-    """Sector-table columns (#43) from the row's own fiscal year.
+    """Sector-table columns (#58) as ratio-of-sums over `years` (newest, max 5).
 
-    payback_years: price / OE per share (latest FY), only when OE > 0.
-    ni_to_equity / debt_to_equity: only when equity > 0, as in the analyze metrics.
-    no_debt: True/False from debt_state; None when unknown or n/a (Financials).
+    payback_years: price / mean OE per share, only when that mean is > 0.
+    ni_margin: sum net income / sum revenue. Null when revenue is missing or the
+    sum is not positive. A year missing one field is skipped for that field only.
+    debt_to_equity: sum debt / sum equity when debt_state is positive or zero and
+    the equity sum is positive. Null for unknown and n/a. ``no_debt`` follows
+    debt_state (True/False only with evidence).
+    years: how many annual years are in the window.
     """
-    equity = _num(stmt.get("equity"))
-    ni = _num(stmt.get("net_income"))
-    pos_equity = equity is not None and equity > 0
+    window = _window_years(years) if years else []
+    ni = _sum_field(window, statements, "net_income")
+    revenue = _sum_field(window, statements, "revenue")
+    equity = _sum_field(window, statements, "equity")
+    debt = _sum_field(window, statements, "debt")
+    margin = None
+    if ni is not None and revenue is not None and revenue > 0:
+        margin = ni / revenue
+    if debt_state in ("unknown", "n/a"):
+        leverage = None
+    elif debt_state == "zero":
+        leverage = 0.0
+    elif equity is not None and equity > 0 and debt is not None:
+        leverage = debt / equity
+    else:
+        leverage = None
     return {
         "payback_years": price / oe_per_share if oe_per_share is not None and oe_per_share > 0 else None,
-        "ni_to_equity": ni / equity if pos_equity and ni is not None else None,
-        "debt_to_equity": debt / equity if pos_equity and debt is not None else None,
+        "ni_margin": margin,
+        "debt_to_equity": leverage,
         "no_debt": {"zero": True, "positive": False}.get(debt_state),
+        "years": len(window),
     }
 
 
@@ -339,6 +396,7 @@ def build_payload(
         if sector_by_ticker.get(str(row["ticker"]).upper()) == "Financials":
             row["debt_state"] = "n/a"
             row["no_debt"] = None
+            row["debt_to_equity"] = None
         if row.get("price_as_of"):
             price_dates.append(str(row["price_as_of"]))
         rows.append(row)

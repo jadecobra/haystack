@@ -4,6 +4,8 @@ export type PaybackBlock = {
   oe_per_share_5y_avg?: number | null;
   years_at_latest?: number | null;
   years_at_5y_avg?: number | null;
+  /** How many annual years went into oe_per_share_5y_avg (#58). */
+  oe_avg_years?: number | null;
   treasury_years?: number | null;
   pays_back: boolean;
 };
@@ -29,7 +31,9 @@ export function paybackSentence(
   if (payback.years_at_latest == null) return null;
   let sentence = `At ${price} you get your money back in about ${years(payback.years_at_latest)} years from latest owner earnings`;
   if (payback.years_at_5y_avg != null) {
-    sentence += ` (about ${years(payback.years_at_5y_avg)} years on the 5-year average)`;
+    const n = payback.oe_avg_years;
+    const label = n != null && n !== 5 ? `${n}y avg` : "5y avg";
+    sentence += ` (about ${years(payback.years_at_5y_avg)} years on the ${label})`;
   }
   if (payback.treasury_years != null) {
     sentence += `, vs ~${years(payback.treasury_years)} years at the 30-year Treasury`;

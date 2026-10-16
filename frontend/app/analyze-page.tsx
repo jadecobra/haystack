@@ -29,6 +29,8 @@ import {
   SECTOR_TABLE_HEADERS,
   debtCell,
   sectorCells,
+  sortPeerRows,
+  type PeerSortKey,
 } from '../lib/sectorTable';
 import { SectorTable } from './sector-table';
 import { normalizeTickerSegment } from './utils/ticker';
@@ -270,6 +272,7 @@ function parsePayback(value: unknown): PaybackBlock | null | undefined {
     oe_per_share_5y_avg: optionalPaybackNumber(value.oe_per_share_5y_avg),
     years_at_latest: optionalPaybackNumber(value.years_at_latest),
     years_at_5y_avg: optionalPaybackNumber(value.years_at_5y_avg),
+    oe_avg_years: optionalPaybackNumber(value.oe_avg_years),
     treasury_years: optionalPaybackNumber(value.treasury_years),
     pays_back: value.pays_back,
   };
@@ -361,6 +364,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const groupsCacheRef = useRef<MetricGroup[]>([]);
   // Render-safe mirror of groupsCacheRef (react-hooks/refs: no ref reads in render).
   const [cachedGroups, setCachedGroups] = useState<MetricGroup[]>([]);
+  const [peerSort, setPeerSort] = useState<PeerSortKey>('oe_yield');
   const yearsCacheRef = useRef<string[]>([]);
   const contractPromiseRef = useRef<Promise<MetricGroup[]> | null>(null);
   const waitTimersRef = useRef<number[]>([]);
@@ -753,20 +757,36 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                   <table className="w-full min-w-[36rem] text-sm sm:text-base border-separate border-spacing-0">
                     <thead>
                       <tr className="border-b border-edge">
-                        {SECTOR_TABLE_HEADERS.map((header, index) => (
+                        {SECTOR_TABLE_HEADERS.map((header, index) => {
+                          const key =
+                            header === 'OE yield' ? 'oe_yield' : header === 'NI margin' ? 'ni_margin' : null;
+                          const active = key != null && peerSort === key;
+                          return (
                           <th
                             key={header}
+                            aria-sort={key ? (active ? 'descending' : 'none') : undefined}
                             className={`text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap sticky top-0 border-b border-edge bg-canvas z-20${
                               index === 0 ? ' left-0 z-30' : ' border-l border-edge/40'
                             }`}
                           >
-                            {header}
+                            {key ? (
+                              <button
+                                type="button"
+                                onClick={() => setPeerSort(key)}
+                                className={active ? 'text-white' : 'hover:text-white'}
+                              >
+                                {header}
+                              </button>
+                            ) : (
+                              header
+                            )}
                           </th>
-                        ))}
+                          );
+                        })}
                       </tr>
                     </thead>
                     <tbody>
-                      {peersBlock.rows.map((row) => {
+                      {sortPeerRows(peersBlock.rows, peerSort).map((row) => {
                         const isCurrent = row.current === true;
                         const isDash = Boolean(row.missing);
                         const cells = sectorCells(row);

@@ -30,8 +30,10 @@ export default async function SectorPage({ params }: { params: Promise<Params> }
       </p>
       <h1 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-4">Sector comparison</h1>
       <p className="text-zinc-400 mb-6 text-sm sm:text-base">
-        Trailing annual owner earnings per share divided by prior close, with payback years, NI/equity,
-        and debt/equity from each company&apos;s latest 10-K year. S&P 500 only, grouped by GICS.
+        Owner-earnings yield is average owner earnings per share over the newest annual years
+        (up to five) divided by the prior close. Payback is price divided by that average. NI margin
+        is total net income over total revenue, and debt/equity is total debt over total equity, for
+        those same years. S&P 500 only, grouped by GICS.
       </p>
       <SectorTable kind="slug" slug={slug} />
     </PageShell>

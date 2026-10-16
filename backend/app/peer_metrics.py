@@ -30,9 +30,10 @@ ROW_KEYS = (
     "debt",
     "debt_state",
     "payback_years",
-    "ni_to_equity",
+    "ni_margin",
     "debt_to_equity",
     "no_debt",
+    "years",
 )
 
 MISSING_REASON = "not in screen snapshot or peer metrics"
@@ -154,9 +155,10 @@ def dash_row(ticker: str, name: str | None = None) -> dict[str, Any]:
         "debt": None,
         "debt_state": "unknown",
         "payback_years": None,
-        "ni_to_equity": None,
+        "ni_margin": None,
         "debt_to_equity": None,
         "no_debt": None,
+        "years": None,
         "missing": MISSING_REASON,
     }
 

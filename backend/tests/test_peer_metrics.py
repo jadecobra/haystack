@@ -175,7 +175,8 @@ class TableShapeTests(unittest.TestCase):
         for row in out["rows"]:
             self.assertIsNone(row["oe_yield"])
             self.assertIsNone(row["payback_years"])
-            self.assertIsNone(row["ni_to_equity"])
+            self.assertIsNone(row["ni_margin"])
+            self.assertIsNone(row["years"])
             self.assertIsNone(row["debt_to_equity"])
             self.assertIsNone(row["fy"])
             self.assertEqual(row["missing"], peer_metrics.MISSING_REASON)

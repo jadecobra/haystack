@@ -17,7 +17,7 @@ describe("paybackSentence", () => {
   it("states latest, five-year average, and treasury years", () => {
     assert.equal(
       paybackSentence("AAPL", block()),
-      "At $100.00 you get your money back in about 12.5 years from latest owner earnings (about 14.2 years on the 5-year average), vs ~20.7 years at the 30-year Treasury.",
+      "At $100.00 you get your money back in about 12.5 years from latest owner earnings (about 14.2 years on the 5y avg), vs ~20.7 years at the 30-year Treasury.",
     );
   });
 
@@ -31,7 +31,14 @@ describe("paybackSentence", () => {
   it("omits the treasury clause when treasury years are missing", () => {
     assert.equal(
       paybackSentence("AAPL", block({ treasury_years: null })),
-      "At $100.00 you get your money back in about 12.5 years from latest owner earnings (about 14.2 years on the 5-year average).",
+      "At $100.00 you get your money back in about 12.5 years from latest owner earnings (about 14.2 years on the 5y avg).",
+    );
+  });
+
+  it("labels a shorter average with its year count", () => {
+    assert.equal(
+      paybackSentence("LULU", block({ years_at_5y_avg: 18.4, oe_avg_years: 3, treasury_years: null })),
+      "At $100.00 you get your money back in about 12.5 years from latest owner earnings (about 18.4 years on the 3y avg).",
     );
   });
 

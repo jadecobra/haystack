@@ -7,7 +7,7 @@ import {
 } from "./sectorTable.ts";
 
 const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
-  ticker, name: `${ticker} Inc`, oe_yield: oe, payback_years: null, ni_to_equity: null,
+  ticker, name: `${ticker} Inc`, oe_yield: oe, payback_years: null, ni_margin: null,
   debt_to_equity: null, no_debt: null, debt_state: "unknown", fy: 2025, sector, sub_industry: sub, ...extra,
 });
 const HW = "Technology Hardware, Storage & Peripherals";
@@ -57,7 +57,7 @@ describe("groupForTicker", () => {
 describe("parse and cells", () => {
   it("formats columns and dashes unknowns", () => {
     const r = parseSectorRow({ ticker: "jpm", name: "JPMorgan", oe_yield: 0.05, fy: 2025, payback_years: 20,
-      ni_to_equity: 0.165, debt_to_equity: null, no_debt: null, sector: "Financials", sub_industry: "Diversified Banks" });
+      ni_margin: 0.165, debt_to_equity: null, no_debt: null, sector: "Financials", sub_industry: "Diversified Banks" });
     assert.ok(r);
     assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "2025"]);
     assert.equal(parseSectorRow({ ticker: "X" }), null);
@@ -70,7 +70,7 @@ describe("parse and cells", () => {
 
 describe("blank OE yields (#52)", () => {
   const fin = [
-    row("JPM", null, "Diversified Banks", "Financials", { ni_to_equity: 0.157 }),
+    row("JPM", null, "Diversified Banks", "Financials", { ni_margin: 0.157 }),
     row("BAC", 0.025, "Diversified Banks", "Financials"),
     row("AAA", null, "Diversified Banks", "Financials"),
     ...Array.from({ length: 45 }, (_, i) => row(`F${i}`, 0.01 + i / 1000, "Regional Banks", "Financials")),
