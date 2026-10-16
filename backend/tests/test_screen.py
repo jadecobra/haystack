@@ -399,8 +399,12 @@ class ScreenCoverageTests(unittest.TestCase):
         self.assertEqual(jpm["sector"], "Financials")
         self.assertEqual(jpm["sub_industry"], "Diversified Banks")
         self.assertGreaterEqual(jpm["fy"], 2025)
-        self.assertGreater(jpm["ni_to_equity"], 0.10)
-        self.assertLess(jpm["ni_to_equity"], 0.25)
+        if "ni_margin" in jpm:  # #58: up-to-5y NI / revenue margin
+            self.assertGreater(jpm["ni_margin"], 0.15)
+            self.assertLess(jpm["ni_margin"], 0.50)
+        else:  # seed predates #58
+            self.assertGreater(jpm["ni_to_equity"], 0.10)
+            self.assertLess(jpm["ni_to_equity"], 0.25)
 
 
 if __name__ == "__main__":
