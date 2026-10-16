@@ -209,6 +209,16 @@ def _sum_field(window: list[int], statements: dict[int, dict[str, Any]], key: st
     return total if seen else None
 
 
+def _scaled_yield(oe_ps: float | None, price: float) -> float | None:
+    """OE per share / price. Null when either is missing or |yield| > 100%."""
+    if oe_ps is None or not price:
+        return None
+    y = oe_ps / price
+    if y > 1.0 or y < -1.0:
+        return None
+    return y
+
+
 def _num(value: Any) -> float | None:
     try:
         out = float(value)
@@ -251,12 +261,53 @@ def sector_columns(
         leverage = debt / equity
     else:
         leverage = None
+    from app.payback import conservative_pair
+
+    latest_stmt = statements.get(window[0]) if window else None
+    latest_stmt = latest_stmt or {}
+    latest_oe_raw = _num(latest_stmt.get("owner_earnings"))
+    latest_shares = _num(latest_stmt.get("shares"))
+    latest_oe = (
+        latest_oe_raw / latest_shares
+        if latest_oe_raw is not None and latest_shares not in (None, 0)
+        else None
+    )
+    oe_yield_latest = _scaled_yield(latest_oe, price)
+    avg_yield = _scaled_yield(oe_per_share, price)
+    ni_latest = _num(latest_stmt.get("net_income"))
+    rev_latest = _num(latest_stmt.get("revenue"))
+    ni_margin_latest = (
+        ni_latest / rev_latest if ni_latest is not None and rev_latest is not None and rev_latest > 0 else None
+    )
+    n_years = len(window)
+    oe_yield_cons, oe_yield_basis = conservative_pair(
+        oe_yield_latest, avg_yield, years=n_years, prefer_longer=False
+    )
+    ni_margin_cons, ni_margin_basis = conservative_pair(
+        ni_margin_latest, margin, years=n_years, prefer_longer=False
+    )
+    payback_avg = price / oe_per_share if oe_per_share is not None and oe_per_share > 0 else None
+    if latest_oe is not None and latest_oe <= 0:
+        payback_cons, payback_basis = None, None
+    else:
+        payback_latest = price / latest_oe if latest_oe is not None and latest_oe > 0 else None
+        payback_cons, payback_basis = conservative_pair(
+            payback_latest, payback_avg, years=n_years, prefer_longer=True
+        )
     return {
-        "payback_years": price / oe_per_share if oe_per_share is not None and oe_per_share > 0 else None,
+        "payback_years": payback_avg,
         "ni_margin": margin,
         "debt_to_equity": leverage,
         "no_debt": {"zero": True, "positive": False}.get(debt_state),
-        "years": len(window),
+        "years": n_years,
+        "oe_yield_latest": oe_yield_latest,
+        "oe_yield_cons": oe_yield_cons,
+        "oe_yield_basis": oe_yield_basis,
+        "ni_margin_latest": ni_margin_latest,
+        "ni_margin_cons": ni_margin_cons,
+        "ni_margin_basis": ni_margin_basis,
+        "payback_cons": payback_cons,
+        "payback_basis": payback_basis,
     }
 
 
@@ -460,10 +511,6 @@ def _age_s(payload: dict[str, Any]) -> float | None:
     return (datetime.now(UTC) - dt).total_seconds()
 
 
-def _snapshot_paths() -> list[Path]:
-    return [CACHE_PATH, BACKEND_SEED_PATH, PUBLIC_SEED_PATH]
-
-
 def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
     """Stamp GICS sector / sub-industry on each row at serve time (#41)."""
     from app.classification import load_gics
@@ -481,16 +528,60 @@ def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
-def load_snapshot() -> dict[str, Any] | None:
-    for path in _snapshot_paths():
-        payload = _read_json(path)
-        if payload and isinstance(payload.get("rows"), list):
-            payload = with_gics(payload)
-            age = _age_s(payload)
-            if age is not None and age > STALE_AFTER_S:
-                return _mark_stale(payload)
-            return payload
+def _rows_payload(path: Path) -> dict[str, Any] | None:
+    payload = _read_json(path)
+    if payload and isinstance(payload.get("rows"), list):
+        return payload
     return None
+
+
+def _built_at(payload: dict[str, Any]) -> datetime | None:
+    stamp = payload.get("built_at")
+    if not isinstance(stamp, str) or not stamp:
+        return None
+    try:
+        dt = datetime.fromisoformat(stamp)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt
+
+
+def _serve(payload: dict[str, Any]) -> dict[str, Any]:
+    payload = with_gics(payload)
+    age = _age_s(payload)
+    if age is not None and age > STALE_AFTER_S:
+        return _mark_stale(payload)
+    return payload
+
+
+def load_snapshot() -> dict[str, Any] | None:
+    """Cache, then committed seed, then the public seed.
+
+    A cache file is used only when its ``built_at`` parses and is >= the
+    backend seed's ``built_at``. A missing or unparseable cache timestamp
+    loses to the seed so a stale local cache cannot hide a newer commit.
+    """
+    cache = _rows_payload(CACHE_PATH)
+    seed = _rows_payload(BACKEND_SEED_PATH)
+    chosen: dict[str, Any] | None = None
+    if cache is not None and seed is not None:
+        cache_at = _built_at(cache)
+        seed_at = _built_at(seed)
+        if cache_at is not None and seed_at is not None and cache_at >= seed_at:
+            chosen = cache
+        else:
+            chosen = seed
+    elif cache is not None:
+        chosen = cache
+    elif seed is not None:
+        chosen = seed
+    if chosen is None:
+        chosen = _rows_payload(PUBLIC_SEED_PATH)
+    if chosen is None:
+        return None
+    return _serve(chosen)
 
 
 def write_snapshot(payload: dict[str, Any], *, also_seed: bool = False) -> Path:

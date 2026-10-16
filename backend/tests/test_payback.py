@@ -155,11 +155,15 @@ class TestAnalyzePaybackContract(unittest.TestCase):
                 "oe_per_share_5y_avg",
                 "years_at_latest",
                 "years_at_5y_avg",
+                "years_conservative",
+                "conservative_basis",
                 "treasury_years",
                 "pays_back",
                 "oe_avg_years",
             },
         )
+        self.assertEqual(payback["years_conservative"], 15.4)
+        self.assertEqual(payback["conservative_basis"], "5y avg")
         self.assertEqual(payback["oe_avg_years"], 5)
         self.assertAlmostEqual(payback["oe_per_share_latest"], 6.650, places=2)
         self.assertAlmostEqual(payback["oe_per_share_5y_avg"], 6.495, places=2)

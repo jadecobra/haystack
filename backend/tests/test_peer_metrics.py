@@ -134,9 +134,13 @@ class TableShapeTests(unittest.TestCase):
         tickers = [r["ticker"] for r in out["rows"]]
         self.assertEqual(tickers, ["AAPL", "CRWV", "ZZZZ"])
         self.assertEqual([r["current"] for r in out["rows"]], [True, False, False])
+        copied = [k for k in peer_metrics.ROW_KEYS if not k.endswith(("_cons", "_basis", "_latest"))]
         for row in out["rows"]:
-            for key in peer_metrics.ROW_KEYS:
+            for key in copied:
                 self.assertIn(key, row)
+        dash = out["rows"][2]
+        for key in peer_metrics.ROW_KEYS:
+            self.assertIn(key, dash)
             self.assertIn("current", row)
             self.assertIn("missing", row)
 

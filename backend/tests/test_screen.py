@@ -326,14 +326,20 @@ class TestSectorColumns(unittest.TestCase):
             {2024: {"equity": 200.0, "net_income": 50.0, "revenue": 100.0, "debt": 100.0}},
             years=[2024], price=100.0, oe_per_share=5.0, debt_state="positive",
         )
-        self.assertEqual(cols, {"payback_years": 20.0, "ni_margin": 0.5,
-                                "debt_to_equity": 0.5, "no_debt": False, "years": 1})
+        self.assertEqual(cols["payback_years"], 20.0)
+        self.assertEqual(cols["ni_margin"], 0.5)
+        self.assertEqual(cols["debt_to_equity"], 0.5)
+        self.assertIs(cols["no_debt"], False)
+        self.assertEqual(cols["years"], 1)
         neg = sector_columns(
             {2024: {"equity": -10.0, "net_income": 5.0, "revenue": 20.0}},
             years=[2024], price=100.0, oe_per_share=-1.0, debt_state="unknown",
         )
-        self.assertEqual(neg, {"payback_years": None, "ni_margin": 0.25,
-                               "debt_to_equity": None, "no_debt": None, "years": 1})
+        self.assertIsNone(neg["payback_years"])
+        self.assertEqual(neg["ni_margin"], 0.25)
+        self.assertIsNone(neg["debt_to_equity"])
+        self.assertIsNone(neg["no_debt"])
+        self.assertEqual(neg["years"], 1)
         zero = sector_columns(
             {2024: {"equity": 10.0, "net_income": 1.0, "revenue": 10.0, "debt": 0.0}},
             years=[2024], price=10.0, oe_per_share=1.0, debt_state="zero",

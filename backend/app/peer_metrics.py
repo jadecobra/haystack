@@ -30,7 +30,15 @@ ROW_KEYS = (
     "debt",
     "debt_state",
     "payback_years",
+    "payback_cons",
+    "payback_basis",
     "ni_margin",
+    "ni_margin_latest",
+    "ni_margin_cons",
+    "ni_margin_basis",
+    "oe_yield_latest",
+    "oe_yield_cons",
+    "oe_yield_basis",
     "debt_to_equity",
     "no_debt",
     "years",
@@ -155,7 +163,15 @@ def dash_row(ticker: str, name: str | None = None) -> dict[str, Any]:
         "debt": None,
         "debt_state": "unknown",
         "payback_years": None,
+        "payback_cons": None,
+        "payback_basis": None,
         "ni_margin": None,
+        "ni_margin_latest": None,
+        "ni_margin_cons": None,
+        "ni_margin_basis": None,
+        "oe_yield_latest": None,
+        "oe_yield_cons": None,
+        "oe_yield_basis": None,
         "debt_to_equity": None,
         "no_debt": None,
         "years": None,
@@ -212,7 +228,14 @@ def resolve_row(
     src = snapshot_rows.get(t) or metric_rows.get(t)
     if src is None:
         return dash_row(t, name)
-    out = {k: src.get(k) for k in ROW_KEYS}
+    # Old snapshots omit the #59 keys. Leave those out so clients fall back
+    # to oe_yield / ni_margin / payback_years. Every other key stays, as null
+    # when the source predates it. Dash rows set the new keys to null.
+    out = {
+        k: src.get(k)
+        for k in ROW_KEYS
+        if k in src or not k.endswith(("_cons", "_basis", "_latest"))
+    }
     out["ticker"] = t
     if out.get("name") is None and name:
         out["name"] = name

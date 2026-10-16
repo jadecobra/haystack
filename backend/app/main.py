@@ -84,6 +84,8 @@ class PaybackBlock(pydantic.BaseModel):
     oe_per_share_5y_avg: float | None = None
     years_at_latest: float | None = None
     years_at_5y_avg: float | None = None
+    years_conservative: float | None = None
+    conservative_basis: str | None = None
     oe_avg_years: int | None = None
     treasury_years: float | None = None
     pays_back: bool
@@ -121,7 +123,15 @@ class PeerRow(pydantic.BaseModel):
     debt: float | None = None
     debt_state: str | None = None
     payback_years: float | None = None
+    payback_cons: float | None = None
+    payback_basis: str | None = None
     ni_margin: float | None = None
+    ni_margin_latest: float | None = None
+    ni_margin_cons: float | None = None
+    ni_margin_basis: str | None = None
+    oe_yield_latest: float | None = None
+    oe_yield_cons: float | None = None
+    oe_yield_basis: str | None = None
     debt_to_equity: float | None = None
     no_debt: bool | None = None
     years: int | None = None
