@@ -83,6 +83,9 @@ export function parsePeerRow(value: unknown): PeerRow | null {
     sub_industry: typeof r.sub_industry === "string" ? r.sub_industry : null,
     current: r.current === true,
     missing: typeof r.missing === "string" ? r.missing : null,
+    price: num(r.price),
+    price_as_of: typeof r.price_as_of === "string" && r.price_as_of.trim() ? r.price_as_of.trim() : null,
+    oe_note: typeof r.oe_note === "string" && r.oe_note.trim() ? r.oe_note.trim() : null,
   };
 }
 

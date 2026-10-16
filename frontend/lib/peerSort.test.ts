@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { sortPeerRows, type SectorRow } from "./sectorTable.ts";
-import { sectorCells } from "./sectorTable.ts";
+import { priceCell, sectorCells, sortPeerRows, type SectorRow } from "./sectorTable.ts";
 
 function row(
   ticker: string,
@@ -53,10 +52,10 @@ describe("sortPeerRows (#58)", () => {
   });
 
   it("labels the OE yield cell with the year count", () => {
-    assert.equal(sectorCells(row("A", 0.04, 0.1, { years: 3 }))[1], "4.0% 3y");
-    assert.equal(sectorCells(row("B", 0.04, 0.1, { years: 5 }))[1], "4.0% 5y");
-    assert.equal(sectorCells(row("C", null, null, { years: 2 }))[1], "— 2y");
-    assert.equal(sectorCells(row("D", 0.04, 0.1))[1], "4.0%");
+    assert.equal(sectorCells(row("A", 0.04, 0.1, { years: 3 }))[2], "4.0% 3y");
+    assert.equal(sectorCells(row("B", 0.04, 0.1, { years: 5 }))[2], "4.0% 5y");
+    assert.equal(sectorCells(row("C", null, null, { years: 2 }))[2], "— 2y");
+    assert.equal(sectorCells(row("D", 0.04, 0.1))[2], "4.0%");
   });
 });
 
@@ -74,16 +73,29 @@ describe("conservative cells and sort (#59)", () => {
         ni_margin_basis: "5y avg",
       }),
     );
-    assert.equal(cells[1], "9.9% latest");
-    assert.equal(cells[2], "10.1 latest");
-    assert.equal(cells[3], "14.8% 5y avg");
+    assert.equal(cells[1], "—");
+    assert.equal(cells[2], "9.9% latest");
+    assert.equal(cells[3], "10.1 latest");
+    assert.equal(cells[4], "14.8% 5y avg");
+  });
+
+  it("formats price with and without an as-of date", () => {
+    const dated = priceCell(row("A", 0.04, 0.1, { price: 99.09, price_as_of: "2026-10-15" }));
+    assert.equal(dated.text, "$99.09 Oct 15");
+    assert.equal(dated.asOf, "Oct 15");
+    const bare = priceCell(row("A", 0.04, 0.1, { price: 99.09 }));
+    assert.equal(bare.text, "$99.09");
+    assert.equal(bare.asOf, null);
+    const missing = priceCell(row("A", null, null));
+    assert.equal(missing.text, "—");
+    assert.equal(missing.title, "no price in snapshot");
   });
 
   it("falls back to the old fields when cons keys are absent", () => {
     const cells = sectorCells(row("A", 0.04, 0.1, { years: 3, payback_years: 12.5 }));
-    assert.equal(cells[1], "4.0% 3y");
-    assert.equal(cells[2], "12.5");
-    assert.equal(cells[3], "10.0%");
+    assert.equal(cells[2], "4.0% 3y");
+    assert.equal(cells[3], "12.5");
+    assert.equal(cells[4], "10.0%");
   });
 
   it("sorts on cons values and still parks dash rows last", () => {

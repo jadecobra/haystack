@@ -26,8 +26,10 @@ import {
 } from '../lib/peersCopy';
 import {
   DEBT_CELL_INDEX,
+  PRICE_CELL_INDEX,
   SECTOR_TABLE_HEADERS,
   debtCell,
+  priceCell,
   sectorCells,
   sortPeerRows,
   type PeerSortKey,
@@ -827,6 +829,22 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                               </Link>
                             </td>
                             {cells.map((text, i) => {
+                              if (i === PRICE_CELL_INDEX) {
+                                const cell = priceCell(row);
+                                return (
+                                  <td
+                                    key="Price"
+                                    className="py-2 sm:py-3 px-2 text-zinc-300 whitespace-nowrap border-l border-edge/40"
+                                  >
+                                    <span data-testid="peer-price" title={cell.title ?? undefined}>
+                                      {cell.amount}
+                                      {cell.asOf ? (
+                                        <span className="ml-1 text-xs text-zinc-500">{cell.asOf}</span>
+                                      ) : null}
+                                    </span>
+                                  </td>
+                                );
+                              }
                               if (i !== DEBT_CELL_INDEX) {
                                 return (
                                   <td

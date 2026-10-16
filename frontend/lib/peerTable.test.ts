@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { parsePeerRow } from "./peersCopy.ts";
-import { sectorCells } from "./sectorTable.ts";
+import { priceCell, sectorCells } from "./sectorTable.ts";
 
 describe("peer table rows (#56)", () => {
   it("keeps dash rows and renders metric cells as dashes", () => {
@@ -24,7 +24,8 @@ describe("peer table rows (#56)", () => {
     assert.equal(row.fy, null);
     assert.equal(row.missing, "not in screen snapshot or peer metrics");
     assert.equal(row.current, false);
-    assert.deepEqual(sectorCells(row), ["Missing Co", "—", "—", "—", "—", "—"]);
+    assert.deepEqual(sectorCells(row), ["Missing Co", "—", "—", "—", "—", "—", "—"]);
+    assert.equal(priceCell(row).title, "not in screen snapshot or peer metrics");
   });
 
   it("parses a full metrics row with current flag", () => {
@@ -38,11 +39,29 @@ describe("peer table rows (#56)", () => {
       debt_state: "positive",
       fy: 2025,
       current: true,
+      price: 99.09,
+      price_as_of: "2026-10-15",
     });
     assert.ok(row);
     assert.equal(row.current, true);
     assert.equal(row.fy, 2025);
-    assert.deepEqual(sectorCells(row), ["Apple Inc", "3.0%", "20.5", "150.0%", "1.34", "2025"]);
+    assert.equal(row.price, 99.09);
+    assert.equal(row.price_as_of, "2026-10-15");
+    assert.deepEqual(sectorCells(row), ["Apple Inc", "$99.09 Oct 15", "3.0%", "20.5", "150.0%", "1.34", "2025"]);
+  });
+
+  it("shows a price with no date, and a dash titled when price is missing", () => {
+    const priced = parsePeerRow({ ticker: "aapl", fy: 2024, price: 10 });
+    assert.ok(priced);
+    assert.equal(priceCell(priced).text, "$10.00");
+    assert.equal(priceCell(priced).asOf, null);
+    assert.equal(priceCell(priced).title, null);
+    const blank = parsePeerRow({ ticker: "aapl", fy: 2024, oe_note: "no share count" });
+    assert.ok(blank);
+    assert.equal(priceCell(blank).text, "—");
+    assert.equal(priceCell(blank).title, "no share count");
+    const unnamed = parsePeerRow({ ticker: "aapl", fy: 2024 });
+    assert.equal(priceCell(unnamed!).title, "no price in snapshot");
   });
 
   it("rejects rows without a ticker", () => {

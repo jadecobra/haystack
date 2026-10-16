@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   groupForTicker, groupRows, parseSectorRow, resolveSlug, sectorCells, sectorSlug,
-  groupCountNote, debtCell, SECTOR_TABLE_HEADERS, DEBT_TOOLTIP_NA, DEBT_TOOLTIP_UNKNOWN,
-  DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
+  groupCountNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX, DEBT_TOOLTIP_NA,
+  DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
 } from "./sectorTable.ts";
 
 const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
@@ -59,12 +59,25 @@ describe("parse and cells", () => {
     const r = parseSectorRow({ ticker: "jpm", name: "JPMorgan", oe_yield: 0.05, fy: 2025, payback_years: 20,
       ni_margin: 0.165, debt_to_equity: null, no_debt: null, sector: "Financials", sub_industry: "Diversified Banks" });
     assert.ok(r);
-    assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "2025"]);
+    assert.deepEqual(sectorCells(r), ["JPMorgan", "—", "5.0%", "20.0", "16.5%", "—", "2025"]);
+    assert.equal(priceCell(r).title, "no price in snapshot");
     assert.equal(parseSectorRow({ ticker: "X" }), null);
+  });
+  it("formats price with and without an as-of date", () => {
+    const dated = parseSectorRow({
+      ticker: "aapl", name: "Apple", fy: 2025, price: 99.09, price_as_of: "2026-10-15",
+    });
+    assert.equal(dated?.price, 99.09);
+    assert.equal(dated?.price_as_of, "2026-10-15");
+    assert.equal(priceCell(dated!).text, "$99.09 Oct 15");
+    const bare = parseSectorRow({ ticker: "aapl", fy: 2025, price: 10.5, price_as_of: "" });
+    assert.equal(bare?.price_as_of, null);
+    assert.equal(priceCell(bare!).text, "$10.50");
+    assert.equal(priceCell(bare!).asOf, null);
   });
   it("renders null fy as a dash (#56)", () => {
     const r = row("X", 0.02, HW, IT, { fy: null });
-    assert.equal(sectorCells(r)[5], "—");
+    assert.equal(sectorCells(r)[6], "—");
   });
 });
 
@@ -78,7 +91,7 @@ describe("blank OE yields (#52)", () => {
   it("keeps rows with a null OE yield, sorted last by ticker", () => {
     const r = parseSectorRow({ ticker: "JPM", oe_yield: null, fy: 2025 });
     assert.equal(r?.oe_yield, null);
-    assert.equal(sectorCells(r!)[1], "—");
+    assert.equal(sectorCells(r!)[2], "—");
     const g = groupRows(fin, "sub_industry", "Diversified Banks");
     assert.deepEqual(g.rows.map((x) => x.ticker), ["BAC", "AAA", "JPM"]);
   });
@@ -97,7 +110,9 @@ describe("blank OE yields (#52)", () => {
 describe("D/E cell folds no-debt (#51)", () => {
   it("drops the No debt column", () => {
     assert.ok(!SECTOR_TABLE_HEADERS.includes("No debt"));
-    assert.equal(SECTOR_TABLE_HEADERS[5], "Debt / equity");
+    assert.equal(SECTOR_TABLE_HEADERS[6], "Debt / equity");
+    assert.equal(DEBT_CELL_INDEX, SECTOR_TABLE_HEADERS.indexOf("Debt / equity") - 1);
+    assert.equal(SECTOR_TABLE_HEADERS[2], "Price");
   });
   it("ratio with debt, 0 (no debt) only with evidence, dash plus tooltip otherwise", () => {
     const base = row("X", 0.02, HW, IT);

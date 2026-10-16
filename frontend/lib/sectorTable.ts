@@ -30,6 +30,11 @@ export type SectorRow = {
   missing?: string | null;
   /** Annual years in the ratio-of-sums window (#58). */
   years?: number | null;
+  /** Prior close used for the yields (#59). */
+  price?: number | null;
+  price_as_of?: string | null;
+  /** Why owner earnings is blank when the row still has a price. */
+  oe_note?: string | null;
 };
 
 export type PeerSortKey = "oe_yield" | "ni_margin";
@@ -120,6 +125,15 @@ export function parseSectorRow(value: unknown): SectorRow | null {
     fy: r.fy as number,
     sector: typeof r.sector === "string" ? r.sector : null,
     sub_industry: typeof r.sub_industry === "string" ? r.sub_industry : null,
+    ...priceFields(r),
+  };
+}
+
+function priceFields(r: Record<string, unknown>): Pick<SectorRow, "price" | "price_as_of" | "oe_note"> {
+  return {
+    price: num(r.price),
+    price_as_of: typeof r.price_as_of === "string" && r.price_as_of.trim() ? r.price_as_of.trim() : null,
+    oe_note: typeof r.oe_note === "string" && r.oe_note.trim() ? r.oe_note.trim() : null,
   };
 }
 
@@ -211,6 +225,7 @@ export function groupForTicker(
 export const SECTOR_TABLE_HEADERS = [
   "Ticker",
   "Name",
+  "Price",
   "OE yield",
   "Payback (yrs)",
   "NI margin",
@@ -218,7 +233,52 @@ export const SECTOR_TABLE_HEADERS = [
   "FY",
 ];
 
+/** Index in sectorCells (headers minus the ticker link). */
+function cellIndex(header: string): number {
+  const index = SECTOR_TABLE_HEADERS.indexOf(header) - 1;
+  if (index < 0) throw new Error(`missing sector header: ${header}`);
+  return index;
+}
+
 const pct = (v: number | null) => (v === null ? "—" : `${(v * 100).toFixed(1)}%`);
+
+const PRICE_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026-10-15" → "Oct 15". Anything else is shown as given. */
+export function formatPriceAsOf(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+  if (!match) return value.trim();
+  const month = PRICE_MONTHS[Number(match[2]) - 1];
+  const day = Number(match[3]);
+  if (!month || !Number.isInteger(day) || day < 1 || day > 31) return value.trim();
+  return `${month} ${day}`;
+}
+
+export type PriceCell = {
+  /** "$99.09" or "—". */
+  amount: string;
+  /** Muted suffix, already formatted. Null when there is no date. */
+  asOf: string | null;
+  /** Set when the amount is a dash. */
+  title: string | null;
+  /** amount plus suffix, for string comparisons. */
+  text: string;
+};
+
+function priceMissingTitle(row: SectorRow): string {
+  if (row.missing) return row.missing;
+  if (row.oe_note) return row.oe_note;
+  return "no price in snapshot";
+}
+
+export function priceCell(row: SectorRow): PriceCell {
+  if (typeof row.price !== "number" || !Number.isFinite(row.price)) {
+    return { amount: "—", asOf: null, title: priceMissingTitle(row), text: "—" };
+  }
+  const amount = `$${row.price.toFixed(2)}`;
+  const asOf = row.price_as_of ? formatPriceAsOf(row.price_as_of) : null;
+  return { amount, asOf, title: null, text: asOf ? `${amount} ${asOf}` : amount };
+}
 
 function withBasis(base: string, basis: string | null | undefined): string {
   return basis ? `${base} ${basis}` : base;
@@ -249,6 +309,7 @@ function marginCell(row: SectorRow): string {
 export function sectorCells(row: SectorRow): string[] {
   return [
     row.name ?? "—",
+    priceCell(row).text,
     oeYieldCell(row),
     paybackCell(row),
     marginCell(row),
@@ -257,8 +318,11 @@ export function sectorCells(row: SectorRow): string[] {
   ];
 }
 
+/** Index of the price cell in sectorCells. */
+export const PRICE_CELL_INDEX = cellIndex("Price");
+
 /** Index of the D/E cell in sectorCells (for the tooltip wrapper). */
-export const DEBT_CELL_INDEX = 4;
+export const DEBT_CELL_INDEX = cellIndex("Debt / equity");
 
 export const DEBT_TOOLTIP_NA =
   "Not meaningful for financials: debt is a bank's or insurer's raw material, so D/E is not shown.";

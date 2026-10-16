@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import { DataTable } from "./components";
 import {
   DEBT_CELL_INDEX,
+  PRICE_CELL_INDEX,
   SECTOR_TABLE_HEADERS,
   debtCell,
+  priceCell,
   groupCountNote,
   groupForTicker,
   groupHeading,
@@ -106,6 +108,15 @@ export function SectorTable(props: SectorTableProps) {
         {row.ticker}
       </Link>,
       ...sectorCells(row).map((text, i) => {
+        if (i === PRICE_CELL_INDEX) {
+          const cell = priceCell(row);
+          return (
+            <span key="price" data-testid="sector-price" title={cell.title ?? undefined}>
+              {cell.amount}
+              {cell.asOf ? <span className="ml-1 text-xs text-zinc-500">{cell.asOf}</span> : null}
+            </span>
+          );
+        }
         if (i !== DEBT_CELL_INDEX) return text;
         const { title } = debtCell(row);
         return (
