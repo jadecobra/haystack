@@ -198,11 +198,14 @@ def diff_summary(old: dict[str, Any], new: dict[str, Any]) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    from app import edgar
+    from app import edgar, peer_metrics
+    from app.screen import load_universe
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--skip-metrics", action="store_true")
     ap.add_argument("--path", type=Path, default=DATA_PATH)
+    ap.add_argument("--metrics-path", type=Path, default=peer_metrics.DATA_PATH)
     args = ap.parse_args(argv)
 
     def log(msg: str) -> None:
@@ -215,11 +218,41 @@ def main(argv: list[str] | None = None) -> int:
         old = json.loads(args.path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         old = {}
-    changed = _content(old) != _content(new)
+    sic_changed = _content(old) != _content(new)
+
+    metrics_changed = False
+    metrics_n = 0
+    if not args.skip_metrics:
+        try:
+            old_metrics = json.loads(args.metrics_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            old_metrics = {}
+        if not isinstance(old_metrics, dict):
+            old_metrics = {}
+        tickers = peer_metrics.targets(new, load_universe())
+        new_metrics = peer_metrics.build(tickers, log=log)
+        metrics_n = len(new_metrics.get("rows") or {})
+        metrics_changed = (old_metrics.get("rows") or {}) != (
+            new_metrics.get("rows") or {}
+        )
+        if metrics_changed and not args.dry_run:
+            peer_metrics.write(new_metrics, args.metrics_path)
+            peer_metrics.clear_load_cache()
+    else:
+        try:
+            metrics_n = len(
+                json.loads(args.metrics_path.read_text(encoding="utf-8")).get("rows") or {}
+            )
+        except (OSError, json.JSONDecodeError, AttributeError, TypeError):
+            metrics_n = 0
+
+    changed = sic_changed or metrics_changed
     print(f"changed={'true' if changed else 'false'}")
     for line in diff_summary(old, new):
         print(line)
-    if changed and not args.dry_run:
+    print(f"metrics_changed={'true' if metrics_changed else 'false'}")
+    print(f"metrics rows: {metrics_n}")
+    if sic_changed and not args.dry_run:
         args.path.write_text(
             json.dumps(new, separators=(",", ":"), sort_keys=True) + "\n",
             encoding="utf-8",

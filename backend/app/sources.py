@@ -17,6 +17,7 @@ from app.metrics import (
     groups_payload,
 )
 from app.payback import build_payback
+from app.peer_metrics import with_rows
 from app.sic_peers import sic_peers_for
 
 
@@ -40,8 +41,13 @@ def _fixture_dgs30_meta(treasury: dict[int, float]) -> tuple[float | None, str |
 def _safe_peers(ticker: str) -> dict[str, Any] | None:
     # Every ticker, S&P 500 included, gets SEC SIC peers from the precomputed
     # map (no SEC request). GICS stays for the sector labels / sector tables.
+    # Comparison rows (#56): screen snapshot for S&P names, peer_metrics for
+    # the rest; dash row when neither has the ticker. Never drop a row.
     try:
-        return sic_peers_for(ticker)
+        block = sic_peers_for(ticker)
+        if block is None:
+            return None
+        return with_rows(ticker, block)
     except Exception:  # noqa: BLE001 - peers are optional; never fail analyze
         return None
 

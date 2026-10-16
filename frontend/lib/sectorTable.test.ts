@@ -62,6 +62,10 @@ describe("parse and cells", () => {
     assert.deepEqual(sectorCells(r), ["JPMorgan", "5.0%", "20.0", "16.5%", "—", "2025"]);
     assert.equal(parseSectorRow({ ticker: "X" }), null);
   });
+  it("renders null fy as a dash (#56)", () => {
+    const r = row("X", 0.02, HW, IT, { fy: null });
+    assert.equal(sectorCells(r)[5], "—");
+  });
 });
 
 describe("blank OE yields (#52)", () => {

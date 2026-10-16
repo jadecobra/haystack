@@ -11,9 +11,14 @@ export type SectorRow = {
   debt_to_equity: number | null;
   no_debt: boolean | null;
   debt_state: DebtState;
-  fy: number;
+  /** Null on peers dash rows (#56) that lack metrics. */
+  fy: number | null;
   sector: string | null;
   sub_industry: string | null;
+  /** Peers table (#56): true for the page ticker. */
+  current?: boolean;
+  /** Peers table (#56): set when metrics were unavailable. */
+  missing?: string | null;
 };
 
 export type DebtState = "zero" | "positive" | "unknown" | "n/a";
@@ -153,7 +158,7 @@ export function sectorCells(row: SectorRow): string[] {
     row.payback_years === null ? "—" : row.payback_years.toFixed(1),
     pct(row.ni_to_equity),
     debtCell(row).text,
-    String(row.fy),
+    row.fy === null ? "—" : String(row.fy),
   ];
 }
 

@@ -106,6 +106,27 @@ class Peer(pydantic.BaseModel):
     sic: int | None = None
 
 
+class PeerRow(pydantic.BaseModel):
+    """One peers-table row (#56): screen snapshot, peer_metrics, or dash."""
+
+    ticker: str
+    name: str | None = None
+    oe_yield: float | None = None
+    oe_per_share: float | None = None
+    oe_note: str | None = None
+    price: float | None = None
+    fy: int | None = None
+    price_as_of: str | None = None
+    debt: float | None = None
+    debt_state: str | None = None
+    payback_years: float | None = None
+    ni_to_equity: float | None = None
+    debt_to_equity: float | None = None
+    no_debt: bool | None = None
+    current: bool = False
+    missing: str | None = None
+
+
 class Peers(pydantic.BaseModel):
     # sub_industry / industry_group: S&P 500 by GICS (#42).
     # sic / sic3: non-S&P by SEC SIC, 4-digit or widened 3-digit group (#54).
@@ -115,6 +136,8 @@ class Peers(pydantic.BaseModel):
     fallback: bool
     total: int
     peers: list[Peer]
+    # Comparison table rows: current ticker first, then peers (#56).
+    rows: list[PeerRow] = []
     sic: int | None = None
     reason: str | None = None
 

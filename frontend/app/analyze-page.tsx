@@ -16,7 +16,20 @@ import {
   classificationSchemeLabel,
   type ClassificationBlock,
 } from '../lib/classificationLabel';
-import { peerRevenue, peersHeading, peersMore, peersReason, type PeersBlock } from '../lib/peersCopy';
+import {
+  parsePeerRow,
+  peerRevenue,
+  peersHeading,
+  peersMore,
+  peersReason,
+  type PeersBlock,
+} from '../lib/peersCopy';
+import {
+  DEBT_CELL_INDEX,
+  SECTOR_TABLE_HEADERS,
+  debtCell,
+  sectorCells,
+} from '../lib/sectorTable';
 import { SectorTable } from './sector-table';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
@@ -218,7 +231,10 @@ function parsePeers(value: unknown): PeersBlock | null | undefined {
     }));
   const sic = typeof value.sic === 'number' ? value.sic : null;
   const reason = typeof value.reason === 'string' ? value.reason : null;
-  return { basis, group, sub_industry, fallback, total, peers: items, sic, reason };
+  const rows = Array.isArray(value.rows)
+    ? value.rows.map(parsePeerRow).filter((r): r is NonNullable<typeof r> => r !== null)
+    : undefined;
+  return { basis, group, sub_industry, fallback, total, peers: items, rows, sic, reason };
 }
 
 function parseClassification(value: unknown): ClassificationBlock | null | undefined {
@@ -732,26 +748,116 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           {peersTitle && peersBlock ? (
             <section className="mt-6" data-testid="peers-section">
               <h3 className="text-base sm:text-lg text-zinc-300 mb-2">{peersTitle}</h3>
-              <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base">
-                {peersBlock.peers.map((peer) => (
-                  <li key={peer.ticker}>
-                    <Link
-                      href={`/${peer.ticker}`}
-                      data-testid="peer-link"
-                      title={peer.name ?? undefined}
-                      className="underline underline-offset-4 text-zinc-200 hover:text-white"
-                    >
-                      {peer.ticker}
-                    </Link>
-                    {peerRevenue(peer) ? (
-                      <span className="ml-1 text-zinc-500 text-xs sm:text-sm" data-testid="peer-revenue">
-                        {peerRevenue(peer)}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-                {peersExtra ? <li className="text-zinc-500">{peersExtra}</li> : null}
-              </ul>
+              {peersBlock.rows && peersBlock.rows.length > 0 ? (
+                <div className="max-h-[70vh] overflow-auto">
+                  <table className="w-full min-w-[36rem] text-sm sm:text-base border-separate border-spacing-0">
+                    <thead>
+                      <tr className="border-b border-edge">
+                        {SECTOR_TABLE_HEADERS.map((header, index) => (
+                          <th
+                            key={header}
+                            className={`text-left py-2 sm:py-3 px-2 font-semibold text-zinc-400 whitespace-nowrap sticky top-0 border-b border-edge bg-canvas z-20${
+                              index === 0 ? ' left-0 z-30' : ' border-l border-edge/40'
+                            }`}
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {peersBlock.rows.map((row) => {
+                        const isCurrent = row.current === true;
+                        const isDash = Boolean(row.missing);
+                        const cells = sectorCells(row);
+                        return (
+                          <tr
+                            key={`${row.ticker}-${isCurrent ? 'current' : 'peer'}`}
+                            data-testid="peer-row"
+                            data-current={isCurrent ? 'true' : 'false'}
+                            data-dash={isDash ? 'true' : 'false'}
+                            aria-current={isCurrent ? 'true' : undefined}
+                            className={
+                              isCurrent
+                                ? 'bg-zinc-800 font-semibold'
+                                : 'bg-canvas'
+                            }
+                          >
+                            <td
+                              className={`py-2 sm:py-3 px-2 whitespace-normal max-w-[16rem] sm:max-w-xs sticky left-0 z-10 ${
+                                isCurrent ? 'bg-zinc-800' : 'bg-canvas'
+                              }`}
+                            >
+                              <Link
+                                href={`/${row.ticker}`}
+                                data-testid="peer-link"
+                                title={row.name ?? undefined}
+                                className={`underline underline-offset-4 hover:text-white ${
+                                  isCurrent ? 'text-white' : 'text-zinc-200'
+                                }`}
+                              >
+                                {row.ticker}
+                              </Link>
+                            </td>
+                            {cells.map((text, i) => {
+                              if (i !== DEBT_CELL_INDEX) {
+                                return (
+                                  <td
+                                    key={SECTOR_TABLE_HEADERS[i + 1]}
+                                    className="py-2 sm:py-3 px-2 text-zinc-300 whitespace-nowrap border-l border-edge/40"
+                                  >
+                                    {text}
+                                  </td>
+                                );
+                              }
+                              const { title } = debtCell(row);
+                              return (
+                                <td
+                                  key="de"
+                                  className="py-2 sm:py-3 px-2 text-zinc-300 whitespace-nowrap border-l border-edge/40"
+                                >
+                                  <span
+                                    data-testid="peer-de"
+                                    title={title ?? undefined}
+                                    className={
+                                      title
+                                        ? 'cursor-help underline decoration-dotted underline-offset-4'
+                                        : undefined
+                                    }
+                                  >
+                                    {text}
+                                  </span>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base">
+                  {peersBlock.peers.map((peer) => (
+                    <li key={peer.ticker}>
+                      <Link
+                        href={`/${peer.ticker}`}
+                        data-testid="peer-link"
+                        title={peer.name ?? undefined}
+                        className="underline underline-offset-4 text-zinc-200 hover:text-white"
+                      >
+                        {peer.ticker}
+                      </Link>
+                      {peerRevenue(peer) ? (
+                        <span className="ml-1 text-zinc-500 text-xs sm:text-sm" data-testid="peer-revenue">
+                          {peerRevenue(peer)}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                  {peersExtra ? <li className="text-zinc-500">{peersExtra}</li> : null}
+                </ul>
+              )}
               {peersBlank ? (
                 <p className="text-sm text-zinc-500" data-testid="peers-reason">
                   {peersBlank}

@@ -1,3 +1,5 @@
+import type { DebtState, SectorRow } from "./sectorTable";
+
 export type PeerItem = {
   ticker: string;
   name?: string | null;
@@ -5,6 +7,9 @@ export type PeerItem = {
   revenue?: number | null;
   revenue_fy?: number | null;
 };
+
+/** Peers comparison row (#56): sector columns plus current/missing. */
+export type PeerRow = SectorRow;
 
 export type PeersBlock = {
   /** sub_industry / industry_group: S&P 500 by GICS (#42). sic / sic3: non-S&P by SEC SIC (#54). */
@@ -14,9 +19,49 @@ export type PeersBlock = {
   fallback: boolean;
   total: number;
   peers: PeerItem[];
+  /** Comparison table rows: current ticker first, then peers (#56). */
+  rows?: PeerRow[];
   sic?: number | null;
   reason?: string | null;
 };
+
+function num(v: unknown): number | null {
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+}
+
+function parseDebtState(v: unknown, noDebt: unknown): DebtState {
+  if (v === "zero" || v === "positive" || v === "unknown" || v === "n/a") return v;
+  if (noDebt === true) return "zero";
+  if (noDebt === false) return "positive";
+  return "unknown";
+}
+
+/**
+ * Tolerant peer-row parse (#56). Keeps dash rows (null fy / metrics) so a
+ * missing ticker still appears in the table.
+ */
+export function parsePeerRow(value: unknown): PeerRow | null {
+  if (typeof value !== "object" || value === null) return null;
+  const r = value as Record<string, unknown>;
+  if (typeof r.ticker !== "string" || !r.ticker.trim()) return null;
+  const fyRaw = r.fy;
+  const fy = fyRaw === null || fyRaw === undefined ? null : num(fyRaw);
+  return {
+    ticker: r.ticker.toUpperCase(),
+    name: typeof r.name === "string" ? r.name : null,
+    oe_yield: num(r.oe_yield),
+    payback_years: num(r.payback_years),
+    ni_to_equity: num(r.ni_to_equity),
+    debt_to_equity: num(r.debt_to_equity),
+    no_debt: typeof r.no_debt === "boolean" ? r.no_debt : null,
+    debt_state: parseDebtState(r.debt_state, r.no_debt),
+    fy,
+    sector: typeof r.sector === "string" ? r.sector : null,
+    sub_industry: typeof r.sub_industry === "string" ? r.sub_industry : null,
+    current: r.current === true,
+    missing: typeof r.missing === "string" ? r.missing : null,
+  };
+}
 
 function sicLabel(block: PeersBlock): string {
   const name = block.sub_industry || "this industry";
