@@ -13,7 +13,7 @@
       "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): companyfacts missing us-gaap facts"
     }
   ],
-  "built_at": "2026-10-16T15:20:51+00:00",
+  "built_at": "2026-10-16T15:52:25+00:00",
   "price_as_of": "2026-10-16",
   "stale": false,
   "error": null,
@@ -12812,8 +12812,8 @@
       "ni_margin_latest": 0.4209702660406886,
       "ni_margin_cons": -0.15739122877983344,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 59.752422867754845,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Financials",
       "sub_industry": "Investment Banking & Brokerage"
     },
@@ -12866,8 +12866,8 @@
       "ni_margin_latest": 0.21120195065978198,
       "ni_margin_cons": 0.20682164150704047,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 4.467359992621968,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Financials",
       "sub_industry": "Asset Management & Custody Banks"
     },
@@ -12893,8 +12893,8 @@
       "ni_margin_latest": 0.2927991775262024,
       "ni_margin_cons": 0.22286789774770147,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 16.196264388534658,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Information Technology",
       "sub_industry": "Semiconductors"
     },
@@ -12920,8 +12920,8 @@
       "ni_margin_latest": -0.04305348731270942,
       "ni_margin_cons": -0.1279506630445943,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 896.2496663143115,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Industrials",
       "sub_industry": "Electrical Components & Equipment"
     },
@@ -13001,8 +13001,8 @@
       "ni_margin_latest": 0.17348783694937542,
       "ni_margin_cons": 0.12832365597459458,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 1352.8926923076922,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Utilities",
       "sub_industry": "Electric Utilities"
     },
@@ -13028,8 +13028,8 @@
       "ni_margin_latest": 0.10367365336939373,
       "ni_margin_cons": -0.12589334799340296,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 10.821738623103851,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Consumer Discretionary",
       "sub_industry": "Hotels, Resorts & Cruise Lines"
     },
@@ -13082,8 +13082,8 @@
       "ni_margin_latest": 0.0908236399953002,
       "ni_margin_cons": 0.07648869072405773,
       "ni_margin_basis": "4y avg",
-      "payback_cons": 26.406727828746178,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Utilities",
       "sub_industry": "Electric Utilities"
     },
@@ -13163,8 +13163,8 @@
       "ni_margin_latest": 0.04306711145517641,
       "ni_margin_cons": -0.15823049464910596,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 7.925995017765551,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Consumer Discretionary",
       "sub_industry": "Hotels, Resorts & Cruise Lines"
     },
@@ -13298,8 +13298,8 @@
       "ni_margin_latest": 0.06923531148509005,
       "ni_margin_cons": 0.004846594740391099,
       "ni_margin_basis": "5y avg",
-      "payback_cons": 15.29321905511811,
-      "payback_basis": "latest",
+      "payback_cons": null,
+      "payback_basis": null,
       "sector": "Consumer Discretionary",
       "sub_industry": "Automotive Retail"
     },
