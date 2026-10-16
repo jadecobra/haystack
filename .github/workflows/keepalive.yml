@@ -1,0 +1,29 @@
+# Keep-alive for longmuch-api on Render's free plan, which spins down when idle
+# and then takes over 20s to cold start. Pings /health every 10 minutes.
+# GitHub cron can drift or skip runs under load. That's fine: an occasional
+# gap just means an occasional cold start. This job only logs. It never fails
+# and never alerts, and it uses no secrets. Render free hours: longmuch-api is
+# the only service in the workspace, so 24/7 (~744h/mo) fits the 750h cap.
+name: Keep-alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: GET /health
+        run: |
+          out=$(curl -s -o /dev/null -m 90 -w '%{http_code} %{time_total}' https://api.longmuch.com/health || true)
+          echo "$(date -u +%FT%TZ) health status_and_seconds=${out:-none}"
+          exit 0
