@@ -29,6 +29,27 @@ function num(v: unknown): number | null {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
 
+const CONS_NUMBER_KEYS = [
+  "oe_yield_latest",
+  "oe_yield_cons",
+  "payback_cons",
+  "ni_margin_latest",
+  "ni_margin_cons",
+] as const;
+
+const CONS_BASIS_KEYS = ["oe_yield_basis", "payback_basis", "ni_margin_basis"] as const;
+
+function optionalCons(r: Record<string, unknown>): Partial<SectorRow> {
+  const out: Partial<SectorRow> = {};
+  for (const key of CONS_NUMBER_KEYS) {
+    if (key in r) out[key] = num(r[key]);
+  }
+  for (const key of CONS_BASIS_KEYS) {
+    if (key in r) out[key] = typeof r[key] === "string" ? r[key] : null;
+  }
+  return out;
+}
+
 function parseDebtState(v: unknown, noDebt: unknown): DebtState {
   if (v === "zero" || v === "positive" || v === "unknown" || v === "n/a") return v;
   if (noDebt === true) return "zero";
@@ -50,6 +71,7 @@ export function parsePeerRow(value: unknown): PeerRow | null {
     ticker: r.ticker.toUpperCase(),
     name: typeof r.name === "string" ? r.name : null,
     oe_yield: num(r.oe_yield),
+    ...optionalCons(r),
     payback_years: num(r.payback_years),
     ni_margin: num(r.ni_margin),
     years: num(r.years),

@@ -6,8 +6,17 @@ export type SectorRow = {
   ticker: string;
   name: string | null;
   oe_yield: number | null;
+  /** Latest FY OE/sh ÷ price (#59). Absent on snapshots from before that. */
+  oe_yield_latest?: number | null;
+  oe_yield_cons?: number | null;
+  oe_yield_basis?: string | null;
   payback_years: number | null;
+  payback_cons?: number | null;
+  payback_basis?: string | null;
   ni_margin: number | null;
+  ni_margin_latest?: number | null;
+  ni_margin_cons?: number | null;
+  ni_margin_basis?: string | null;
   debt_to_equity: number | null;
   no_debt: boolean | null;
   debt_state: DebtState;
@@ -55,6 +64,35 @@ function num(v: unknown): number | null {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
 
+const CONS_NUMBER_KEYS = [
+  "oe_yield_latest",
+  "oe_yield_cons",
+  "payback_cons",
+  "ni_margin_latest",
+  "ni_margin_cons",
+] as const;
+
+const CONS_BASIS_KEYS = ["oe_yield_basis", "payback_basis", "ni_margin_basis"] as const;
+
+/** Copy #59 fields only when the payload has them, so old rows keep the old cells. */
+export function optionalConsFields(r: Record<string, unknown>): Partial<SectorRow> {
+  const out: Partial<SectorRow> = {};
+  for (const key of CONS_NUMBER_KEYS) {
+    if (key in r) out[key] = num(r[key]);
+  }
+  for (const key of CONS_BASIS_KEYS) {
+    if (key in r) out[key] = typeof r[key] === "string" ? r[key] : null;
+  }
+  return out;
+}
+
+function metricForSort(row: SectorRow, key: PeerSortKey): number | null {
+  if (key === "oe_yield") {
+    return row.oe_yield_cons !== undefined ? row.oe_yield_cons : row.oe_yield;
+  }
+  return row.ni_margin_cons !== undefined ? row.ni_margin_cons : row.ni_margin;
+}
+
 function parseDebtState(v: unknown, noDebt: unknown): DebtState {
   if (v === "zero" || v === "positive" || v === "unknown" || v === "n/a") return v;
   // Older seeds without debt_state: fall back to no_debt.
@@ -72,6 +110,7 @@ export function parseSectorRow(value: unknown): SectorRow | null {
     ticker: r.ticker.toUpperCase(),
     name: typeof r.name === "string" ? r.name : null,
     oe_yield: num(r.oe_yield),
+    ...optionalConsFields(r),
     payback_years: num(r.payback_years),
     ni_margin: num(r.ni_margin),
     years: num(r.years),
@@ -96,8 +135,8 @@ export function sortPeerRows<T extends SectorRow>(rows: T[], key: PeerSortKey = 
     else rest.push(row);
   }
   const cmp = (a: T, b: T) => {
-    const av = a[key];
-    const bv = b[key];
+    const av = metricForSort(a, key);
+    const bv = metricForSort(b, key);
     if (av === null || bv === null) {
       if (av !== bv) return av === null ? 1 : -1;
       return a.ticker.localeCompare(b.ticker);
@@ -181,11 +220,29 @@ export const SECTOR_TABLE_HEADERS = [
 
 const pct = (v: number | null) => (v === null ? "—" : `${(v * 100).toFixed(1)}%`);
 
+function withBasis(base: string, basis: string | null | undefined): string {
+  return basis ? `${base} ${basis}` : base;
+}
+
 function oeYieldCell(row: SectorRow): string {
+  if (row.oe_yield_cons !== undefined) return withBasis(pct(row.oe_yield_cons), row.oe_yield_basis);
   const base = pct(row.oe_yield);
   const years = row.years;
   if (typeof years !== "number" || !Number.isFinite(years) || years <= 0) return base;
   return `${base} ${years}y`;
+}
+
+function paybackCell(row: SectorRow): string {
+  if (row.payback_cons !== undefined) {
+    const base = row.payback_cons === null ? "—" : row.payback_cons.toFixed(1);
+    return withBasis(base, row.payback_basis);
+  }
+  return row.payback_years === null ? "—" : row.payback_years.toFixed(1);
+}
+
+function marginCell(row: SectorRow): string {
+  if (row.ni_margin_cons !== undefined) return withBasis(pct(row.ni_margin_cons), row.ni_margin_basis);
+  return pct(row.ni_margin);
 }
 
 /** Display cells after the ticker link, in header order (minus Ticker). */
@@ -193,8 +250,8 @@ export function sectorCells(row: SectorRow): string[] {
   return [
     row.name ?? "—",
     oeYieldCell(row),
-    row.payback_years === null ? "—" : row.payback_years.toFixed(1),
-    pct(row.ni_margin),
+    paybackCell(row),
+    marginCell(row),
     debtCell(row).text,
     row.fy === null ? "—" : String(row.fy),
   ];

@@ -54,4 +54,32 @@ describe("paybackSentence", () => {
     assert.equal(paybackSentence("AAPL", undefined), null);
     assert.equal(paybackSentence("AAPL", block({ years_at_latest: null })), null);
   });
+
+  it("leads with conservative years and names the basis", () => {
+    assert.equal(
+      paybackSentence(
+        "AAPL",
+        block({
+          years_at_latest: 10.7,
+          years_at_5y_avg: 9.2,
+          years_conservative: 10.7,
+          conservative_basis: "latest",
+        }),
+      ),
+      "At $100.00 you get your money back in about 10.7 years (latest) (about 9.2 years on the 5y avg), vs ~20.7 years at the 30-year Treasury.",
+    );
+    assert.equal(
+      paybackSentence(
+        "AAPL",
+        block({
+          years_conservative: 15.4,
+          conservative_basis: "5y avg",
+          years_at_latest: 15.0,
+          years_at_5y_avg: 15.4,
+          treasury_years: null,
+        }),
+      ),
+      "At $100.00 you get your money back in about 15.4 years (5y avg) (about 15.0 years from latest owner earnings).",
+    );
+  });
 });

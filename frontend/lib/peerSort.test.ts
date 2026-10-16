@@ -59,3 +59,47 @@ describe("sortPeerRows (#58)", () => {
     assert.equal(sectorCells(row("D", 0.04, 0.1))[1], "4.0%");
   });
 });
+
+describe("conservative cells and sort (#59)", () => {
+  it("shows cons values with a basis suffix", () => {
+    const cells = sectorCells(
+      row("A", 0.2, 0.3, {
+        years: 5,
+        oe_yield_cons: 0.099,
+        oe_yield_basis: "latest",
+        payback_years: 8,
+        payback_cons: 10.1,
+        payback_basis: "latest",
+        ni_margin_cons: 0.148,
+        ni_margin_basis: "5y avg",
+      }),
+    );
+    assert.equal(cells[1], "9.9% latest");
+    assert.equal(cells[2], "10.1 latest");
+    assert.equal(cells[3], "14.8% 5y avg");
+  });
+
+  it("falls back to the old fields when cons keys are absent", () => {
+    const cells = sectorCells(row("A", 0.04, 0.1, { years: 3, payback_years: 12.5 }));
+    assert.equal(cells[1], "4.0% 3y");
+    assert.equal(cells[2], "12.5");
+    assert.equal(cells[3], "10.0%");
+  });
+
+  it("sorts on cons values and still parks dash rows last", () => {
+    const rows = [
+      row("AVG", 0.2, 0.2, { oe_yield_cons: 0.05, ni_margin_cons: 0.01 }),
+      row("LATEST", 0.01, 0.01, { oe_yield_cons: 0.2, ni_margin_cons: 0.5 }),
+      row("OLD", 0.1, 0.3),
+      row("DASH", 0.9, 0.9, { missing: "not in screen snapshot or peer metrics", fy: null }),
+    ];
+    assert.deepEqual(
+      sortPeerRows(rows).map((r) => r.ticker),
+      ["LATEST", "OLD", "AVG", "DASH"],
+    );
+    assert.deepEqual(
+      sortPeerRows(rows, "ni_margin").map((r) => r.ticker),
+      ["LATEST", "OLD", "AVG", "DASH"],
+    );
+  });
+});

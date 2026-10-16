@@ -272,6 +272,13 @@ function parsePayback(value: unknown): PaybackBlock | null | undefined {
     oe_per_share_5y_avg: optionalPaybackNumber(value.oe_per_share_5y_avg),
     years_at_latest: optionalPaybackNumber(value.years_at_latest),
     years_at_5y_avg: optionalPaybackNumber(value.years_at_5y_avg),
+    years_conservative: optionalPaybackNumber(value.years_conservative),
+    conservative_basis:
+      value.conservative_basis === undefined
+        ? undefined
+        : typeof value.conservative_basis === 'string'
+          ? value.conservative_basis
+          : null,
     oe_avg_years: optionalPaybackNumber(value.oe_avg_years),
     treasury_years: optionalPaybackNumber(value.treasury_years),
     pays_back: value.pays_back,
