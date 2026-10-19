@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts lib/classificationLabel.test.ts lib/peersCopy.test.ts lib/peerTable.test.ts lib/sectorTable.test.ts lib/peerSort.test.ts"
+    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts lib/classificationLabel.test.ts lib/peersCopy.test.ts lib/peerTable.test.ts lib/sectorTable.test.ts lib/peerSort.test.ts lib/ga4.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
