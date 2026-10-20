@@ -2,8 +2,9 @@
 # non-S&P peers by SEC SIC, ranked by latest annual revenue (#54), plus OE /
 # payback / leverage rows for those peers (#56). Opens a PR only when either
 # file changes. NO auto-merge: a human reviews peer changes and merges. Takes
-# ~25 min (one rate-gated SEC submissions request per filer) plus metrics
-# builds. GITHUB_TOKEN PRs do not fire CI; the reviewer re-runs checks
+# one rate-gated SEC submissions request per filer (skipped on a same-month
+# cache hit) plus metrics builds. Job timeout is 120 minutes. GITHUB_TOKEN
+# PRs do not fire CI; the reviewer re-runs checks
 # (close/reopen or push) before merging.
 
 name: SIC peers map refresh
@@ -33,7 +34,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 120
     env:
       BASE: ${{ inputs.base || 'main' }}
       DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
@@ -50,6 +51,14 @@ jobs:
       - name: Install backend
         working-directory: backend
         run: uv sync
+      - name: SEC cache month
+        id: sec-month
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - name: Cache SEC submissions and frames
+        uses: actions/cache@v5
+        with:
+          path: backend/.cache/sic_peers_sec
+          key: sic-peers-sec-${{ steps.sec-month.outputs.month }}
       - name: Regenerate map
         id: gen
         working-directory: backend
