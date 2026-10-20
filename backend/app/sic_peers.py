@@ -289,7 +289,11 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(old_metrics, dict):
             old_metrics = {}
         tickers = peer_metrics.targets(new, load_universe())
-        new_metrics = peer_metrics.build(tickers, log=log)
+        on_chunk, finish_cache = peer_metrics.make_cache_saver()
+        new_metrics = peer_metrics.build(
+            tickers, log=log, resume=True, on_chunk=on_chunk
+        )
+        finish_cache()
         metrics_n = len(new_metrics.get("rows") or {})
         metrics_changed = (old_metrics.get("rows") or {}) != (
             new_metrics.get("rows") or {}
