@@ -9,6 +9,7 @@ rows with no SEC request.
 from __future__ import annotations
 
 import datetime as dt
+import gc
 import json
 import os
 import subprocess
@@ -131,6 +132,20 @@ def _write_ckpt(
         encoding="utf-8",
     )
     tmp.replace(path)
+
+
+def _release_live_caches() -> None:
+    """Drop in-process SEC and quote payloads.
+
+    ``fetch_companyfacts`` keeps every JSON body for the process lifetime.
+    A few thousand of those exhaust the Actions runner. Disk cache is unchanged,
+    so a later chunk or a resumed run still skips SEC.
+    """
+    from app import edgar, quote
+
+    edgar._mem_cache.clear()
+    quote._mem.clear()
+    gc.collect()
 
 
 def runner_cache_dirs() -> list[Path]:
@@ -270,6 +285,7 @@ def build(
         done.append(ticker)
         done_set.add(ticker)
         pending += 1
+        _release_live_caches()
         if chunk_size > 0 and pending >= chunk_size:
             pending = 0
             checkpoint(False)
