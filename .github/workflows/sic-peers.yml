@@ -215,7 +215,6 @@ jobs:
       BASE: ${{ inputs.base || 'main' }}
       DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
       GH_TOKEN: ${{ github.token }}
-      SIC_PEERS_CACHE_SAVE_SCRIPT: ${{ github.workspace }}/.github/scripts/save-actions-cache.mjs
       SIC_PEERS_FACTS_CACHE_PREFIX: sic-peers-facts-${{ needs.sic.outputs.month }}-${{ github.run_id }}
       SIC_PEERS_FACTS_CACHE_FINAL: sic-peers-facts-${{ needs.sic.outputs.month }}
     steps:
@@ -292,7 +291,10 @@ jobs:
           when: start
           step: cache save helper
       - name: Install cache save helper
-        run: npm install --prefix "$RUNNER_TEMP/gha-cache" @actions/cache@4
+        run: |
+          npm install --prefix "$RUNNER_TEMP/gha-cache" @actions/cache@6
+          cp "$GITHUB_WORKSPACE/.github/scripts/save-actions-cache.mjs" "$RUNNER_TEMP/gha-cache/save-actions-cache.mjs"
+          echo "SIC_PEERS_CACHE_SAVE_SCRIPT=$RUNNER_TEMP/gha-cache/save-actions-cache.mjs" >> "$GITHUB_ENV"
       - name: resources end cache save helper
         if: always()
         uses: ./.github/actions/resources
@@ -376,8 +378,6 @@ jobs:
       - name: Build peer metrics
         id: gen
         working-directory: backend
-        env:
-          NODE_PATH: ${{ runner.temp }}/gha-cache/node_modules
         run: |
           set -euo pipefail
           git fetch --no-tags origin "$BASE"
@@ -461,7 +461,7 @@ jobs:
           fi
       - name: resources end open PR
         if: always()
-        uses: ./.github/actions/resources
-        with:
-          when: end
-          step: open PR
+        run: |
+          echo "=== resources end: open PR ==="
+          free -m
+          df -h

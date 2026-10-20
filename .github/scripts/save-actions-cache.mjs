@@ -1,12 +1,10 @@
 // Save a GitHub Actions cache from the peer_metrics chunk loop.
 // Usage: node save-actions-cache.mjs <key> <delete-key|-> <path>...
-// A duplicate key or a failed delete does not fail the metrics build.
-import { createRequire } from "node:module";
+// Run this file from a directory whose node_modules contains @actions/cache
+// (ESM resolution does not use NODE_PATH). A duplicate key or a failed
+// delete does not fail the metrics build.
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-
-const require = createRequire(fileURLToPath(import.meta.url));
-const { saveCache } = require("@actions/cache");
+import { saveCache } from "@actions/cache";
 
 const [key, deleteKey, ...paths] = process.argv.slice(2);
 if (!key || !deleteKey || paths.length === 0) {
