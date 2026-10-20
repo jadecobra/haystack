@@ -1,0 +1,16 @@
+name: peer-metrics
+description: Build peer metrics and save the facts cache after each chunk
+inputs:
+  base:
+    description: Git ref the data PR is compared against
+    required: true
+  dry_run:
+    description: "true skips writing peer_metrics.json"
+    required: true
+    default: "false"
+outputs:
+  changed:
+    description: "true when the SIC map or peer metrics differ from base"
+runs:
+  using: node20
+  main: index.mjs

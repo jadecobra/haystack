@@ -290,11 +290,8 @@ jobs:
         with:
           when: start
           step: cache save helper
-      - name: Install cache save helper
-        run: |
-          npm install --prefix "$RUNNER_TEMP/gha-cache" @actions/cache@6
-          cp "$GITHUB_WORKSPACE/.github/scripts/save-actions-cache.mjs" "$RUNNER_TEMP/gha-cache/save-actions-cache.mjs"
-          echo "SIC_PEERS_CACHE_SAVE_SCRIPT=$RUNNER_TEMP/gha-cache/save-actions-cache.mjs" >> "$GITHUB_ENV"
+      - name: Install peer metrics action deps
+        run: npm install --prefix .github/actions/peer-metrics @actions/cache@6
       - name: resources end cache save helper
         if: always()
         uses: ./.github/actions/resources
@@ -375,8 +372,7 @@ jobs:
         with:
           when: start
           step: peer metrics
-      - name: Build peer metrics
-        id: gen
+      - name: Prepare peer metrics inputs
         working-directory: backend
         run: |
           set -euo pipefail
@@ -384,10 +380,12 @@ jobs:
           git show "origin/$BASE:backend/data/sic_peers.json" > /tmp/sic_peers.old.json
           git show "origin/$BASE:backend/data/peer_metrics.json" > data/peer_metrics.json
           cp /tmp/sic-peers-map/sic_peers.json data/sic_peers.json
-          args=(--old-sic /tmp/sic_peers.old.json)
-          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
-          uv run python -m app.peer_metrics "${args[@]}" | tee /tmp/sic-peers.txt
-          grep -q '^changed=true$' /tmp/sic-peers.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+      - name: Build peer metrics
+        id: gen
+        uses: ./.github/actions/peer-metrics
+        with:
+          base: ${{ env.BASE }}
+          dry_run: ${{ env.DRY_RUN }}
       - name: resources end peer metrics
         if: always()
         uses: ./.github/actions/resources

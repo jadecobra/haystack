@@ -161,7 +161,9 @@ def runner_cache_dirs() -> list[Path]:
 def make_cache_saver() -> tuple[Any, Any]:
     """Return ``(on_chunk, finish)`` that save the Actions cache when configured.
 
-    No-ops unless ``SIC_PEERS_CACHE_SAVE_SCRIPT`` and the key env vars are set.
+    No-ops unless the facts-cache key env vars are set and either
+    ``SIC_PEERS_CACHE_IPC=1`` (the peer-metrics JavaScript action saves) or
+    ``SIC_PEERS_CACHE_SAVE_SCRIPT`` points at a node saver.
     ``on_chunk`` saves ``SIC_PEERS_FACTS_CACHE_PREFIX-<done>`` and deletes the
     previous chunk key. ``finish`` saves ``SIC_PEERS_FACTS_CACHE_FINAL`` and
     deletes the last chunk key.
@@ -169,12 +171,23 @@ def make_cache_saver() -> tuple[Any, Any]:
     state: dict[str, str | None] = {"prev": None}
 
     def save(key: str, delete_key: str | None) -> str | None:
-        script = os.environ.get("SIC_PEERS_CACHE_SAVE_SCRIPT", "").strip()
-        if not script or not key:
+        if not key:
             return None
         dirs = runner_cache_dirs()
         for directory in dirs:
             directory.mkdir(parents=True, exist_ok=True)
+        if os.environ.get("SIC_PEERS_CACHE_IPC", "").strip() == "1":
+            # The parent action reads this line and calls saveCache. A shell
+            # step cannot: the runner does not give it the cache service URL.
+            sys.stdout.write(f"@@cache {key} {delete_key or '-'}\n")
+            sys.stdout.flush()
+            ack = sys.stdin.readline()
+            if not ack.startswith("@@cache-ok"):
+                raise RuntimeError(f"cache save failed for {key}: {ack.strip() or 'no ack'}")
+            return key
+        script = os.environ.get("SIC_PEERS_CACHE_SAVE_SCRIPT", "").strip()
+        if not script:
+            return None
         proc = subprocess.run(
             ["node", script, key, delete_key or "-", *[str(d) for d in dirs]],
             check=False,

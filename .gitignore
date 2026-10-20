@@ -52,6 +52,7 @@ npm-debug.log
 
 # dependencies
 /node_modules
+.github/actions/peer-metrics/node_modules/
 /.pnp
 .pnp.js
 
