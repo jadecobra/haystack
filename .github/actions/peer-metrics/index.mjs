@@ -10,13 +10,16 @@ const workspace = process.env.GITHUB_WORKSPACE;
 const base = process.env.INPUT_BASE || "main";
 const dryRun = (process.env.INPUT_DRY_RUN || "false") === "true";
 const outFile = "/tmp/sic-peers.txt";
+// Same relative paths the workflow restore step hashes. Absolute paths
+// produce a different cache version, so restore misses the key.
 const cachePaths = [
   "backend/.cache/companyfacts",
   "backend/.cache/quotes",
   "backend/.cache/peer_metrics_ckpt",
   "backend/.cache/fred",
-].map((p) => `${workspace}/${p}`);
+];
 
+process.chdir(workspace);
 for (const dir of cachePaths) mkdirSync(dir, { recursive: true });
 
 function fail(message) {
@@ -27,7 +30,8 @@ function fail(message) {
 async function saveOne(key, deleteKey) {
   const id = await saveCache(cachePaths, key);
   if (id === -1) {
-    throw new Error(`cache save returned -1 for ${key}`);
+    process.stdout.write(`cache-save-skip key=${key} already exists\n`);
+    return;
   }
   process.stdout.write(`cache-saved key=${key} id=${id}\n`);
   if (deleteKey && deleteKey !== "-") {
