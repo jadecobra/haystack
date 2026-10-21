@@ -213,3 +213,53 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(p["total"], len(p["peers"]))
         self.assertNotIn("AAPL", [x["ticker"] for x in p["peers"]])
         self.assertTrue(all(x["revenue"] >= sic_peers.MIN_REVENUE for x in p["peers"]))
+
+
+class SecDiskCacheTests(unittest.TestCase):
+    def test_submissions_and_frames_round_trip_without_a_second_fetch(self):
+        import json
+        import tempfile
+
+        calls: list[str] = []
+
+        def fetch(url: str):
+            calls.append(url)
+            return {"url": url, "sic": "7372"}
+
+        sub = sic_peers.SUBMISSIONS_URL.format(cik=320193)
+        frame = sic_peers.FRAMES_URL.format(tag="Revenues", year=2025)
+        other = sic_peers.TICKERS_URL
+        with tempfile.TemporaryDirectory() as tmp:
+            cached = sic_peers.disk_cached_fetch(fetch, sic_peers.Path(tmp))
+            self.assertEqual(cached(sub)["sic"], "7372")
+            self.assertEqual(cached(frame)["url"], frame)
+            self.assertEqual(cached(other)["url"], other)
+            self.assertEqual(cached(other)["url"], other)
+            self.assertEqual(cached(sub)["sic"], "7372")
+            self.assertEqual(cached(frame)["url"], frame)
+            self.assertEqual(calls, [sub, frame, other, other])
+            written = json.loads(
+                (sic_peers.Path(tmp) / "submissions" / "CIK0000320193.json").read_text()
+            )
+            self.assertEqual(written["sic"], "7372")
+            self.assertTrue(
+                (sic_peers.Path(tmp) / "frames" / "Revenues-CY2025.json").is_file()
+            )
+
+    def test_corrupt_cache_refetches(self):
+        import tempfile
+
+        calls: list[str] = []
+
+        def fetch(url: str):
+            calls.append(url)
+            return {"ok": True}
+
+        sub = sic_peers.SUBMISSIONS_URL.format(cik=1)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = sic_peers.Path(tmp) / "submissions" / "CIK0000000001.json"
+            path.parent.mkdir()
+            path.write_text("not-json", encoding="utf-8")
+            cached = sic_peers.disk_cached_fetch(fetch, sic_peers.Path(tmp))
+            self.assertEqual(cached(sub), {"ok": True})
+            self.assertEqual(calls, [sub])

@@ -1,10 +1,14 @@
 # Monthly refresh of backend/data/sic_peers.json and backend/data/peer_metrics.json:
 # non-S&P peers by SEC SIC, ranked by latest annual revenue (#54), plus OE /
 # payback / leverage rows for those peers (#56). Opens a PR only when either
-# file changes. NO auto-merge: a human reviews peer changes and merges. Takes
-# ~25 min (one rate-gated SEC submissions request per filer) plus metrics
-# builds. GITHUB_TOKEN PRs do not fire CI; the reviewer re-runs checks
-# (close/reopen or push) before merging.
+# file changes. NO auto-merge: a human reviews peer changes and merges.
+#
+# Two jobs, each with a 150 minute timeout. The SIC job downloads SEC
+# submissions and frames (rate-gated; skipped on a same-month cache hit) and
+# saves that cache before the metrics job starts. The metrics job restores
+# it and builds peer metrics, saving the facts/checkpoint cache after every
+# chunk of tickers so a killed run resumes. GITHUB_TOKEN PRs do not fire CI;
+# the reviewer re-runs checks (close/reopen or push) before merging.
 
 name: SIC peers map refresh
 
@@ -25,63 +29,437 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: sic-peers
   cancel-in-progress: false
 
 jobs:
-  refresh:
+  sic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    outputs:
+      month: ${{ steps.sec-month.outputs.month }}
+    env:
+      BASE: ${{ inputs.base || 'main' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - name: resources start checkout
+        if: always()
+        run: |
+          echo "=== resources start: checkout ==="
+          free -m
+          df -h
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - name: resources end checkout
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: checkout
+
+      - name: resources start setup uv
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: setup uv
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+      - name: resources end setup uv
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: setup uv
+
+      - name: resources start setup python
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: setup python
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: resources end setup python
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: setup python
+
+      - name: resources start install
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: install
+      - name: Install backend
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          uv sync
+      - name: resources end install
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: install
+
+      - name: resources start SEC cache month
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: SEC cache month
+      - name: SEC cache month
+        id: sec-month
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - name: resources end SEC cache month
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: SEC cache month
+
+      - name: resources start restore SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: restore SEC cache
+      - name: Restore SEC submissions and frames
+        id: sec-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: backend/.cache/sic_peers_sec
+          key: sic-peers-sec-${{ steps.sec-month.outputs.month }}
+      - name: resources end restore SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: restore SEC cache
+
+      - name: resources start SIC pass
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: SIC pass
+      - name: Regenerate SIC map
+        working-directory: backend
+        # SEC User-Agent: the code default (app.edgar.DEFAULT_SEC_USER_AGENT).
+        # A hit does not call SEC. A miss stays on the rate gate.
+        run: |
+          set -euo pipefail
+          args=(--skip-metrics)
+          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
+          uv run python -m app.sic_peers "${args[@]}"
+      - name: resources end SIC pass
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: SIC pass
+
+      - name: resources start save SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: save SEC cache
+      - name: Save SEC submissions and frames
+        if: steps.sec-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: backend/.cache/sic_peers_sec
+          key: sic-peers-sec-${{ steps.sec-month.outputs.month }}
+      - name: resources end save SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: save SEC cache
+
+      - name: resources start upload SIC map
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: upload SIC map
+      - name: Upload SIC map
+        uses: actions/upload-artifact@v4
+        with:
+          name: sic-peers-map
+          path: backend/data/sic_peers.json
+          if-no-files-found: error
+          retention-days: 5
+      - name: resources end upload SIC map
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: upload SIC map
+
+  peer-metrics:
+    needs: sic
     runs-on: ubuntu-latest
     timeout-minutes: 150
     env:
       BASE: ${{ inputs.base || 'main' }}
       DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+      GH_TOKEN: ${{ github.token }}
+      SIC_PEERS_FACTS_CACHE_PREFIX: sic-peers-facts-${{ needs.sic.outputs.month }}-${{ github.run_id }}
+      SIC_PEERS_FACTS_CACHE_FINAL: sic-peers-facts-${{ needs.sic.outputs.month }}
     steps:
+      - name: resources start checkout
+        if: always()
+        run: |
+          echo "=== resources start: checkout ==="
+          free -m
+          df -h
       - uses: actions/checkout@v7
         with:
-          ref: ${{ env.BASE }}
+          ref: ${{ github.sha }}
+      - name: resources end checkout
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: checkout
+
+      - name: resources start setup uv
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: setup uv
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
+      - name: resources end setup uv
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: setup uv
+
+      - name: resources start setup python
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: setup python
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+      - name: resources end setup python
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: setup python
+
+      - name: resources start install
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: install
       - name: Install backend
         working-directory: backend
-        run: uv sync
-      - name: Regenerate map
-        id: gen
-        working-directory: backend
-        # SEC User-Agent: the code default (app.edgar.DEFAULT_SEC_USER_AGENT),
-        # same as screen-sp500.yml in practice; no repo secret needed.
         run: |
           set -euo pipefail
-          args=()
-          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
-          uv run python -m app.sic_peers "${args[@]}" | tee /tmp/sic-peers.txt
-          grep -q '^changed=true$' /tmp/sic-peers.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+          uv sync
+      - name: resources end install
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: install
+
+      - name: resources start cache save helper
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: cache save helper
+      - name: Install peer metrics action deps
+        run: npm install --prefix .github/actions/peer-metrics @actions/cache@6
+      - name: resources end cache save helper
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: cache save helper
+
+      - name: resources start restore SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: restore SEC cache
+      - name: Restore SEC submissions and frames
+        id: sec-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: backend/.cache/sic_peers_sec
+          key: sic-peers-sec-${{ needs.sic.outputs.month }}
+      - name: resources end restore SEC cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: restore SEC cache
+
+      - name: resources start restore facts cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: restore facts cache
+      - name: Restore peer metrics cache
+        id: facts-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            backend/.cache/companyfacts
+            backend/.cache/quotes
+            backend/.cache/peer_metrics_ckpt
+            backend/.cache/fred
+          key: sic-peers-facts-${{ needs.sic.outputs.month }}
+          restore-keys: |
+            sic-peers-facts-${{ needs.sic.outputs.month }}-
+      - name: Log cache restore
+        run: |
+          echo "sec-cache-hit=${{ steps.sec-cache.outputs.cache-hit }}"
+          echo "facts-cache-hit=${{ steps.facts-cache.outputs.cache-hit }}"
+          echo "facts-cache-matched-key=${{ steps.facts-cache.outputs.cache-matched-key }}"
+      - name: resources end restore facts cache
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: restore facts cache
+
+      - name: resources start download SIC map
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: download SIC map
+      - name: Download SIC map
+        uses: actions/download-artifact@v4
+        with:
+          name: sic-peers-map
+          path: /tmp/sic-peers-map
+      - name: resources end download SIC map
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: download SIC map
+
+      - name: resources start peer metrics
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: peer metrics
+      - name: Prepare peer metrics inputs
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$BASE"
+          git show "origin/$BASE:backend/data/sic_peers.json" > /tmp/sic_peers.old.json
+          git show "origin/$BASE:backend/data/peer_metrics.json" > data/peer_metrics.json
+          cp /tmp/sic-peers-map/sic_peers.json data/sic_peers.json
+      - name: Build peer metrics
+        id: gen
+        uses: ./.github/actions/peer-metrics
+        with:
+          base: ${{ env.BASE }}
+          dry_run: ${{ env.DRY_RUN }}
+      - name: resources end peer metrics
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: peer metrics
+
+      - name: resources start summary
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: summary
       - name: Summary
         run: |
-          { echo "### SIC peers map refresh (base: $BASE, dry_run: $DRY_RUN)"; echo '```'; cat /tmp/sic-peers.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### SIC peers map refresh (base: $BASE, dry_run: $DRY_RUN)"
+            echo '```'
+            cat /tmp/sic-peers.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: resources end summary
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: end
+          step: summary
+
+      - name: resources start open PR
+        if: always()
+        uses: ./.github/actions/resources
+        with:
+          when: start
+          step: open PR
       - name: Open PR if changed
         if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           branch="bot/sic-peers-$BASE"
+          cp backend/data/sic_peers.json /tmp/sic_peers.new.json
+          cp backend/data/peer_metrics.json /tmp/peer_metrics.new.json
+          git fetch --no-tags origin "$BASE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B "$branch"
+          git reset --hard
+          git checkout -B "$branch" "origin/$BASE"
+          cp /tmp/sic_peers.new.json backend/data/sic_peers.json
+          cp /tmp/peer_metrics.new.json backend/data/peer_metrics.json
           git add backend/data/sic_peers.json backend/data/peer_metrics.json
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
           git commit -m "chore(data): refresh SEC SIC peers map and peer metrics"
           git push --force origin "HEAD:refs/heads/$branch"
-          body=$(printf 'Automated monthly refresh (#54, #56). Review peer / metrics changes before merging; no auto-merge.\n\nRe-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR.\n\n```\n%s\n```\n' "$(cat /tmp/sic-peers.txt)")
+          {
+            echo "Automated monthly refresh (#54, #56). Review peer / metrics changes before merging; no auto-merge."
+            echo
+            echo "Re-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR."
+            echo
+            echo '```'
+            cat /tmp/sic-peers.txt
+            echo '```'
+          } > /tmp/pr-body.md
           existing=$(gh pr list --head "$branch" --base "$BASE" --state open --json number -q '.[0].number // empty')
           if [ -n "$existing" ]; then
-            gh pr edit "$existing" --body "$body"
+            gh pr edit "$existing" --body-file /tmp/pr-body.md
             echo "updated PR #$existing"
           else
-            gh pr create --base "$BASE" --head "$branch" --title "chore(data): SIC peers map + peer metrics refresh ($(date -u +%Y-%m))" --body "$body"
+            gh pr create --base "$BASE" --head "$branch" --title "chore(data): SIC peers map + peer metrics refresh ($(date -u +%Y-%m))" --body-file /tmp/pr-body.md
           fi
+      - name: resources end open PR
+        if: always()
+        run: |
+          echo "=== resources end: open PR ==="
+          free -m
+          df -h

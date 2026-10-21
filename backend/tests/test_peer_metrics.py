@@ -95,6 +95,69 @@ class BuildTests(unittest.TestCase):
         self.assertIn("note", out)
         self.assertIn("generated", out)
 
+    def test_chunk_checkpoint_resumes_without_refetching(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        calls: list[str] = []
+        chunks: list[int] = []
+
+        def facts(ticker: str):
+            calls.append(ticker)
+            if ticker == "BAD":
+                raise RuntimeError("boom")
+            return (
+                [2025],
+                {
+                    2025: {
+                        "owner_earnings": 100.0,
+                        "shares": 10.0,
+                        "equity": 200.0,
+                        "net_income": 50.0,
+                        "debt": 0.0,
+                        "debt_state": "zero",
+                    }
+                },
+                "2",
+                f"{ticker} Co",
+            )
+
+        def quote(_ticker: str):
+            return {"price": 20.0, "as_of": "2025-01-02"}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ckpt = Path(tmp)
+            first = peer_metrics.build(
+                ["A", "B", "BAD", "C"],
+                fetch_facts=facts,
+                fetch_quote=quote,
+                resume=True,
+                chunk_size=2,
+                ckpt_dir=ckpt,
+                on_chunk=chunks.append,
+            )
+            self.assertEqual(calls, ["A", "B", "BAD", "C"])
+            self.assertEqual(chunks, [2, 4])
+            self.assertEqual(list(first["rows"]), ["A", "B", "C"])
+            saved = json.loads((ckpt / "rows.json").read_text(encoding="utf-8"))
+            self.assertTrue(saved["complete"])
+            self.assertEqual(saved["done"], ["A", "B", "BAD", "C"])
+            calls.clear()
+            chunks.clear()
+            second = peer_metrics.build(
+                ["A", "B", "BAD", "C", "D"],
+                fetch_facts=facts,
+                fetch_quote=quote,
+                resume=True,
+                chunk_size=2,
+                ckpt_dir=ckpt,
+                on_chunk=chunks.append,
+            )
+            self.assertEqual(calls, ["D"])
+            self.assertEqual(list(second["rows"]), ["A", "B", "C", "D"])
+            self.assertEqual(chunks, [5])
+
 
 class TableShapeTests(unittest.TestCase):
     def setUp(self):

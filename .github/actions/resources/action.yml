@@ -1,0 +1,17 @@
+name: resources
+description: Log free memory and disk
+inputs:
+  when:
+    description: start or end
+    required: true
+  step:
+    description: Step these numbers belong to
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo "=== resources ${{ inputs.when }}: ${{ inputs.step }} ==="
+        free -m
+        df -h

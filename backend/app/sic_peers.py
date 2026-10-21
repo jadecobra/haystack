@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -50,6 +51,61 @@ MIN_REVENUE = (
     10_000_000  # USD; peer candidates below this (or with no revenue) are dropped
 )
 MIN_COMPANIES = 5000  # refuse to write a suspiciously small universe
+# SEC submissions + XBRL frames for the monthly rebuild. GitHub Actions
+# caches this directory for the calendar month (SIC_PEERS_SEC_CACHE overrides).
+_SEC_CACHE_ENV = "SIC_PEERS_SEC_CACHE"
+SEC_CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "sic_peers_sec"
+
+
+def sec_cache_dir() -> Path:
+    raw = os.environ.get(_SEC_CACHE_ENV, "").strip()
+    return Path(raw) if raw else SEC_CACHE_DIR
+
+
+def sec_cache_rel(url: str) -> str | None:
+    """Relative cache path for a submissions or frames URL, else None."""
+    name = url.rsplit("/", 1)[-1]
+    if "/submissions/CIK" in url and name.startswith("CIK") and name.endswith(".json"):
+        cik = name[3:-5]
+        if cik.isdigit() and len(cik) == 10:
+            return f"submissions/{name}"
+    marker = "/frames/us-gaap/"
+    if marker in url and "/USD/CY" in url and url.endswith(".json"):
+        tag, _, year_part = url.split(marker, 1)[1].partition("/USD/CY")
+        year = year_part[: -len(".json")]
+        if tag and "/" not in tag and year.isdigit() and len(year) == 4:
+            return f"frames/{tag}-CY{year}.json"
+    return None
+
+
+def disk_cached_fetch(fetch_json: Any, cache_dir: Path) -> Any:
+    """Return fetch_json wrapped so submissions and frames are read/written on disk.
+
+    A hit does not call fetch_json (the SEC rate gate and User-Agent stay on
+    the miss path only). Other URLs always go to the network.
+    """
+
+    def fetch(url: str) -> Any:
+        rel = sec_cache_rel(url)
+        if rel is None:
+            return fetch_json(url)
+        path = cache_dir / rel
+        if path.is_file():
+            try:
+                cached = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                cached = None
+            if isinstance(cached, dict):
+                return cached
+        data = fetch_json(url)
+        if isinstance(data, dict):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(data), encoding="utf-8")
+            tmp.replace(path)
+        return data
+
+    return fetch
 
 
 # --- build ----------------------------------------------------------------
@@ -211,7 +267,10 @@ def main(argv: list[str] | None = None) -> int:
     def log(msg: str) -> None:
         sys.stderr.write(msg + "\n")
 
-    new = build(fetch_json=edgar._http_get_json, log=log)
+    new = build(
+        fetch_json=disk_cached_fetch(edgar._http_get_json, sec_cache_dir()),
+        log=log,
+    )
     if len(new["companies"]) < MIN_COMPANIES:
         raise SystemExit(f"refusing to write: only {len(new['companies'])} companies")
     try:
@@ -230,7 +289,11 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(old_metrics, dict):
             old_metrics = {}
         tickers = peer_metrics.targets(new, load_universe())
-        new_metrics = peer_metrics.build(tickers, log=log)
+        on_chunk, finish_cache = peer_metrics.make_cache_saver()
+        new_metrics = peer_metrics.build(
+            tickers, log=log, resume=True, on_chunk=on_chunk
+        )
+        finish_cache()
         metrics_n = len(new_metrics.get("rows") or {})
         metrics_changed = (old_metrics.get("rows") or {}) != (
             new_metrics.get("rows") or {}

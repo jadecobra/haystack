@@ -9,7 +9,11 @@ rows with no SEC request.
 from __future__ import annotations
 
 import datetime as dt
+import gc
 import json
+import os
+import subprocess
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -17,6 +21,11 @@ from typing import Any
 from app import sic_peers
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "peer_metrics.json"
+# Flush the on-disk checkpoint (and, on Actions, the runner cache) this often
+# so a killed job resumes from the last finished chunk instead of ticker 0.
+CACHE_CHUNK = 250
+_CACHE_ROOT = Path(__file__).resolve().parent.parent / ".cache"
+CKPT_DIR = _CACHE_ROOT / "peer_metrics_ckpt"
 
 ROW_KEYS = (
     "ticker",
@@ -84,22 +93,187 @@ def targets(sic_data: dict[str, Any], sp500: Any) -> list[str]:
     return sorted(out)
 
 
+def _payload(rows: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "note": NOTE,
+        "generated": dt.date.today().isoformat(),
+        "rows": dict(sorted(rows.items())),
+    }
+
+
+def _ckpt_file(ckpt_dir: Path) -> Path:
+    return ckpt_dir / "rows.json"
+
+
+def _load_ckpt(ckpt_dir: Path) -> dict[str, Any] | None:
+    try:
+        raw = json.loads(_ckpt_file(ckpt_dir).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(raw, dict) or not isinstance(raw.get("rows"), dict):
+        return None
+    if not isinstance(raw.get("done"), list):
+        return None
+    return raw
+
+
+def _write_ckpt(
+    ckpt_dir: Path,
+    rows: dict[str, dict[str, Any]],
+    done: list[str],
+    *,
+    complete: bool,
+) -> None:
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    path = _ckpt_file(ckpt_dir)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(
+        json.dumps({"complete": complete, "done": done, "rows": rows}),
+        encoding="utf-8",
+    )
+    tmp.replace(path)
+
+
+def _release_live_caches() -> None:
+    """Drop in-process SEC and quote payloads.
+
+    ``fetch_companyfacts`` keeps every JSON body for the process lifetime.
+    A few thousand of those exhaust the Actions runner. Disk cache is unchanged,
+    so a later chunk or a resumed run still skips SEC.
+    """
+    from app import edgar, quote
+
+    edgar._mem_cache.clear()
+    quote._mem.clear()
+    gc.collect()
+
+
+def runner_cache_dirs() -> list[Path]:
+    """Directories a resumed Actions run needs besides the SEC submissions cache."""
+    return [
+        _CACHE_ROOT / "companyfacts",
+        _CACHE_ROOT / "quotes",
+        CKPT_DIR,
+        _CACHE_ROOT / "fred",
+    ]
+
+
+def make_cache_saver() -> tuple[Any, Any]:
+    """Return ``(on_chunk, finish)`` that save the Actions cache when configured.
+
+    No-ops unless the facts-cache key env vars are set and either
+    ``SIC_PEERS_CACHE_IPC=1`` (the peer-metrics JavaScript action saves) or
+    ``SIC_PEERS_CACHE_SAVE_SCRIPT`` points at a node saver.
+    ``on_chunk`` saves ``SIC_PEERS_FACTS_CACHE_PREFIX-<done>`` and deletes the
+    previous chunk key. ``finish`` saves ``SIC_PEERS_FACTS_CACHE_FINAL`` and
+    deletes the last chunk key.
+    """
+    state: dict[str, str | None] = {"prev": None}
+
+    def save(key: str, delete_key: str | None) -> str | None:
+        if not key:
+            return None
+        dirs = runner_cache_dirs()
+        for directory in dirs:
+            directory.mkdir(parents=True, exist_ok=True)
+        if os.environ.get("SIC_PEERS_CACHE_IPC", "").strip() == "1":
+            # The parent action reads this line and calls saveCache. A shell
+            # step cannot: the runner does not give it the cache service URL.
+            sys.stdout.write(f"@@cache {key} {delete_key or '-'}\n")
+            sys.stdout.flush()
+            ack = sys.stdin.readline()
+            if not ack.startswith("@@cache-ok"):
+                raise RuntimeError(f"cache save failed for {key}: {ack.strip() or 'no ack'}")
+            return key
+        script = os.environ.get("SIC_PEERS_CACHE_SAVE_SCRIPT", "").strip()
+        if not script:
+            return None
+        proc = subprocess.run(
+            ["node", script, key, delete_key or "-", *[str(d) for d in dirs]],
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+        if proc.stdout:
+            sys.stderr.write(proc.stdout if proc.stdout.endswith("\n") else proc.stdout + "\n")
+        if proc.stderr:
+            sys.stderr.write(proc.stderr if proc.stderr.endswith("\n") else proc.stderr + "\n")
+        return key
+
+    def on_chunk(done_count: int) -> None:
+        prefix = os.environ.get("SIC_PEERS_FACTS_CACHE_PREFIX", "").strip()
+        if not prefix:
+            return
+        key = save(f"{prefix}-{done_count}", state["prev"])
+        if key:
+            state["prev"] = key
+
+    def finish() -> None:
+        final = os.environ.get("SIC_PEERS_FACTS_CACHE_FINAL", "").strip()
+        if not final:
+            return
+        save(final, state["prev"])
+
+    return on_chunk, finish
+
+
 def build(
     tickers: list[str],
     *,
     fetch_facts: Any = None,
     fetch_quote: Any = None,
     log: Any = None,
+    resume: bool = False,
+    chunk_size: int = CACHE_CHUNK,
+    ckpt_dir: Path | None = None,
+    on_chunk: Any = None,
 ) -> dict[str, Any]:
-    """Build ``{note, generated, rows}`` for ``tickers``. Fail-soft per ticker."""
+    """Build ``{note, generated, rows}`` for ``tickers``. Fail-soft per ticker.
+
+    When ``resume`` is set, tickers already listed in the checkpoint are not
+    fetched again. The checkpoint is rewritten every ``chunk_size`` newly
+    finished tickers, then ``on_chunk(done_count)`` runs (Actions cache save).
+    """
     from app import screen
 
     facts = fetch_facts or screen._live_facts
     quote_fn = fetch_quote or screen._live_quote
+    directory = ckpt_dir if ckpt_dir is not None else (CKPT_DIR if resume else None)
     rows: dict[str, dict[str, Any]] = {}
+    done: list[str] = []
+    if resume and directory is not None:
+        ckpt = _load_ckpt(directory)
+        if ckpt:
+            rows = {
+                str(k): v
+                for k, v in ckpt["rows"].items()
+                if isinstance(v, dict)
+            }
+            done = [str(t) for t in ckpt["done"] if str(t).strip()]
+    wanted: list[str] = []
+    seen: set[str] = set()
     for raw in tickers:
         ticker = str(raw).upper().strip()
-        if not ticker:
+        if not ticker or ticker in seen:
+            continue
+        seen.add(ticker)
+        wanted.append(ticker)
+    rows = {k: v for k, v in rows.items() if k in seen}
+    done = [t for t in done if t in seen]
+    done_set = set(done)
+    if resume and directory is not None and set(wanted) <= done_set:
+        return _payload(rows)
+
+    pending = 0
+
+    def checkpoint(complete: bool) -> None:
+        if directory is not None:
+            _write_ckpt(directory, rows, done, complete=complete)
+        if on_chunk and not complete:
+            on_chunk(len(done))
+
+    for ticker in wanted:
+        if ticker in done_set:
             continue
         try:
             years, statements, _cik, name = facts(screen._edgar_symbol(ticker))
@@ -118,15 +292,21 @@ def build(
         except Exception as exc:  # noqa: BLE001 - one bad ticker is skipped
             if log:
                 log(f"peer_metrics {ticker}: {exc}")
-            continue
-        if row is None:
-            continue
-        rows[ticker] = {k: row.get(k) for k in ROW_KEYS}
-    return {
-        "note": NOTE,
-        "generated": dt.date.today().isoformat(),
-        "rows": dict(sorted(rows.items())),
-    }
+            row = None
+        if row is not None:
+            rows[ticker] = {k: row.get(k) for k in ROW_KEYS}
+        done.append(ticker)
+        done_set.add(ticker)
+        pending += 1
+        _release_live_caches()
+        if chunk_size > 0 and pending >= chunk_size:
+            pending = 0
+            checkpoint(False)
+    if pending:
+        checkpoint(False)
+    if directory is not None:
+        _write_ckpt(directory, rows, done, complete=True)
+    return _payload(rows)
 
 
 def write(payload: dict[str, Any], path: Path | None = None) -> None:
@@ -286,3 +466,73 @@ def with_rows(
     out = dict(block)
     out["rows"] = rows
     return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Build peer metrics for the SIC map already on disk. Prints the refresh report."""
+    import argparse
+
+    from app.screen import load_universe
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--sic-path", type=Path, default=sic_peers.DATA_PATH)
+    ap.add_argument(
+        "--old-sic",
+        type=Path,
+        help="SIC map from before this run; default is --sic-path (no SIC diff)",
+    )
+    ap.add_argument("--metrics-path", type=Path, default=DATA_PATH)
+    ap.add_argument("--chunk-size", type=int, default=CACHE_CHUNK)
+    args = ap.parse_args(argv)
+
+    def log(msg: str) -> None:
+        sys.stderr.write(msg + "\n")
+
+    try:
+        new_sic = json.loads(args.sic_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        new_sic = {}
+    if not isinstance(new_sic, dict):
+        new_sic = {}
+    old_sic_path = args.old_sic or args.sic_path
+    try:
+        old_sic = json.loads(old_sic_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        old_sic = {}
+    if not isinstance(old_sic, dict):
+        old_sic = {}
+    try:
+        old_metrics = json.loads(args.metrics_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        old_metrics = {}
+    if not isinstance(old_metrics, dict):
+        old_metrics = {}
+
+    on_chunk, finish_cache = make_cache_saver()
+    tickers = targets(new_sic, load_universe())
+    new_metrics = build(
+        tickers,
+        log=log,
+        resume=True,
+        chunk_size=args.chunk_size,
+        on_chunk=on_chunk,
+    )
+    finish_cache()
+    metrics_n = len(new_metrics.get("rows") or {})
+    metrics_changed = (old_metrics.get("rows") or {}) != (new_metrics.get("rows") or {})
+    if metrics_changed and not args.dry_run:
+        write(new_metrics, args.metrics_path)
+        clear_load_cache()
+    sic_changed = sic_peers._content(old_sic) != sic_peers._content(new_sic)
+    changed = sic_changed or metrics_changed
+    print(f"changed={'true' if changed else 'false'}")
+    for line in sic_peers.diff_summary(old_sic, new_sic):
+        print(line)
+    print(f"metrics_changed={'true' if metrics_changed else 'false'}")
+    print(f"metrics rows: {metrics_n}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
