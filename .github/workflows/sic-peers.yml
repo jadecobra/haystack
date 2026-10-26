@@ -135,7 +135,7 @@ jobs:
           step: restore SEC cache
       - name: Restore SEC submissions and frames
         id: sec-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: backend/.cache/sic_peers_sec
           key: sic-peers-sec-${{ steps.sec-month.outputs.month }}
@@ -176,7 +176,7 @@ jobs:
           step: save SEC cache
       - name: Save SEC submissions and frames
         if: steps.sec-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: backend/.cache/sic_peers_sec
           key: sic-peers-sec-${{ steps.sec-month.outputs.month }}
@@ -307,7 +307,7 @@ jobs:
           step: restore SEC cache
       - name: Restore SEC submissions and frames
         id: sec-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: backend/.cache/sic_peers_sec
           key: sic-peers-sec-${{ needs.sic.outputs.month }}
@@ -326,7 +326,7 @@ jobs:
           step: restore facts cache
       - name: Restore peer metrics cache
         id: facts-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             backend/.cache/companyfacts
