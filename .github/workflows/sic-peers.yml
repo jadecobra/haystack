@@ -194,7 +194,7 @@ jobs:
           when: start
           step: upload SIC map
       - name: Upload SIC map
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sic-peers-map
           path: backend/data/sic_peers.json
@@ -355,7 +355,7 @@ jobs:
           when: start
           step: download SIC map
       - name: Download SIC map
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sic-peers-map
           path: /tmp/sic-peers-map
