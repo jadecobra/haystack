@@ -355,7 +355,7 @@ jobs:
           when: start
           step: download SIC map
       - name: Download SIC map
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sic-peers-map
           path: /tmp/sic-peers-map
