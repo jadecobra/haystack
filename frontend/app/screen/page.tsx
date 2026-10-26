@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBuiltLabel } from "@/lib/formatBuilt";
+import { listUnranked, type UnrankedName } from "@/lib/unranked";
 
 const WAIT_STATUS = "Working…";
 const SKELETON_ROW_COUNT = 12;
@@ -158,6 +159,7 @@ function ScreenPageInner() {
   const sectorFilter = searchParams.get("sector");
   const sicFilter = searchParams.get("sic");
   const [data, setData] = useState<ScreenPayload | null>(null);
+  const [unranked, setUnranked] = useState<UnrankedName[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(true);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -197,6 +199,7 @@ function ScreenPageInner() {
           return;
         }
         setData(parsed);
+        setUnranked(listUnranked(json));
       } catch {
         if (cancelled) return;
         stopClock();
@@ -352,6 +355,25 @@ function ScreenPageInner() {
           <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />
         </Card>
       )}
+      {data && !waiting && unranked.length > 0 ? (
+        <section className="mt-8 text-left" data-testid="screen-unranked">
+          <h2 className="text-lg font-semibold mb-3">Not ranked ({unranked.length})</h2>
+          <ul className="space-y-2 text-sm text-zinc-300">
+            {unranked.map((item) => (
+              <li key={item.ticker} data-testid="screen-unranked-row">
+                <Link
+                  href={`/${item.ticker}`}
+                  className="underline underline-offset-4 text-zinc-100 hover:text-white"
+                >
+                  {item.ticker}
+                </Link>
+                {item.name ? <span className="text-zinc-400"> {item.name}</span> : null}
+                <span> — {item.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </PageShell>
   );
 }
