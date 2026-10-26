@@ -67,7 +67,7 @@ jobs:
         with:
           when: start
           step: setup uv
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
       - name: resources end setup uv
@@ -240,7 +240,7 @@ jobs:
         with:
           when: start
           step: setup uv
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
       - name: resources end setup uv
