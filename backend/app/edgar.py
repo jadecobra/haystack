@@ -7,6 +7,7 @@ edgartools is optional for ticker→CIK; primary resolver uses company_tickers.j
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import threading
@@ -22,6 +23,8 @@ from typing import Any
 import httpx
 
 from app.tags import TAG_PREFS
+
+logger = logging.getLogger(__name__)
 
 _SPLIT_RATIO_LO = 1.0 / 1.15
 _SPLIT_RATIO_HI = 1.15
@@ -1504,19 +1507,6 @@ def _compose_dividends(
     return out, overrides
 
 
-def _merge_sum_series(a: dict[int, float], b: dict[int, float]) -> dict[int, float]:
-    years = set(a) | set(b)
-    out: dict[int, float] = {}
-    for y in years:
-        if y in a and y in b:
-            out[y] = a[y] + b[y]
-        elif y in a:
-            out[y] = a[y]
-        else:
-            out[y] = b[y]
-    return out
-
-
 def _abs_series(series: dict[int, float]) -> dict[int, float]:
     return {y: abs(v) for y, v in series.items()}
 
@@ -2012,6 +2002,44 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
     return {**companyfacts, "facts": {**facts, "us-gaap": new_gaap}}
 
 
+def _compose_total_liabilities(
+    us_gaap: dict[str, Any],
+    debt: dict[int, float],
+) -> dict[int, float]:
+    """Total liabilities per FY.
+
+    Prefer the annual ``Liabilities`` tag. When that tag is missing for a
+    year, use ``LiabilitiesAndStockholdersEquity`` minus total equity.
+    Equity is ``StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest``
+    when that tag has an annual value, otherwise ``StockholdersEquity``.
+    ``LiabilitiesCurrent`` is never a total. A year with neither path is
+    omitted (the statement shows a dash). A total below debt for that year
+    is also omitted, with a warning.
+    """
+    reported = _series_for_tags(us_gaap, TAG_PREFS["total_liabilities"])
+    lae = _series_for_tags(us_gaap, TAG_PREFS["liabilities_and_equity"])
+    equity = _series_for_tags(us_gaap, TAG_PREFS["equity_for_liabilities"])
+    out: dict[int, float] = {}
+    for year in set(reported) | set(lae):
+        if year in reported:
+            value = reported[year]
+        elif year in equity:
+            value = lae[year] - equity[year]
+        else:
+            continue
+        owed = debt.get(year)
+        if owed is not None and value < owed:
+            logger.warning(
+                "total liabilities %s below debt %s for fy %s; omitting",
+                value,
+                owed,
+                year,
+            )
+            continue
+        out[year] = value
+    return out
+
+
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
 ) -> tuple[list[int], dict[int, dict[str, float | str | None]]]:
@@ -2031,18 +2059,8 @@ def map_companyfacts_to_statements(
     shares = split_adjusted_shares(us_gaap)
     dividends, dividends_per_share = _compose_dividends(us_gaap, shares)
 
-    liabilities = _series_for_tags(us_gaap, ["Liabilities"])
-    if not liabilities:
-        cur = _series_for_tags(us_gaap, TAG_PREFS["liabilities_current"])
-        ncur = _series_for_tags(us_gaap, TAG_PREFS["liabilities_noncurrent"])
-        if cur or ncur:
-            liabilities = _merge_sum_series(cur, ncur)
-    if not liabilities:
-        lae = _series_for_tags(us_gaap, TAG_PREFS["liabilities_and_equity"])
-        if lae and equity:
-            liabilities = {y: lae[y] - equity[y] for y in lae if y in equity}
-
     debt, debt_states = compose_debt(us_gaap)
+    liabilities = _compose_total_liabilities(us_gaap, debt)
 
     da = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["da"]))
     ocf = _resolve_ocf(us_gaap, net_income, da)
