@@ -354,6 +354,20 @@ export function groupHeading(g: SectorGroup): string {
   return `${g.name} (${kind}) · S&P 500, by OE yield`;
 }
 
+/** Ticker page names the GICS universe. Standalone /sector pages keep groupHeading. */
+export function sectorTableHeading(kind: "ticker" | "slug", g: SectorGroup): string {
+  if (kind === "ticker") return `S&P 500 peers — ${g.name}`;
+  return groupHeading(g);
+}
+
+/** Count plus snapshot price date. Widen stays a separate link; there is no Open table link. */
+export function sectorTableNote(g: SectorGroup, priceAsOf: string | null): string {
+  const price = priceAsOf
+    ? ` · daily snapshot, prices as of ${priceAsOf}`
+    : " · daily snapshot";
+  return `${groupCountNote(g)}${price}`;
+}
+
 export function groupCountNote(g: SectorGroup): string {
   return g.total > g.rows.length
     ? `Top ${g.rows.length} of ${g.total} names`

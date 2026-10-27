@@ -9,9 +9,9 @@ import {
   SECTOR_TABLE_HEADERS,
   debtCell,
   priceCell,
-  groupCountNote,
   groupForTicker,
-  groupHeading,
+  sectorTableHeading,
+  sectorTableNote,
   parseSectorRow,
   resolveSlug,
   sectorCells,
@@ -142,26 +142,13 @@ export function SectorTable(props: SectorTableProps) {
         Widen to {group.sector}
       </Link>
     ) : null;
-  const page =
-    props.kind === "ticker" ? (
-      <Link
-        href={sectorHref(group.name)}
-        data-testid="sector-page-link"
-        className="underline underline-offset-4 text-zinc-300 hover:text-white"
-      >
-        Open table
-      </Link>
-    ) : null;
-
   return (
     <section className="mt-6 text-left" data-testid="sector-table" data-level={group.level}>
       <h3 className="text-base sm:text-lg text-zinc-300 mb-1" data-testid="sector-table-heading">
-        {groupHeading(group)}
+        {sectorTableHeading(props.kind, group)}
       </h3>
       <p className="text-sm text-zinc-500 mb-2" data-testid="sector-table-note">
-        {groupCountNote(group)}
-        {snap?.priceAsOf ? ` · daily snapshot, prices as of ${snap.priceAsOf}` : " · daily snapshot"}
-        {page ? <> · {page}</> : null}
+        {sectorTableNote(group, snap?.priceAsOf ?? null)}
         {widen ? <> · {widen}</> : null}
       </p>
       {current && !group.rows.some((r) => r.ticker === current) && snap?.rows.every((r) => r.ticker !== current) ? (

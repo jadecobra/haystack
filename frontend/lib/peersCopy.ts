@@ -89,26 +89,41 @@ export function parsePeerRow(value: unknown): PeerRow | null {
   };
 }
 
-function sicLabel(block: PeersBlock): string {
-  const name = block.sub_industry || "this industry";
-  return block.sic != null ? `${name} (SIC ${block.sic})` : name;
+/** 3-digit SIC digits from a widened group such as "SIC 565x" or "565". */
+function sic3Digits(block: PeersBlock): string {
+  const match = String(block.group).match(/(\d{3})/);
+  return match ? match[1] : block.group;
 }
 
 /** Heading for the ticker-page peers section. Null when there is nothing to list. */
 export function peersHeading(block: PeersBlock | null | undefined): string | null {
   if (!block) return null;
   if (block.basis === "sic" || block.basis === "sic3") {
-    if (block.peers.length === 0) return block.reason ? "Peers (same SEC industry)" : null;
+    if (block.peers.length === 0) return block.reason ? "Industry peers — all US filers" : null;
     if (block.basis === "sic") {
-      return `Peers in the same SEC industry: ${sicLabel(block)}, by latest annual revenue`;
+      return block.sic != null
+        ? `Industry peers — all US filers (SIC ${block.sic} ${block.sub_industry})`
+        : `Industry peers — all US filers (${block.sub_industry})`;
     }
-    return `Peers in the same SEC industry group ${block.group} (fewer than 5 others in ${sicLabel(block)}), by latest annual revenue`;
+    return `Industry peers — all US filers (SIC ${sic3Digits(block)}xx, widened from SIC ${block.sic} ${block.sub_industry})`;
   }
   if (block.peers.length === 0) return null;
   if (block.basis === "sub_industry") {
     return `S&P 500 peers in ${block.sub_industry} (GICS sub-industry)`;
   }
   return `S&P 500 peers in the ${block.group} industry group (fewer than 3 others in ${block.sub_industry})`;
+}
+
+/** One-line subhead under the SEC SIC peers heading. Null when the list is empty. */
+export function peersNote(block: PeersBlock | null | undefined): string | null {
+  if (!block || block.peers.length === 0) return null;
+  if (block.basis === "sic") {
+    return `Top ${block.peers.length} of ${block.total} US SEC filers in SIC ${block.sic} with annual revenue of at least $10M, ranked by latest revenue and sorted by OE yield.`;
+  }
+  if (block.basis === "sic3") {
+    return `Fewer than 5 peers in SIC ${block.sic} cleared $10M revenue; widened to ${block.peers.length} of ${block.total} US SEC filers in the 3-digit SIC ${sic3Digits(block)} group, sorted by OE yield.`;
+  }
+  return null;
 }
 
 /** Why the SIC peer list is blank (e.g. no peer reports revenue). */

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { peerRevenue, peersHeading, peersMore, peersReason, type PeersBlock } from "./peersCopy.ts";
+import { peerRevenue, peersHeading, peersMore, peersNote, peersReason, type PeersBlock } from "./peersCopy.ts";
 
 const base: PeersBlock = {
   basis: "sub_industry",
@@ -47,18 +47,34 @@ describe("SEC SIC peers (#54)", () => {
   it("labels the same SEC industry", () => {
     assert.equal(
       peersHeading(sic),
-      "Peers in the same SEC industry: Retail-Family Clothing Stores (SIC 5651), by latest annual revenue",
+      "Industry peers — all US filers (SIC 5651 Retail-Family Clothing Stores)",
+    );
+    assert.equal(
+      peersNote(sic),
+      "Top 2 of 2 US SEC filers in SIC 5651 with annual revenue of at least $10M, ranked by latest revenue and sorted by OE yield.",
+    );
+  });
+  it("omits the SIC code when it is null", () => {
+    assert.equal(
+      peersHeading({ ...sic, sic: null }),
+      "Industry peers — all US filers (Retail-Family Clothing Stores)",
     );
   });
   it("explains the 3-digit widening", () => {
-    assert.match(
-      peersHeading({ ...sic, basis: "sic3", group: "SIC 565x", fallback: true }) ?? "",
-      /same SEC industry group SIC 565x \(fewer than 5 others in Retail-Family Clothing Stores \(SIC 5651\)\)/,
+    const wide = { ...sic, basis: "sic3" as const, group: "SIC 565x", fallback: true, total: 8 };
+    assert.equal(
+      peersHeading(wide),
+      "Industry peers — all US filers (SIC 565xx, widened from SIC 5651 Retail-Family Clothing Stores)",
+    );
+    assert.equal(
+      peersNote(wide),
+      "Fewer than 5 peers in SIC 5651 cleared $10M revenue; widened to 2 of 8 US SEC filers in the 3-digit SIC 565 group, sorted by OE yield.",
     );
   });
   it("gives a reason when blank", () => {
     const blank = { ...sic, peers: [], total: 0, reason: "no other SEC filer in this SIC group reports annual revenue" };
-    assert.equal(peersHeading(blank), "Peers (same SEC industry)");
+    assert.equal(peersHeading(blank), "Industry peers — all US filers");
+    assert.equal(peersNote(blank), null);
     assert.equal(peersReason(blank), "No peers listed: no other SEC filer in this SIC group reports annual revenue.");
     assert.equal(peersReason(sic), null);
   });
