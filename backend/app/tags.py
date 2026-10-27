@@ -30,10 +30,10 @@ TAG_PREFS: dict[str, list[str]] = {
     "assets": [
         "Assets",
     ],
+    # Reported Liabilities only. A missing year is LiabilitiesAndStockholdersEquity
+    # minus equity (see equity_for_liabilities). Current liabilities are not a total.
     "total_liabilities": [
         "Liabilities",
-        "LiabilitiesNoncurrent",  # used with current for sum fallback in edgar
-        "LiabilitiesCurrent",
     ],
     # Ladder for compose_debt. One series per tag; combination rules live in edgar.
     # Overlapping concepts. compose_debt never sums them; see its docstring.
@@ -146,14 +146,13 @@ TAG_PREFS: dict[str, list[str]] = {
         "AccountsPayableCurrent",
         "AccountsPayable",
     ],
-    # Helpers for liabilities / debt composition
+    # Residual total liabilities when Liabilities is absent: L&SE minus this equity.
+    # NCI-inclusive equity wins when both tags exist (issue #86, MCD).
+    "equity_for_liabilities": [
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "StockholdersEquity",
+    ],
     "liabilities_and_equity": [
         "LiabilitiesAndStockholdersEquity",
-    ],
-    "liabilities_current": [
-        "LiabilitiesCurrent",
-    ],
-    "liabilities_noncurrent": [
-        "LiabilitiesNoncurrent",
     ],
 }
