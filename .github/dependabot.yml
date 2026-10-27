@@ -2,7 +2,9 @@
 # - minor/patch version updates: one grouped PR per ecosystem (auto-merged by
 #   .github/workflows/dependabot-auto-merge.yml once CI is green)
 # - security updates: one grouped PR per ecosystem
-# - semver-major updates: not in any group -> separate PRs, merged by hand
+# - semver-major updates: npm and uv stay ungrouped (separate PRs, merged by hand).
+#   github-actions majors sit in actions-all. A grouped PR that includes a
+#   semver-major stays manual (dependabot-auto-merge.yml is patch and minor only).
 # uv: the live lock is the ROOT uv.lock (uv workspace; backend/ is a member and
 # has no lockfile of its own since 5c36d47), so the uv directory is "/".
 version: 2
@@ -48,9 +50,10 @@ updates:
       timezone: America/Chicago
     open-pull-requests-limit: 5
     groups:
-      actions-minor-patch:
+      actions-all:
         applies-to: version-updates
-        update-types: [minor, patch]
+        patterns: ["*"]
+        update-types: [major, minor, patch]
       actions-security:
         applies-to: security-updates
         patterns: ["*"]
