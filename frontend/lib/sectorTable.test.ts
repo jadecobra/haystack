@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { readFileSync } from "node:fs";
 import {
-  groupForTicker, groupRows, parseSectorRow, resolveSlug, sectorCells, sectorSlug,
-  groupCountNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX, DEBT_TOOLTIP_NA,
+  groupForTicker, groupHeading, groupRows, parseSectorRow, resolveSlug, sectorCells, sectorSlug,
+  groupCountNote, sectorTableHeading, sectorTableNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX, DEBT_TOOLTIP_NA,
   DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
 } from "./sectorTable.ts";
 
@@ -40,6 +41,27 @@ describe("resolveSlug", () => {
     assert.equal(sec?.level, "sector");
     assert.equal(sec?.total, 3);
     assert.equal(resolveSlug(rows, "nope"), null);
+  });
+});
+
+describe("ticker page headings (#64)", () => {
+  it("names the GICS universe on the ticker page and keeps the sector page heading", () => {
+    const sub = groupForTicker(rows, "AAPL", null, null)!;
+    assert.equal(sectorTableHeading("ticker", sub), `S&P 500 peers — ${HW}`);
+    assert.equal(sectorTableHeading("slug", sub), groupHeading(sub));
+    const wide = groupForTicker(rows, "ZZZ", "Nothing Here", "Energy")!;
+    assert.equal(sectorTableHeading("ticker", wide), "S&P 500 peers — Energy");
+    assert.equal(
+      sectorTableNote(sub, "2026-10-26"),
+      `${groupCountNote(sub)} · daily snapshot, prices as of 2026-10-26`,
+    );
+    assert.equal(sectorTableNote(sub, null), `${groupCountNote(sub)} · daily snapshot`);
+  });
+  it("keeps sector-widen-link and drops sector-page-link", () => {
+    const src = readFileSync(new URL("../app/sector-table.tsx", import.meta.url), "utf8");
+    assert.match(src, /data-testid="sector-widen-link"/);
+    assert.equal(src.includes("sector-page-link"), false);
+    assert.equal(src.includes("Open table"), false);
   });
 });
 

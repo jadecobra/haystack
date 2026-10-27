@@ -20,6 +20,7 @@ import {
   parsePeerRow,
   peerRevenue,
   peersHeading,
+  peersNote,
   peersMore,
   peersReason,
   type PeersBlock,
@@ -645,6 +646,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const classLink = ready?.classification?.link || null;
   const peersBlock = ready?.peers ?? null;
   const peersTitle = peersHeading(peersBlock);
+  const peersSub = peersNote(peersBlock);
   const peersExtra = peersMore(peersBlock);
   const peersBlank = peersReason(peersBlock);
   const cardTicker =
@@ -760,7 +762,12 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           <DataTable headers={headers} rows={rows} />
           {peersTitle && peersBlock ? (
             <section className="mt-6" data-testid="peers-section">
-              <h3 className="text-base sm:text-lg text-zinc-300 mb-2">{peersTitle}</h3>
+              <h3 className="text-base sm:text-lg text-zinc-300 mb-1">{peersTitle}</h3>
+              {peersSub ? (
+                <p className="text-sm text-zinc-500 mb-2" data-testid="peers-note">
+                  {peersSub}
+                </p>
+              ) : null}
               {peersBlock.rows && peersBlock.rows.length > 0 ? (
                 <div className="max-h-[70vh] overflow-auto">
                   <table className="w-full min-w-[36rem] text-sm sm:text-base border-separate border-spacing-0">
