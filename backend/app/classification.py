@@ -12,7 +12,6 @@ import json
 import time
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp500_tickers.json"
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "submissions"
@@ -197,7 +196,8 @@ def classify(ticker: str, cik: str | None = None) -> dict[str, Any] | None:
                     "industry": industry,
                     "sic": None,
                     "sic_description": None,
-                    "link": f"/screen?sector={quote(sector, safe='')}",
+                    # Sector pages live in the site nav (#65). The subtitle is text.
+                    "link": None,
                 }
 
         resolved = cik

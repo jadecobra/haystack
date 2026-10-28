@@ -643,7 +643,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const paybackLine = ready ? paybackSentence(ready.ticker, ready.payback) : null;
   const classLabel = ready ? classificationLabel(ready.classification) : null;
   const classScheme = ready ? classificationSchemeLabel(ready.classification) : null;
-  const classLink = ready?.classification?.link || null;
   const peersBlock = ready?.peers ?? null;
   const peersTitle = peersHeading(peersBlock);
   const peersSub = peersNote(peersBlock);
@@ -713,17 +712,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           </h2>
           {classLabel ? (
             <p className="mb-2 text-sm sm:text-base" data-testid="classification">
-              {classLink ? (
-                <Link
-                  href={classLink}
-                  data-testid="classification-link"
-                  className="underline underline-offset-4 text-zinc-200 hover:text-white"
-                >
-                  {classLabel}
-                </Link>
-              ) : (
-                <span>{classLabel}</span>
-              )}
+              <span>{classLabel}</span>
               {classScheme ? (
                 <span className="ml-2 text-xs text-zinc-500">{classScheme}</span>
               ) : null}
@@ -931,13 +920,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
 
       <p className="mt-8 sm:mt-12 text-muted-2 text-sm sm:text-lg px-1">
         All available annual 10-K years. No login. No ads. No bloat.
-      </p>
-      <p className="mt-3 text-muted-2 text-sm sm:text-base px-1">
-        <TextLink href="/docs">
-          How metrics are calculated
-        </TextLink>
-        {" · "}
-        <TextLink href="/screen">S&P 500 OE-yield screen</TextLink>
       </p>
     </PageShell>
   );

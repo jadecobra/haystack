@@ -110,7 +110,9 @@ case "$cmd" in
     grep -q 'Analyze' "$EVIDENCE/home.html" || die "home HTML missing Analyze button text"
     grep -q 'How much? How long?' "$EVIDENCE/home.html" || die "home HTML missing document title phrase How much? How long?"
     grep -q 'How metrics are calculated' "$EVIDENCE/home.html" || die "home HTML missing docs link"
-    grep -q 'S&amp;P 500 OE-yield screen\|S&P 500 OE-yield screen' "$EVIDENCE/home.html" || die "home HTML missing /screen link"
+    grep -q 'data-testid="site-nav"' "$EVIDENCE/home.html" || die "home HTML missing site-nav"
+    grep -q 'href="/screen"' "$EVIDENCE/home.html" || die "home HTML missing /screen link"
+    grep -q 'href="/sector/financials"' "$EVIDENCE/home.html" || die "home HTML missing a sector nav link"
     grep -q 'JadeCobra LLC' "$EVIDENCE/home.html" || die "home HTML missing JadeCobra LLC copyright"
     echo "home-search ok h1=$(html_h1 "$EVIDENCE/home.html") title=$(html_title "$EVIDENCE/home.html")"
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.

@@ -157,7 +157,6 @@ function ScreenPageInner() {
   const pathname = usePathname();
   const debtNone = searchParams.get("debt") === "none";
   const sectorFilter = searchParams.get("sector");
-  const sicFilter = searchParams.get("sic");
   const [data, setData] = useState<ScreenPayload | null>(null);
   const [unranked, setUnranked] = useState<UnrankedName[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -341,15 +340,6 @@ function ScreenPageInner() {
               {sectorFilter === "Financials"
                 ? " · Owner earnings fit banks and insurers poorly; Financials are left out of the No debt view."
                 : ""}
-            </p>
-          ) : null}
-          {sicFilter ? (
-            <p
-              className="text-sm text-zinc-300 mb-3"
-              data-testid="screen-sic-note"
-            >
-              SIC {sicFilter}: this screen covers S&P 500 names only; sector
-              comparison for non-S&P tickers comes with the comparison page.
             </p>
           ) : null}
           <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />

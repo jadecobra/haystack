@@ -116,9 +116,7 @@ class TestClassify(unittest.TestCase):
             block["industry"], "Technology Hardware, Storage & Peripherals"
         )
         self.assertIsNone(block["sic"])
-        self.assertEqual(
-            block["link"], "/screen?sector=Information%20Technology"
-        )
+        self.assertIsNone(block["link"])
 
     def test_sic_path(self):
         body = {"sic": "3711", "sicDescription": "Motor Vehicles & Passenger Car Bodies"}
@@ -155,7 +153,7 @@ class TestAnalyzeClassificationContract(unittest.TestCase):
                 "industry": "Technology Hardware, Storage & Peripherals",
                 "sic": None,
                 "sic_description": None,
-                "link": "/screen?sector=Information%20Technology",
+                "link": None,
             },
         )
 
