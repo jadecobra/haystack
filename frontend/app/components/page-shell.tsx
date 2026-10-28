@@ -1,5 +1,7 @@
 import * as React from "react";
+import { docsNavLink, oeComparisonLinks } from "@/lib/siteNav";
 import { cn } from "../utils/cn";
+import { TextLink } from "./text-link";
 
 export interface PageShellProps {
   children: React.ReactNode;
@@ -43,7 +45,25 @@ const PageShell = ({
         )}
       >
         {children}
-        <p className="mt-8 sm:mt-10 text-muted-2 text-sm sm:text-base px-1">
+        <nav
+          aria-label="Site navigation"
+          data-testid="site-nav"
+          className="mt-8 sm:mt-10 text-muted-2 text-sm sm:text-base px-1 space-y-2"
+        >
+          <p>
+            <TextLink href={docsNavLink().href}>{docsNavLink().label}</TextLink>
+          </p>
+          <p>
+            OE Comparison:{" "}
+            {oeComparisonLinks().map((link, index) => (
+              <React.Fragment key={link.href}>
+                {index > 0 ? " · " : null}
+                <TextLink href={link.href}>{link.label}</TextLink>
+              </React.Fragment>
+            ))}
+          </p>
+        </nav>
+        <p className="mt-3 text-muted-2 text-sm sm:text-base px-1">
           © 2026 JadeCobra LLC
         </p>
       </div>
