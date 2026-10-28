@@ -12,7 +12,7 @@ import math
 import os
 import threading
 import time
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from collections.abc import Callable
 from concurrent.futures import Future
 from datetime import date, timedelta
@@ -56,7 +56,9 @@ _MIN_INTERVAL = 1.0 / _MAX_RPS
 
 _lock = threading.Lock()
 _last_request_ts = 0.0
-_mem_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+# Companyfacts JSON is about 10–12 MB. 24 entries stay well under the 512 MB host.
+_MEM_CACHE_MAX = 24
+_mem_cache: OrderedDict[str, tuple[float, dict[str, Any]]] = OrderedDict()
 _inflight: dict[str, Future] = {}
 _identity_set = False
 
@@ -201,6 +203,43 @@ def _fetch_companyfacts_uncached(cik: str) -> dict[str, Any]:
     return _http_get_json(url)
 
 
+def _purge_expired_mem(now: float) -> None:
+    """Drop TTL-expired companyfacts entries. Caller holds ``_lock``."""
+    expired = [
+        key
+        for key, (stored_at, _payload) in _mem_cache.items()
+        if now - stored_at >= _CACHE_TTL_S
+    ]
+    for key in expired:
+        _mem_cache.pop(key, None)
+
+
+def _mem_cache_get(key: str, now: float) -> dict[str, Any] | None:
+    """Return a fresh payload, or None after dropping expired entries.
+
+    A hit moves to the newest side of the LRU. Caller holds ``_lock``.
+    """
+    _purge_expired_mem(now)
+    hit = _mem_cache.get(key)
+    if hit is None:
+        return None
+    _mem_cache.move_to_end(key)
+    return hit[1]
+
+
+def _mem_cache_put(key: str, payload: dict[str, Any], now: float | None = None) -> None:
+    """Store a payload, drop expired entries, then evict the oldest over the cap.
+
+    Caller holds ``_lock``. ``now`` is for tests; production uses ``time.time()``.
+    """
+    stored_at = time.time() if now is None else now
+    _purge_expired_mem(stored_at)
+    _mem_cache[key] = (stored_at, payload)
+    _mem_cache.move_to_end(key)
+    while len(_mem_cache) > _MEM_CACHE_MAX:
+        _mem_cache.popitem(last=False)
+
+
 def fetch_companyfacts(
     cik: str,
     *,
@@ -215,11 +254,11 @@ def fetch_companyfacts(
     key = _cik_pad(cik)
     now = time.time()
     with _lock:
-        hit = _mem_cache.get(key)
-        if hit and now - hit[0] < _CACHE_TTL_S:
+        hit = _mem_cache_get(key, now)
+        if hit is not None:
             if meta is not None:
                 meta["cache_source"] = "mem"
-            return hit[1]
+            return hit
         fut = _inflight.get(key)
         if fut is not None:
             waiter = fut
@@ -238,7 +277,7 @@ def fetch_companyfacts(
         disk = _read_disk_cache(key)
         if disk is not None:
             with _lock:
-                _mem_cache[key] = (time.time(), disk)
+                _mem_cache_put(key, disk)
             source = "disk"
             future.set_result((disk, source))
             if meta is not None:
@@ -247,7 +286,7 @@ def fetch_companyfacts(
         payload = _fetch_companyfacts_uncached(key)
         _write_disk_cache(key, payload)
         with _lock:
-            _mem_cache[key] = (time.time(), payload)
+            _mem_cache_put(key, payload)
         source = "network"
         future.set_result((payload, source))
         if meta is not None:
