@@ -362,8 +362,11 @@ def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
         end = str(e.get("end") or "")
         by_year.setdefault(year, []).append((filed, end, num, e))
     out: dict[int, float] = {}
+    short_stub_years: set[int] = set()
     for year, candidates in by_year.items():
-        anchor = _anchor_end_for_year(entries, year)
+        anchor, anchor_days = _anchor_end_for_year(entries, year)
+        if anchor_days is not None and anchor_days < 300:
+            short_stub_years.add(year)
         eligible = [
             item for item in candidates if _duration_end_matches_anchor(item[3], anchor)
         ]
@@ -371,6 +374,29 @@ def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
             continue
         eligible.sort(key=lambda t: (t[0], t[1]), reverse=True)
         out[year] = eligible[0][2]
+    # A post-merger 10-K can tag predecessor full years with the stub year's
+    # fy (SKYD). The stub is E(Y), so those full years miss the 31-day
+    # window. Keep each one under its own period-end label. A quarter or a
+    # 300-day successor still blocks that (LHX, EXE): only a stub under 300
+    # days releases the full year.
+    if short_stub_years:
+        released: dict[int, tuple[str, str, float]] = {}
+        for year in short_stub_years:
+            for filed, end_text, num, entry in by_year.get(year, ()):
+                days = _duration_days(entry)
+                if days is None or not (350 <= days <= 380):
+                    continue
+                end = _parse_iso_date(entry.get("end"))
+                if end is None:
+                    continue
+                label = fiscal_year_label(end)
+                if label in out:
+                    continue
+                current = released.get(label)
+                if current is None or (filed, end_text) > (current[0], current[1]):
+                    released[label] = (filed, end_text, num)
+        for label, (_filed, _end_text, num) in released.items():
+            out[label] = num
     return out
 
 
@@ -406,13 +432,14 @@ def _duration_days(entry: dict[str, Any]) -> int | None:
     return (end - start).days
 
 
-def _anchor_end_for_year(entries: list[dict[str, Any]], year: int) -> date | None:
+def _anchor_end_for_year(entries: list[dict[str, Any]], year: int) -> tuple[date | None, int | None]:
     """E(Y): latest end of fy=Y FY/10-K facts spanning 80–380 days.
 
     Ignores instants and stubs shorter than 80 days. Returns None when no
     such fact exists.
     """
     latest: date | None = None
+    latest_days: int | None = None
     for entry in entries:
         if not isinstance(entry, dict) or not _fy_or_10k(entry):
             continue
@@ -429,7 +456,8 @@ def _anchor_end_for_year(entries: list[dict[str, Any]], year: int) -> date | Non
             continue
         if latest is None or end > latest:
             latest = end
-    return latest
+            latest_days = days
+    return latest, latest_days
 
 
 def _duration_end_matches_anchor(entry: dict[str, Any], anchor: date | None) -> bool:
@@ -533,7 +561,7 @@ def _sum_contiguous_fy_quarters(entries: list[dict[str, Any]]) -> dict[int, floa
 
     out: dict[int, float] = {}
     for year, filings in by_year.items():
-        anchor = _anchor_end_for_year(entries, year)
+        anchor, _anchor_days = _anchor_end_for_year(entries, year)
         best_key: tuple[str, str] | None = None
         best_sum: float | None = None
         for filed, period_map in filings.items():
@@ -599,7 +627,7 @@ def _short_context_annual_by_year(
         parsed.append((entry, start, end, days, num, str(entry.get("filed") or "")))
 
     for year in years:
-        anchor = _anchor_end_for_year(entries, year)
+        anchor, _anchor_days = _anchor_end_for_year(entries, year)
         if anchor is None:
             continue
         prev = prior.get(year - 1)
@@ -1012,7 +1040,7 @@ def _split_adjusted_shares_for_tag(
 
     out: dict[int, float] = {}
     for year, candidates in by_fy.items():
-        anchor = _anchor_end_for_year(entries, year)
+        anchor, _anchor_days = _anchor_end_for_year(entries, year)
         eligible = [
             item for item in candidates if _duration_end_matches_anchor(item[2], anchor)
         ]
@@ -1035,6 +1063,44 @@ def _split_adjusted_shares_for_tag(
         adjusted = latest_val * factor
         if adjusted > 0:
             out[year] = adjusted
+    # Same stub release as _pick_annual_by_year: a full-year share count
+    # tagged with the stub year still belongs to its period-end label.
+    short_stub_years = set()
+    for year in by_fy:
+        _anchor, anchor_days = _anchor_end_for_year(entries, year)
+        if anchor_days is not None and anchor_days < 300:
+            short_stub_years.add(year)
+    if short_stub_years:
+        released: dict[int, tuple[str, str, dict[str, Any]]] = {}
+        for year in short_stub_years:
+            for filed, end_text, entry in by_fy.get(year, ()):
+                days = _duration_days(entry)
+                if days is None or not (350 <= days <= 380):
+                    continue
+                end = _parse_iso_date(entry.get("end"))
+                if end is None:
+                    continue
+                label = fiscal_year_label(end)
+                if label in out:
+                    continue
+                current = released.get(label)
+                if current is None or (filed, end_text) > (current[0], current[1]):
+                    released[label] = (filed, end_text, entry)
+        for label, (_filed, _end_text, chosen) in released.items():
+            rows = by_period.get(_period_key(chosen)) or []
+            kept = _scale_kept_chain(rows)
+            if not kept:
+                continue
+            latest_filed, latest_val = kept[-1]
+            if latest_val <= 0:
+                continue
+            factor = 1.0
+            for jump in jumps:
+                if latest_filed < jump.hi:
+                    factor *= jump.ratio
+            adjusted = latest_val * factor
+            if adjusted > 0:
+                out[label] = adjusted
     return out
 
 
@@ -1111,6 +1177,14 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
     cover = _cover_shares_by_accn(facts.get("dei") or {})
     if not cover or not isinstance(us_gaap, dict):
         return us_gaap
+    # A 10-Q sometimes tags the cover count as 1000 when the shares are
+    # unknown. That placeholder must not set the scale once a real cover
+    # count (millions of shares) exists, or an uncovered 10-K is divided
+    # down to hundreds of shares (SKYD).
+    if any(v >= 1_000_000 for v in cover.values()):
+        cover = {accn: val for accn, val in cover.items() if val >= 10_000}
+        if not cover:
+            return us_gaap
     out = dict(us_gaap)
     tags = list(
         dict.fromkeys(
@@ -1337,7 +1411,7 @@ def _net_income_period_ends(us_gaap: dict[str, Any]) -> dict[int, date]:
                 continue
             if year in ends:
                 continue
-            anchor = _anchor_end_for_year(entries, year)
+            anchor, _anchor_days = _anchor_end_for_year(entries, year)
             if anchor is not None:
                 ends[year] = anchor
     return ends
@@ -1881,6 +1955,18 @@ def compose_debt(
     return totals, states
 
 
+def _supported_annual_end(counts: dict[date, int]) -> date:
+    """Latest annual end that the statements actually support.
+
+    A later end with fewer than one fifth of the facts of the busiest end
+    is a stray concept (segment count, purchase-accounting adjustment), not
+    the filing's period end.
+    """
+    busiest = max(counts.values())
+    supported = [end for end, count in counts.items() if count * 5 >= busiest]
+    return max(supported or counts)
+
+
 def fiscal_year_label(end: date) -> int:
     """Fiscal-year label for an annual period, derived from its end date.
 
@@ -1904,10 +1990,11 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
     for the year ended 2025-06-27 says fy=2027, FRT's for 2025-12-31 says
     fy=2024, CRWD's FY2023-25 10-Ks are one year low) and some rename years
     midstream (TJX in 2022). So each 10-K accession is re-keyed to
-    ``fiscal_year_label(own period end)``. The period end is the latest
-    ~annual (300-380 day) duration in the filing; comparatives always end
-    earlier, and facts dated after the filing date are ignored. That keeps
-    the existing "one filing = one fiscal-year group" semantics. A filer
+    ``fiscal_year_label(own period end)``. That end is the latest ~annual
+    (300-380 day) duration the statements support. A sparse later end does
+    not outvote them (SKYD's three segment-count facts versus the
+    predecessor year). Comparatives keep the filing's group and the anchor
+    separates them. Facts dated after the filing date are ignored. A filer
     that names a late-January year after the prior calendar year therefore
     shows the end-date year instead (e.g. a year ended 2026-01-31 is FY2026).
     """
@@ -1918,6 +2005,11 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
     accn_end: dict[str, date] = {}
     accn_fy: dict[str, int] = {}
     accn_form: dict[str, str] = {}
+    # Annual ends per accession, so a handful of stray full-span facts
+    # (segment counts, purchase-accounting adjustments) cannot outvote the
+    # financial statements. SKYD's first 10-K has three such facts ending
+    # 2025-12-31 against ~120 statement facts ending 2024-12-31.
+    end_counts: dict[str, dict[date, int]] = defaultdict(lambda: defaultdict(int))
     for node in us_gaap.values():
         units = (node or {}).get("units") if isinstance(node, dict) else None
         for entries in (units or {}).values():
@@ -1945,10 +2037,9 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
                 if filed is not None and end > filed:
                     continue
                 accn_fy.setdefault(accn, fy)
-                # The filing's own year is its latest annual end;
-                # comparatives always end earlier.
-                if accn not in accn_end or end > accn_end[accn]:
-                    accn_end[accn] = end
+                end_counts[accn][end] += 1
+    for accn, counts in end_counts.items():
+        accn_end[accn] = _supported_annual_end(counts)
     fixes = {
         a: fiscal_year_label(end)
         for a, end in accn_end.items()

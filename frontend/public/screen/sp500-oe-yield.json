@@ -1,7 +1,7 @@
 {
   "universe": "sp500",
   "count": 501,
-  "ranked": 493,
+  "ranked": 494,
   "skipped": 2,
   "excluded": [
     {
@@ -1368,6 +1368,33 @@
       "payback_basis": "latest",
       "sector": "Financials",
       "sub_industry": "Regional Banks"
+    },
+    {
+      "ticker": "SKYD",
+      "name": "Skydance Corp",
+      "oe_yield": 0.0944304077821327,
+      "oe_per_share": 0.7072837542881739,
+      "oe_note": null,
+      "price": 7.49,
+      "fy": 2024,
+      "price_as_of": "2026-10-27",
+      "debt": 13658000000.0,
+      "debt_state": "positive",
+      "payback_years": 10.589809188446726,
+      "ni_margin": -0.11548458336872505,
+      "debt_to_equity": 1.1680492602411698,
+      "no_debt": false,
+      "years": 2,
+      "oe_yield_latest": 0.14459392584868647,
+      "oe_yield_cons": 0.0944304077821327,
+      "oe_yield_basis": "2y avg",
+      "ni_margin_latest": -0.21189196590558998,
+      "ni_margin_cons": -0.21189196590558998,
+      "ni_margin_basis": "latest",
+      "payback_cons": 10.589809188446726,
+      "payback_basis": "2y avg",
+      "sector": "Communication Services",
+      "sub_industry": "Movies & Entertainment"
     },
     {
       "ticker": "PFE",
@@ -13493,33 +13520,6 @@
       "sub_industry": "Regional Banks"
     },
     {
-      "ticker": "SKYD",
-      "name": "Skydance Corp",
-      "oe_yield": null,
-      "oe_per_share": null,
-      "oe_note": "no owner earnings: no operating cash flow with capex or D&A in the latest 10-K year",
-      "price": 7.49,
-      "fy": 2025,
-      "price_as_of": "2026-10-27",
-      "debt": 13658000000.0,
-      "debt_state": "positive",
-      "payback_years": null,
-      "ni_margin": null,
-      "debt_to_equity": 1.1680492602411698,
-      "no_debt": false,
-      "years": 1,
-      "oe_yield_latest": null,
-      "oe_yield_cons": null,
-      "oe_yield_basis": null,
-      "ni_margin_latest": null,
-      "ni_margin_cons": null,
-      "ni_margin_basis": null,
-      "payback_cons": null,
-      "payback_basis": null,
-      "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
-    },
-    {
       "ticker": "USB",
       "name": "US BANCORP \\DE\\",
       "oe_yield": null,
@@ -13570,12 +13570,12 @@
     },
     "column_coverage": {
       "payback_years": {
-        "known": 473,
-        "unknown": 28
+        "known": 474,
+        "unknown": 27
       },
       "ni_margin": {
-        "known": 490,
-        "unknown": 11
+        "known": 491,
+        "unknown": 10
       },
       "debt_to_equity": {
         "known": 384,
