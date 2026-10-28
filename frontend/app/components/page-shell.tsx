@@ -1,5 +1,5 @@
 import * as React from "react";
-import { docsNavLink, oeComparisonLinks } from "@/lib/siteNav";
+import { docsNavLink, oeComparisonLinks } from "@/lib/sectorTable";
 import { cn } from "../utils/cn";
 import { TextLink } from "./text-link";
 

@@ -12,6 +12,7 @@ import json
 import time
 from pathlib import Path
 from typing import Any
+
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp500_tickers.json"
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "submissions"
 _CACHE_TTL_S = 30 * 24 * 3600

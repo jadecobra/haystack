@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { readFileSync } from "node:fs";
-import { docsNavLink, oeComparisonLinks } from "./siteNav.ts";
+import { docsNavLink, oeComparisonLinks } from "./sectorTable.ts";
 
 const shell = readFileSync(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
 
