@@ -10,9 +10,9 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app import screen
+from app.classification import OE_BASIS_FINANCIAL, is_financial_company
 from app.main import app
 from app.metrics import compute_year
-from app.classification import OE_BASIS_FINANCIAL, is_financial_company
 from app.screen import (
     OE_NOTE_NO_NI,
     build_payload,
