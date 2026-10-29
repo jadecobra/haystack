@@ -10,8 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 concurrency:
   group: screen-sp500
@@ -19,6 +18,9 @@ concurrency:
 
 jobs:
   build:
+    permissions:
+      contents: write
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

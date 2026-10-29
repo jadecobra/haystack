@@ -9,7 +9,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: read
 
 concurrency:
@@ -18,6 +17,9 @@ concurrency:
 
 jobs:
   catchup:
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
