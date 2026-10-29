@@ -33,6 +33,7 @@ type ScreenRow = {
   price: number;
   fy: number;
   price_as_of: string | null;
+  oe_basis_note: string | null;
   debt: number | null;
   debt_state: DebtState;
   sector: string | null;
@@ -84,6 +85,10 @@ function parseRow(value: unknown): ScreenRow | null {
     price: value.price,
     fy: value.fy,
     price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
+    oe_basis_note:
+      typeof value.oe_basis_note === "string" && value.oe_basis_note.trim()
+        ? value.oe_basis_note.trim()
+        : null,
     debt: parseDebt(value.debt),
     debt_state: parseDebtState(value.debt_state),
     sector: typeof value.sector === "string" ? value.sector : null,
@@ -245,7 +250,12 @@ function ScreenPageInner() {
           {row.ticker}
         </Link>,
         row.name ?? "—",
-        fmtPct(row.oe_yield),
+        <span key="oe-yield" data-testid="screen-oe-yield">
+          {fmtPct(row.oe_yield)}
+          {row.oe_yield != null && row.oe_basis_note ? (
+            <span className="ml-1 text-xs text-zinc-500">{row.oe_basis_note}</span>
+          ) : null}
+        </span>,
         fmtMoney(row.oe_per_share),
         fmtMoney(row.price),
         String(row.fy),

@@ -132,6 +132,7 @@ class PeerRow(pydantic.BaseModel):
     oe_yield_latest: float | None = None
     oe_yield_cons: float | None = None
     oe_yield_basis: str | None = None
+    oe_basis_note: str | None = None
     debt_to_equity: float | None = None
     no_debt: bool | None = None
     years: int | None = None
@@ -173,6 +174,7 @@ class AnalysisResponse(pydantic.BaseModel):
     timings: dict[str, Any] | None = None
     cik: str | None = None
     payback: PaybackBlock | None = None
+    oe_basis_note: str | None = None
     classification: Classification | None = None
     peers: Peers | None = None
 

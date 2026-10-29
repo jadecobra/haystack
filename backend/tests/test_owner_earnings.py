@@ -134,6 +134,27 @@ class TestOcfFallbacks(unittest.TestCase):
         _, statements = map_companyfacts_to_statements(payload)
         self.assertEqual(statements[2024]["owner_earnings"], 40 - 10)
 
+    def test_financial_owner_earnings_is_net_income(self):
+        payload = _facts(
+            NetIncomeLoss=[_usd(2023, 80), _usd(2024, 100)],
+            NetCashProvidedByUsedInOperatingActivities=[_usd(2024, 40)],
+            PaymentsToAcquirePropertyPlantAndEquipment=[_usd(2024, 25)],
+            DepreciationAndAmortization=[_usd(2024, 10)],
+        )
+        _, statements = map_companyfacts_to_statements(payload, financial=True)
+        self.assertEqual(statements[2024]["owner_earnings"], 100)
+        self.assertEqual(statements[2023]["owner_earnings"], 80)
+
+    def test_reit_and_nonfinancial_keep_ocf_formula(self):
+        payload = _facts(
+            NetIncomeLoss=[_usd(2024, 100)],
+            NetCashProvidedByUsedInOperatingActivities=[_usd(2024, 40)],
+            PaymentsToAcquirePropertyPlantAndEquipment=[_usd(2024, 25)],
+            DepreciationAndAmortization=[_usd(2024, 10)],
+        )
+        _, statements = map_companyfacts_to_statements(payload, financial=False)
+        self.assertEqual(statements[2024]["owner_earnings"], 30)
+
 
 class TestFixtureOwnerEarnings(unittest.TestCase):
     def test_fixture_owner_earnings_uses_formula(self):

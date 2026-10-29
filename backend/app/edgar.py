@@ -2172,6 +2172,8 @@ def _compose_total_liabilities(
 
 def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
+    *,
+    financial: bool = False,
 ) -> tuple[list[int], dict[int, dict[str, float | str | None]]]:
     """Map companyfacts JSON → (years newest-first, statements[year][field])."""
     facts = companyfacts.get("facts") or {}
@@ -2195,7 +2197,13 @@ def map_companyfacts_to_statements(
     da = _abs_series(_series_for_tags(us_gaap, TAG_PREFS["da"]))
     ocf = _resolve_ocf(us_gaap, net_income, da)
     capex = _compose_capex(us_gaap)
-    owner_earnings = _owner_earnings(ocf, capex, da)
+    # Banks, insurers, and brokers: operating cash flow tracks deposits and
+    # trading books, and capex / D&A tags are a poor maintenance proxy.
+    # Owner earnings is net income in each year that reports it (#84).
+    if financial:
+        owner_earnings = dict(net_income)
+    else:
+        owner_earnings = _owner_earnings(ocf, capex, da)
 
     all_years = sorted(
         set(revenue)
@@ -2347,7 +2355,11 @@ def statements_for_ticker(
             payload = merge_predecessor_facts(payload, fetch_companyfacts(pred))
         except Exception:  # noqa: BLE001, S112 - predecessor is best-effort history
             continue
-    years, statements = map_companyfacts_to_statements(payload)
+    from app.classification import is_financial_company
+
+    years, statements = map_companyfacts_to_statements(
+        payload, financial=is_financial_company(ticker)
+    )
     # Multi-class issuers (#53): traded-class equivalent shares from each
     # 10-K's per-class XBRL facts, only where companyfacts has none.
     from app import share_classes
