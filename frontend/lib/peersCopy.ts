@@ -86,6 +86,8 @@ export function parsePeerRow(value: unknown): PeerRow | null {
     price: num(r.price),
     price_as_of: typeof r.price_as_of === "string" && r.price_as_of.trim() ? r.price_as_of.trim() : null,
     oe_note: typeof r.oe_note === "string" && r.oe_note.trim() ? r.oe_note.trim() : null,
+    oe_basis_note:
+      typeof r.oe_basis_note === "string" && r.oe_basis_note.trim() ? r.oe_basis_note.trim() : null,
   };
 }
 

@@ -27,6 +27,7 @@ import {
 } from '../lib/peersCopy';
 import {
   DEBT_CELL_INDEX,
+  OE_YIELD_CELL_INDEX,
   PRICE_CELL_INDEX,
   SECTOR_TABLE_HEADERS,
   debtCell,
@@ -77,6 +78,7 @@ type Analysis = {
   groups?: MetricGroup[];
   cik?: string | null;
   payback?: PaybackBlock | null;
+  oe_basis_note?: string | null;
   classification?: ClassificationBlock | null;
   peers?: PeersBlock | null;
 };
@@ -209,6 +211,7 @@ function parseAnalysis(value: unknown): Analysis | null {
     groups,
     cik: optionalString(value.cik),
     payback,
+    oe_basis_note: optionalString(value.oe_basis_note) ?? null,
     classification,
     peers,
   };
@@ -736,6 +739,11 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
               data-testid="payback-section"
             >
               {paybackLine}
+              {ready?.oe_basis_note ? (
+                <span className="ml-1 text-xs text-zinc-500" data-testid="oe-basis-note">
+                  {ready.oe_basis_note}
+                </span>
+              ) : null}
             </section>
           ) : null}
           {view.kind === 'waiting' && (
@@ -825,6 +833,21 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
                               </Link>
                             </td>
                             {cells.map((text, i) => {
+                              if (i === OE_YIELD_CELL_INDEX) {
+                                return (
+                                  <td
+                                    key="OE yield"
+                                    className="py-2 sm:py-3 px-2 text-zinc-300 whitespace-nowrap border-l border-edge/40"
+                                  >
+                                    <span data-testid="peer-oe-yield">
+                                      {text}
+                                      {row.oe_yield != null && row.oe_basis_note ? (
+                                        <span className="ml-1 text-xs text-zinc-500">{row.oe_basis_note}</span>
+                                      ) : null}
+                                    </span>
+                                  </td>
+                                );
+                              }
                               if (i === PRICE_CELL_INDEX) {
                                 const cell = priceCell(row);
                                 return (

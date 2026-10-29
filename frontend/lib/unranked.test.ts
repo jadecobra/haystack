@@ -61,12 +61,12 @@ describe("listUnranked", () => {
     assert.equal(dropReason({ ticker: "X", price: 1 }), "no fiscal year");
   });
 
-  it("matches the shipped snapshot: 494 ranked + 9 = 501 rows + 2 excluded", () => {
+  it("matches the shipped snapshot: 501 ranked rows and 2 excluded", () => {
     const names = listUnranked(snapshot);
-    assert.equal(names.length, 9);
+    assert.equal(names.length, 2);
     assert.deepEqual(
       names.map((item) => item.ticker),
-      ["HONA", "VYLR", "CB", "EG", "IBKR", "JPM", "KKR", "RF", "USB"],
+      ["HONA", "VYLR"],
     );
     assert.ok(names.every((item) => item.reason.length > 0 && item.reason.length < 120));
     assert.equal(universeBalances(snapshot), true);

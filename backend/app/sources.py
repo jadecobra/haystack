@@ -7,7 +7,7 @@ import time
 from typing import Any
 
 from app import fixture
-from app.classification import classify
+from app.classification import OE_BASIS_FINANCIAL, classify, is_financial_company
 from app.metrics import (
     FIELDS,
     LOCKED_LABELS,
@@ -101,6 +101,7 @@ def analyze(
             ),
             "classification": classify(ticker),
             "peers": _safe_peers(ticker),
+            "oe_basis_note": OE_BASIS_FINANCIAL if is_financial_company(ticker) else None,
         }
         if include_timings:
             out["timings"] = {
@@ -206,6 +207,7 @@ def analyze(
             rows=rows,
             treasury_rate_decimal=dgs30_rate,
         ),
+        "oe_basis_note": OE_BASIS_FINANCIAL if is_financial_company(ticker) else None,
         "classification": classify(ticker, str(cik) if cik is not None else None),
         "peers": _safe_peers(ticker),
     }

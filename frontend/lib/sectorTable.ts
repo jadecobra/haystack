@@ -35,6 +35,8 @@ export type SectorRow = {
   price_as_of?: string | null;
   /** Why owner earnings is blank when the row still has a price. */
   oe_note?: string | null;
+  /** Formula label. "net income (financial)" or null for the OCF formula. */
+  oe_basis_note?: string | null;
 };
 
 export type PeerSortKey = "oe_yield" | "ni_margin";
@@ -158,11 +160,15 @@ export function parseSectorRow(value: unknown): SectorRow | null {
   };
 }
 
-function priceFields(r: Record<string, unknown>): Pick<SectorRow, "price" | "price_as_of" | "oe_note"> {
+function priceFields(
+  r: Record<string, unknown>,
+): Pick<SectorRow, "price" | "price_as_of" | "oe_note" | "oe_basis_note"> {
   return {
     price: num(r.price),
     price_as_of: typeof r.price_as_of === "string" && r.price_as_of.trim() ? r.price_as_of.trim() : null,
     oe_note: typeof r.oe_note === "string" && r.oe_note.trim() ? r.oe_note.trim() : null,
+    oe_basis_note:
+      typeof r.oe_basis_note === "string" && r.oe_basis_note.trim() ? r.oe_basis_note.trim() : null,
   };
 }
 
@@ -349,6 +355,9 @@ export function sectorCells(row: SectorRow): string[] {
 
 /** Index of the price cell in sectorCells. */
 export const PRICE_CELL_INDEX = cellIndex("Price");
+
+/** Index of the OE yield cell in sectorCells. */
+export const OE_YIELD_CELL_INDEX = cellIndex("OE yield");
 
 /** Index of the D/E cell in sectorCells (for the tooltip wrapper). */
 export const DEBT_CELL_INDEX = cellIndex("Debt / equity");
