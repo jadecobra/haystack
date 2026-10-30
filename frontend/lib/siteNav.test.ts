@@ -54,5 +54,7 @@ describe("site nav (#65)", () => {
     assert.match(shell, /oeComparisonLinks\(\)/);
     assert.match(shell, /href=\{docsNavLink\(\)\.href\}/);
     assert.match(shell, /href=\{link\.href\}/);
+    assert.doesNotMatch(shell, / · /);
+    assert.match(shell, /<p key=\{link\.href\}>/);
   });
 });
