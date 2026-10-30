@@ -9,6 +9,11 @@ DPS_TAGS = [
     "CommonStockDividendsPerShareCashPaid",
 ]
 
+# Last cash ladder step. A year filled only by this tag is labeled in the table.
+RESTRICTED_CASH_TAG = (
+    "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
+)
+
 # Keys align with app.metrics.FIELDS (plus owner-earnings component tags).
 TAG_PREFS: dict[str, list[str]] = {
     "revenue": [
@@ -75,6 +80,10 @@ TAG_PREFS: dict[str, list[str]] = {
     "cash": [
         "CashAndCashEquivalentsAtCarryingValue",
         "Cash",
+        "CashAndDueFromBanks",
+        # ASU 2016-18. Last: many filers (LULU) stopped tagging
+        # CashAndCashEquivalentsAtCarryingValue and report only this total.
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
     ],
     "shares": [
         "WeightedAverageNumberOfDilutedSharesOutstanding",

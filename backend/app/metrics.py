@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.tags import RESTRICTED_CASH_TAG
+
+CASH_PER_SHARE = "Cash per Share"
+RESTRICTED_CASH_LABEL = "incl. restricted"
+
 LOCKED_GROUPS: list[dict[str, Any]] = [
     {
         "id": "yield_vs_last_close",
@@ -257,6 +262,16 @@ def build_table(
     rows = []
     for label in LOCKED_LABELS:
         raw = {str(year): computed[year].get(label) for year in years}
-        values = {str(year): format_cell(label, raw[str(year)]) for year in years}
+        values = {}
+        for year in years:
+            text = format_cell(label, raw[str(year)])
+            stmt = statements.get(year) or {}
+            if (
+                label == CASH_PER_SHARE
+                and text != "—"
+                and stmt.get("cash_tag") == RESTRICTED_CASH_TAG
+            ):
+                text = f"{text} {RESTRICTED_CASH_LABEL}"
+            values[str(year)] = text
         rows.append({"metric": label, "values": values, "raw": raw})
     return rows

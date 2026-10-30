@@ -708,6 +708,7 @@ def _series_for_tags(
     prefer_shares: bool = False,
     short_context_annual: bool = False,
     reject: Callable[[int, float], bool] | None = None,
+    source: dict[int, str] | None = None,
 ) -> dict[int, float]:
     """Per-year ladder. First tag that fills a year wins.
 
@@ -757,24 +758,30 @@ def _series_for_tags(
     ``split_adjusted_shares``) and are never summed.
     """
     out: dict[int, float] = {}
-    cached: list[list[dict[str, Any]]] = []
+    won: dict[int, str] = {}
+    cached: list[tuple[str, list[dict[str, Any]]]] = []
+
+    def _take(year: int, val: float, tag: str) -> None:
+        if year in out or (reject is not None and reject(year, val)):
+            return
+        out[year] = val
+        won[year] = tag
+
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
             continue
         entries = _unit_entries(node, prefer_shares=prefer_shares)
-        cached.append(entries)
+        cached.append((tag, entries))
         for year, val in _pick_annual_by_year(entries).items():
-            if year not in out and not (reject is not None and reject(year, val)):
-                out[year] = val
+            _take(year, val, tag)
         if prefer_shares:
             continue
         for year, val in _sum_contiguous_fy_quarters(entries).items():
-            if year not in out and not (reject is not None and reject(year, val)):
-                out[year] = val
+            _take(year, val, tag)
     if short_context_annual:
         pending: set[int] = set()
-        for entries in cached:
+        for _tag, entries in cached:
             for entry in entries:
                 if not isinstance(entry, dict):
                     continue
@@ -784,14 +791,17 @@ def _series_for_tags(
                     continue
                 if year not in out:
                     pending.add(year)
-        for entries in cached:
+        for tag, entries in cached:
             if not pending:
                 break
             found = _short_context_annual_by_year(entries, out, pending)
             for year, val in found.items():
-                if year not in out and not (reject is not None and reject(year, val)):
-                    out[year] = val
+                before = year in out
+                _take(year, val, tag)
+                if not before and year in out:
                     pending.discard(year)
+    if source is not None:
+        source.update(won)
     return out
 
 
@@ -2185,7 +2195,8 @@ def map_companyfacts_to_statements(
     net_income = _series_for_tags(us_gaap, TAG_PREFS["net_income"])
     equity = _series_for_tags(us_gaap, TAG_PREFS["equity"])
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
-    cash = _series_for_tags(us_gaap, TAG_PREFS["cash"])
+    cash_source: dict[int, str] = {}
+    cash = _series_for_tags(us_gaap, TAG_PREFS["cash"], source=cash_source)
     shares = split_adjusted_shares(us_gaap)
     dividends, dividends_per_share = _compose_dividends(us_gaap, shares)
 
@@ -2234,6 +2245,7 @@ def map_companyfacts_to_statements(
         # Extra keys are not FIELDS members; the sources gap note is unchanged.
         row["debt_state"] = debt_states.get(y, "unknown")
         row["dividends_per_share"] = dividends_per_share.get(y)
+        row["cash_tag"] = cash_source.get(y)
         statements[y] = row
     return years, statements
 
