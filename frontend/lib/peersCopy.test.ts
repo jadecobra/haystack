@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { peerRevenue, peersHeading, peersMore, peersNote, peersReason, type PeersBlock } from "./peersCopy.ts";
+import { peerRevenue, peersHeading, peersMore, peersNote, peersReason, peersWiden, type PeersBlock } from "./peersCopy.ts";
 
 const base: PeersBlock = {
   basis: "sub_industry",
@@ -77,6 +77,19 @@ describe("SEC SIC peers (#54)", () => {
     assert.equal(peersNote(blank), null);
     assert.equal(peersReason(blank), "No peers listed: no other SEC filer in this SIC group reports annual revenue.");
     assert.equal(peersReason(sic), null);
+  });
+  it("links the industry to the filtered S&P screen", () => {
+    assert.deepEqual(peersWiden(sic), {
+      href: "/screen?sic=5651",
+      label: "Widen to Retail-Family Clothing Stores",
+    });
+    const wide = { ...sic, basis: "sic3" as const, group: "SIC 565x", fallback: true };
+    assert.deepEqual(peersWiden(wide), {
+      href: "/screen?sic=5651",
+      label: "Widen to Retail-Family Clothing Stores",
+    });
+    assert.equal(peersWiden(base), null);
+    assert.equal(peersWiden({ ...sic, sic: null }), null);
   });
   it("formats revenue", () => {
     assert.equal(peerRevenue({ ticker: "TJX", revenue: 56.36e9, revenue_fy: 2025 }), "$56.4B FY2025");
