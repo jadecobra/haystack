@@ -9,10 +9,10 @@ on:
   # fast-forwarding main (main requires backend + frontend checks).
   workflow_dispatch:
 
-# statuses: write is only used by the dispatch status bridge below.
+# Default is read-only. statuses: write stays on the jobs that post the
+# dispatch status bridge.
 permissions:
   contents: read
-  statuses: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -20,6 +20,9 @@ concurrency:
 
 jobs:
   backend:
+    permissions:
+      contents: read
+      statuses: write
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -55,6 +58,9 @@ jobs:
             -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
   frontend:
+    permissions:
+      contents: read
+      statuses: write
     runs-on: ubuntu-latest
     defaults:
       run:

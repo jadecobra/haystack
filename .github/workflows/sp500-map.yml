@@ -21,8 +21,7 @@ on:
         default: main
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: sp500-map
@@ -30,6 +29,9 @@ concurrency:
 
 jobs:
   refresh:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     env:
       BASE: ${{ inputs.base || 'main' }}

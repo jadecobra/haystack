@@ -27,9 +27,7 @@ on:
         default: main
 
 permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+  contents: read
 
 concurrency:
   group: sic-peers
@@ -37,6 +35,9 @@ concurrency:
 
 jobs:
   sic:
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 150
     outputs:
@@ -209,6 +210,10 @@ jobs:
 
   peer-metrics:
     needs: sic
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 150
     env:
