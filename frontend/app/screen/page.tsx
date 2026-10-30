@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBuiltLabel } from "@/lib/formatBuilt";
+import { parseSicQuery, sicForTicker, sicIndustryName } from "@/lib/screenSic";
 import { listUnranked, type UnrankedName } from "@/lib/unranked";
 
 const WAIT_STATUS = "Working…";
@@ -157,6 +158,8 @@ function ScreenPageInner() {
   const pathname = usePathname();
   const debtNone = searchParams.get("debt") === "none";
   const sectorFilter = searchParams.get("sector");
+  const sicFilter = parseSicQuery(searchParams.get("sic"));
+  const sicName = sicFilter == null ? null : sicIndustryName(sicFilter);
   const [data, setData] = useState<ScreenPayload | null>(null);
   const [unranked, setUnranked] = useState<UnrankedName[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -216,8 +219,9 @@ function ScreenPageInner() {
     ? data.rows
         .filter((row) => !debtNone || row.debt_state === "zero")
         .filter((row) => !sectorFilter || row.sector === sectorFilter)
+        .filter((row) => sicFilter == null || sicForTicker(row.ticker) === sicFilter)
     : [];
-  const filtered = debtNone || Boolean(sectorFilter);
+  const filtered = debtNone || Boolean(sectorFilter) || sicFilter != null;
   const unknownExcluded = data
     ? data.rows.length > 0
       ? data.rows.filter((row) => row.debt_state === "unknown").length
@@ -340,6 +344,12 @@ function ScreenPageInner() {
               {sectorFilter === "Financials"
                 ? " · Owner earnings fit banks and insurers poorly; Financials are left out of the No debt view."
                 : ""}
+            </p>
+          ) : null}
+          {sicFilter != null ? (
+            <p className="text-sm text-zinc-300 mb-3" data-testid="screen-sic-filter">
+              Industry: {sicName ?? `SIC ${sicFilter}`}
+              {sicName ? ` (SIC ${sicFilter})` : ""} · <TextLink href="/screen">clear</TextLink>
             </p>
           ) : null}
           <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />

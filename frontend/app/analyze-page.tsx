@@ -23,6 +23,7 @@ import {
   peersNote,
   peersMore,
   peersReason,
+  peersWiden,
   type PeersBlock,
 } from '../lib/peersCopy';
 import {
@@ -648,6 +649,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const peersSub = peersNote(peersBlock);
   const peersExtra = peersMore(peersBlock);
   const peersBlank = peersReason(peersBlock);
+  const peersWidenLink = peersWiden(peersBlock);
   const cardTicker =
     view.kind === 'waiting' ? view.ticker : ready ? ready.ticker : null;
 
@@ -752,9 +754,19 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           {peersTitle && peersBlock ? (
             <section className="mt-6" data-testid="peers-section">
               <h3 className="text-base sm:text-lg text-zinc-300 mb-1">{peersTitle}</h3>
-              {peersSub ? (
+              {peersSub || peersWidenLink ? (
                 <p className="text-sm text-zinc-500 mb-2" data-testid="peers-note">
                   {peersSub}
+                  {peersSub && peersWidenLink ? ' · ' : null}
+                  {peersWidenLink ? (
+                    <Link
+                      href={peersWidenLink.href}
+                      data-testid="peers-widen-link"
+                      className="underline underline-offset-4 text-zinc-300 hover:text-white"
+                    >
+                      {peersWidenLink.label}
+                    </Link>
+                  ) : null}
                 </p>
               ) : null}
               {peersBlock.rows && peersBlock.rows.length > 0 ? (
