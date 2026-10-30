@@ -6,7 +6,7 @@ import unittest
 
 from app.edgar import map_companyfacts_to_statements
 from app.metrics import build_table
-from app.tags import RESTRICTED_CASH_TAG, TAG_PREFS
+from app.tags import DISPOSAL_GROUP_CASH_TAG, RESTRICTED_CASH_TAG, TAG_PREFS
 
 
 def _instant(year: int, val: float) -> dict:
@@ -50,7 +50,10 @@ class TestCashTagOrder(unittest.TestCase):
             TAG_PREFS["cash"][:2],
             ["CashAndCashEquivalentsAtCarryingValue", "Cash"],
         )
-        self.assertEqual(TAG_PREFS["cash"][-1], RESTRICTED_CASH_TAG)
+        self.assertEqual(
+            TAG_PREFS["cash"][-2:],
+            [RESTRICTED_CASH_TAG, DISPOSAL_GROUP_CASH_TAG],
+        )
         self.assertIn("CashAndDueFromBanks", TAG_PREFS["cash"])
 
 
@@ -124,3 +127,39 @@ class TestCarryingValueUnchanged(unittest.TestCase):
         for year in years_wanted:
             self.assertNotIn("incl. restricted", row["values"][str(year)])
             self.assertEqual(row["raw"][str(year)], (500_000_000 + year) / 100_000_000)
+
+
+class TestDisposalGroupCashPcar(unittest.TestCase):
+    """PCAR-shaped: no shorter restricted-cash tag; later years use the disposal-group total."""
+
+    def test_new_tag_fills_only_years_the_shorter_tags_miss(self):
+        payload = _facts(
+            {
+                RESTRICTED_CASH_TAG: {"units": {"USD": [_instant(2023, 400_000_000)]}},
+                DISPOSAL_GROUP_CASH_TAG: {
+                    "units": {
+                        "USD": [
+                            _instant(2023, 9_000_000_000),
+                            _instant(2024, 630_000_000),
+                        ]
+                    }
+                },
+                "WeightedAverageNumberOfDilutedSharesOutstanding": {
+                    "units": {
+                        "shares": [_shares(year, 100_000_000) for year in (2023, 2024)]
+                    }
+                },
+                "NetIncomeLoss": {
+                    "units": {"USD": [_instant(year, 1) for year in (2023, 2024)]}
+                },
+            }
+        )
+        years, statements = map_companyfacts_to_statements(payload)
+        self.assertEqual(statements[2023]["cash"], 400_000_000)
+        self.assertEqual(statements[2023]["cash_tag"], RESTRICTED_CASH_TAG)
+        self.assertEqual(statements[2024]["cash"], 630_000_000)
+        self.assertEqual(statements[2024]["cash_tag"], DISPOSAL_GROUP_CASH_TAG)
+        row = _cash_row(statements, years)
+        self.assertIn("incl. restricted", row["values"]["2023"])
+        self.assertIn("incl. restricted", row["values"]["2024"])
+        self.assertEqual(row["raw"]["2024"], 6.3)

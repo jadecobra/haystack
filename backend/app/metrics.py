@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.tags import RESTRICTED_CASH_TAG
+from app.tags import LABELED_CASH_TAGS
 
 CASH_PER_SHARE = "Cash per Share"
 RESTRICTED_CASH_LABEL = "incl. restricted"
@@ -269,7 +269,7 @@ def build_table(
             if (
                 label == CASH_PER_SHARE
                 and text != "—"
-                and stmt.get("cash_tag") == RESTRICTED_CASH_TAG
+                and stmt.get("cash_tag") in LABELED_CASH_TAGS
             ):
                 text = f"{text} {RESTRICTED_CASH_LABEL}"
             values[str(year)] = text
