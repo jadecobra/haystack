@@ -148,3 +148,14 @@ export function peersMore(block: PeersBlock | null | undefined): string | null {
   const extra = block.total - block.peers.length;
   return extra > 0 ? `+${extra} more` : null;
 }
+
+/** Link from the SIC peer list to the S&P screen filtered to that industry. */
+export function peersWiden(
+  block: PeersBlock | null | undefined,
+): { href: string; label: string } | null {
+  if (!block || (block.basis !== "sic" && block.basis !== "sic3")) return null;
+  if (typeof block.sic !== "number" || !Number.isInteger(block.sic)) return null;
+  const name = block.sub_industry.trim() || block.group.trim();
+  if (!name) return null;
+  return { href: `/screen?sic=${block.sic}`, label: `Widen to ${name}` };
+}
