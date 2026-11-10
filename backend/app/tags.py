@@ -9,6 +9,18 @@ DPS_TAGS = [
     "CommonStockDividendsPerShareCashPaid",
 ]
 
+# Last cash ladder steps. A year filled only by one of these tags is labeled
+# in the table. The disposal-group tag is after the shorter restricted total:
+# PCAR reports cash only on the longer tag after FY2018.
+RESTRICTED_CASH_TAG = (
+    "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
+)
+DISPOSAL_GROUP_CASH_TAG = (
+    "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
+    "IncludingDisposalGroupAndDiscontinuedOperations"
+)
+LABELED_CASH_TAGS = frozenset({RESTRICTED_CASH_TAG, DISPOSAL_GROUP_CASH_TAG})
+
 # Keys align with app.metrics.FIELDS (plus owner-earnings component tags).
 TAG_PREFS: dict[str, list[str]] = {
     "revenue": [
@@ -75,6 +87,12 @@ TAG_PREFS: dict[str, list[str]] = {
     "cash": [
         "CashAndCashEquivalentsAtCarryingValue",
         "Cash",
+        "CashAndDueFromBanks",
+        # ASU 2016-18. Many filers (LULU) stopped tagging
+        # CashAndCashEquivalentsAtCarryingValue and report only this total.
+        RESTRICTED_CASH_TAG,
+        # After the tags from #105. PCAR has no shorter restricted-cash tag.
+        DISPOSAL_GROUP_CASH_TAG,
     ],
     "shares": [
         "WeightedAverageNumberOfDilutedSharesOutstanding",
