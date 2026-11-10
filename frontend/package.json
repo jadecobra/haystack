@@ -10,11 +10,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts lib/classificationLabel.test.ts lib/peersCopy.test.ts lib/peerTable.test.ts lib/sectorTable.test.ts lib/peerSort.test.ts lib/ga4.test.ts lib/unranked.test.ts lib/siteNav.test.ts"
+    "test": "node --experimental-strip-types --test lib/formatBuilt.test.ts lib/paybackCopy.test.ts lib/classificationLabel.test.ts lib/peersCopy.test.ts lib/peerTable.test.ts lib/sectorTable.test.ts lib/peerSort.test.ts lib/ga4.test.ts lib/unranked.test.ts lib/siteNav.test.ts lib/screenSic.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
-    "next": "16.4.3",
+    "next": "16.4.5",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "tailwind-merge": "^3.7.0"
@@ -25,7 +25,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
   },

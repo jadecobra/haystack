@@ -53,15 +53,12 @@ const PageShell = ({
           <p>
             <TextLink href={docsNavLink().href}>{docsNavLink().label}</TextLink>
           </p>
-          <p>
-            OE Comparison:{" "}
-            {oeComparisonLinks().map((link, index) => (
-              <React.Fragment key={link.href}>
-                {index > 0 ? " · " : null}
-                <TextLink href={link.href}>{link.label}</TextLink>
-              </React.Fragment>
-            ))}
-          </p>
+          <p>OE Comparison:</p>
+          {oeComparisonLinks().map((link) => (
+            <p key={link.href}>
+              <TextLink href={link.href}>{link.label}</TextLink>
+            </p>
+          ))}
         </nav>
         <p className="mt-3 text-muted-2 text-sm sm:text-base px-1">
           © 2026 JadeCobra LLC
