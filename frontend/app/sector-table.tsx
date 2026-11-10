@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "./components";
 import {
   DEBT_CELL_INDEX,
+  OE_YIELD_CELL_INDEX,
   PRICE_CELL_INDEX,
   SECTOR_TABLE_HEADERS,
   debtCell,
@@ -108,6 +109,16 @@ export function SectorTable(props: SectorTableProps) {
         {row.ticker}
       </Link>,
       ...sectorCells(row).map((text, i) => {
+        if (i === OE_YIELD_CELL_INDEX) {
+          return (
+            <span key="oe-yield" data-testid="sector-oe-yield">
+              {text}
+              {row.oe_yield != null && row.oe_basis_note ? (
+                <span className="ml-1 text-xs text-zinc-500">{row.oe_basis_note}</span>
+              ) : null}
+            </span>
+          );
+        }
         if (i === PRICE_CELL_INDEX) {
           const cell = priceCell(row);
           return (

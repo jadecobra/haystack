@@ -10,9 +10,11 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app import screen
+from app.classification import OE_BASIS_FINANCIAL, is_financial_company
 from app.main import app
 from app.metrics import compute_year
 from app.screen import (
+    OE_NOTE_NO_NI,
     build_payload,
     load_universe,
     rank_rows,
@@ -195,6 +197,77 @@ class ScreenRankingTests(unittest.TestCase):
         self.assertIsNone(row["oe_yield"])
         self.assertIsNone(row["payback_years"])
         self.assertIn("scale", row["oe_note"])
+
+    def test_financial_net_income_basis_keeps_yield_window(self):
+        self.assertTrue(is_financial_company("JPM"))
+        self.assertTrue(is_financial_company("NOTINSP500", sic=6021))
+        self.assertTrue(is_financial_company("NOTINSP500", sic=6799))
+        self.assertFalse(is_financial_company("NOTINSP500", sic=6798))
+        self.assertFalse(is_financial_company("NOTINSP500", sic=5812))
+        self.assertFalse(is_financial_company("AAPL"))
+        self.assertFalse(is_financial_company("AAPL", sic=6021))
+
+        def facts(ticker: str):
+            if ticker == "NONI":
+                missing = _stmt(oe=0.0, shares=10.0) | {"net_income": None, "owner_earnings": None}
+                return [2024], {2024: missing}, "2", "No NI Bank"
+            # JPM: latest yield 10%, two-year mean 25% → conservative "latest".
+            # AAPL: latest yield 40%, two-year mean 25% → conservative "2y avg".
+            if ticker == "AAPL":
+                latest = _stmt(oe=400.0, shares=10.0) | {"net_income": 400.0}
+                prior = _stmt(oe=100.0, shares=10.0) | {"net_income": 100.0}
+                return [2024, 2023], {2024: latest, 2023: prior}, "3", "Apple"
+            latest = _stmt(oe=100.0, shares=10.0) | {"net_income": 100.0}
+            prior = _stmt(oe=400.0, shares=10.0) | {"net_income": 400.0}
+            return [2024, 2023], {2024: latest, 2023: prior}, "1", "JPMorgan"
+
+        def quote(_ticker: str):
+            return {"price": 100.0, "as_of": "2026-09-16"}
+
+        payload = build_payload(
+            ["JPM", "NONI", "AAPL"],
+            fetch_facts=facts,
+            fetch_quote=quote,
+            built_at="2026-09-17T02:00:00+00:00",
+            sectors={"JPM": "Financials", "NONI": "Financials", "AAPL": "Information Technology"},
+        )
+        by_ticker = {row["ticker"]: row for row in payload["rows"]}
+        jpm = by_ticker["JPM"]
+        self.assertEqual(jpm["oe_basis_note"], OE_BASIS_FINANCIAL)
+        self.assertEqual(jpm["oe_yield_basis"], "latest")
+        self.assertAlmostEqual(jpm["oe_yield_cons"], 0.10)
+        self.assertAlmostEqual(jpm["oe_yield"], 0.25)
+        self.assertIsNone(jpm["oe_note"])
+        self.assertIsNone(by_ticker["AAPL"]["oe_basis_note"])
+        self.assertEqual(by_ticker["AAPL"]["oe_yield_basis"], "2y avg")
+        noni = by_ticker["NONI"]
+        self.assertIsNone(noni["oe_yield"])
+        self.assertEqual(noni["oe_note"], OE_NOTE_NO_NI)
+        self.assertEqual(noni["oe_basis_note"], OE_BASIS_FINANCIAL)
+        self.assertEqual(payload["count"], 3)
+        self.assertEqual(payload["ranked"] + sum(1 for r in payload["rows"] if r["oe_yield"] is None), payload["count"])
+
+    def test_non_sp_financial_sic_sets_basis_note(self):
+        def facts(_ticker: str):
+            latest = _stmt(oe=50.0, shares=10.0) | {"net_income": 50.0}
+            prior = _stmt(oe=200.0, shares=10.0) | {"net_income": 200.0}
+            return [2024, 2023], {2024: latest, 2023: prior}, "1", "Regional Bank"
+
+        def quote(_ticker: str):
+            return {"price": 25.0, "as_of": "2026-09-16"}
+
+        with patch("app.classification.is_financial_company", return_value=True):
+            payload = build_payload(
+                ["REGNAL"],
+                fetch_facts=facts,
+                fetch_quote=quote,
+                built_at="2026-09-17T02:00:00+00:00",
+                sectors={},
+            )
+        row = payload["rows"][0]
+        self.assertEqual(row["oe_basis_note"], OE_BASIS_FINANCIAL)
+        self.assertEqual(row["oe_yield_basis"], "latest")
+        self.assertAlmostEqual(row["oe_yield_cons"], 0.2)
 
     def test_rank_rows_high_to_low(self):
         ranked = rank_rows(

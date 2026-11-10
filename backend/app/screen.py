@@ -87,6 +87,7 @@ def _quote_candidates(ticker: str) -> list[str]:
 
 # Why a row's OE yield is blank (the row is still kept, #52).
 OE_NOTE_NO_OE = "no owner earnings: no operating cash flow with capex or D&A in the latest 10-K year"
+OE_NOTE_NO_NI = "no owner earnings: no net income in the latest 10-K year"
 OE_NOTE_NO_SHARES = "no share count: no undimensioned diluted, basic or outstanding shares (multi-class issuer)"
 OE_NOTE_SCALE = "OE yield outside -100%..100%: companyfacts unit/scale error"
 # Why a ticker has no row at all.
@@ -115,6 +116,7 @@ def _row_or_reason(
     statements: dict[int, dict[str, Any]],
     company_name: str | None,
     quote: dict[str, Any] | None,
+    financial: bool | None = None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     """A snapshot row, or (None, exclusion reason).
 
@@ -137,12 +139,19 @@ def _row_or_reason(
     oe_ps = _mean_oe_per_share(window, statements)
     oe_yield = (oe_ps / price) if oe_ps is not None and price else None
     note: str | None = None
+    from app.classification import OE_BASIS_FINANCIAL, is_financial_company
+
+    if financial is None:
+        financial = is_financial_company(ticker)
     if oe_ps is None or oe_yield is None:
-        note = (
-            OE_NOTE_NO_OE
-            if _num(stmt.get("owner_earnings")) is None
-            else f"no share count: {stmt['shares_note']}" if stmt.get("shares_note") else OE_NOTE_NO_SHARES
-        )
+        if _num(stmt.get("owner_earnings")) is None:
+            note = OE_NOTE_NO_NI if financial else OE_NOTE_NO_OE
+        else:
+            note = (
+                f"no share count: {stmt['shares_note']}"
+                if stmt.get("shares_note")
+                else OE_NOTE_NO_SHARES
+            )
         oe_yield = oe_ps = None
     elif oe_yield > 1.0 or oe_yield < -1.0:
         note = OE_NOTE_SCALE
@@ -158,6 +167,7 @@ def _row_or_reason(
         "oe_yield": oe_yield,
         "oe_per_share": oe_ps,
         "oe_note": note,
+        "oe_basis_note": OE_BASIS_FINANCIAL if financial else None,
         "price": price,
         "fy": int(fy),
         "price_as_of": str(as_of) if as_of else None,
@@ -436,12 +446,21 @@ def build_payload(
                 quote = fetch_quote(candidate)
                 if quote:
                     break
+            symbol = str(ticker).upper()
+            # S&P names use the GICS map passed in (or loaded). A ticker
+            # absent from that map is non-S&P: leave financial unset so the
+            # SIC 6000–6799 rule can run.
+            if symbol in sector_by_ticker:
+                financial: bool | None = sector_by_ticker[symbol] == "Financials"
+            else:
+                financial = None
             row, reason = _row_or_reason(
                 ticker,
                 years=years,
                 statements=statements,
                 company_name=name,
                 quote=quote,
+                financial=financial,
             )
         except Exception as exc:  # noqa: BLE001 - one bad ticker becomes an exclusion, not a failed build
             row, reason = None, f"{EXCLUDE_NO_FACTS}: {exc}"[:200]

@@ -52,6 +52,100 @@ def sic_division(sic: int | str | None) -> str | None:
     return None
 
 
+# SEC Division D finance range. 6798 is REITs, which GICS puts in Real Estate.
+FINANCIAL_SIC_LO = 6000
+FINANCIAL_SIC_HI = 6799
+REIT_SIC = 6798
+OE_BASIS_FINANCIAL = "net income (financial)"
+_SIC_PEERS_PATH = Path(__file__).resolve().parent.parent / "data" / "sic_peers.json"
+_sp500_symbols_mem: set[str] | None = None
+_peer_sic_mem: dict[str, int] | None = None
+
+
+def sp500_symbols() -> set[str]:
+    """Tickers listed in ``sp500_tickers.json``, including dot and hyphen forms."""
+    global _sp500_symbols_mem
+    if _sp500_symbols_mem is not None:
+        return set(_sp500_symbols_mem)
+    raw = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    tickers = raw.get("tickers") if isinstance(raw, dict) else None
+    out: set[str] = set()
+    if isinstance(tickers, list):
+        for item in tickers:
+            if not isinstance(item, str):
+                continue
+            symbol = item.upper().strip()
+            if not symbol:
+                continue
+            out.add(symbol)
+            alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
+            if alt != symbol:
+                out.add(alt)
+    _sp500_symbols_mem = out
+    return set(out)
+
+
+def _peer_sic_by_ticker() -> dict[str, int]:
+    """Non-S&P ticker → 4-digit SIC from the committed ``sic_peers.json`` map."""
+    global _peer_sic_mem
+    if _peer_sic_mem is not None:
+        return _peer_sic_mem
+    out: dict[str, int] = {}
+    try:
+        raw = json.loads(_SIC_PEERS_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        _peer_sic_mem = out
+        return out
+    if not isinstance(raw, dict):
+        _peer_sic_mem = out
+        return out
+    tickers = raw.get("tickers") or {}
+    companies = raw.get("companies") or {}
+    if not isinstance(tickers, dict) or not isinstance(companies, dict):
+        _peer_sic_mem = out
+        return out
+    for ticker, cik in tickers.items():
+        if not isinstance(ticker, str):
+            continue
+        co = companies.get(cik) if isinstance(cik, str) else None
+        if not isinstance(co, dict) or co.get("s") is None:
+            continue
+        try:
+            out[ticker.upper().strip()] = int(co["s"])
+        except (TypeError, ValueError):
+            continue
+    _peer_sic_mem = out
+    return out
+
+
+def is_financial_company(ticker: str, sic: int | None = None) -> bool:
+    """GICS Financials, or a non-S&P filer in SEC SIC 6000–6799 except REIT 6798.
+
+    A name listed in ``sp500_tickers.json`` uses only its GICS sector. SIC
+    never overrides that. Everyone else uses the SIC argument, then the
+    committed SIC peer map.
+    """
+    symbol = ticker.upper().strip()
+    if not symbol:
+        return False
+    if symbol in sp500_symbols():
+        hit = load_gics().get(symbol)
+        return bool(hit and hit.get("sector") == "Financials")
+    code = sic
+    if code is None:
+        code = _peer_sic_by_ticker().get(symbol)
+        if code is None:
+            alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
+            code = _peer_sic_by_ticker().get(alt)
+    if code is None:
+        return False
+    try:
+        parsed = int(code)
+    except (TypeError, ValueError):
+        return False
+    return FINANCIAL_SIC_LO <= parsed <= FINANCIAL_SIC_HI and parsed != REIT_SIC
+
+
 def load_gics(path: Path | None = None) -> dict[str, dict[str, str | None]]:
     """Ticker → {sector, sub_industry} from ``sp500_tickers.json``."""
     global _gics_mem
