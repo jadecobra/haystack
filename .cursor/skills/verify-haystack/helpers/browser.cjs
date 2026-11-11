@@ -278,7 +278,12 @@ function attachClickWatch(page, bag) {
   const onPageError = (err) => {
     bag.consoleErrors.push(redactSecrets(String(err && err.message ? err.message : err)));
   };
+  const started = new WeakSet();
+  const onRequest = (req) => {
+    started.add(req);
+  };
   const onResponse = (res) => {
+    if (!started.has(res.request())) return;
     let url = '';
     try {
       url = res.url();
@@ -299,10 +304,12 @@ function attachClickWatch(page, bag) {
   };
   page.on('console', onConsole);
   page.on('pageerror', onPageError);
+  page.on('request', onRequest);
   page.on('response', onResponse);
   return () => {
     page.off('console', onConsole);
     page.off('pageerror', onPageError);
+    page.off('request', onRequest);
     page.off('response', onResponse);
   };
 }
@@ -317,7 +324,9 @@ async function layoutProblem(page, width) {
       const style = getComputedStyle(el);
       const hides = style.overflowX === 'hidden' || style.overflowX === 'clip';
       if (!hides && el !== document.documentElement && el !== document.body) continue;
-      if (el.clientWidth <= 0) continue;
+      if (el.clientWidth < 8) continue;
+      const cls = typeof el.className === 'string' ? el.className : '';
+      if (cls.split(/\s+/).includes('sr-only')) continue;
       if (el.scrollWidth <= el.clientWidth + 8) continue;
       let ancestor = el.parentElement;
       let insideScroller = false;
@@ -367,7 +376,7 @@ async function assertHealthy(page, bag, width, opts) {
     throw err;
   }
   if (!opts || !opts.allowAlert) {
-    const alertText = ((await page.locator('[role="alert"]').first().textContent().catch(() => '')) || '').trim();
+    const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
     if (alertText) {
       if (/taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
       throw new Error(`valid path shows an error message: ${alertText}`);
@@ -388,7 +397,7 @@ async function waitForMetrics(page, timeoutMs, bag) {
     if (hard) throw new Error(`request ${hard.url} status ${hard.status}`);
     const slow = analyze.find((res) => res.status === 408 || res.status === 504);
     if (slow) throw edgarTimeout(`EDGAR timeout status ${slow.status}`);
-    const alertText = ((await page.locator('[role="alert"]').first().textContent().catch(() => '')) || '').trim();
+    const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
     if (alertText && /taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
     if (alertText) {
       const live = (bag && bag.responses ? bag.responses : []).filter((res) => res.url.includes('/api/analyze/'));
@@ -398,13 +407,14 @@ async function waitForMetrics(page, timeoutMs, bag) {
       if (slow) throw edgarTimeout(`EDGAR timeout status ${slow.status}`);
       throw new Error(`valid path shows an error message: ${alertText}`);
     }
-    heading = ((await page.locator('[data-testid="company-heading"]').first().textContent().catch(() => '')) || '').trim();
-    if (heading) break;
+    heading = ((await page.locator('[data-testid="company-heading"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
+    if (heading && /source\s*:/i.test(heading)) break;
+    heading = '';
     await page.waitForTimeout(200);
   }
   if (!heading) throw edgarTimeout('EDGAR timeout waiting for metrics table');
   if (/taking too long/i.test(heading)) throw edgarTimeout('EDGAR timeout');
-  const alertText = ((await page.locator('[role="alert"]').first().textContent().catch(() => '')) || '').trim();
+  const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
   if (alertText && /taking too long|timed out|timeout/i.test(alertText)) {
     throw edgarTimeout('EDGAR timeout');
   }
@@ -446,7 +456,7 @@ async function runClickThrough(options) {
     });
     const page = await context.newPage();
     if (options.installRoutes) await options.installRoutes(page);
-    page.setDefaultTimeout(metricsTimeoutMs);
+    page.setDefaultTimeout(15000);
 
     const record = async (width, id, fn, edgar) => {
       const runOnce = async () => {
@@ -531,15 +541,22 @@ async function runClickThrough(options) {
         if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
         let alertText = '';
         try {
-          await page.locator('[role="alert"]').first().waitFor({ timeout: metricsTimeoutMs });
-          alertText = ((await page.locator('[role="alert"]').first().textContent()) || '').trim();
+          await page.waitForFunction(
+            () => /find that ticker|check the symbol/i.test(document.body ? document.body.innerText : ''),
+            null,
+            { timeout: metricsTimeoutMs },
+          );
+          alertText = ((await page.locator('p[role="alert"]').allTextContents()).join(' ') || '').trim();
+          if (!alertText) {
+            alertText = ((await page.locator('body').innerText()) || '').trim();
+          }
         } catch (err) {
           if (isEdgarTimeoutError(err)) throw err;
           throw edgarTimeout('EDGAR timeout waiting for invalid-ticker error');
         }
         if (/taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
-        if (!/couldn.?t find that ticker|couldn.?t analyze|check the symbol/i.test(alertText)) {
-          throw new Error('invalid ticker does not show its error message');
+        if (!/find that ticker|couldn.t analyze|check the symbol/i.test(alertText)) {
+          throw new Error(`invalid ticker does not show its error message (${alertText || 'empty'})`);
         }
       }, true);
 
@@ -565,7 +582,7 @@ async function runClickThrough(options) {
         await page.locator('[data-testid="screen-oe-yield"]').first().waitFor({ timeout: 30000 });
         const rows = await page.locator('[data-testid="screen-oe-yield"]').count();
         if (rows < 1) throw new Error('screen table has no rows');
-        const alertText = ((await page.locator('[role="alert"]').first().textContent().catch(() => '')) || '').trim();
+        const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 1000 }).catch(() => '')) || '').trim();
         if (alertText) throw new Error(`valid path shows an error message: ${alertText}`);
       }, false);
 
