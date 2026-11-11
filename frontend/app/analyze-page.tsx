@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
 import {
   ANALYZE_RETRY_DELAY_MS,
@@ -662,7 +663,14 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
         href="/"
         className="mx-auto mb-8 sm:mb-16 block w-full max-w-xs sm:max-w-sm md:max-w-md"
       >
-        <img src="/logo.svg" alt="LongMuch" className="h-auto w-full" />
+        <Image
+          src="/logo.svg"
+          alt="LongMuch"
+          width={500}
+          height={500}
+          unoptimized
+          className="h-auto w-full"
+        />
       </Link>
       <h1 className="sr-only">LongMuch</h1>
 
