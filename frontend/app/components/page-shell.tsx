@@ -69,7 +69,7 @@ const PageShell = ({
         >
           from the same maker{" "}
           <TextLink
-            href="https://pumpingpython.com/?ref=longmuch"
+            href="https://www.pumpingpython.com/?ref=longmuch"
             data-testid="maker-link"
           >
             how do i know my code works?

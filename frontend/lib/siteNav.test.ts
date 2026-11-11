@@ -63,7 +63,7 @@ describe("site nav (#65)", () => {
     assert.match(shell, /data-testid="maker-line"/);
     assert.match(shell, /data-testid="maker-link"/);
     assert.match(shell, /how do i know my code works\?/);
-    assert.match(shell, /https:\/\/pumpingpython\.com\/\?ref=longmuch/);
+    assert.match(shell, /https:\/\/www\.pumpingpython\.com\/\?ref=longmuch/);
     assert.doesNotMatch(shell, /agbalumo/i);
   });
 });
