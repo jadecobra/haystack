@@ -1,0 +1,40 @@
+# Preview click-through. The check name is `click-through / preview`.
+# GitHub-hosted runners only. Do not add this check to branch protection (#110).
+# The bypass secret stays unset until Jacob approves it. A missing secret skips.
+
+name: click-through
+
+on:
+  deployment_status:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  deployments: read
+  statuses: read
+
+concurrency:
+  group: click-through-${{ github.event.deployment.sha || github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.22.1"
+      - name: Run click-through or skip
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          EVENT_NAME: ${{ github.event_name }}
+          DEPLOYMENT_SHA: ${{ github.event.deployment.sha }}
+          DEPLOYMENT_STATE: ${{ github.event.deployment_status.state }}
+          DEPLOYMENT_ENV: ${{ github.event.deployment.environment }}
+          DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .cursor/skills/verify-haystack/helpers/click-through-gate.sh
