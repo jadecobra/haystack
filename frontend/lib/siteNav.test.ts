@@ -57,4 +57,13 @@ describe("site nav (#65)", () => {
     assert.doesNotMatch(shell, / · /);
     assert.match(shell, /<p key=\{link\.href\}>/);
   });
+
+  it("adds one Pumping Python maker line and no agbalumo link", () => {
+    assert.match(shell, /from the same maker/);
+    assert.match(shell, /data-testid="maker-line"/);
+    assert.match(shell, /data-testid="maker-link"/);
+    assert.match(shell, /how do i know my code works\?/);
+    assert.match(shell, /https:\/\/pumpingpython\.com\/\?ref=longmuch/);
+    assert.doesNotMatch(shell, /agbalumo/i);
+  });
 });
