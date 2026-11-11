@@ -63,6 +63,18 @@ const PageShell = ({
         <p className="mt-3 text-muted-2 text-sm sm:text-base px-1">
           © 2026 JadeCobra LLC
         </p>
+        <p
+          className="mt-2 text-muted-2 text-sm sm:text-base px-1"
+          data-testid="maker-line"
+        >
+          from the same maker{" "}
+          <TextLink
+            href="https://www.pumpingpython.com/?ref=longmuch"
+            data-testid="maker-link"
+          >
+            how do i know my code works?
+          </TextLink>
+        </p>
       </div>
     </main>
   );
