@@ -7,6 +7,7 @@
  *   FEATURE=home-search node helpers/browser.cjs snapshot
  *   FEATURE=analyze-results node helpers/browser.cjs analyze AAPL
  *   FEATURE=home-search node helpers/browser.cjs check-issues
+ *   CLICK_ORIGIN=https://… node helpers/browser.cjs click-through
  *
  * check-issues [path...] (default "/") FAILS (exit 1) when the Next.js overlay / badge
  * shows a visible "1 Issue" / "N Issues" (data-error=true), or when console error /
@@ -222,6 +223,420 @@ function isIgnoredConsoleError(text) {
   return /Failed to load resource/i.test(text);
 }
 
+function redactSecrets(text) {
+  let out = String(text);
+  for (const key of ['VERCEL_OIDC_TOKEN', 'VERCEL_AUTOMATION_BYPASS_SECRET']) {
+    const value = process.env[key];
+    if (value && value.length > 0) out = out.split(value).join('[redacted]');
+  }
+  return out;
+}
+
+function previewHeaders() {
+  const headers = {};
+  const oidc = process.env.VERCEL_OIDC_TOKEN;
+  if (oidc) headers['x-vercel-trusted-oidc-idp-token'] = oidc;
+  const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  if (bypass) {
+    headers['x-vercel-protection-bypass'] = bypass;
+    headers['x-vercel-set-bypass-cookie'] = 'true';
+  }
+  return headers;
+}
+
+function isEdgarTimeoutError(err) {
+  return Boolean(err && err.edgarTimeout);
+}
+
+function edgarTimeout(message) {
+  const err = new Error(message);
+  err.edgarTimeout = true;
+  return err;
+}
+
+const CLICK_WIDTHS = [390, 1440];
+const CLICK_METRICS_TIMEOUT_MS = 180000;
+
+function clickShotName(width, id) {
+  const safe = String(id).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'path';
+  return `${width}-${safe}.png`;
+}
+
+async function shoot(page, outDir, width, id) {
+  const file = path.join(outDir, clickShotName(width, id));
+  await page.screenshot({ path: file, fullPage: true }).catch(() => {});
+  return file;
+}
+
+function attachClickWatch(page, bag) {
+  const onConsole = (msg) => {
+    if (msg.type() !== 'error') return;
+    const text = msg.text();
+    if (isIgnoredConsoleError(text)) return;
+    bag.consoleErrors.push(redactSecrets(text));
+  };
+  const onPageError = (err) => {
+    bag.consoleErrors.push(redactSecrets(String(err && err.message ? err.message : err)));
+  };
+  const started = new WeakSet();
+  const onRequest = (req) => {
+    started.add(req);
+  };
+  const onResponse = (res) => {
+    if (!started.has(res.request())) return;
+    let url = '';
+    try {
+      url = res.url();
+    } catch {
+      return;
+    }
+    const status = res.status();
+    let pathname = '';
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      pathname = url;
+    }
+    const interesting = pathname.startsWith('/api/') || pathname.startsWith('/analyze');
+    if (interesting || status >= 400) {
+      bag.responses.push({ url: pathname || url, status, interesting });
+    }
+  };
+  page.on('console', onConsole);
+  page.on('pageerror', onPageError);
+  page.on('request', onRequest);
+  page.on('response', onResponse);
+  return () => {
+    page.off('console', onConsole);
+    page.off('pageerror', onPageError);
+    page.off('request', onRequest);
+    page.off('response', onResponse);
+  };
+}
+
+async function layoutProblem(page, width) {
+  if (width !== 390) return null;
+  return page.evaluate(() => {
+    const overflowing = [];
+    const nodes = [document.documentElement, document.body, ...document.querySelectorAll('body *')];
+    for (const el of nodes) {
+      if (!el) continue;
+      const style = getComputedStyle(el);
+      const hides = style.overflowX === 'hidden' || style.overflowX === 'clip';
+      if (!hides && el !== document.documentElement && el !== document.body) continue;
+      if (el.clientWidth < 8) continue;
+      const cls = typeof el.className === 'string' ? el.className : '';
+      if (cls.split(/\s+/).includes('sr-only')) continue;
+      if (el.scrollWidth <= el.clientWidth + 8) continue;
+      let ancestor = el.parentElement;
+      let insideScroller = false;
+      while (ancestor) {
+        const parentStyle = getComputedStyle(ancestor);
+        const scrolls = parentStyle.overflowX === 'auto' || parentStyle.overflowX === 'scroll';
+        if (scrolls && ancestor.clientWidth > 0 && ancestor.scrollWidth > ancestor.clientWidth + 8) {
+          insideScroller = true;
+          break;
+        }
+        ancestor = ancestor.parentElement;
+      }
+      if (insideScroller) continue;
+      overflowing.push(el.tagName);
+    }
+    if (overflowing.length === 0) return null;
+    return 'content overflows or is clipped at mobile width';
+  });
+}
+
+async function imageProblem(page) {
+  return page.evaluate(() => {
+    const images = Array.from(document.querySelectorAll('img'));
+    for (const img of images) {
+      if (!img.complete || img.naturalWidth === 0) {
+        return `image did not load (${img.alt || img.getAttribute('src') || 'img'})`;
+      }
+    }
+    return null;
+  });
+}
+
+async function assertHealthy(page, bag, width, opts) {
+  const detection = await detectNextIssues(page);
+  if (detection.hasIssues) {
+    throw new Error(`Next.js issues badge or error overlay (${detection.matchText || 'data-error=true'})`);
+  }
+  if (bag.consoleErrors.length > 0) {
+    throw new Error(`console error: ${bag.consoleErrors[0]}`);
+  }
+  for (const res of bag.responses) {
+    if (res.status < 400) continue;
+    if (opts && opts.allowApi404 && res.url.includes('/api/analyze/')) continue;
+    if (!res.interesting && !res.url.startsWith('/api/')) continue;
+    const err = new Error(`request ${res.url} status ${res.status}`);
+    if (res.status === 408 || res.status === 504) err.edgarTimeout = true;
+    throw err;
+  }
+  if (!opts || !opts.allowAlert) {
+    const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
+    if (alertText) {
+      if (/taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
+      throw new Error(`valid path shows an error message: ${alertText}`);
+    }
+  }
+  const brokenImage = await imageProblem(page);
+  if (brokenImage) throw new Error(brokenImage);
+  const clipped = await layoutProblem(page, width);
+  if (clipped) throw new Error(clipped);
+}
+
+async function waitForMetrics(page, timeoutMs, bag) {
+  const started = Date.now();
+  let heading = '';
+  while (Date.now() - started <= timeoutMs) {
+    const analyze = (bag && bag.responses ? bag.responses : []).filter((res) => res.url.includes('/api/analyze/'));
+    const hard = analyze.find((res) => res.status >= 400 && res.status !== 408 && res.status !== 504);
+    if (hard) throw new Error(`request ${hard.url} status ${hard.status}`);
+    const slow = analyze.find((res) => res.status === 408 || res.status === 504);
+    if (slow) throw edgarTimeout(`EDGAR timeout status ${slow.status}`);
+    const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
+    if (alertText && /taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
+    if (alertText) {
+      const live = (bag && bag.responses ? bag.responses : []).filter((res) => res.url.includes('/api/analyze/'));
+      const hard = live.find((res) => res.status >= 400 && res.status !== 408 && res.status !== 504);
+      if (hard) throw new Error(`request ${hard.url} status ${hard.status}`);
+      const slow = live.find((res) => res.status === 408 || res.status === 504);
+      if (slow) throw edgarTimeout(`EDGAR timeout status ${slow.status}`);
+      throw new Error(`valid path shows an error message: ${alertText}`);
+    }
+    heading = ((await page.locator('[data-testid="company-heading"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
+    if (heading && /source\s*:/i.test(heading)) break;
+    heading = '';
+    await page.waitForTimeout(200);
+  }
+  if (!heading) throw edgarTimeout('EDGAR timeout waiting for metrics table');
+  if (/taking too long/i.test(heading)) throw edgarTimeout('EDGAR timeout');
+  const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
+  if (alertText && /taking too long|timed out|timeout/i.test(alertText)) {
+    throw edgarTimeout('EDGAR timeout');
+  }
+  if (alertText) throw new Error(`valid path shows an error message: ${alertText}`);
+  if (!/·|Apple/.test(heading)) throw new Error('company name is missing');
+  const tableCount = await page.locator('table').count();
+  if (tableCount < 1) throw new Error('metrics table is missing');
+  const cells = await page.locator('table td').allTextContents();
+  const values = cells.map((cell) => cell.trim()).filter(Boolean);
+  if (values.length === 0) throw new Error('metrics table has no rows');
+  const blank = values.every((cell) => cell === '—' || cell === '-' || /^nan$/i.test(cell));
+  if (blank) throw new Error('metrics table values are empty');
+}
+
+async function runClickThrough(options) {
+  const origin = String(options.origin || '').replace(/\/$/, '');
+  refuseOrigin(origin);
+  const outDir = options.outDir;
+  fs.mkdirSync(outDir, { recursive: true });
+  const widths = options.widths || CLICK_WIDTHS;
+  const metricsTimeoutMs = options.metricsTimeoutMs || CLICK_METRICS_TIMEOUT_MS;
+  const pw = options.playwright || loadPlaywright();
+  if (!pw || !pw.chromium) {
+    console.error('click-through FAIL path=setup width=0 problem=Playwright is missing');
+    return 2;
+  }
+  let browser;
+  try {
+    browser = await launchChromium(pw);
+  } catch (err) {
+    console.error(`click-through FAIL path=setup width=0 problem=${redactSecrets(err && err.message ? err.message : err)}`);
+    return 2;
+  }
+  const results = [];
+  try {
+    const context = await browser.newContext({
+      extraHTTPHeaders: options.headers || {},
+      viewport: { width: widths[0], height: 900 },
+    });
+    const page = await context.newPage();
+    if (options.installRoutes) await options.installRoutes(page);
+    page.setDefaultTimeout(15000);
+
+    const record = async (width, id, fn, edgar) => {
+      const runOnce = async () => {
+        const bag = { consoleErrors: [], responses: [] };
+        const detach = attachClickWatch(page, bag);
+        try {
+          await fn(bag);
+          await assertHealthy(page, bag, width, {
+            allowApi404: id === 'invalid-ticker',
+            allowAlert: id === 'invalid-ticker',
+          });
+        } finally {
+          detach();
+          await shoot(page, outDir, width, id);
+        }
+      };
+      try {
+        if (!edgar) {
+          await runOnce();
+        } else {
+          try {
+            await runOnce();
+          } catch (err) {
+            if (!isEdgarTimeoutError(err)) throw err;
+            await runOnce();
+            console.log(`click-through path=${id} width=${width} result=pass note=passed after retry`);
+            results.push({ id, width, ok: true, retry: true });
+            return;
+          }
+        }
+        console.log(`click-through path=${id} width=${width} result=pass`);
+        results.push({ id, width, ok: true });
+      } catch (err) {
+        const problem = isEdgarTimeoutError(err)
+          ? 'two EDGAR timeouts'
+          : redactSecrets(err && err.message ? err.message : err);
+        console.log(`click-through path=${id} width=${width} result=fail problem=${problem}`);
+        results.push({ id, width, ok: false, problem });
+      }
+    };
+
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: 900 });
+
+      await record(width, 'home', async () => {
+        const response = await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
+        await page.locator('img[alt="LongMuch"]').first().waitFor({ timeout: 15000 });
+        const tickerInput = page.locator('input[placeholder="enter stock ticker e.g. AAPL"]');
+        if ((await tickerInput.count()) < 1) throw new Error('ticker form is missing');
+        const analyze = page.locator('button', { hasText: 'Analyze' });
+        if ((await analyze.count()) < 1) throw new Error('ticker form is missing');
+      }, false);
+
+      await record(width, 'logo', async () => {
+        const logoLink = page.locator('a[href="/"]', { has: page.locator('img[alt="LongMuch"]') }).first();
+        if ((await logoLink.count()) < 1) throw new Error('logo link is missing');
+        await logoLink.click();
+        await page.waitForURL((url) => url.pathname === '/', { timeout: 15000 });
+        if (new URL(page.url()).pathname !== '/') throw new Error('logo link opened the wrong page');
+      }, false);
+
+      await record(width, 'analyze', async (bag) => {
+        await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await page.locator('input[placeholder="enter stock ticker e.g. AAPL"]').fill('AAPL');
+        await page.locator('button', { hasText: 'Analyze' }).click();
+        await waitForMetrics(page, metricsTimeoutMs, bag);
+        const bad = bag.responses.find((res) => res.url.includes('/api/analyze/') && (res.status === 408 || res.status === 504));
+        if (bad) throw edgarTimeout(`EDGAR timeout status ${bad.status}`);
+      }, true);
+
+      await record(width, 'deep-link', async (bag) => {
+        const response = await page.goto(`${origin}/AAPL`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
+        await waitForMetrics(page, metricsTimeoutMs, bag);
+        const bad = bag.responses.find((res) => res.url.includes('/api/analyze/') && (res.status === 408 || res.status === 504));
+        if (bad) throw edgarTimeout(`EDGAR timeout status ${bad.status}`);
+      }, true);
+
+      await record(width, 'invalid-ticker', async () => {
+        const response = await page.goto(`${origin}/ZZZZQ`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
+        let alertText = '';
+        try {
+          await page.waitForFunction(
+            () => /find that ticker|check the symbol/i.test(document.body ? document.body.innerText : ''),
+            null,
+            { timeout: metricsTimeoutMs },
+          );
+          alertText = ((await page.locator('p[role="alert"]').allTextContents()).join(' ') || '').trim();
+          if (!alertText) {
+            alertText = ((await page.locator('body').innerText()) || '').trim();
+          }
+        } catch (err) {
+          if (isEdgarTimeoutError(err)) throw err;
+          throw edgarTimeout('EDGAR timeout waiting for invalid-ticker error');
+        }
+        if (/taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
+        if (!/find that ticker|couldn.t analyze|check the symbol/i.test(alertText)) {
+          throw new Error(`invalid ticker does not show its error message (${alertText || 'empty'})`);
+        }
+      }, true);
+
+      await record(width, 'sector', async (bag) => {
+        await page.goto(`${origin}/AAPL`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await waitForMetrics(page, metricsTimeoutMs, bag);
+        const sectorLink = page.locator('a[href^="/sector/"]').first();
+        if ((await sectorLink.count()) < 1) throw new Error('sector link is missing on the AAPL result');
+        const href = await sectorLink.getAttribute('href');
+        await sectorLink.click();
+        await page.waitForURL((url) => url.pathname.startsWith('/sector/'), { timeout: 20000 });
+        if (!new URL(page.url()).pathname.startsWith('/sector/')) {
+          throw new Error(`sector link opened the wrong page (${href})`);
+        }
+        await page.locator('[data-testid="sector-row-link"]').first().waitFor({ timeout: 20000 });
+        const peers = await page.locator('[data-testid="sector-row-link"]').count();
+        if (peers < 1) throw new Error('sector page peer list is empty');
+      }, true);
+
+      await record(width, 'screen', async () => {
+        const response = await page.goto(`${origin}/screen`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
+        await page.locator('[data-testid="screen-oe-yield"]').first().waitFor({ timeout: 30000 });
+        const rows = await page.locator('[data-testid="screen-oe-yield"]').count();
+        if (rows < 1) throw new Error('screen table has no rows');
+        const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 1000 }).catch(() => '')) || '').trim();
+        if (alertText) throw new Error(`valid path shows an error message: ${alertText}`);
+      }, false);
+
+      await record(width, 'docs', async () => {
+        const response = await page.goto(`${origin}/docs`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (response && response.status() >= 400) throw new Error(`page status ${response.status()}`);
+        const h1 = ((await page.locator('h1').first().textContent()) || '').trim();
+        if (!/How metrics are calculated/.test(h1)) throw new Error('docs text is missing');
+      }, false);
+
+      await record(width, 'header-footer-links', async () => {
+        await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        const hrefs = await page.locator('nav[data-testid="site-nav"] a, a[href="/"]:has(img[alt="LongMuch"])').evaluateAll((els) => {
+          const out = [];
+          for (const el of els) {
+            const href = el.getAttribute('href');
+            if (href && href.startsWith('/') && !out.includes(href)) out.push(href);
+          }
+          return out;
+        });
+        if (hrefs.length < 2) throw new Error('header or footer links are missing');
+        for (const href of hrefs) {
+          const response = await page.goto(`${origin}${href}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          const status = response ? response.status() : 0;
+          if (status >= 400) throw new Error(`link ${href} status ${status}`);
+          const pathname = new URL(page.url()).pathname;
+          const expected = href.split('?')[0];
+          if (pathname !== expected && !(expected === '/' && pathname === '/')) {
+            throw new Error(`link ${href} opened the wrong page ${pathname}`);
+          }
+          const title = await page.title();
+          const bodyText = ((await page.locator('body').innerText()) || '').slice(0, 400);
+          if (/404|page could not be found|this page does not exist/i.test(`${title}\n${bodyText}`) && expected !== '/') {
+            throw new Error(`link ${href} opened a 404`);
+          }
+        }
+      }, false);
+    }
+  } finally {
+    await browser.close();
+  }
+  const failed = results.filter((row) => !row.ok);
+  return failed.length === 0 ? 0 : 1;
+}
+
+module.exports = {
+  runClickThrough,
+  detectNextIssues,
+  loadPlaywright,
+  launchChromium,
+  redactSecrets,
+  previewHeaders,
+};
+
 async function writeIssueArtifacts(outDir, label, detection, page, routePath) {
   const names = issueArtifactNames(routePath);
   const lines = [
@@ -281,12 +696,27 @@ async function checkIssuesOnPath(page, origin, routePath) {
   }
 }
 
-(async () => {
+if (require.main === module) (async () => {
+  const cmd = process.argv[2] || 'snapshot';
+  if (cmd === 'click-through') {
+    const origin = process.env.CLICK_ORIGIN || process.env.FRONTEND_ORIGIN || (() => {
+      const run = loadRun();
+      return run.FRONTEND_ORIGIN;
+    })();
+    const outDir = process.env.CLICK_OUT_DIR || path.join(artifactsDir, 'click-through');
+    const code = await runClickThrough({
+      origin,
+      outDir,
+      headers: previewHeaders(),
+      playwright: loadPlaywright(),
+    });
+    process.exit(code);
+  }
+
   const run = loadRun();
   const origin = process.env.FRONTEND_ORIGIN || run.FRONTEND_ORIGIN;
   refuseOrigin(origin);
 
-  const cmd = process.argv[2] || 'snapshot';
   const feature = process.env.FEATURE || (cmd === 'analyze' ? 'analyze-results' : 'home-search');
   const outDir = path.join(artifactsDir, feature);
   fs.mkdirSync(outDir, { recursive: true });
