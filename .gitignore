@@ -88,6 +88,7 @@ next-env.d.ts
 
 # verify-haystack local browser deps + prove run outputs
 .cursor/skills/verify-haystack/node_modules/
+scripts/click-through/node_modules/
 .cursor/skills/verify-haystack/.current-run
 .cursor/skills/verify-haystack/artifacts/**
 !.cursor/skills/verify-haystack/artifacts/.gitkeep

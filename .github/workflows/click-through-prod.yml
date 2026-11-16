@@ -24,11 +24,11 @@ jobs:
         with:
           node-version: "24.22.1"
       - name: Install Playwright
-        working-directory: .cursor/skills/verify-haystack
+        working-directory: scripts/click-through
         run: |
           npm install --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
       - name: Click through production
         env:
           CLICK_ORIGIN: https://longmuch.com
-        run: node .cursor/skills/verify-haystack/helpers/browser.cjs click-through
+        run: node scripts/click-through/browser.cjs click-through

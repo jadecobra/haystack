@@ -37,4 +37,4 @@ jobs:
           DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
           PR_SHA: ${{ github.event.pull_request.head.sha }}
           GH_TOKEN: ${{ github.token }}
-        run: bash .cursor/skills/verify-haystack/helpers/click-through-gate.sh
+        run: bash scripts/click-through/click-through-gate.sh

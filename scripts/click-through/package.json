@@ -1,0 +1,8 @@
+{
+  "name": "click-through",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "playwright": "^1.55.1"
+  }
+}
