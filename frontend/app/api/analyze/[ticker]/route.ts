@@ -23,6 +23,9 @@ export async function GET(
 ) {
   const { ticker } = await context.params;
   const symbol = (ticker || "").toUpperCase().trim();
+  if (symbol === "AAPL") {
+    return NextResponse.json({ error: "redproof" }, { status: 500 });
+  }
   if (!symbol) {
     return NextResponse.json({ error: "ticker required" }, { status: 400 });
   }

@@ -6,6 +6,8 @@ name: click-through
 
 on:
   pull_request:
+  push:
+    branches: [issue-119-redproof]
 
 permissions:
   contents: read
