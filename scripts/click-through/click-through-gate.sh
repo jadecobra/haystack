@@ -1,117 +1,96 @@
 #!/usr/bin/env bash
-# Decide the click-through / preview job. Never prints secret values.
-# GATE_SIMULATE=secret-missing|no-preview|timeout|click-fail
-# runs the decision without GitHub. Otherwise this is the Actions entry.
+# Start a local API and a production Next server, then run the click-through.
+# The preview job and a laptop use this same script. Ports 3000 and 8000 stay untouched.
 set -euo pipefail
 
 say() { printf '%s\n' "$1"; }
 
-if [ "${GATE_SIMULATE:-}" = "timeout" ]; then
-  say "click-through timed out waiting for a Vercel preview"
+fp="${CLICK_FRONTEND_PORT:-3466}"
+bp="${CLICK_BACKEND_PORT:-8021}"
+if [ "$fp" = "3000" ] || [ "$bp" = "8000" ]; then
+  say "click-through FAIL path=setup width=0 problem=refusing port 3000 or 8000"
   exit 1
-fi
-
-if [ "${GATE_SIMULATE:-}" = "click-fail" ]; then
-  say "click-through path=analyze width=390 result=fail problem=request /api/analyze/AAPL status 500"
-  exit 1
-fi
-
-if [ "${GATE_SIMULATE:-}" = "no-preview" ]; then
-  say "no preview: skipped"
-  exit 0
-fi
-
-secret="${VERCEL_AUTOMATION_BYPASS_SECRET:-}"
-if [ -z "$secret" ] || [ "${GATE_SIMULATE:-}" = "secret-missing" ]; then
-  say "click-through skipped: VERCEL protection bypass secret is not set"
-  exit 0
-fi
-
-if [ -n "${GATE_SIMULATE:-}" ]; then
-  say "unknown GATE_SIMULATE"
-  exit 1
-fi
-
-event="${EVENT_NAME:-}"
-repo="${GITHUB_REPOSITORY:-}"
-sha=""
-preview_url=""
-
-if [ "$event" = "deployment_status" ]; then
-  sha="${DEPLOYMENT_SHA:-}"
-  state="${DEPLOYMENT_STATE:-}"
-  env_name="${DEPLOYMENT_ENV:-}"
-  preview_url="${DEPLOYMENT_URL:-}"
-  if ! printf '%s' "$env_name" | grep -qi preview; then
-    say "click-through skipped: deployment environment is not a preview"
-    exit 0
-  fi
-  case "$state" in
-    success)
-      if [ -z "$preview_url" ]; then
-        say "click-through FAIL: deployment succeeded without a preview url"
-        exit 1
-      fi
-      ;;
-    failure|error)
-      say "click-through FAIL: Vercel preview deployment ${state}"
-      exit 1
-      ;;
-    *)
-      say "click-through skipped: deployment state ${state:-unknown} is not success"
-      exit 0
-      ;;
-  esac
-else
-  sha="${PR_SHA:-${GITHUB_SHA:-}}"
-  if [ -z "$repo" ] || [ -z "$sha" ]; then
-    say "click-through FAIL: missing repository or sha"
-    exit 1
-  fi
-  deadline=$((SECONDS + 180))
-  saw_deployment=0
-  while [ "$SECONDS" -lt "$deadline" ]; do
-    ids="$(gh api "repos/${repo}/deployments?sha=${sha}" --jq '.[] | select(.environment|test("preview";"i")) | .id' 2>/dev/null || true)"
-    if [ -n "$ids" ]; then
-      saw_deployment=1
-      for id in $ids; do
-        line="$(gh api "repos/${repo}/deployments/${id}/statuses" --jq '.[0] | [.state, (.environment_url // "")] | @tsv' 2>/dev/null || true)"
-        st="${line%%$'\t'*}"
-        url="${line#*$'\t'}"
-        if [ "$st" = "success" ] && [ -n "$url" ] && [ "$url" != "$st" ]; then
-          preview_url="$url"
-          break
-        fi
-        if [ "$st" = "failure" ] || [ "$st" = "error" ]; then
-          say "click-through FAIL: Vercel preview deployment ${st}"
-          exit 1
-        fi
-      done
-    fi
-    if [ -n "$preview_url" ]; then
-      break
-    fi
-    sleep 15
-  done
-  if [ -z "$preview_url" ]; then
-    if [ "$saw_deployment" -eq 1 ]; then
-      say "click-through timed out waiting for a Vercel preview"
-      exit 1
-    fi
-    say "no preview: skipped"
-    exit 0
-  fi
 fi
 
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 here="$(cd "$(dirname "$0")" && pwd)"
-export CLICK_ORIGIN="$preview_url"
-export CLICK_OUT_DIR="${CLICK_OUT_DIR:-$root/.cursor/skills/verify-haystack/artifacts/click-through}"
+export CLICK_ORIGIN="http://127.0.0.1:${fp}"
+export CLICK_OUT_DIR="${CLICK_OUT_DIR:-$here/artifacts}"
+unset HAYSTACK_PREFER_FIXTURE || true
+
+port_busy() {
+  lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+}
+
+if port_busy "$fp" || port_busy "$bp"; then
+  say "click-through FAIL path=setup width=0 problem=port ${fp} or ${bp} is already in use"
+  exit 1
+fi
+
+be_pid=""
+fe_pid=""
+log_dir="$(mktemp -d /tmp/click-through-logs.XXXXXX)"
+cleanup() {
+  if [ -n "$fe_pid" ]; then kill "$fe_pid" >/dev/null 2>&1 || true; fi
+  if [ -n "$be_pid" ]; then kill "$be_pid" >/dev/null 2>&1 || true; fi
+}
+trap cleanup EXIT
+mkdir -p "$CLICK_OUT_DIR"
+
+(
+  cd "$root/backend"
+  uv run uvicorn app.main:app --host 127.0.0.1 --port "$bp"
+) >"$log_dir/backend.log" 2>&1 &
+be_pid=$!
+
+ready=0
+for _ in $(seq 1 180); do
+  if curl -sf "http://127.0.0.1:${bp}/health" >/dev/null; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$be_pid" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+if [ "$ready" -ne 1 ]; then
+  say "click-through FAIL path=setup width=0 problem=backend did not become ready"
+  exit 1
+fi
+
+(
+  cd "$root/frontend"
+  if [ ! -x node_modules/.bin/next ]; then
+    pnpm install --frozen-lockfile
+  fi
+  BACKEND_ORIGIN="http://127.0.0.1:${bp}" pnpm exec next build
+  BACKEND_ORIGIN="http://127.0.0.1:${bp}" pnpm exec next start --hostname 127.0.0.1 --port "$fp"
+) >"$log_dir/frontend.log" 2>&1 &
+fe_pid=$!
+
+ready=0
+for _ in $(seq 1 180); do
+  if curl -sf "$CLICK_ORIGIN/" >/dev/null; then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+if [ "$ready" -ne 1 ]; then
+  say "click-through FAIL path=setup width=0 problem=frontend did not become ready"
+  exit 1
+fi
+
 cd "$here"
 if [ ! -d node_modules/playwright ]; then
   npm install --ignore-scripts --no-audit --no-fund
 fi
-npx playwright install --with-deps chromium
+if [ "$(uname -s)" = "Linux" ]; then
+  npx playwright install --with-deps chromium
+else
+  npx playwright install chromium
+fi
 set +e
 node "$here/browser.cjs" click-through
 code=$?
