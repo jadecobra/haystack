@@ -19,7 +19,18 @@ export CLICK_OUT_DIR="${CLICK_OUT_DIR:-$here/artifacts}"
 unset HAYSTACK_PREFER_FIXTURE || true
 
 port_busy() {
-  lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+  python3 - "$1" <<'PY'
+import socket, sys
+port = int(sys.argv[1])
+sock = socket.socket()
+try:
+    sock.bind(("127.0.0.1", port))
+except OSError:
+    sys.exit(0)
+finally:
+    sock.close()
+sys.exit(1)
+PY
 }
 
 if port_busy "$fp" || port_busy "$bp"; then
@@ -56,6 +67,7 @@ for _ in $(seq 1 180); do
 done
 if [ "$ready" -ne 1 ]; then
   say "click-through FAIL path=setup width=0 problem=backend did not become ready"
+  tail -n 40 "$log_dir/backend.log" || true
   exit 1
 fi
 
@@ -79,6 +91,7 @@ for _ in $(seq 1 180); do
 done
 if [ "$ready" -ne 1 ]; then
   say "click-through FAIL path=setup width=0 problem=frontend did not become ready"
+  tail -n 40 "$log_dir/frontend.log" || true
   exit 1
 fi
 

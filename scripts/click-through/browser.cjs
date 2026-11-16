@@ -230,10 +230,6 @@ function previewHeaders() {
   return {};
 }
 
-function isStaleSnapshotAlert(text) {
-  return /^Stale snapshot\b/.test(String(text || '').trim());
-}
-
 function isEdgarTimeoutError(err) {
   return Boolean(err && err.edgarTimeout);
 }
@@ -366,10 +362,7 @@ async function assertHealthy(page, bag, width, opts) {
     throw err;
   }
   if (!opts || !opts.allowAlert) {
-    const alertText = ((await page.locator('p[role="alert"]').allTextContents().catch(() => [])) || [])
-      .map((text) => text.trim())
-      .filter((text) => text && !isStaleSnapshotAlert(text))
-      .join(' ');
+    const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 500 }).catch(() => '')) || '').trim();
     if (alertText) {
       if (/taking too long|timed out|timeout/i.test(alertText)) throw edgarTimeout('EDGAR timeout');
       throw new Error(`valid path shows an error message: ${alertText}`);
@@ -575,6 +568,8 @@ async function runClickThrough(options) {
         await page.locator('[data-testid="screen-oe-yield"]').first().waitFor({ timeout: 30000 });
         const rows = await page.locator('[data-testid="screen-oe-yield"]').count();
         if (rows < 1) throw new Error('screen table has no rows');
+        const alertText = ((await page.locator('p[role="alert"]').first().textContent({ timeout: 1000 }).catch(() => '')) || '').trim();
+        if (alertText) throw new Error(`valid path shows an error message: ${alertText}`);
       }, false);
 
       await record(width, 'docs', async () => {
