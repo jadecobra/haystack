@@ -118,7 +118,8 @@ case "$cmd" in
     # Next.js "N Issues" badge is client-only; curl cannot see it. Prefer Playwright gate.
     if [[ "${SKIP_NEXT_ISSUES_CHECK:-0}" != "1" ]]; then
       set +e
-      ISSUE_OUT="$(node "$SCRIPT_DIR/browser.cjs" check-issues 2>&1)"
+      BROWSER_CJS="$(cd "$SCRIPT_DIR/../../../.." && pwd)/scripts/click-through/browser.cjs"
+      ISSUE_OUT="$(node "$BROWSER_CJS" check-issues 2>&1)"
       ISSUE_RC=$?
       set -e
       echo "$ISSUE_OUT"

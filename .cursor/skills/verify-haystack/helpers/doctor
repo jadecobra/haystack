@@ -111,7 +111,8 @@ else
   if [[ "${BACKEND_OK:-0}" == "1" ]]; then
     CHECK_PATHS+=("/${DOCTOR_TICKER:-AAPL}")
   fi
-  ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$SCRIPT_DIR/browser.cjs" check-issues "${CHECK_PATHS[@]}" 2>&1)"
+  BROWSER_CJS="$(cd "$SCRIPT_DIR/../../../.." && pwd)/scripts/click-through/browser.cjs"
+  ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$BROWSER_CJS" check-issues "${CHECK_PATHS[@]}" 2>&1)"
   ISSUE_RC=$?
   set -e
   echo "$ISSUE_OUT" | sed 's/^/  /'

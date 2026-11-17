@@ -28,7 +28,7 @@ Preconditions:
 - **Open landing.** Visit `/`. Run `FEATURE=home-search .cursor/skills/verify-haystack/helpers/http home`. HTTP 200. HTML contains `LongMuch`, `enter stock ticker e.g. AAPL`, `Analyze`, and `How much? How long?` (from `<title>`, not a page subtitle).
 - **Confirm identity.** Read `artifacts/home-search/home.meta.txt`. `h1` is `LongMuch` (visually hidden). `placeholder` is `enter stock ticker e.g. AAPL`. `button` is `Analyze`. `title` is `LongMuch - How much? How long?`.
 - **No side effects.** Repeat the GET. Status stays 200 and the HTML still has no `Financial Metrics` table (that block is client-only after `data` is set).
-- **Optional screenshot.** Run `FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot`. If Chromium is missing, `browser-skipped.txt` is enough; HTTP proof still stands.
+- **Optional screenshot.** Run `FEATURE=home-search node scripts/click-through/browser.cjs snapshot`. If Chromium is missing, `browser-skipped.txt` is enough; HTTP proof still stands.
 - **Next issues gate.** `helpers/http home` and doctor run `browser.cjs check-issues`. A visible Next.js `1 Issue` / `N Issues` badge fails the prove. Ignoring it is invalid.
 - **Proof.** Keep `artifacts/home-search/home.html`, `home.status`, and `home.meta.txt`. Leave servers up after prove; run `helpers/cleanup` only when asked (artifacts survive cleanup).
 
