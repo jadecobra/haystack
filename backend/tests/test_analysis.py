@@ -3,6 +3,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urlsplit
 
 import httpx
 from fastapi.testclient import TestClient
@@ -322,7 +323,7 @@ class TestQuote(unittest.TestCase):
 
         return _Client
 
-    def _client_by_url(self, *, yahoo, nasdaq, calls: list):
+    def _client_by_url(self, *, yahoo, nasdaq, cnbc="ok", calls: list):
         class _Yahoo403:
             def raise_for_status(self):
                 raise httpx.HTTPStatusError(
@@ -373,12 +374,39 @@ class TestQuote(unittest.TestCase):
                     }
                 }
 
+        class _Nasdaq403:
+            def raise_for_status(self):
+                raise httpx.HTTPStatusError(
+                    "403",
+                    request=httpx.Request("GET", "https://api.nasdaq.com"),
+                    response=httpx.Response(403),
+                )
+
+        class _CnbcOk:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {
+                    "FormattedQuoteResult": {
+                        "FormattedQuote": [
+                            {
+                                "symbol": "AAPL",
+                                "code": 0,
+                                "previous_day_closing": "352.45",
+                                "last_time": "2026-11-19T16:00:00.000-0500",
+                            }
+                        ]
+                    }
+                }
+
         yahoo_map = {
             "403": _Yahoo403,
             "empty": _YahooEmpty,
             "chartPreviousClose": _YahooNullPrevious,
         }
-        nasdaq_map = {"ok": _NasdaqOk}
+        nasdaq_map = {"ok": _NasdaqOk, "403": _Nasdaq403}
+        cnbc_map = {"ok": _CnbcOk}
 
         class _Client:
             def __init__(self, *args, **kwargs):
@@ -396,6 +424,8 @@ class TestQuote(unittest.TestCase):
                     return yahoo_map[yahoo]()
                 if "nasdaq.com" in url:
                     return nasdaq_map[nasdaq]()
+                if urlsplit(url).hostname == "quote.cnbc.com":
+                    return cnbc_map[cnbc]()
                 raise AssertionError(url)
 
         return _Client
@@ -470,6 +500,20 @@ class TestQuote(unittest.TestCase):
             second = previous_close("AAPL")
         self.assertEqual(first, second)
         self.assertEqual(len(calls), 1)
+
+    def test_previous_close_yahoo_and_nasdaq_403_falls_back_to_cnbc(self):
+        from app.quote import previous_close
+
+        calls: list = []
+        with mock.patch(
+            "app.quote.httpx.Client",
+            self._client_by_url(yahoo="403", nasdaq="403", cnbc="ok", calls=calls),
+        ):
+            quote = previous_close("AAPL")
+        self.assertIsNotNone(quote)
+        self.assertEqual(quote["price"], 352.45)
+        self.assertEqual(quote["as_of"], "2026-11-19")
+        self.assertTrue(any(urlsplit(c[0]).hostname == "quote.cnbc.com" for c in calls))
 
 
 class TestCli(unittest.TestCase):
