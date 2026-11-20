@@ -12,7 +12,7 @@ const UNSAFE =
   /traceback|find_company|pass a cik|file ".+\.py"|^\s*at /im;
 const SEC_URL = /https?:\/\/[^\s]*sec\.gov[^\s]*/gi;
 
-export const ANALYZE_TIMEOUT_MS = 20_000;
+export const ANALYZE_TIMEOUT_MS = 45_000;
 export const ANALYZE_RETRY_DELAY_MS = 1_500;
 export const ANALYZE_TIMEOUT_MESSAGE =
   'This is taking too long. Try again.';
@@ -29,6 +29,14 @@ export function isTransientAnalyzeStatus(status: number): boolean {
 
 export function isProductAnalyzeStatus(status: number): boolean {
   return status >= 400 && status < 500 && !isTransientAnalyzeStatus(status);
+}
+
+export function shouldRetryAnalyzeStatus(status: number): boolean {
+  return (
+    isTransientAnalyzeStatus(status) &&
+    status !== 504 &&
+    !isProductAnalyzeStatus(status)
+  );
 }
 
 export function parseAnalyzeBody(text: string): { ok: true; raw: unknown } | { ok: false } {

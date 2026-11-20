@@ -7,9 +7,8 @@ import {
   ANALYZE_TIMEOUT_MESSAGE,
   ANALYZE_TIMEOUT_MS,
   analyzeErrorMessage,
-  isProductAnalyzeStatus,
-  isTransientAnalyzeStatus,
   parseAnalyzeBody,
+  shouldRetryAnalyzeStatus,
 } from './utils/analyze-error';
 import { paybackSentence, type PaybackBlock } from '../lib/paybackCopy';
 import {
@@ -537,11 +536,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
 
           const raw = parsedBody.raw;
           if (!response.ok) {
-            if (
-              isTransientAnalyzeStatus(response.status) &&
-              !retried &&
-              !isProductAnalyzeStatus(response.status)
-            ) {
+            if (shouldRetryAnalyzeStatus(response.status) && !retried) {
               retried = true;
               await new Promise((resolve) =>
                 window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
