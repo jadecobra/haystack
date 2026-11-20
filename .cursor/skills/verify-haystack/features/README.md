@@ -16,7 +16,7 @@ This directory is the maintained source for verifying the user-facing behavior o
 - Start every recipe from the baseline state unless its preconditions say otherwise.
 - Prefer visually hidden `h1` LongMuch, the ticker `input` placeholder from `page.tsx`, and the `Analyze` button over coordinates. Keep those strings in sync with SKILL.md Stable handles.
 - Treat every command as literal.
-- HTTP via `helpers/http`. Browser via `node helpers/browser.cjs`. Both require launch first.
+- HTTP via `helpers/http`. Browser via `node scripts/click-through/browser.cjs`. Both require launch first.
 - Table logic: `uv run longmuch analyze AAPL --local`. HTTP/UI: `helpers/http`. Do not invent a parallel verify skill.
 - Default `/analyze` is **live EDGAR**. Fixture only via `VERIFY_FIXTURE=1`, `helpers/http backend-analyze TICKER --fixture` (env), CLI `--local`, or caller-exported `HAYSTACK_PREFER_FIXTURE=1`. The `?fixture=` query is ignored.
 - After prove, leave servers up (`FRONTEND_ORIGIN`); run `helpers/cleanup` only when explicitly asked.

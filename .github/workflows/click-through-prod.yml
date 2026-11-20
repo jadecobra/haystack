@@ -1,0 +1,43 @@
+# Prod smoke after a successful Deploy website run. It reports and does not block.
+# workflow_run does not fail the deploy job. This check is not on branch protection.
+
+name: click-through prod
+
+on:
+  workflow_run:
+    workflows: ["Deploy website"]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.22.1"
+      - name: Install Playwright
+        working-directory: scripts/click-through
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Click through production
+        env:
+          CLICK_ORIGIN: https://longmuch.com
+          CLICK_OUT_DIR: scripts/click-through/artifacts
+        run: node scripts/click-through/browser.cjs click-through
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: click-through-prod-screenshots
+          path: scripts/click-through/artifacts
+          if-no-files-found: ignore

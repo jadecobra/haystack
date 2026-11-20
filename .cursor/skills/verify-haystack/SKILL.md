@@ -13,7 +13,7 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show avai
 - Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR**. Fixture mode only via CLI `uv run longmuch analyze TICKER --local`, or `HAYSTACK_PREFER_FIXTURE=1` on the **backend process**. The `?fixture=` query param is ignored. Curl-local env does not switch a running uvicorn. Verify HTTP prove uses live analyze by default; `VERIFY_FIXTURE=1` / `--fixture` runs CLI `--local`.
 - Frontend `fetch('/api/analyze/${ticker}')` and `fetch('/api/contract')` on the Next origin. Prove those paths; do not document a 404 or mock KPI payload unless the live helper still returns one.
 - The metrics table is client-rendered from the discriminated `View` (`waiting` skeleton or `ready` analyze JSON). SSR homepage HTML has no table. Do not treat leftover sample rows in docs as live proof.
-- No Playwright/Cypress in the repo. Drive with curl against isolated origins. `helpers/browser.cjs` is an optional skill-local Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
+- Playwright click-through lives in `scripts/click-through/`. Drive HTTP checks with curl against isolated origins. `scripts/click-through/browser.cjs` is the Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
 - `ao start` / agent-orchestrator.yaml port 3000 is out of scope.
 
 ## Isolation (hard rule)
@@ -85,9 +85,9 @@ FEATURE=share-preview .cursor/skills/verify-haystack/helpers/http share-preview 
 Optional browser (Analyze click / screenshot) **and required Next issues gate**. `browser.cjs snapshot|analyze|check-issues` fails if the Next.js Dev Tools badge shows a visible `1 Issue` / `N Issues` (`data-next-badge[data-error=true]`). `check-issues` also accepts path arguments (default `/`) and fails on console `error` / `pageerror` lines other than "Failed to load resource". A prove that ignores that badge is **invalid**. If Playwright/Chromium is missing, `snapshot`/`analyze` write `browser-skipped.txt` and exit 0 (HTTP proof still stands), but `check-issues` exits 2 (hard-flag: gate not run). Doctor checks `/` plus one ticker page when the backend is up; `helpers/http home` invokes `check-issues` on `/`.
 
 ```bash
-FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs snapshot
-FEATURE=home-search node .cursor/skills/verify-haystack/helpers/browser.cjs check-issues
-FEATURE=analyze-results node .cursor/skills/verify-haystack/helpers/browser.cjs analyze AAPL
+FEATURE=home-search node scripts/click-through/browser.cjs snapshot
+FEATURE=home-search node scripts/click-through/browser.cjs check-issues
+FEATURE=analyze-results node scripts/click-through/browser.cjs analyze AAPL
 ```
 
 ### Stable handles (from `frontend/app/page.tsx` and `layout.tsx`)
@@ -125,7 +125,7 @@ Proof standards:
 - Capture the action and the resulting HTML, not only the final screen.
 - Homepage GET has no side effects (no writes, no EDGAR).
 - Default backend analyze is **live EDGAR**. Fixture/mocks only when explicitly requested (CLI `--local`, `VERIFY_FIXTURE=1` / helper `--fixture` via CLI, or backend-process `HAYSTACK_PREFER_FIXTURE=1`). The `?fixture=` query is ignored. The table appears only after client `data` is set; SSR `/` has no metric rows.
-- **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`helpers/browser.cjs check-issues`); SSR/curl cannot see it.
+- **Next issues badge:** if the page shows a visible Next.js `1 Issue` / `N Issues` badge, prove **fails**. Ignoring that badge is invalid. Detect via Playwright (`scripts/click-through/browser.cjs check-issues`); SSR/curl cannot see it.
 - **Live origin (ship).** Isolated doctor on 3457–3464 / 8015–8022 is not production. Merged `main` is git, not runtime. A green **Deploy website** / `deploy-frontend` job is not ship. Vercel HTML and Render `/contract` deploy independently. Do not tell the user the job is done until `helpers/live-origin` passes: public HTML `<title>` is `LongMuch - How much? How long?` (no `Create Next App`) **and** `GET {LIVE_API}/contract` `schema_version` matches `uv run longmuch contract` from this checkout. Frontend 200 with an `h1` of LongMuch is not enough. If the API host is asleep or still on an old schema, that is a failed ship. Deploy or wake `longmuch-api`, then re-run the gate. Defaults: `LIVE_WEB=https://longmuch.com`, `LIVE_API=https://longmuch-api.onrender.com`. It also requires `LIVE_WWW=https://www.longmuch.com` `/` and `/AAPL?x=1` to answer 301/308 with `location` on the apex, same path and query (Vercel project-domain redirect; `LIVE_WWW=` skips). GitHub job `prove-live` after `deploy-frontend` is the same check. Do not treat isolated `helpers/http home` as that gate.
 
 Feature recipes: `features/README.md` and one file per feature.
@@ -148,9 +148,9 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 - `helpers/doctor` — read-only health plus isolation gate
 - `helpers/http home|analyze-api|backend-health|backend-analyze|backend-contract|empty-ticker|docs|screen|share-preview` — curl against isolated origins (`share-preview` also accepts `LIVE=1` or `ORIGIN=`)
 - `helpers/live-origin` — production ship gate (longmuch.com title + www→apex 308 + Render `/contract` vs local schema)
-- `node helpers/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
+- `node scripts/click-through/browser.cjs snapshot|analyze` — optional Playwright vs `$FRONTEND_ORIGIN` only
 - `helpers/cleanup` — **optional** teardown of our instance (leave-up is the default after prove)
-- `node helpers/browser.cjs check-issues [path...]` — fail if Next.js shows a visible Issues badge or a console error (default path `/`)
+- `node scripts/click-through/browser.cjs check-issues [path...]` — fail if Next.js shows a visible Issues badge or a console error (default path `/`)
 - `python3 helpers/ensure-frontend.py` — restore Next toolchain if `node_modules` is missing (called by launch)
 
 `helpers/lib.sh`, `helpers/launch.py`, `helpers/ensure-frontend.py`, and `helpers/daemonize.py` are internals used by the scripts above.
@@ -159,4 +159,4 @@ All under `.cursor/skills/verify-haystack/helpers/`, executable. Invocations:
 
 Keep the map honest with `/maintain-verification-skill` as the UI changes.
 
-If an implementation change alters copy, placeholders, locked labels, schema version, or contract fields that helpers grep, update `helpers/http`, `helpers/browser.cjs`, Stable handles above, and the matching `features/*.md` **in that same change**. Do not wait for `/verify-haystack` to discover drift.
+If an implementation change alters copy, placeholders, locked labels, schema version, or contract fields that helpers grep, update `helpers/http`, `scripts/click-through/browser.cjs`, Stable handles above, and the matching `features/*.md` **in that same change**. Do not wait for `/verify-haystack` to discover drift.
