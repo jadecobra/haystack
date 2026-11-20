@@ -114,7 +114,7 @@ function pageHtml(kind, fault) {
   else if (kind === 'docs') body = `${docs}${nav}`;
   else if (kind === 'missing-form') body = `${logo}${nav}`;
   else body = `${logo}${nav}`;
-  return `<!doctype html><html><head><title>LongMuch</title><style>img{max-width:100%;height:auto}</style></head><body>${body}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>LongMuch</title><style>img{max-width:100%;height:auto}</style></head><body>${body}</body></html>`;
 }
 
 function install(fault, state) {
