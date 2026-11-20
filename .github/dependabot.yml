@@ -25,6 +25,22 @@ updates:
         applies-to: security-updates
         patterns: ["*"]
 
+  - package-ecosystem: npm
+    directory: /scripts/click-through
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      click-through-npm-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      click-through-npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
   - package-ecosystem: uv
     directory: /
     schedule:

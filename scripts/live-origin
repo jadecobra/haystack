@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-root="$(cd "$(dirname "$0")/.." && pwd)"
-exec "$root/.cursor/skills/verify-haystack/helpers/live-origin" "$@"

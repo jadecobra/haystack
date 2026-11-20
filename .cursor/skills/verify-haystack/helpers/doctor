@@ -111,7 +111,7 @@ else
   if [[ "${BACKEND_OK:-0}" == "1" ]]; then
     CHECK_PATHS+=("/${DOCTOR_TICKER:-AAPL}")
   fi
-  BROWSER_CJS="$(cd "$SCRIPT_DIR/../../../.." && pwd)/scripts/click-through/browser.cjs"
+  BROWSER_CJS="$REPO_ROOT/scripts/click-through/browser.cjs"
   ISSUE_OUT="$(FEATURE="${FEATURE:-home-search}" node "$BROWSER_CJS" check-issues "${CHECK_PATHS[@]}" 2>&1)"
   ISSUE_RC=$?
   set -e

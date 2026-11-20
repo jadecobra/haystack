@@ -102,4 +102,4 @@ jobs:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
       - name: Live origin gate
-        run: FEATURE=live-origin scripts/live-origin
+        run: FEATURE=live-origin .cursor/skills/verify-haystack/helpers/live-origin

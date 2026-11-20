@@ -6,6 +6,7 @@ name: click-through prod
 on:
   workflow_run:
     workflows: ["Deploy website"]
+    branches: [main]
     types: [completed]
 
 permissions:
@@ -26,9 +27,17 @@ jobs:
       - name: Install Playwright
         working-directory: scripts/click-through
         run: |
-          npm install --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
       - name: Click through production
         env:
           CLICK_ORIGIN: https://longmuch.com
+          CLICK_OUT_DIR: scripts/click-through/artifacts
         run: node scripts/click-through/browser.cjs click-through
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: click-through-prod-screenshots
+          path: scripts/click-through/artifacts
+          if-no-files-found: ignore

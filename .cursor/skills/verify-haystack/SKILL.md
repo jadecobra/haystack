@@ -13,7 +13,7 @@ LongMuch (repo folder haystack) is a ticker search that is supposed to show avai
 - Secondary: FastAPI in `backend/app/main.py` — product endpoints GET `/health` and GET `/analyze/{ticker}` plus GET `/contract` (locked labels + `schema_version`). **Default analyze is live EDGAR**. Fixture mode only via CLI `uv run longmuch analyze TICKER --local`, or `HAYSTACK_PREFER_FIXTURE=1` on the **backend process**. The `?fixture=` query param is ignored. Curl-local env does not switch a running uvicorn. Verify HTTP prove uses live analyze by default; `VERIFY_FIXTURE=1` / `--fixture` runs CLI `--local`.
 - Frontend `fetch('/api/analyze/${ticker}')` and `fetch('/api/contract')` on the Next origin. Prove those paths; do not document a 404 or mock KPI payload unless the live helper still returns one.
 - The metrics table is client-rendered from the discriminated `View` (`waiting` skeleton or `ready` analyze JSON). SSR homepage HTML has no table. Do not treat leftover sample rows in docs as live proof.
-- No Playwright/Cypress in the repo. Drive with curl against isolated origins. `scripts/click-through/browser.cjs` is the Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
+- Playwright click-through lives in `scripts/click-through/`. Drive HTTP checks with curl against isolated origins. `scripts/click-through/browser.cjs` is the Playwright helper for the Analyze click; homepage SSR HTML is enough for the mandatory proof feature.
 - `ao start` / agent-orchestrator.yaml port 3000 is out of scope.
 
 ## Isolation (hard rule)

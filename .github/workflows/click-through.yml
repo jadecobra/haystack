@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: click-through-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: false
+  group: click-through-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   preview:
@@ -34,8 +34,23 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+      - name: Install Playwright
+        working-directory: scripts/click-through
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Run click-through fault suite
+        run: node scripts/click-through/click-through-faults.cjs
       - name: Click through the local build
         env:
           CLICK_FRONTEND_PORT: "3466"
           CLICK_BACKEND_PORT: "8021"
+          CLICK_SKIP_PLAYWRIGHT_INSTALL: "1"
         run: bash scripts/click-through/click-through-gate.sh
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: click-through-preview-screenshots
+          path: scripts/click-through/artifacts
+          if-no-files-found: ignore
