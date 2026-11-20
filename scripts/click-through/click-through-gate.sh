@@ -41,17 +41,35 @@ fi
 be_pid=""
 fe_pid=""
 log_dir="$(mktemp -d /tmp/click-through-logs.XXXXXX)"
+
+spawn_group() {
+  local dir="$1" log="$2"
+  shift 2
+  python3 -c 'import os, sys; os.chdir(sys.argv[1]); os.setsid(); os.execvp(sys.argv[2], sys.argv[2:])' "$dir" "$@" >"$log" 2>&1 &
+}
+
+kill_group() {
+  local pgid="$1"
+  [ -n "$pgid" ] || return 0
+  kill -TERM -- "-$pgid" >/dev/null 2>&1 || kill -TERM "$pgid" >/dev/null 2>&1 || true
+  for _ in $(seq 1 20); do
+    if ! kill -0 -- "-$pgid" >/dev/null 2>&1 && ! kill -0 "$pgid" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 0.1
+  done
+  kill -KILL -- "-$pgid" >/dev/null 2>&1 || kill -KILL "$pgid" >/dev/null 2>&1 || true
+}
+
 cleanup() {
-  if [ -n "$fe_pid" ]; then kill "$fe_pid" >/dev/null 2>&1 || true; fi
-  if [ -n "$be_pid" ]; then kill "$be_pid" >/dev/null 2>&1 || true; fi
+  kill_group "$fe_pid"
+  kill_group "$be_pid"
+  rm -rf "$log_dir"
 }
 trap cleanup EXIT
 mkdir -p "$CLICK_OUT_DIR"
 
-(
-  cd "$root/backend"
-  uv run uvicorn app.main:app --host 127.0.0.1 --port "$bp"
-) >"$log_dir/backend.log" 2>&1 &
+spawn_group "$root/backend" "$log_dir/backend.log" uv run uvicorn app.main:app --host 127.0.0.1 --port "$bp"
 be_pid=$!
 
 ready=0
@@ -71,20 +89,28 @@ if [ "$ready" -ne 1 ]; then
   exit 1
 fi
 
-(
+if ! (
   cd "$root/frontend"
   if [ ! -x node_modules/.bin/next ]; then
     pnpm install --frozen-lockfile
   fi
   BACKEND_ORIGIN="http://127.0.0.1:${bp}" pnpm exec next build
-  BACKEND_ORIGIN="http://127.0.0.1:${bp}" pnpm exec next start --hostname 127.0.0.1 --port "$fp"
-) >"$log_dir/frontend.log" 2>&1 &
+) >"$log_dir/frontend.log" 2>&1; then
+  say "click-through FAIL path=setup width=0 problem=frontend build failed"
+  tail -n 40 "$log_dir/frontend.log" || true
+  exit 1
+fi
+
+spawn_group "$root/frontend" "$log_dir/frontend.log" env BACKEND_ORIGIN="http://127.0.0.1:${bp}" pnpm exec next start --hostname 127.0.0.1 --port "$fp"
 fe_pid=$!
 
 ready=0
 for _ in $(seq 1 180); do
   if curl -sf "$CLICK_ORIGIN/" >/dev/null; then
     ready=1
+    break
+  fi
+  if ! kill -0 "$fe_pid" >/dev/null 2>&1; then
     break
   fi
   sleep 2
@@ -97,12 +123,14 @@ fi
 
 cd "$here"
 if [ ! -d node_modules/playwright ]; then
-  npm install --ignore-scripts --no-audit --no-fund
+  npm ci --ignore-scripts --no-audit --no-fund
 fi
-if [ "$(uname -s)" = "Linux" ]; then
-  npx playwright install --with-deps chromium
-else
-  npx playwright install chromium
+if [ "${CLICK_SKIP_PLAYWRIGHT_INSTALL:-0}" != "1" ]; then
+  if [ "$(uname -s)" = "Linux" ]; then
+    npx playwright install --with-deps chromium
+  else
+    npx playwright install chromium
+  fi
 fi
 set +e
 node "$here/browser.cjs" click-through
