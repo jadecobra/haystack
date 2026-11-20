@@ -5,6 +5,8 @@ from pathlib import Path
 from unittest import mock
 
 import httpx
+from fastapi.testclient import TestClient
+
 from app.cli import main as cli_main
 from app.main import app
 from app.metrics import (
@@ -15,7 +17,6 @@ from app.metrics import (
     compute_year,
 )
 from app.sources import analyze
-from fastapi.testclient import TestClient
 
 
 class TestMetrics(unittest.TestCase):
