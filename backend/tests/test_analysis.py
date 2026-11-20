@@ -3,6 +3,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urlsplit
 
 import httpx
 from fastapi.testclient import TestClient
@@ -423,7 +424,7 @@ class TestQuote(unittest.TestCase):
                     return yahoo_map[yahoo]()
                 if "nasdaq.com" in url:
                     return nasdaq_map[nasdaq]()
-                if "cnbc.com" in url:
+                if urlsplit(url).hostname == "quote.cnbc.com":
                     return cnbc_map[cnbc]()
                 raise AssertionError(url)
 
@@ -512,7 +513,7 @@ class TestQuote(unittest.TestCase):
         self.assertIsNotNone(quote)
         self.assertEqual(quote["price"], 352.45)
         self.assertEqual(quote["as_of"], "2026-11-19")
-        self.assertTrue(any("cnbc.com" in c[0] for c in calls))
+        self.assertTrue(any(urlsplit(c[0]).hostname == "quote.cnbc.com" for c in calls))
 
 
 class TestCli(unittest.TestCase):
