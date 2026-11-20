@@ -11,7 +11,7 @@ import json
 import threading
 import time
 from concurrent.futures import Future
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -78,7 +78,7 @@ def _parse_yahoo(payload: dict[str, Any]) -> dict[str, Any] | None:
 
 def _fetch_yahoo(ticker: str) -> dict[str, Any] | None:
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
-    with httpx.Client(timeout=10.0, headers={"User-Agent": _UA}) as client:
+    with httpx.Client(timeout=5.0, headers={"User-Agent": _UA}) as client:
         resp = client.get(url, params={"range": "1d", "interval": "1d"})
         resp.raise_for_status()
         return _parse_yahoo(resp.json())
@@ -111,23 +111,65 @@ def _fetch_nasdaq(ticker: str) -> dict[str, Any] | None:
         "Origin": "https://www.nasdaq.com",
         "Referer": "https://www.nasdaq.com",
     }
-    with httpx.Client(timeout=10.0, headers=headers) as client:
+    with httpx.Client(timeout=5.0, headers=headers) as client:
         resp = client.get(url, params={"assetclass": "stocks"})
         resp.raise_for_status()
         return _parse_nasdaq(resp.json())
 
 
-def _fetch_quote(ticker: str) -> dict[str, Any] | None:
-    try:
-        yahoo = _fetch_yahoo(ticker)
-    except Exception:  # noqa: BLE001 - fail-soft: fall back to Nasdaq quote
-        yahoo = None
-    if yahoo is not None:
-        return yahoo
-    try:
-        return _fetch_nasdaq(ticker)
-    except Exception:  # noqa: BLE001 - fail-soft: no quote
+def _parse_cnbc(payload: dict[str, Any]) -> dict[str, Any] | None:
+    quotes = (payload.get("FormattedQuoteResult") or {}).get("FormattedQuote") or []
+    if not quotes or not isinstance(quotes[0], dict):
         return None
+    q = quotes[0]
+    raw = q.get("previous_day_closing")
+    if raw is None:
+        return None
+    text = str(raw).replace("$", "").replace(",", "").strip()
+    if not text:
+        return None
+    try:
+        price = round(float(text), 2)
+    except (TypeError, ValueError):
+        return None
+    as_of = None
+    last_time = q.get("last_time")
+    if isinstance(last_time, str) and len(last_time) >= 10:
+        try:
+            as_of = date.fromisoformat(last_time[:10]).isoformat()
+        except ValueError:
+            as_of = None
+    return {"price": price, "as_of": as_of}
+
+
+def _fetch_cnbc(ticker: str) -> dict[str, Any] | None:
+    cnbc_symbol = ticker.replace("-", ".")
+    url = "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol"
+    params = {
+        "symbols": cnbc_symbol,
+        "requestMethod": "itv",
+        "noform": "1",
+        "partnerId": "2",
+        "fund": "1",
+        "exthrs": "1",
+        "output": "json",
+        "events": "1",
+    }
+    with httpx.Client(timeout=5.0, headers={"User-Agent": "Mozilla/5.0"}) as client:
+        resp = client.get(url, params=params)
+        resp.raise_for_status()
+        return _parse_cnbc(resp.json())
+
+
+def _fetch_quote(ticker: str) -> dict[str, Any] | None:
+    for fetcher in (_fetch_yahoo, _fetch_nasdaq, _fetch_cnbc):
+        try:
+            result = fetcher(ticker)
+        except Exception:  # noqa: BLE001 - fail-soft: try next quote source
+            result = None
+        if result is not None:
+            return result
+    return None
 
 
 def previous_close(ticker: str) -> dict[str, Any] | None:
