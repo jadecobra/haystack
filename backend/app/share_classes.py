@@ -71,9 +71,6 @@ def _iso(value: str | None) -> date | None:
         return None
 
 
-# --- extraction (refresh time only) -------------------------------------
-
-
 def parse_instance(xml_bytes: bytes) -> dict[str, Any]:
     """Per-class share facts from one 10-K XBRL instance.
 
@@ -191,9 +188,6 @@ def refresh_counts(path: Path | None = None, *, limit: int = 12) -> dict[str, An
     }
     path.write_text(json.dumps(payload, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     return {"added": added}
-
-
-# --- application (analyze / screen) ------------------------------------
 
 
 def _ratio(entry: dict[str, Any], cls: str, filing: dict[str, Any]) -> float | None:

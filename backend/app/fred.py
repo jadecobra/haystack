@@ -16,7 +16,6 @@ _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "fred"
 _CACHE_PATH = _CACHE_DIR / "DGS30.json"
 _CACHE_TTL_S = 24 * 3600  # daily
 
-# (mtime, by_year, daily_latest | None)
 _mem: tuple[float, dict[int, float], dict[str, Any] | None] | None = None
 
 

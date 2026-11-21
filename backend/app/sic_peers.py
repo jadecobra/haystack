@@ -108,9 +108,6 @@ def disk_cached_fetch(fetch_json: Any, cache_dir: Path) -> Any:
     return fetch
 
 
-# --- build ----------------------------------------------------------------
-
-
 def latest_revenue(
     frames: dict[int, dict[str, list[dict[str, Any]]]],
 ) -> dict[int, tuple[float, int, str]]:
@@ -321,9 +318,6 @@ def main(argv: list[str] | None = None) -> int:
             encoding="utf-8",
         )
     return 0
-
-
-# --- runtime (analyze) ----------------------------------------------------
 
 
 @lru_cache(maxsize=1)
