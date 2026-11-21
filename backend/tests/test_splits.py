@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import json
+import os
 import sys
 import tempfile
+import time
 import unittest
 from datetime import date
 from pathlib import Path
 from unittest import mock
+
+import httpx
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
@@ -251,3 +256,164 @@ class TestPostFilingSplits(unittest.TestCase):
         with mock.patch.object(quote.httpx, "Client", _fake_yahoo_client(splits_payload)):
             parsed = quote.recent_splits("SNDK")
         self.assertEqual(parsed, [quote.Split(date(2026, 11, 20), 8.0)])
+
+    def test_recent_splits_disk_cache_ttl_and_empty_list(self):
+        calls: list[tuple[str, dict, dict, float | None]] = []
+
+        class _Resp:
+            def __init__(self, payload):
+                self._payload = payload
+
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return self._payload
+
+        def _make_client(payload):
+            class _Client:
+                def __init__(self, *args, **kwargs):
+                    self._headers = kwargs.get("headers") or {}
+                    self._timeout = kwargs.get("timeout")
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    return False
+
+                def get(self, url, *args, **kwargs):
+                    calls.append((url, kwargs.get("params") or {}, dict(self._headers), self._timeout))
+                    return _Resp(payload)
+
+            return _Client
+
+        splits_payload = _yahoo_splits_payload(1795185000, 8.0, 1.0)
+        with mock.patch.object(quote.httpx, "Client", _make_client(splits_payload)):
+            first = quote.recent_splits("sndk")
+            second = quote.recent_splits("SNDK")
+        self.assertEqual(first, [quote.Split(date(2026, 11, 20), 8.0)])
+        self.assertEqual(second, first)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(
+            calls[0][0],
+            "https://query1.finance.yahoo.com/v8/finance/chart/SNDK",
+        )
+        self.assertEqual(
+            calls[0][1],
+            {"range": "2y", "interval": "3mo", "events": "splits"},
+        )
+        self.assertEqual(calls[0][2].get("User-Agent"), quote._UA)
+        self.assertEqual(calls[0][3], 5.0)
+        cache_path = Path(self._tmp.name) / "SNDK.splits.json"
+        self.assertEqual(
+            json.loads(cache_path.read_text(encoding="utf-8")),
+            [{"ex_date": "2026-11-20", "ratio": 8.0}],
+        )
+
+        calls.clear()
+        empty_payload = {"chart": {"result": [{"meta": {"symbol": "NONE"}}]}}
+        with mock.patch.object(quote.httpx, "Client", _make_client(empty_payload)):
+            self.assertEqual(quote.recent_splits("NONE"), [])
+            self.assertEqual(quote.recent_splits("NONE"), [])
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(
+            json.loads((Path(self._tmp.name) / "NONE.splits.json").read_text(encoding="utf-8")),
+            [],
+        )
+
+    def test_recent_splits_stale_cache_fallback_and_fail_soft(self):
+        class _FailingClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, url, *args, **kwargs):
+                raise httpx.ConnectError("network down")
+
+        with mock.patch.object(quote.httpx, "Client", _FailingClient):
+            self.assertEqual(quote.recent_splits("FAIL"), [])
+            self.assertEqual(quote.recent_splits(""), [])
+
+        cache_path = Path(self._tmp.name) / "SNDK.splits.json"
+        cache_path.write_text(
+            json.dumps([{"ex_date": "2026-11-20", "ratio": 8.0}]),
+            encoding="utf-8",
+        )
+        stale_ts = time.time() - quote._CACHE_TTL_S - 60
+        os.utime(cache_path, (stale_ts, stale_ts))
+        with mock.patch.object(quote.httpx, "Client", _FailingClient):
+            self.assertEqual(
+                quote.recent_splits("SNDK"),
+                [quote.Split(date(2026, 11, 20), 8.0)],
+            )
+
+    def test_parse_yahoo_splits_reverse_and_skips_malformed(self):
+        payload = {
+            "chart": {
+                "result": [
+                    {
+                        "events": {
+                            "splits": {
+                                "rev": {"date": 1795185000, "numerator": 1, "denominator": 10},
+                                "zero_num": {"date": 1795185000, "numerator": 0, "denominator": 1},
+                                "neg_den": {"date": 1795185000, "numerator": 2, "denominator": -1},
+                                "missing_den": {"date": 1795185000, "numerator": 2},
+                                "bool_num": {"date": 1795185000, "numerator": True, "denominator": 1},
+                                "bad_date": {"date": "nope", "numerator": 2, "denominator": 1},
+                                "not_dict": "bad",
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        parsed = quote._parse_yahoo_splits(payload)
+        self.assertEqual(parsed, [quote.Split(date(2026, 11, 20), 0.1)])
+
+    def test_apply_market_splits_and_latest_filed_edge_cases(self):
+        self.assertIsNone(edgar.latest_filed({}))
+        payload = _sndk_payload()
+        self.assertEqual(edgar.latest_filed(payload), date(2026, 8, 17))
+
+        rows = {
+            2026: {
+                "shares": 100.0,
+                "dividends_per_share": 0.8,
+                "owner_earnings": 500.0,
+                "dividends": 50.0,
+            },
+            2025: {
+                "shares": None,
+                "dividends_per_share": None,
+                "owner_earnings": 400.0,
+                "dividends": None,
+            },
+        }
+        edgar.apply_market_splits(
+            rows,
+            [
+                quote.Split(date(2026, 8, 17), 5.0),
+                quote.Split(date(2026, 9, 1), 2.0),
+                quote.Split(date(2026, 11, 20), 4.0),
+            ],
+            basis=date(2026, 8, 17),
+        )
+        self.assertEqual(rows[2026]["shares"], 800.0)
+        self.assertAlmostEqual(rows[2026]["dividends_per_share"], 0.1)
+        self.assertEqual(rows[2026]["owner_earnings"], 500.0)
+        self.assertEqual(rows[2026]["dividends"], 50.0)
+        self.assertIsNone(rows[2025]["shares"])
+        self.assertIsNone(rows[2025]["dividends_per_share"])
+
+        edgar.apply_market_splits(
+            rows,
+            [quote.Split(date(2026, 11, 20), 8.0)],
+            basis=None,
+        )
+        self.assertEqual(rows[2026]["shares"], 800.0)

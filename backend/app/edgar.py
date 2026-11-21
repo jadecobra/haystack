@@ -2350,6 +2350,53 @@ def merge_predecessor_facts(
     return out
 
 
+def latest_filed(companyfacts: dict[str, Any]) -> date | None:
+    """Latest ISO ``filed`` date across every us-gaap fact in companyfacts."""
+    facts = companyfacts.get("facts") if isinstance(companyfacts, dict) else None
+    us_gaap = facts.get("us-gaap") if isinstance(facts, dict) else None
+    if not isinstance(us_gaap, dict):
+        return None
+    latest: date | None = None
+    for node in us_gaap.values():
+        if not isinstance(node, dict):
+            continue
+        units = node.get("units")
+        if not isinstance(units, dict):
+            continue
+        for entries in units.values():
+            if not isinstance(entries, list):
+                continue
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                filed = _parse_iso_date(entry.get("filed"))
+                if filed is not None and (latest is None or filed > latest):
+                    latest = filed
+    return latest
+
+
+def apply_market_splits(
+    statements: dict[int, dict[str, Any]],
+    splits: list[Any],
+    *,
+    basis: date | None,
+) -> None:
+    """Adjust statement shares and reported DPS for splits dated after ``basis``."""
+    if basis is None or not splits:
+        return
+    factor = 1.0
+    for split in splits:
+        if split.ex_date > basis and split.ratio > 0 and math.isfinite(split.ratio):
+            factor *= split.ratio
+    if factor == 1.0 or not math.isfinite(factor) or factor <= 0:
+        return
+    for row in statements.values():
+        if row.get("shares") is not None:
+            row["shares"] = row["shares"] * factor
+        if row.get("dividends_per_share") is not None:
+            row["dividends_per_share"] = row["dividends_per_share"] / factor
+
+
 def statements_for_ticker(
     ticker: str,
     *,
@@ -2379,4 +2426,9 @@ def statements_for_ticker(
     share_classes.apply(cik, statements)
     if not years:
         raise ValueError(f"unknown ticker / no annual us-gaap facts for {ticker}")
+    from app import quote
+
+    apply_market_splits(
+        statements, quote.recent_splits(ticker), basis=latest_filed(payload)
+    )
     return years, statements, cik, entity_name(payload)
