@@ -33,6 +33,7 @@ jobs:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       BASE: ${{ inputs.base || 'main' }}
       DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
