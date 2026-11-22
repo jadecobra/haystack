@@ -37,8 +37,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install and test
-        run: |
-          uv sync --group dev
+        run: exit 1 #
           uv run pytest tests/
       - name: Lint (ruff)
         run: uv run ruff check .
