@@ -288,6 +288,7 @@ def shares_by_year(cik: str | int) -> dict[int, tuple[float | None, str, str]]:
 def apply(cik: str | int, statements: dict[int, dict[str, Any]]) -> None:
     """Fill ``shares`` for years companyfacts left blank; note blanks' reasons."""
     by_year = shares_by_year(cik)
+    counts = load_counts().get(_key(cik)) or {}
     for year, stmt in statements.items():
         if stmt.get("shares") is not None or year not in by_year:
             continue
@@ -295,5 +296,9 @@ def apply(cik: str | int, statements: dict[int, dict[str, Any]]) -> None:
         if shares is not None and shares > 0:
             stmt["shares"] = shares
             stmt["shares_source"] = f"{how}; 10-K {accn}"
+            filing = counts.get(accn) or {}
+            stmt["shares_basis_date"] = _iso(filing.get("cover_date")) or _iso(
+                filing.get("period_end")
+            )
         else:
             stmt["shares_note"] = f"{how} (10-K {accn})"
