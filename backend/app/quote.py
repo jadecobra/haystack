@@ -9,6 +9,7 @@ Splits cache 24h on disk only. Stale disk is used only if fetches fail.
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import re
@@ -20,6 +21,8 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 _UA = "LongMuch/1.0 (contact@longmuch.local)"
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "quotes"
@@ -335,19 +338,28 @@ def _fetch_cnbc_splits(ticker: str) -> list[Split] | None:
     return _parse_cnbc_splits(_fetch_cnbc_payload(ticker))
 
 
-def _fetch_splits(ticker: str) -> list[Split] | None:
-    for fetcher in (
-        lambda s: _fetch_yahoo_splits(s, host="query1.finance.yahoo.com"),
-        lambda s: _fetch_yahoo_splits(s, host="query2.finance.yahoo.com"),
-        _fetch_cnbc_splits,
+def _fetch_splits(ticker: str) -> tuple[list[Split] | None, list[str]]:
+    errors: list[str] = []
+    for name, fetcher in (
+        (
+            "yahoo_query1",
+            lambda s: _fetch_yahoo_splits(s, host="query1.finance.yahoo.com"),
+        ),
+        (
+            "yahoo_query2",
+            lambda s: _fetch_yahoo_splits(s, host="query2.finance.yahoo.com"),
+        ),
+        ("cnbc", _fetch_cnbc_splits),
     ):
         try:
             result = fetcher(ticker)
-        except (httpx.HTTPError, ValueError):
-            result = None
+        except (httpx.HTTPError, ValueError) as exc:
+            errors.append(f"{name}: {type(exc).__name__}")
+            continue
         if result is not None:
-            return result
-    return None
+            return result, errors
+        errors.append(f"{name}: empty")
+    return None, errors
 
 
 def _fetch_quote(ticker: str) -> dict[str, Any] | None:
@@ -434,9 +446,17 @@ def recent_splits(ticker: str) -> list[Split]:
     fresh = _read_splits_disk(symbol, max_age_s=_CACHE_TTL_S)
     if fresh is not None:
         return fresh
-    splits = _fetch_splits(symbol)
+    splits, errors = _fetch_splits(symbol)
     if splits is None:
-        return _read_splits_disk(symbol, max_age_s=None) or []
+        stale = _read_splits_disk(symbol, max_age_s=None)
+        safe_symbol = symbol.replace("\r", "").replace("\n", "")
+        logger.warning(
+            "all split sources failed for %s (%s); %s",
+            safe_symbol,
+            ", ".join(errors),
+            "using stale cache" if stale is not None else "no cache available",
+        )
+        return stale if stale is not None else []
     try:
         _write_splits_disk(symbol, splits)
     except OSError:
