@@ -1048,6 +1048,8 @@ def _basis_jumps(
 
 def _split_adjusted_shares_for_tag(
     entries: list[dict[str, Any]],
+    *,
+    basis_dates: dict[int, date] | None = None,
 ) -> dict[int, float]:
     """Split-adjust one share tag's annual series (steps a, b, c, e for a single tag)."""
     annual: list[dict[str, Any]] = []
@@ -1088,6 +1090,31 @@ def _split_adjusted_shares_for_tag(
         by_fy[year].append((filed, end, entry))
 
     out: dict[int, float] = {}
+
+    def _record(target_year: int, chosen: dict[str, Any]) -> None:
+        rows = by_period.get(_period_key(chosen)) or []
+        kept = _scale_kept_chain(rows)
+        if not kept:
+            return
+        # (b) Latest kept restatement for that exact period key (any fy).
+        latest_filed, latest_val = kept[-1]
+        if latest_val <= 0:
+            return
+        factor = 1.0
+        applied_his: list[str] = []
+        for jump in jumps:
+            if latest_filed < jump.hi:
+                factor *= jump.ratio
+                applied_his.append(jump.hi)
+        adjusted = latest_val * factor
+        if adjusted > 0:
+            out[target_year] = adjusted
+            if basis_dates is not None:
+                basis_str = max([latest_filed, *applied_his])
+                parsed = _parse_iso_date(basis_str)
+                if parsed is not None:
+                    basis_dates[target_year] = parsed
+
     for year, candidates in by_fy.items():
         anchor, _anchor_days = _anchor_end_for_year(entries, year)
         eligible = [
@@ -1096,22 +1123,7 @@ def _split_adjusted_shares_for_tag(
         if not eligible:
             continue
         eligible.sort(key=lambda t: (t[0], t[1]), reverse=True)
-        chosen = eligible[0][2]
-        rows = by_period.get(_period_key(chosen)) or []
-        kept = _scale_kept_chain(rows)
-        if not kept:
-            continue
-        # (b) Latest kept restatement for that exact period key (any fy).
-        latest_filed, latest_val = kept[-1]
-        if latest_val <= 0:
-            continue
-        factor = 1.0
-        for jump in jumps:
-            if latest_filed < jump.hi:
-                factor *= jump.ratio
-        adjusted = latest_val * factor
-        if adjusted > 0:
-            out[year] = adjusted
+        _record(year, eligible[0][2])
     # Same stub release as _pick_annual_by_year: a full-year share count
     # tagged with the stub year still belongs to its period-end label.
     short_stub_years = set()
@@ -1136,20 +1148,7 @@ def _split_adjusted_shares_for_tag(
                 if current is None or (filed, end_text) > (current[0], current[1]):
                     released[label] = (filed, end_text, entry)
         for label, (_filed, _end_text, chosen) in released.items():
-            rows = by_period.get(_period_key(chosen)) or []
-            kept = _scale_kept_chain(rows)
-            if not kept:
-                continue
-            latest_filed, latest_val = kept[-1]
-            if latest_val <= 0:
-                continue
-            factor = 1.0
-            for jump in jumps:
-                if latest_filed < jump.hi:
-                    factor *= jump.ratio
-            adjusted = latest_val * factor
-            if adjusted > 0:
-                out[label] = adjusted
+            _record(label, chosen)
     return out
 
 
@@ -1301,7 +1300,21 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
+def _continuation_entry_matches_year(entry: dict[str, Any], year: int) -> bool:
+    try:
+        if int(entry.get("fy")) == year:
+            return True
+    except (TypeError, ValueError):
+        pass
+    end = _parse_iso_date(entry.get("end"))
+    return end is not None and fiscal_year_label(end) == year
+
+
+def split_adjusted_shares(
+    us_gaap: dict[str, Any],
+    *,
+    basis_dates: dict[int, date] | None = None,
+) -> dict[int, float]:
     """Annual diluted/basic/outstanding shares on a post-split basis.
 
     Per tag in TAG_PREFS["shares"] order (same per-year fill semantics as
@@ -1366,15 +1379,34 @@ def split_adjusted_shares(us_gaap: dict[str, Any]) -> dict[int, float]:
         if not isinstance(node, dict):
             continue
         entries = _unit_entries(node, prefer_shares=True)
-        series = _split_adjusted_shares_for_tag(entries)
+        tag_basis: dict[int, date] = {}
+        series = _split_adjusted_shares_for_tag(entries, basis_dates=tag_basis)
         for year, val in series.items():
             if year not in out and val > 0:
                 out[year] = val
+                if basis_dates is not None and year in tag_basis:
+                    basis_dates[year] = tag_basis[year]
     continuation = _continuation_share_series(us_gaap)
     if continuation is not None:
-        for year, val in continuation[1].items():
+        cont_tag, cont_series = continuation
+        cont_entries = (
+            (us_gaap.get(cont_tag) or {}).get("units") or {}
+        ).get("shares") or []
+        for year, val in cont_series.items():
             if year not in out and val > 0:
                 out[year] = val
+                if basis_dates is not None and isinstance(cont_entries, list):
+                    filed_dates = [
+                        parsed
+                        for entry in cont_entries
+                        if isinstance(entry, dict)
+                        and not entry.get("start")
+                        and _is_annual(entry)
+                        and _continuation_entry_matches_year(entry, year)
+                        and (parsed := _parse_iso_date(entry.get("filed"))) is not None
+                    ]
+                    if filed_dates:
+                        basis_dates[year] = max(filed_dates)
     return out
 
 
@@ -2184,7 +2216,7 @@ def map_companyfacts_to_statements(
     companyfacts: dict[str, Any],
     *,
     financial: bool = False,
-) -> tuple[list[int], dict[int, dict[str, float | str | None]]]:
+) -> tuple[list[int], dict[int, dict[str, float | str | date | None]]]:
     """Map companyfacts JSON → (years newest-first, statements[year][field])."""
     facts = companyfacts.get("facts") or {}
     us_gaap = facts.get("us-gaap") or {}
@@ -2199,7 +2231,8 @@ def map_companyfacts_to_statements(
     assets = _series_for_tags(us_gaap, TAG_PREFS["assets"])
     cash_source: dict[int, str] = {}
     cash = _series_for_tags(us_gaap, TAG_PREFS["cash"], source=cash_source)
-    shares = split_adjusted_shares(us_gaap)
+    share_basis_dates: dict[int, date] = {}
+    shares = split_adjusted_shares(us_gaap, basis_dates=share_basis_dates)
     dividends, dividends_per_share = _compose_dividends(us_gaap, shares)
 
     debt, debt_states = compose_debt(us_gaap)
@@ -2245,15 +2278,16 @@ def map_companyfacts_to_statements(
         "shares": shares,
         "cash": cash,
     }
-    statements: dict[int, dict[str, float | str | None]] = {}
+    statements: dict[int, dict[str, float | str | date | None]] = {}
     for y in years:
-        row: dict[str, float | str | None] = {
+        row: dict[str, float | str | date | None] = {
             k: series.get(y) for k, series in field_series.items()
         }
         # Extra keys are not FIELDS members; the sources gap note is unchanged.
         row["debt_state"] = debt_states.get(y, "unknown")
         row["dividends_per_share"] = dividends_per_share.get(y)
         row["cash_tag"] = cash_source.get(y)
+        row["shares_basis_date"] = share_basis_dates.get(y)
         statements[y] = row
     return years, statements
 
@@ -2379,18 +2413,25 @@ def apply_market_splits(
     statements: dict[int, dict[str, Any]],
     splits: list[Any],
     *,
-    basis: date | None,
+    basis: date | None = None,
 ) -> None:
-    """Adjust statement shares and reported DPS for splits dated after ``basis``."""
-    if basis is None or not splits:
-        return
-    factor = 1.0
-    for split in splits:
-        if split.ex_date > basis and split.ratio > 0 and math.isfinite(split.ratio):
-            factor *= split.ratio
-    if factor == 1.0 or not math.isfinite(factor) or factor <= 0:
+    """Adjust statement shares and reported DPS for splits dated after row basis."""
+    if not splits:
         return
     for row in statements.values():
+        row_basis = row.get("shares_basis_date") or basis
+        if not isinstance(row_basis, date):
+            continue
+        factor = 1.0
+        for split in splits:
+            if (
+                split.ex_date > row_basis
+                and split.ratio > 0
+                and math.isfinite(split.ratio)
+            ):
+                factor *= split.ratio
+        if factor == 1.0 or not math.isfinite(factor) or factor <= 0:
+            continue
         if row.get("shares") is not None:
             row["shares"] = row["shares"] * factor
         if row.get("dividends_per_share") is not None:
@@ -2401,7 +2442,7 @@ def statements_for_ticker(
     ticker: str,
     *,
     meta: dict[str, Any] | None = None,
-) -> tuple[list[int], dict[int, dict[str, float | str | None]], str, str | None]:
+) -> tuple[list[int], dict[int, dict[str, float | str | date | None]], str, str | None]:
     """Resolve ticker → companyfacts → statements.
 
     Returns (years, statements, cik, company_name).

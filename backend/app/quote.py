@@ -1,6 +1,7 @@
 """Previous-close quote and recent stock splits (no API key).
 
-Yahoo chart first. NASDAQ summary if Yahoo fails or returns nothing.
+Quote: Yahoo chart, then NASDAQ summary, then CNBC quote.
+Splits: Yahoo chart (query1, then query2), then CNBC quote EventData.
 Quote cache 24h (memory + disk); in-flight quote requests coalesce.
 Splits cache 24h on disk only. Stale disk is used only if fetches fail.
 """
@@ -14,7 +15,7 @@ import re
 import threading
 import time
 from concurrent.futures import Future
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, NamedTuple
 
@@ -40,6 +41,10 @@ def _normalize_symbol(ticker: str) -> str | None:
     if not symbol or not _SYMBOL_RE.fullmatch(symbol):
         return None
     return symbol
+
+
+def _yahoo_symbol(symbol: str) -> str:
+    return symbol.replace(".", "-")
 
 
 def _read_json(filename: str, *, max_age_s: float | None) -> Any | None:
@@ -135,7 +140,7 @@ def _parse_yahoo(payload: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def _fetch_yahoo(ticker: str) -> dict[str, Any] | None:
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{_yahoo_symbol(ticker)}"
     with httpx.Client(timeout=5.0, headers={"User-Agent": _UA}) as client:
         resp = client.get(url, params={"range": "1d", "interval": "1d"})
         resp.raise_for_status()
@@ -189,14 +194,25 @@ def _parse_yahoo_splits(payload: dict[str, Any]) -> list[Split]:
     return out
 
 
-def _fetch_yahoo_splits(ticker: str) -> list[Split]:
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+def _fetch_yahoo_splits(
+    ticker: str, *, host: str = "query1.finance.yahoo.com"
+) -> list[Split] | None:
+    url = f"https://{host}/v8/finance/chart/{_yahoo_symbol(ticker)}"
     with httpx.Client(timeout=5.0, headers={"User-Agent": _UA}) as client:
         resp = client.get(
             url, params={"range": "2y", "interval": "3mo", "events": "splits"}
         )
         resp.raise_for_status()
-        return _parse_yahoo_splits(resp.json())
+        payload = resp.json()
+    if not isinstance(payload, dict):
+        return None
+    chart = payload.get("chart")
+    if not isinstance(chart, dict):
+        return None
+    results = chart.get("result")
+    if not isinstance(results, list) or not results or not isinstance(results[0], dict):
+        return None
+    return _parse_yahoo_splits(payload)
 
 
 def _parse_nasdaq(payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -257,7 +273,7 @@ def _parse_cnbc(payload: dict[str, Any]) -> dict[str, Any] | None:
     return {"price": price, "as_of": as_of}
 
 
-def _fetch_cnbc(ticker: str) -> dict[str, Any] | None:
+def _fetch_cnbc_payload(ticker: str) -> Any:
     cnbc_symbol = ticker.replace("-", ".")
     url = "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol"
     params = {
@@ -273,7 +289,65 @@ def _fetch_cnbc(ticker: str) -> dict[str, Any] | None:
     with httpx.Client(timeout=5.0, headers={"User-Agent": "Mozilla/5.0"}) as client:
         resp = client.get(url, params=params)
         resp.raise_for_status()
-        return _parse_cnbc(resp.json())
+        return resp.json()
+
+
+def _fetch_cnbc(ticker: str) -> dict[str, Any] | None:
+    return _parse_cnbc(_fetch_cnbc_payload(ticker))
+
+
+def _parse_cnbc_splits(
+    payload: dict[str, Any], *, today: date | None = None
+) -> list[Split] | None:
+    if not isinstance(payload, dict):
+        return None
+    formatted = payload.get("FormattedQuoteResult")
+    quotes = formatted.get("FormattedQuote") if isinstance(formatted, dict) else None
+    if not isinstance(quotes, list) or not quotes or not isinstance(quotes[0], dict):
+        return None
+    q = quotes[0]
+    event_data = q.get("EventData") or {}
+    if not isinstance(event_data, dict):
+        return []
+    raw_ex = event_data.get("split_ex_date")
+    raw_factor = event_data.get("split_factor")
+    if not isinstance(raw_ex, str) or not raw_ex.strip():
+        return []
+    if raw_factor is None or isinstance(raw_factor, bool):
+        return []
+    try:
+        ex_date = datetime.strptime(raw_ex.strip(), "%m/%d/%Y").date()
+        factor = float(raw_factor)
+    except (TypeError, ValueError):
+        return []
+    if not math.isfinite(factor) or factor <= 0:
+        return []
+    ratio = 1.0 / factor
+    if not math.isfinite(ratio) or ratio <= 0:
+        return []
+    cutoff = (today or date.today()) + timedelta(days=3)
+    if ex_date > cutoff:
+        return []
+    return [Split(ex_date, ratio)]
+
+
+def _fetch_cnbc_splits(ticker: str) -> list[Split] | None:
+    return _parse_cnbc_splits(_fetch_cnbc_payload(ticker))
+
+
+def _fetch_splits(ticker: str) -> list[Split] | None:
+    for fetcher in (
+        lambda s: _fetch_yahoo_splits(s, host="query1.finance.yahoo.com"),
+        lambda s: _fetch_yahoo_splits(s, host="query2.finance.yahoo.com"),
+        _fetch_cnbc_splits,
+    ):
+        try:
+            result = fetcher(ticker)
+        except (httpx.HTTPError, ValueError):
+            result = None
+        if result is not None:
+            return result
+    return None
 
 
 def _fetch_quote(ticker: str) -> dict[str, Any] | None:
@@ -353,18 +427,16 @@ def previous_close(ticker: str) -> dict[str, Any] | None:
 
 
 def recent_splits(ticker: str) -> list[Split]:
-    """Return recent Yahoo stock splits for ticker; cached 24h on disk, fail-soft to []."""
+    """Return recent stock splits for ticker; cached 24h on disk, fail-soft to []."""
     symbol = _normalize_symbol(ticker)
     if not symbol:
         return []
     fresh = _read_splits_disk(symbol, max_age_s=_CACHE_TTL_S)
     if fresh is not None:
         return fresh
-    try:
-        splits = _fetch_yahoo_splits(symbol)
-    except (httpx.HTTPError, ValueError):
-        stale = _read_splits_disk(symbol, max_age_s=None)
-        return stale if stale is not None else []
+    splits = _fetch_splits(symbol)
+    if splits is None:
+        return _read_splits_disk(symbol, max_age_s=None) or []
     try:
         _write_splits_disk(symbol, splits)
     except OSError:
