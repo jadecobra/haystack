@@ -649,3 +649,46 @@ class TestPostFilingSplits(unittest.TestCase):
         ):
             _years, statements, _cik, _name = edgar.statements_for_ticker("V")
         self.assertEqual(statements[2025]["shares"], 3_932_000_000.0)
+
+    def test_recent_splits_logs_warning_when_all_sources_fail(self):
+        class _FailingClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, url, *args, **kwargs):
+                raise httpx.ConnectError("all down")
+
+        with (
+            mock.patch.object(quote.httpx, "Client", _FailingClient),
+            self.assertLogs("app.quote", level="WARNING") as cm,
+        ):
+            self.assertEqual(quote.recent_splits("FAIL"), [])
+        self.assertTrue(
+            any("FAIL" in msg and "no cache" in msg for msg in cm.output), cm.output
+        )
+
+        cache_path = Path(self._tmp.name) / "FAIL.splits.json"
+        cache_path.write_text(
+            json.dumps([{"ex_date": "2026-11-20", "ratio": 8.0}]),
+            encoding="utf-8",
+        )
+        stale_ts = time.time() - quote._CACHE_TTL_S - 60
+        os.utime(cache_path, (stale_ts, stale_ts))
+        with (
+            mock.patch.object(quote.httpx, "Client", _FailingClient),
+            self.assertLogs("app.quote", level="WARNING") as cm_stale,
+        ):
+            self.assertEqual(
+                quote.recent_splits("FAIL"),
+                [quote.Split(date(2026, 11, 20), 8.0)],
+            )
+        self.assertTrue(
+            any("FAIL" in msg and "stale cache" in msg for msg in cm_stale.output),
+            cm_stale.output,
+        )
