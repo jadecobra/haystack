@@ -8,7 +8,7 @@ import sys
 import tempfile
 import time
 import unittest
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from unittest import mock
 
@@ -424,3 +424,223 @@ class TestPostFilingSplits(unittest.TestCase):
         self.assertIsNone(quote._read_json("../escape.json", max_age_s=None))
         with self.assertRaises(ValueError):
             quote._write_json("../escape.json", {})
+
+    def test_yahoo_splits_normalizes_dotted_ticker(self):
+        quote._mem.clear()
+        requested_urls: list[str] = []
+        splits_payload = _yahoo_splits_payload(1795185000, 8.0, 1.0)
+        quote_payload = {
+            "chart": {
+                "result": [
+                    {
+                        "meta": {
+                            "previousClose": 450.0,
+                            "regularMarketTime": 1795185000,
+                        }
+                    }
+                ]
+            }
+        }
+
+        class _Resp:
+            def __init__(self, data):
+                self._data = data
+
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return self._data
+
+        class _Client:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def get(self, url, *args, **kwargs):
+                requested_urls.append(url)
+                params = kwargs.get("params") or {}
+                if params.get("events") == "splits":
+                    return _Resp(splits_payload)
+                return _Resp(quote_payload)
+
+        with mock.patch.object(quote.httpx, "Client", _Client):
+            splits = quote.recent_splits("BRK.B")
+            prev = quote.previous_close("BRK.B")
+        self.assertEqual(splits, [quote.Split(date(2026, 11, 20), 8.0)])
+        self.assertEqual(prev, {"price": 450.0, "as_of": "2026-11-20"})
+        self.assertEqual(
+            requested_urls,
+            [
+                "https://query1.finance.yahoo.com/v8/finance/chart/BRK-B",
+                "https://query1.finance.yahoo.com/v8/finance/chart/BRK-B",
+            ],
+        )
+        self.assertTrue((Path(self._tmp.name) / "BRK.B.splits.json").is_file())
+
+    def test_recent_splits_falls_back_to_query2_then_cnbc(self):
+        calls: list[str] = []
+        splits_payload = _yahoo_splits_payload(1795185000, 8.0, 1.0)
+        future_ex = (date.today() + timedelta(days=30)).strftime("%m/%d/%Y")
+
+        class _Resp:
+            def __init__(self, data):
+                self._data = data
+
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return self._data
+
+        def _make_client(mode: str):
+            class _Client:
+                def __init__(self, *args, **kwargs):
+                    pass
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    return False
+
+                def get(self, url, *args, **kwargs):
+                    calls.append(url)
+                    if "query1.finance.yahoo.com" in url:
+                        if mode == "empty":
+                            return _Resp({"chart": {"result": [{"meta": {"symbol": "NONE"}}]}})
+                        raise httpx.ConnectError("query1 down")
+                    if "query2.finance.yahoo.com" in url:
+                        if mode == "query2":
+                            return _Resp(splits_payload)
+                        raise httpx.ConnectError("query2 down")
+                    if "quote.cnbc.com" in url:
+                        ex = future_ex if mode == "cnbc_future" else "11/20/2026"
+                        factor = "0.5" if mode == "cnbc_future" else "0.125"
+                        return _Resp(
+                            {
+                                "FormattedQuoteResult": {
+                                    "FormattedQuote": [
+                                        {
+                                            "EventData": {
+                                                "split_ex_date": ex,
+                                                "split_factor": factor,
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        )
+                    raise AssertionError(url)
+
+            return _Client
+
+        with mock.patch.object(quote.httpx, "Client", _make_client("query2")):
+            self.assertEqual(
+                quote.recent_splits("SNDK"),
+                [quote.Split(date(2026, 11, 20), 8.0)],
+            )
+
+        with mock.patch.object(quote.httpx, "Client", _make_client("cnbc")):
+            self.assertEqual(
+                quote.recent_splits("AAPL"),
+                [quote.Split(date(2026, 11, 20), 8.0)],
+            )
+
+        with mock.patch.object(quote.httpx, "Client", _make_client("cnbc_future")):
+            self.assertEqual(quote.recent_splits("FUTR"), [])
+
+        calls.clear()
+        with mock.patch.object(quote.httpx, "Client", _make_client("empty")):
+            self.assertEqual(quote.recent_splits("NONE"), [])
+        self.assertEqual(len(calls), 1)
+        self.assertIn("query1.finance.yahoo.com", calls[0])
+
+    def test_non_restating_10q_does_not_suppress_post_10k_split(self):
+        payload = _sndk_payload(
+            extra_shares=[
+                _entry(
+                    start="2026-07-04",
+                    end="2026-10-02",
+                    val=1_200_000_000.0,
+                    fy=2027,
+                    filed="2026-12-01",
+                    form="10-Q",
+                    fp="Q1",
+                )
+            ]
+        )
+        payload["facts"]["us-gaap"]["Revenues"]["units"]["USD"].append(
+            _entry(
+                start="2026-07-04",
+                end="2026-10-02",
+                val=5_000_000_000.0,
+                fy=2027,
+                filed="2026-12-01",
+                form="10-Q",
+                fp="Q1",
+            )
+        )
+        splits = _yahoo_splits_payload(1795185000, 8.0, 1.0)
+        _years, statements, _cik, _name = self._run_statements(payload, splits)
+        self.assertEqual(statements[2026]["shares"], 1_240_000_000.0)
+        self.assertEqual(statements[2025]["shares"], 1_160_000_000.0)
+
+    def test_multiclass_share_classes_uses_10k_basis_not_10q(self):
+        payload = {
+            "cik": "0001403161",
+            "entityName": "Visa Inc.",
+            "facts": {
+                "us-gaap": {
+                    "Revenues": {
+                        "units": {
+                            "USD": [
+                                _entry(
+                                    start="2024-10-01",
+                                    end="2025-09-30",
+                                    val=35_900_000_000.0,
+                                    fy=2025,
+                                    filed="2025-11-12",
+                                ),
+                                _entry(
+                                    start="2026-10-01",
+                                    end="2026-12-31",
+                                    val=10_000_000_000.0,
+                                    fy=2027,
+                                    filed="2026-12-01",
+                                    form="10-Q",
+                                    fp="Q1",
+                                ),
+                            ]
+                        }
+                    },
+                    "NetIncomeLoss": {
+                        "units": {
+                            "USD": [
+                                _entry(
+                                    start="2024-10-01",
+                                    end="2025-09-30",
+                                    val=20_058_000_000.0,
+                                    fy=2025,
+                                    filed="2025-11-12",
+                                )
+                            ]
+                        }
+                    },
+                }
+            },
+        }
+        splits = _yahoo_splits_payload(1795185000, 2.0, 1.0)
+        with (
+            mock.patch.object(edgar, "resolve_cik", return_value="1403161"),
+            mock.patch.object(edgar, "fetch_companyfacts", return_value=payload),
+            mock.patch.object(edgar, "predecessor_ciks", return_value=[]),
+            mock.patch.object(quote.httpx, "Client", _fake_yahoo_client(splits)),
+        ):
+            _years, statements, _cik, _name = edgar.statements_for_ticker("V")
+        self.assertEqual(statements[2025]["shares"], 3_932_000_000.0)
