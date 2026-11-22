@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import re
 import threading
 import time
 from concurrent.futures import Future
@@ -21,6 +23,7 @@ import httpx
 _UA = "LongMuch/1.0 (contact@longmuch.local)"
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "quotes"
 _CACHE_TTL_S = 24 * 3600
+_SYMBOL_RE = re.compile(r"^[A-Z0-9]+(?:[.-][A-Z0-9]+)*$")
 
 _lock = threading.Lock()
 _mem: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -32,50 +35,59 @@ class Split(NamedTuple):
     ratio: float
 
 
-def _cache_path(ticker: str) -> Path:
-    return _CACHE_DIR / f"{ticker}.json"
+def _normalize_symbol(ticker: str) -> str | None:
+    symbol = ticker.upper().strip()
+    if not symbol or not _SYMBOL_RE.fullmatch(symbol):
+        return None
+    return symbol
 
 
-def _splits_cache_path(ticker: str) -> Path:
-    return _CACHE_DIR / f"{ticker}.splits.json"
-
-
-def _read_json(path: Path, *, max_age_s: float | None) -> Any | None:
-    if not path.is_file():
+def _read_json(filename: str, *, max_age_s: float | None) -> Any | None:
+    base = os.path.normpath(os.path.abspath(_CACHE_DIR))
+    target = os.path.normpath(os.path.join(base, filename))
+    if not target.startswith(base + os.sep):
+        return None
+    if not os.path.isfile(target):
         return None
     if max_age_s is not None:
         try:
-            age = time.time() - path.stat().st_mtime
+            age = time.time() - os.stat(target).st_mtime
         except OSError:
             return None
         if age > max_age_s:
             return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        with open(target, encoding="utf-8") as fh:
+            return json.load(fh)
     except (json.JSONDecodeError, OSError):
         return None
 
 
-def _write_json(path: Path, payload: Any) -> None:
-    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(payload), encoding="utf-8")
-    tmp.replace(path)
+def _write_json(filename: str, payload: Any) -> None:
+    base = os.path.normpath(os.path.abspath(_CACHE_DIR))
+    target = os.path.normpath(os.path.join(base, filename))
+    if not target.startswith(base + os.sep):
+        raise ValueError("invalid cache path")
+    os.makedirs(base, exist_ok=True)
+    tmp = f"{target}.tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh)
+    os.replace(tmp, target)
 
 
 def _read_disk(ticker: str, *, max_age_s: float | None) -> dict[str, Any] | None:
-    raw = _read_json(_cache_path(ticker), max_age_s=max_age_s)
+    raw = _read_json(f"{ticker}.json", max_age_s=max_age_s)
     if not isinstance(raw, dict) or raw.get("price") is None:
         return None
     return raw
 
 
 def _write_disk(ticker: str, payload: dict[str, Any]) -> None:
-    _write_json(_cache_path(ticker), payload)
+    _write_json(f"{ticker}.json", payload)
 
 
 def _read_splits_disk(ticker: str, *, max_age_s: float | None) -> list[Split] | None:
-    raw = _read_json(_splits_cache_path(ticker), max_age_s=max_age_s)
+    raw = _read_json(f"{ticker}.splits.json", max_age_s=max_age_s)
     if not isinstance(raw, list):
         return None
     splits: list[Split] = []
@@ -98,7 +110,7 @@ def _read_splits_disk(ticker: str, *, max_age_s: float | None) -> list[Split] | 
 
 def _write_splits_disk(ticker: str, splits: list[Split]) -> None:
     payload = [{"ex_date": s.ex_date.isoformat(), "ratio": s.ratio} for s in splits]
-    _write_json(_splits_cache_path(ticker), payload)
+    _write_json(f"{ticker}.splits.json", payload)
 
 
 def _parse_yahoo(payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -277,7 +289,7 @@ def _fetch_quote(ticker: str) -> dict[str, Any] | None:
 
 def previous_close(ticker: str) -> dict[str, Any] | None:
     """Return {price, as_of} for the last completed session, or None on failure."""
-    symbol = ticker.upper().strip()
+    symbol = _normalize_symbol(ticker)
     if not symbol:
         return None
 
@@ -342,7 +354,7 @@ def previous_close(ticker: str) -> dict[str, Any] | None:
 
 def recent_splits(ticker: str) -> list[Split]:
     """Return recent Yahoo stock splits for ticker; cached 24h on disk, fail-soft to []."""
-    symbol = ticker.upper().strip()
+    symbol = _normalize_symbol(ticker)
     if not symbol:
         return []
     fresh = _read_splits_disk(symbol, max_age_s=_CACHE_TTL_S)

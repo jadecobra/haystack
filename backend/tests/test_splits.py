@@ -417,3 +417,10 @@ class TestPostFilingSplits(unittest.TestCase):
             basis=None,
         )
         self.assertEqual(rows[2026]["shares"], 800.0)
+
+    def test_traversal_ticker_rejected(self):
+        self.assertEqual(quote.recent_splits("../etc/passwd"), [])
+        self.assertIsNone(quote.previous_close("../etc/passwd"))
+        self.assertIsNone(quote._read_json("../escape.json", max_age_s=None))
+        with self.assertRaises(ValueError):
+            quote._write_json("../escape.json", {})
