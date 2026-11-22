@@ -11,6 +11,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -152,7 +153,10 @@ def _fake_yahoo_client(payload: dict):
             return False
 
         def get(self, url, *args, **kwargs):
-            if "query1.finance.yahoo.com/v8/finance/chart/" in url:
+            parts = urlsplit(url)
+            if parts.hostname == "query1.finance.yahoo.com" and parts.path.startswith(
+                "/v8/finance/chart/"
+            ):
                 return _Resp()
             raise AssertionError(url)
 
@@ -511,15 +515,16 @@ class TestPostFilingSplits(unittest.TestCase):
 
                 def get(self, url, *args, **kwargs):
                     calls.append(url)
-                    if "query1.finance.yahoo.com" in url:
+                    host = urlsplit(url).hostname
+                    if host == "query1.finance.yahoo.com":
                         if mode == "empty":
                             return _Resp({"chart": {"result": [{"meta": {"symbol": "NONE"}}]}})
                         raise httpx.ConnectError("query1 down")
-                    if "query2.finance.yahoo.com" in url:
+                    if host == "query2.finance.yahoo.com":
                         if mode == "query2":
                             return _Resp(splits_payload)
                         raise httpx.ConnectError("query2 down")
-                    if "quote.cnbc.com" in url:
+                    if host == "quote.cnbc.com":
                         ex = future_ex if mode == "cnbc_future" else "11/20/2026"
                         factor = "0.5" if mode == "cnbc_future" else "0.125"
                         return _Resp(
@@ -559,7 +564,7 @@ class TestPostFilingSplits(unittest.TestCase):
         with mock.patch.object(quote.httpx, "Client", _make_client("empty")):
             self.assertEqual(quote.recent_splits("NONE"), [])
         self.assertEqual(len(calls), 1)
-        self.assertIn("query1.finance.yahoo.com", calls[0])
+        self.assertEqual(urlsplit(calls[0]).hostname, "query1.finance.yahoo.com")
 
     def test_non_restating_10q_does_not_suppress_post_10k_split(self):
         payload = _sndk_payload(
