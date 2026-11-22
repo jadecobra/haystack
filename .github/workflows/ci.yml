@@ -24,6 +24,7 @@ jobs:
       contents: read
       statuses: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: backend
@@ -62,6 +63,7 @@ jobs:
       contents: read
       statuses: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend
