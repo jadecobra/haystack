@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { readFileSync } from "node:fs";
 import {
-  groupForTicker, groupHeading, groupRows, parseSectorRow, resolveSlug, sectorCells, sectorSlug,
-  groupCountNote, sectorTableHeading, sectorTableNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX, DEBT_TOOLTIP_NA,
-  DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
+  groupForTicker, groupHeading, groupRows, parseSectorRow, parseSectorSnapshot, resolveSlug, sectorCells, sectorOwnMissingNote,
+  sectorSlug, groupCountNote, sectorTableHeading, sectorTableNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX,
+  DEBT_TOOLTIP_NA, DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
 } from "./sectorTable.ts";
 
 const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
@@ -148,5 +148,66 @@ describe("D/E cell folds no-debt (#51)", () => {
     assert.equal(parseSectorRow({ ticker: "JPM", fy: 2025, debt_state: "n/a" })?.debt_state, "n/a");
     assert.equal(parseSectorRow({ ticker: "OLD", fy: 2025, no_debt: true })?.debt_state, "zero");
     assert.equal(parseSectorRow({ ticker: "OLD", fy: 2025 })?.debt_state, "unknown");
+  });
+});
+
+describe("parseSectorSnapshot and sectorOwnMissingNote (#88)", () => {
+  it("rejects non-object bodies or payloads without a rows array", () => {
+    assert.equal(parseSectorSnapshot(null), null);
+    assert.equal(parseSectorSnapshot([]), null);
+    assert.equal(parseSectorSnapshot({ excluded: [] }), null);
+  });
+
+  it("parses rows, excluded tickers, and legacy snapshots without excluded", () => {
+    const withExcluded = parseSectorSnapshot({
+      built_at: "2026-11-23T13:20:30+00:00",
+      price_as_of: "2026-11-20",
+      excluded: [
+        { ticker: " hona ", reason: "no SEC annual us-gaap facts" },
+        { ticker: "", reason: "ignored" },
+        { ticker: "VYLR" },
+      ],
+      rows: [{ ticker: "aapl", fy: 2025, sector: IT, sub_industry: HW }],
+    });
+    assert.ok(withExcluded);
+    assert.equal(withExcluded.hasExcludedList, true);
+    assert.equal(withExcluded.builtAt, "2026-11-23T13:20:30+00:00");
+    assert.equal(withExcluded.priceAsOf, "2026-11-20");
+    assert.deepEqual(withExcluded.excluded, [
+      { ticker: "HONA", reason: "no SEC annual us-gaap facts" },
+      { ticker: "VYLR", reason: null },
+    ]);
+    assert.equal(withExcluded.rows.map((r) => r.ticker).join(","), "AAPL");
+
+    const legacy = parseSectorSnapshot({
+      rows: [{ ticker: "AAPL", fy: 2025, sector: IT, sub_industry: HW }],
+    });
+    assert.ok(legacy);
+    assert.equal(legacy.hasExcludedList, false);
+    assert.deepEqual(legacy.excluded, []);
+  });
+
+  it("returns the missing note only when the ticker is in snap.excluded", () => {
+    const snap = parseSectorSnapshot({
+      rows: [
+        { ticker: "AAPL", fy: 2025, sector: IT, sub_industry: HW },
+        { ticker: "DELL", fy: 2025, sector: IT, sub_industry: HW },
+        { ticker: "RL", fy: 2025, sector: "Consumer Discretionary", sub_industry: "Apparel, Accessories & Luxury Goods" },
+      ],
+      excluded: [{ ticker: "HONA", reason: "no SEC annual facts" }],
+    })!;
+    const group = groupForTicker(snap.rows, "LEVI", "Apparel, Accessories & Luxury Goods", "Consumer Discretionary")!;
+
+    assert.equal(sectorOwnMissingNote(snap, group, "aapl"), null);
+    assert.equal(
+      sectorOwnMissingNote(snap, group, "hona"),
+      "HONA is not in the snapshot: no SEC annual facts or no price for it.",
+    );
+    assert.equal(sectorOwnMissingNote(snap, group, "LEVI"), null);
+    assert.equal(sectorOwnMissingNote(snap, group, null), null);
+    assert.equal(sectorOwnMissingNote(snap, group, "  "), null);
+
+    const legacySnap = parseSectorSnapshot({ rows: snap.rows })!;
+    assert.equal(sectorOwnMissingNote(legacySnap, group, "HONA"), null);
   });
 });

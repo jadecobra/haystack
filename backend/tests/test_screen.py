@@ -46,7 +46,28 @@ class ScreenRankingTests(unittest.TestCase):
         self.assertLessEqual(len(tickers), 510)
         self.assertEqual(tickers, [t.upper() for t in tickers])
         self.assertIn("AAPL", tickers)
+        self.assertNotIn("COLM", tickers)
+        self.assertNotIn("UAA", tickers)
         self.assertNotIn("IWM", tickers)
+
+    def test_build_payload_default_sectors_uses_sp1500_gics(self):
+        def facts(ticker: str):
+            stmt = _stmt(oe=100.0, shares=10.0) | {"debt": 40.0, "debt_state": "positive"}
+            return [2024], {2024: stmt}, "1", ticker
+
+        payload = build_payload(
+            ["WAL", "COLM"],
+            fetch_facts=facts,
+            fetch_quote=lambda _t: {"price": 100.0, "as_of": "2026-11-23"},
+            built_at="2026-11-23T22:00:00+00:00",
+        )
+        by_ticker = {row["ticker"]: row for row in payload["rows"]}
+        self.assertEqual(by_ticker["WAL"]["sector"], "Financials")
+        self.assertEqual(by_ticker["WAL"]["debt_state"], "n/a")
+        self.assertEqual(by_ticker["WAL"]["oe_basis_note"], OE_BASIS_FINANCIAL)
+        self.assertEqual(by_ticker["COLM"]["sector"], "Consumer Discretionary")
+        self.assertEqual(by_ticker["COLM"]["debt_state"], "positive")
+        self.assertIsNone(by_ticker["COLM"]["oe_basis_note"])
 
     def test_yield_matches_analyze_ratio_and_ranks_high_to_low(self):
         stmt = _stmt(oe=200.0, shares=10.0)

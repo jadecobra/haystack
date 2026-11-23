@@ -13,12 +13,14 @@ from fastapi.testclient import TestClient
 
 from app.classification import (
     classify,
+    clear_gics_cache,
     fetch_sic,
+    is_financial_company,
     load_gics,
     sic_division,
 )
 from app.main import app
-from app.screen import DATA_PATH, load_sectors
+from app.sp1500_map import INDEX_SPECS, load_constituents
 
 
 class TestSicDivision(unittest.TestCase):
@@ -54,16 +56,37 @@ class TestLoadGics(unittest.TestCase):
         self.assertEqual(gics["XOM"]["sub_industry"], "Integrated Oil & Gas")
 
     def test_json_coverage(self):
-        raw = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-        tickers = set(raw["tickers"])
-        sectors = set(raw["sectors"])
-        subs = set(raw.get("sub_industries") or {})
-        # Counts move with the monthly refresh PR (#46); keep sane bounds.
-        self.assertGreaterEqual(len(tickers), 495)
-        self.assertGreaterEqual(len(sectors), len(tickers) - 10)
-        self.assertTrue(sectors.issubset(tickers))
-        self.assertTrue(subs.issubset(tickers))
-        self.assertEqual(load_sectors(), {k: v for k, v in raw["sectors"].items()})
+        constituents = load_constituents()
+        gics = load_gics()
+        for spec in INDEX_SPECS:
+            count = sum(1 for c in constituents.values() if c.index == spec.index)
+            self.assertGreaterEqual(count, spec.min_rows)
+        self.assertTrue(set(constituents).issubset(gics))
+        self.assertIn("BRK.B", gics)
+        self.assertEqual(gics["BRK-B"], gics["BRK.B"])
+
+    def test_load_gics_custom_path_and_cache_reset(self):
+        clear_gics_cache()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sp1500.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "constituents": {
+                            "BF.B": {
+                                "index": "sp500",
+                                "sector": "Consumer Staples",
+                                "sub_industry": "Distillers & Vintners",
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gics = load_gics(path=path)
+            self.assertEqual(gics["BF.B"]["sector"], "Consumer Staples")
+            self.assertEqual(gics["BF-B"], gics["BF.B"])
 
 
 class TestFetchSic(unittest.TestCase):
@@ -117,6 +140,31 @@ class TestClassify(unittest.TestCase):
         )
         self.assertIsNone(block["sic"])
         self.assertIsNone(block["link"])
+
+    def test_sp400_and_sp600_gics_offline(self):
+        with mock.patch("app.edgar.resolve_cik", side_effect=AssertionError("offline")):
+            colm = classify("COLM")
+            uaa = classify("UAA")
+        assert colm is not None
+        self.assertEqual(colm["scheme"], "gics")
+        self.assertEqual(colm["sector"], "Consumer Discretionary")
+        self.assertEqual(colm["industry"], "Apparel, Accessories & Luxury Goods")
+        self.assertIsNone(colm["sic"])
+
+        assert uaa is not None
+        self.assertEqual(uaa["scheme"], "gics")
+        self.assertEqual(uaa["sector"], "Consumer Discretionary")
+        self.assertEqual(uaa["industry"], "Apparel, Accessories & Luxury Goods")
+        self.assertIsNone(uaa["sic"])
+
+    def test_is_financial_company_sp1500_and_sic_fallback(self):
+        self.assertTrue(is_financial_company("JPM"))
+        self.assertTrue(is_financial_company("WAL"))
+        self.assertTrue(is_financial_company("AAMI"))
+        self.assertFalse(is_financial_company("COLM", sic=6021))
+        self.assertFalse(is_financial_company("UAA", sic=6021))
+        self.assertTrue(is_financial_company("NOTIN1500", sic=6021))
+        self.assertFalse(is_financial_company("NOTIN1500", sic=6798))
 
     def test_sic_path(self):
         body = {"sic": "3711", "sicDescription": "Motor Vehicles & Passenger Car Bodies"}

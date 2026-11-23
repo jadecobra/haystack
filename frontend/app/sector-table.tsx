@@ -11,33 +11,24 @@ import {
   debtCell,
   priceCell,
   groupForTicker,
+  sectorOwnMissingNote,
   sectorTableHeading,
   sectorTableNote,
-  parseSectorRow,
+  parseSectorSnapshot,
   resolveSlug,
   sectorCells,
   sortPeerRows,
   type PeerSortKey,
   sectorHref,
   type SectorGroup,
-  type SectorRow,
+  type SectorSnapshot,
 } from "@/lib/sectorTable";
 
-type Snapshot = { rows: SectorRow[]; builtAt: string | null; priceAsOf: string | null };
-
-async function loadSnapshot(): Promise<Snapshot | null> {
+async function loadSnapshot(): Promise<SectorSnapshot | null> {
   try {
     const res = await fetch("/api/screen/sp500-oe-yield", { cache: "no-store" });
     const json: unknown = await res.json();
-    if (typeof json !== "object" || json === null) return null;
-    const body = json as Record<string, unknown>;
-    if (!Array.isArray(body.rows)) return null;
-    const rows = body.rows.map(parseSectorRow).filter((r): r is SectorRow => r !== null);
-    return {
-      rows,
-      builtAt: typeof body.built_at === "string" ? body.built_at : null,
-      priceAsOf: typeof body.price_as_of === "string" ? body.price_as_of : null,
-    };
+    return parseSectorSnapshot(json);
   } catch {
     return null;
   }
@@ -48,7 +39,7 @@ export type SectorTableProps =
   | { kind: "slug"; slug: string };
 
 export function SectorTable(props: SectorTableProps) {
-  const [snap, setSnap] = useState<Snapshot | null | undefined>(undefined);
+  const [snap, setSnap] = useState<SectorSnapshot | null | undefined>(undefined);
   const [sortKey, setSortKey] = useState<PeerSortKey>("oe_yield");
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +144,7 @@ export function SectorTable(props: SectorTableProps) {
         Widen to {group.sector}
       </Link>
     ) : null;
+  const ownMissingNote = snap ? sectorOwnMissingNote(snap, group, current) : null;
   return (
     <section className="mt-6 text-left" data-testid="sector-table" data-level={group.level}>
       <h3 className="text-base sm:text-lg text-zinc-300 mb-1" data-testid="sector-table-heading">
@@ -162,9 +154,9 @@ export function SectorTable(props: SectorTableProps) {
         {sectorTableNote(group, snap?.priceAsOf ?? null)}
         {widen ? <> · {widen}</> : null}
       </p>
-      {current && !group.rows.some((r) => r.ticker === current) && snap?.rows.every((r) => r.ticker !== current) ? (
+      {ownMissingNote ? (
         <p className="text-sm text-zinc-500 mb-2" data-testid="sector-table-own-missing">
-          {current} is not in the snapshot: no SEC annual facts or no price for it.
+          {ownMissingNote}
         </p>
       ) : null}
       <DataTable headers={headers} rows={rows} />

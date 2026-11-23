@@ -1,10 +1,10 @@
-# Monthly refresh of backend/data/sp500_tickers.json (tickers, GICS sector,
-# GICS sub-industry) from Wikipedia's S&P 500 constituents table (#46).
-# Opens a PR only when the data changes. NO auto-merge: index changes move
-# the screen universe, so a human reviews and merges. GITHUB_TOKEN PRs do not
-# fire CI; the reviewer re-runs checks (close/reopen or push) before merging.
+# Monthly refresh of backend/data/sp1500_map.json (S&P 500, S&P 400, S&P 600
+# constituents and GICS sector/sub-industry) from Wikipedia (#88).
+# Opens a PR only when the data changes. NO auto-merge: S&P 500 index moves
+# change the screen universe, so a human reviews and merges. GITHUB_TOKEN PRs
+# do not fire CI; the reviewer re-runs checks (close/reopen or push) before merging.
 
-name: S&P 500 map refresh
+name: S&P 1500 GICS map refresh
 
 on:
   schedule:
@@ -57,11 +57,11 @@ jobs:
           set -euo pipefail
           args=()
           [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
-          uv run python -m app.sp500_map "${args[@]}" | tee /tmp/sp500-map.txt
-          grep -q '^changed=true$' /tmp/sp500-map.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+          uv run python -m app.sp1500_map "${args[@]}" | tee /tmp/sp1500-map.txt
+          grep -q '^changed=true$' /tmp/sp1500-map.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
       - name: Summary
         run: |
-          { echo "### S&P 500 map refresh (base: $BASE, dry_run: $DRY_RUN)"; echo '```'; cat /tmp/sp500-map.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          { echo "### S&P 1500 GICS map refresh (base: $BASE, dry_run: $DRY_RUN)"; echo '```'; cat /tmp/sp1500-map.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Open PR if changed
         if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
         env:
@@ -72,14 +72,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
-          git add backend/data/sp500_tickers.json
-          git commit -m "chore(data): refresh S&P 500 map from Wikipedia constituents"
+          git add backend/data/sp1500_map.json
+          git rm -f --ignore-unmatch backend/data/sp500_tickers.json
+          git commit -m "chore(data): refresh S&P 1500 GICS map from Wikipedia constituents"
           git push --force origin "HEAD:refs/heads/$branch"
-          body=$(printf 'Automated monthly refresh (#46). Review index changes before merging; no auto-merge.\n\nRe-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR.\n\n```\n%s\n```\n' "$(cat /tmp/sp500-map.txt)")
+          body=$(printf 'Automated monthly refresh of S&P 1500 (S&P 500 + S&P 400 + S&P 600) GICS constituents (#88). Review index changes before merging (moves to or from `sp500` affect `/screen`); no auto-merge.\n\nRe-run checks before merging (GITHUB_TOKEN PRs do not trigger CI): close/reopen this PR.\n\n```\n%s\n```\n' "$(cat /tmp/sp1500-map.txt)")
           existing=$(gh pr list --head "$branch" --base "$BASE" --state open --json number -q '.[0].number // empty')
           if [ -n "$existing" ]; then
-            gh pr edit "$existing" --body "$body"
+            gh pr edit "$existing" --title "chore(data): S&P 1500 GICS map refresh ($(date -u +%Y-%m))" --body "$body"
             echo "updated PR #$existing"
           else
-            gh pr create --base "$BASE" --head "$branch" --title "chore(data): S&P 500 map refresh ($(date -u +%Y-%m))" --body "$body"
+            gh pr create --base "$BASE" --head "$branch" --title "chore(data): S&P 1500 GICS map refresh ($(date -u +%Y-%m))" --body "$body"
           fi

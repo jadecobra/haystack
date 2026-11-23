@@ -13,7 +13,6 @@ from typing import Any
 
 UNIVERSE = "sp500"
 ARTIFACT_NAME = "sp500-oe-yield.json"
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp500_tickers.json"
 CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "screen"
 CACHE_PATH = CACHE_DIR / ARTIFACT_NAME
 BACKEND_SEED_PATH = Path(__file__).resolve().parent.parent / "data" / ARTIFACT_NAME
@@ -36,42 +35,11 @@ def _now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
-def load_sectors(path: Path | None = None) -> dict[str, str]:
-    """Ticker → GICS sector from ``sp500_tickers.json`` ``sectors``.
-
-    Tickers absent from the map are non-financial. Callers compare with
-    ``== "Financials"``.
-    """
-    raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
-    sectors = raw.get("sectors") if isinstance(raw, dict) else None
-    if not isinstance(sectors, dict):
-        return {}
-    out: dict[str, str] = {}
-    for key, value in sectors.items():
-        if not isinstance(key, str) or not isinstance(value, str):
-            continue
-        symbol = key.upper().strip()
-        if symbol:
-            out[symbol] = value
-    return out
-
-
 def load_universe(path: Path | None = None) -> list[str]:
-    raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
-    tickers = raw.get("tickers") if isinstance(raw, dict) else raw
-    if not isinstance(tickers, list):
-        raise ValueError("sp500 ticker list missing tickers[]")  # noqa: TRY004 - ValueError is the documented contract
-    out: list[str] = []
-    seen: set[str] = set()
-    for item in tickers:
-        if not isinstance(item, str):
-            continue
-        symbol = item.upper().strip()
-        if not symbol or symbol in seen:
-            continue
-        seen.add(symbol)
-        out.append(symbol)
-    return out
+    """Return S&P 500 ticker universe for the daily screen and peer_metrics exclusion."""
+    from app.sp1500_map import index_tickers
+
+    return index_tickers("sp500", path=path)
 
 
 def _edgar_symbol(ticker: str) -> str:
@@ -435,7 +403,16 @@ def build_payload(
     error: str | None = None,
     sectors: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    sector_by_ticker = load_sectors() if sectors is None else sectors
+    if sectors is None:
+        from app.classification import load_gics
+
+        sector_by_ticker = {
+            t: str(info["sector"])
+            for t, info in load_gics().items()
+            if info.get("sector")
+        }
+    else:
+        sector_by_ticker = sectors
     rows: list[dict[str, Any]] = []
     excluded: list[dict[str, str]] = []
     price_dates: list[str] = []
