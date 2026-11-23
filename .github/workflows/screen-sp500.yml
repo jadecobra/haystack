@@ -24,7 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.SCREEN_APP_ID }}
+          private-key: ${{ secrets.SCREEN_APP_KEY }}
       - uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
       - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
@@ -54,13 +62,11 @@ jobs:
           git commit -m "chore(screen): refresh S&P 500 OE-yield snapshot"
           git pull --rebase origin main
           echo "changed=true" >> "$GITHUB_OUTPUT"
-      # main requires backend + frontend on the pushed sha, and GITHUB_TOKEN
-      # pushes fire no push/pull_request workflows. So: push the commit to a
-      # bot branch, dispatch CI on it, wait for exactly that dispatched run
-      # (CI posts backend/frontend commit statuses on dispatch, which
-      # protection accepts; dispatch job checks alone do not count), then
-      # fast-forward main to that sha. GITHUB_TOKEN pushes also don't fire
-      # Deploy website, so dispatch it explicitly once main has moved.
+      # main requires backend + frontend on the pushed sha before accepting a
+      # push. Check out with the app token so pushing to main fires CI and
+      # Deploy website automatically (do not dispatch deploy.yml twice). Keep
+      # GH_TOKEN as github.token for gh workflow/run calls because the app lacks
+      # actions: write.
       - name: Push snapshot through CI
         if: steps.commit.outputs.changed == 'true'
         env:
@@ -86,8 +92,7 @@ jobs:
             gh run watch "$run_id" --exit-status
             if git push origin "HEAD:main"; then
               git push origin --delete "$branch" || true
-              gh workflow run deploy.yml --ref main
-              echo "landed $sha on main; dispatched Deploy website"
+              echo "landed $sha on main; Deploy website triggered by app-token push"
               exit 0
             fi
             git pull --rebase origin main
