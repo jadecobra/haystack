@@ -1,9 +1,9 @@
-"""Ticker sector/industry: GICS (S&P 500) or SEC SIC (everyone else).
+"""Ticker sector/industry: GICS (S&P 1500) or SEC SIC (everyone else).
 
-GICS sector + sub-industry come from ``backend/data/sp500_tickers.json``
-(Wikipedia List of S&P 500 companies — same source as existing ``sectors``).
-Non-S&P names use SEC EDGAR submissions JSON (``sic``, ``sicDescription``),
-cached under ``backend/.cache/submissions/``. Fail-soft: never raise to callers.
+GICS sector + sub-industry come from ``backend/data/sp1500_map.json`` via
+``app.sp1500_map``. Non-S&P names use SEC EDGAR submissions JSON (``sic``,
+``sicDescription``), cached under ``backend/.cache/submissions/``. Fail-soft:
+never raise to callers.
 """
 
 from __future__ import annotations
@@ -13,7 +13,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp500_tickers.json"
+from app import sp1500_map
+
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "submissions"
 _CACHE_TTL_S = 30 * 24 * 3600
 
@@ -58,31 +59,13 @@ FINANCIAL_SIC_HI = 6799
 REIT_SIC = 6798
 OE_BASIS_FINANCIAL = "net income (financial)"
 _SIC_PEERS_PATH = Path(__file__).resolve().parent.parent / "data" / "sic_peers.json"
-_sp500_symbols_mem: set[str] | None = None
 _peer_sic_mem: dict[str, int] | None = None
 
 
-def sp500_symbols() -> set[str]:
-    """Tickers listed in ``sp500_tickers.json``, including dot and hyphen forms."""
-    global _sp500_symbols_mem
-    if _sp500_symbols_mem is not None:
-        return set(_sp500_symbols_mem)
-    raw = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    tickers = raw.get("tickers") if isinstance(raw, dict) else None
-    out: set[str] = set()
-    if isinstance(tickers, list):
-        for item in tickers:
-            if not isinstance(item, str):
-                continue
-            symbol = item.upper().strip()
-            if not symbol:
-                continue
-            out.add(symbol)
-            alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
-            if alt != symbol:
-                out.add(alt)
-    _sp500_symbols_mem = out
-    return set(out)
+def clear_gics_cache() -> None:
+    """Clear the in-memory GICS lookup cache."""
+    global _gics_mem
+    _gics_mem = None
 
 
 def _peer_sic_by_ticker() -> dict[str, int]:
@@ -119,24 +102,26 @@ def _peer_sic_by_ticker() -> dict[str, int]:
 
 
 def is_financial_company(ticker: str, sic: int | None = None) -> bool:
-    """GICS Financials, or a non-S&P filer in SEC SIC 6000–6799 except REIT 6798.
+    """GICS Financials across S&P 1500, else SEC SIC 6000-6799 excluding REIT 6798.
 
-    A name listed in ``sp500_tickers.json`` uses only its GICS sector. SIC
-    never overrides that. Everyone else uses the SIC argument, then the
-    committed SIC peer map.
+    Any ticker in the S&P 1500 GICS map uses only its GICS sector; SIC never
+    overrides it.
     """
-    symbol = ticker.upper().strip()
-    if not symbol:
+    candidates = _ticker_candidates(ticker)
+    if not candidates:
         return False
-    if symbol in sp500_symbols():
-        hit = load_gics().get(symbol)
-        return bool(hit and hit.get("sector") == "Financials")
+    gics = load_gics()
+    for candidate in candidates:
+        hit = gics.get(candidate)
+        if hit and hit.get("sector"):
+            return hit["sector"] == "Financials"
     code = sic
     if code is None:
-        code = _peer_sic_by_ticker().get(symbol)
-        if code is None:
-            alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
-            code = _peer_sic_by_ticker().get(alt)
+        peers = _peer_sic_by_ticker()
+        for candidate in candidates:
+            code = peers.get(candidate)
+            if code is not None:
+                break
     if code is None:
         return False
     try:
@@ -147,31 +132,14 @@ def is_financial_company(ticker: str, sic: int | None = None) -> bool:
 
 
 def load_gics(path: Path | None = None) -> dict[str, dict[str, str | None]]:
-    """Ticker → {sector, sub_industry} from ``sp500_tickers.json``."""
+    """Ticker -> {sector, sub_industry} across S&P 1500, including '.' <-> '-' aliases."""
     global _gics_mem
     if path is None and _gics_mem is not None:
         return dict(_gics_mem)
-    raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
-    sectors = raw.get("sectors") if isinstance(raw, dict) else None
-    subs = raw.get("sub_industries") if isinstance(raw, dict) else None
-    if not isinstance(sectors, dict):
-        sectors = {}
-    if not isinstance(subs, dict):
-        subs = {}
+    constituents = sp1500_map.load_constituents(path)
     out: dict[str, dict[str, str | None]] = {}
-    for key, sector in sectors.items():
-        if not isinstance(key, str) or not isinstance(sector, str):
-            continue
-        symbol = key.upper().strip()
-        if not symbol:
-            continue
-        sub = subs.get(key)
-        if not isinstance(sub, str) or not sub.strip():
-            sub = None
-        else:
-            sub = sub.strip()
-        out[symbol] = {"sector": sector, "sub_industry": sub}
-    # Also index BRK.B ↔ BRK-B style
+    for symbol, constituent in constituents.items():
+        out[symbol] = {"sector": constituent.sector, "sub_industry": constituent.sub_industry}
     for symbol, payload in list(out.items()):
         alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
         if alt != symbol and alt not in out:
