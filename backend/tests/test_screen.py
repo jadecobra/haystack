@@ -4,6 +4,7 @@ import json
 import os
 import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -484,6 +485,60 @@ class ScreenCoverageTests(unittest.TestCase):
         else:  # seed predates #58
             self.assertGreater(jpm["ni_to_equity"], 0.10)
             self.assertLess(jpm["ni_to_equity"], 0.25)
+
+
+class TestStaleSchedule(unittest.TestCase):
+    def _served_stale(self, built_at: str, now: datetime) -> bool:
+        class FrozenDatetime(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return now if tz is None else now.astimezone(tz)
+
+        payload = {
+            "universe": "sp500",
+            "count": 0,
+            "skipped": 0,
+            "built_at": built_at,
+            "price_as_of": "2026-11-20",
+            "stale": False,
+            "error": None,
+            "rows": [],
+        }
+        with patch("app.screen.datetime", FrozenDatetime):
+            return bool(screen._serve(payload)["stale"])
+
+    def test_friday_build_fresh_on_saturday_and_sunday(self):
+        friday_build = "2026-11-20T22:00:00+00:00"
+        self.assertFalse(
+            self._served_stale(friday_build, datetime(2026, 11, 21, 12, 0, tzinfo=UTC))
+        )
+        self.assertFalse(
+            self._served_stale(friday_build, datetime(2026, 11, 22, 12, 0, tzinfo=UTC))
+        )
+
+    def test_friday_build_stale_on_tuesday_1200_utc(self):
+        friday_build = "2026-11-20T22:00:00+00:00"
+        self.assertTrue(
+            self._served_stale(friday_build, datetime(2026, 11, 24, 12, 0, tzinfo=UTC))
+        )
+
+    def test_wednesday_build_fresh_on_thursday_1200_utc(self):
+        wednesday_build = "2026-11-18T22:00:00+00:00"
+        self.assertFalse(
+            self._served_stale(wednesday_build, datetime(2026, 11, 19, 12, 0, tzinfo=UTC))
+        )
+
+    def test_monday_grace_period_boundary(self):
+        friday_build = "2026-11-20T22:00:00+00:00"
+        self.assertFalse(
+            self._served_stale(friday_build, datetime(2026, 11, 23, 23, 0, tzinfo=UTC))
+        )
+        self.assertFalse(
+            self._served_stale(friday_build, datetime(2026, 11, 24, 9, 59, tzinfo=UTC))
+        )
+        self.assertTrue(
+            self._served_stale(friday_build, datetime(2026, 11, 24, 10, 1, tzinfo=UTC))
+        )
 
 
 if __name__ == "__main__":

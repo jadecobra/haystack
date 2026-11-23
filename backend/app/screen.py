@@ -7,7 +7,7 @@ import math
 import os
 import sys
 from collections.abc import Callable, Iterable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +24,8 @@ PUBLIC_SEED_PATH = (
     / "screen"
     / ARTIFACT_NAME
 )
-STALE_AFTER_S = 36 * 3600
+RUN_HOUR_UTC = 22
+STALE_GRACE = timedelta(hours=12)
 CAVEAT = (
     "Trailing annual owner earnings per share divided by prior close — "
     "not live, not a growth screen."
@@ -521,17 +522,22 @@ def _mark_stale(payload: dict[str, Any], *, error: str | None = None) -> dict[st
     return out
 
 
-def _age_s(payload: dict[str, Any]) -> float | None:
-    stamp = payload.get("built_at")
-    if not isinstance(stamp, str) or not stamp:
-        return None
-    try:
-        dt = datetime.fromisoformat(stamp)
-    except ValueError:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=UTC)
-    return (datetime.now(UTC) - dt).total_seconds()
+def _last_expected_run(now: datetime) -> datetime:
+    ref = now.astimezone(UTC)
+    run = ref.replace(hour=RUN_HOUR_UTC, minute=0, second=0, microsecond=0)
+    if ref < run:
+        run -= timedelta(days=1)
+    while run.weekday() >= 5:
+        run -= timedelta(days=1)
+    return run
+
+
+def _is_stale(built_at: datetime, *, now: datetime | None = None) -> bool:
+    ref = (now or datetime.now(UTC)).astimezone(UTC)
+    expected = _last_expected_run(ref)
+    if ref <= expected + STALE_GRACE:
+        expected = _last_expected_run(expected - timedelta(days=1))
+    return built_at.astimezone(UTC) < expected
 
 
 def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
@@ -573,8 +579,8 @@ def _built_at(payload: dict[str, Any]) -> datetime | None:
 
 def _serve(payload: dict[str, Any]) -> dict[str, Any]:
     payload = with_gics(payload)
-    age = _age_s(payload)
-    if age is not None and age > STALE_AFTER_S:
+    built_at = _built_at(payload)
+    if built_at is not None and _is_stale(built_at):
         return _mark_stale(payload)
     return payload
 
