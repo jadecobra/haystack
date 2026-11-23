@@ -54,6 +54,19 @@ export type SectorGroup = {
   rows: SectorRow[];
 };
 
+export type ExcludedTicker = {
+  ticker: string;
+  reason: string | null;
+};
+
+export type SectorSnapshot = {
+  rows: SectorRow[];
+  excluded: ExcludedTicker[];
+  hasExcludedList: boolean;
+  builtAt: string | null;
+  priceAsOf: string | null;
+};
+
 /** URL slug: "Technology Hardware, Storage & Peripherals" → "technology-hardware-storage-and-peripherals". */
 export function sectorSlug(name: string): string {
   return name
@@ -169,6 +182,35 @@ function priceFields(
     oe_note: typeof r.oe_note === "string" && r.oe_note.trim() ? r.oe_note.trim() : null,
     oe_basis_note:
       typeof r.oe_basis_note === "string" && r.oe_basis_note.trim() ? r.oe_basis_note.trim() : null,
+  };
+}
+
+function parseExcludedTicker(value: unknown): ExcludedTicker | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const item = value as Record<string, unknown>;
+  if (typeof item.ticker !== "string") return null;
+  const ticker = item.ticker.trim().toUpperCase();
+  if (!ticker) return null;
+  const reason = typeof item.reason === "string" && item.reason.trim() ? item.reason.trim() : null;
+  return { ticker, reason };
+}
+
+/** Parse the daily screen snapshot JSON; null when rows are missing. */
+export function parseSectorSnapshot(body: unknown): SectorSnapshot | null {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) return null;
+  const record = body as Record<string, unknown>;
+  if (!Array.isArray(record.rows)) return null;
+  const rows = record.rows.map(parseSectorRow).filter((r): r is SectorRow => r !== null);
+  const hasExcludedList = Array.isArray(record.excluded);
+  const excluded = hasExcludedList
+    ? (record.excluded as unknown[]).map(parseExcludedTicker).filter((e): e is ExcludedTicker => e !== null)
+    : [];
+  return {
+    rows,
+    excluded,
+    hasExcludedList,
+    builtAt: typeof record.built_at === "string" ? record.built_at : null,
+    priceAsOf: typeof record.price_as_of === "string" ? record.price_as_of : null,
   };
 }
 
@@ -410,4 +452,22 @@ export function groupCountNote(g: SectorGroup): string {
   return g.total > g.rows.length
     ? `Top ${g.rows.length} of ${g.total} names`
     : `${g.total} name${g.total === 1 ? "" : "s"}`;
+}
+
+/** Missing-facts notice only for S&P 500 tickers listed in the snapshot's excluded array. */
+export function sectorOwnMissingNote(
+  snap: SectorSnapshot,
+  group: SectorGroup,
+  ticker: string | null,
+): string | null {
+  if (!ticker) return null;
+  const current = ticker.trim().toUpperCase();
+  if (!current) return null;
+  if (group.rows.some((r) => r.ticker === current) || snap.rows.some((r) => r.ticker === current)) {
+    return null;
+  }
+  if (snap.hasExcludedList && snap.excluded.some((e) => e.ticker === current)) {
+    return `${current} is not in the snapshot: no SEC annual facts or no price for it.`;
+  }
+  return null;
 }
