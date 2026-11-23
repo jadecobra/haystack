@@ -103,6 +103,6 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
       - name: Live origin gate
         run: FEATURE=live-origin .cursor/skills/verify-haystack/helpers/live-origin
