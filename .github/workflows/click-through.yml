@@ -28,7 +28,7 @@ jobs:
           node-version: "24.22.1"
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
       - uses: actions/setup-python@v7
