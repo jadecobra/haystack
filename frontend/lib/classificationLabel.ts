@@ -1,5 +1,5 @@
 export type ClassificationBlock = {
-  scheme: "gics" | "sic";
+  scheme: "gics" | "icb" | "sic";
   sector?: string | null;
   industry?: string | null;
   sic?: number | null;
@@ -12,7 +12,7 @@ export function classificationLabel(
   block: ClassificationBlock | null | undefined,
 ): string | null {
   if (!block) return null;
-  if (block.scheme === "gics") {
+  if (block.scheme === "gics" || block.scheme === "icb") {
     if (!block.sector) return null;
     return block.industry ? `${block.sector} · ${block.industry}` : block.sector;
   }
@@ -34,6 +34,7 @@ export function classificationSchemeLabel(
 ): string | null {
   if (!block) return null;
   if (block.scheme === "gics") return "GICS";
+  if (block.scheme === "icb") return "ICB";
   if (block.scheme === "sic") return "SEC SIC";
   return null;
 }

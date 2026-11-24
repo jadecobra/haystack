@@ -12,8 +12,8 @@ export type PeerItem = {
 export type PeerRow = SectorRow;
 
 export type PeersBlock = {
-  /** sub_industry / industry_group: S&P 500 by GICS (#42). sic / sic3: non-S&P by SEC SIC (#54). */
-  basis: "sub_industry" | "industry_group" | "sic" | "sic3";
+  /** sub_industry / industry_group: S&P 500 by GICS (#42). icb / icb_sector: US filers by ICB (#89). sic / sic3: fallback by SEC SIC (#54). */
+  basis: "sub_industry" | "industry_group" | "icb" | "icb_sector" | "sic" | "sic3";
   group: string;
   sub_industry: string;
   fallback: boolean;
@@ -100,6 +100,13 @@ function sic3Digits(block: PeersBlock): string {
 /** Heading for the ticker-page peers section. Null when there is nothing to list. */
 export function peersHeading(block: PeersBlock | null | undefined): string | null {
   if (!block) return null;
+  if (block.basis === "icb" || block.basis === "icb_sector") {
+    if (block.peers.length === 0) return block.reason ? "Industry peers — all US filers" : null;
+    if (block.basis === "icb") {
+      return `Industry peers — all US filers (${block.sub_industry})`;
+    }
+    return `Industry peers — all US filers (${block.group} sector, widened from ${block.sub_industry})`;
+  }
   if (block.basis === "sic" || block.basis === "sic3") {
     if (block.peers.length === 0) return block.reason ? "Industry peers — all US filers" : null;
     if (block.basis === "sic") {
@@ -116,9 +123,15 @@ export function peersHeading(block: PeersBlock | null | undefined): string | nul
   return `S&P 500 peers in the ${block.group} industry group (fewer than 3 others in ${block.sub_industry})`;
 }
 
-/** One-line subhead under the SEC SIC peers heading. Null when the list is empty. */
+/** One-line subhead under the US filer peers heading. Null when the list is empty. */
 export function peersNote(block: PeersBlock | null | undefined): string | null {
   if (!block || block.peers.length === 0) return null;
+  if (block.basis === "icb") {
+    return `Top ${block.peers.length} of ${block.total} US SEC filers in ${block.sub_industry} (ICB) with annual revenue of at least $10M, ranked by latest revenue and sorted by OE yield.`;
+  }
+  if (block.basis === "icb_sector") {
+    return `Fewer than 5 peers in ${block.sub_industry} cleared $10M revenue; widened to ${block.peers.length} of ${block.total} US SEC filers in ${block.group} (ICB), sorted by OE yield.`;
+  }
   if (block.basis === "sic") {
     return `Top ${block.peers.length} of ${block.total} US SEC filers in SIC ${block.sic} with annual revenue of at least $10M, ranked by latest revenue and sorted by OE yield.`;
   }
