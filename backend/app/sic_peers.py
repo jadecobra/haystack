@@ -252,7 +252,6 @@ def diff_summary(old: dict[str, Any], new: dict[str, Any]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     from app import edgar, peer_metrics
-    from app.screen import load_universe
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -285,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
             old_metrics = {}
         if not isinstance(old_metrics, dict):
             old_metrics = {}
-        tickers = peer_metrics.targets(new, load_universe())
+        tickers = peer_metrics.targets(new, peer_metrics.excluded_screen_universe())
         on_chunk, finish_cache = peer_metrics.make_cache_saver()
         new_metrics = peer_metrics.build(
             tickers, log=log, resume=True, on_chunk=on_chunk

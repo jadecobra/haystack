@@ -1,4 +1,4 @@
-"""S&P 500 owner-earnings-yield screen: static ranked JSON artifact."""
+"""Owner-earnings-yield screens: static ranked JSON artifacts."""
 
 from __future__ import annotations
 
@@ -6,10 +6,43 @@ import json
 import math
 import os
 import sys
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+
+from app.sp1500_map import (
+    INDEX_IDS,
+    Constituent,
+    IndexId,
+    ScreenUniverse,
+    UniverseId,
+    load_constituents,
+    lookup_constituent,
+    parse_universe,
+    ticker_candidates,
+    universe_tickers,
+)
+
+ScreenSlug = Literal["sp500-oe-yield", "sp1500-oe-yield"]
+
+
+@dataclass(frozen=True)
+class UniverseSpec:
+    universe: ScreenUniverse
+    slug: ScreenSlug
+    artifact_name: str
+
+
+_UNIVERSES: dict[ScreenUniverse, UniverseSpec] = {
+    "sp500": UniverseSpec("sp500", "sp500-oe-yield", "sp500-oe-yield.json"),
+    "sp1500": UniverseSpec("sp1500", "sp1500-oe-yield", "sp1500-oe-yield.json"),
+}
+_SLUG_TO_UNIVERSE: dict[str, ScreenUniverse] = {
+    spec.slug: spec.universe for spec in _UNIVERSES.values()
+}
 
 UNIVERSE = "sp500"
 ARTIFACT_NAME = "sp500-oe-yield.json"
@@ -23,6 +56,30 @@ PUBLIC_SEED_PATH = (
     / "screen"
     / ARTIFACT_NAME
 )
+
+
+def universe_for_slug(slug: str) -> ScreenUniverse:
+    """Resolve an API screen slug to its stored universe, or raise ValueError."""
+    universe = _SLUG_TO_UNIVERSE.get(slug)
+    if universe is None:
+        raise ValueError(f"unknown screen slug: {slug!r}")
+    return universe
+
+
+def _artifact_paths(universe: ScreenUniverse = "sp500") -> tuple[Path, Path, Path]:
+    if universe == "sp500":
+        return CACHE_PATH, BACKEND_SEED_PATH, PUBLIC_SEED_PATH
+    spec = _UNIVERSES.get(universe)
+    if spec is None:
+        raise ValueError(f"unknown screen universe: {universe!r}")
+    name = spec.artifact_name
+    return (
+        CACHE_DIR / name,
+        BACKEND_SEED_PATH.parent / name,
+        PUBLIC_SEED_PATH.parent / name,
+    )
+
+
 RUN_HOUR_UTC = 22
 STALE_GRACE = timedelta(hours=12)
 CAVEAT = (
@@ -35,11 +92,13 @@ def _now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
-def load_universe(path: Path | None = None) -> list[str]:
-    """Return S&P 500 ticker universe for the daily screen and peer_metrics exclusion."""
-    from app.sp1500_map import index_tickers
-
-    return index_tickers("sp500", path=path)
+def load_universe(
+    path: Path | None = None,
+    *,
+    universe: UniverseId = "sp500",
+) -> list[str]:
+    """Return ticker universe for the daily screen and peer_metrics exclusion."""
+    return universe_tickers(parse_universe(universe), path=path)
 
 
 def _edgar_symbol(ticker: str) -> str:
@@ -402,7 +461,12 @@ def build_payload(
     built_at: str | None = None,
     error: str | None = None,
     sectors: dict[str, str] | None = None,
+    universe: UniverseId = "sp500",
+    max_workers: int = 1,
 ) -> dict[str, Any]:
+    target_universe = parse_universe(universe)
+    if max_workers < 1:
+        raise ValueError("max_workers must be >= 1")
     if sectors is None:
         from app.classification import load_gics
 
@@ -413,10 +477,8 @@ def build_payload(
         }
     else:
         sector_by_ticker = sectors
-    rows: list[dict[str, Any]] = []
-    excluded: list[dict[str, str]] = []
-    price_dates: list[str] = []
-    for ticker in tickers:
+
+    def build_one(ticker: str) -> tuple[dict[str, Any] | None, dict[str, str] | None]:
         try:
             years, statements, _cik, name = fetch_facts(_edgar_symbol(ticker))
             quote = None
@@ -443,23 +505,39 @@ def build_payload(
         except Exception as exc:  # noqa: BLE001 - one bad ticker becomes an exclusion, not a failed build
             row, reason = None, f"{EXCLUDE_NO_FACTS}: {exc}"[:200]
         if row is None:
-            excluded.append({"ticker": ticker, "reason": reason or "unknown"})
-            continue
+            return None, {"ticker": ticker, "reason": reason or "unknown"}
         if sector_by_ticker.get(str(row["ticker"]).upper()) == "Financials":
             row["debt_state"] = "n/a"
             row["no_debt"] = None
             row["debt_to_equity"] = None
+        return row, None
+
+    if max_workers > 1 and len(tickers) > 1:
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            built = list(pool.map(build_one, tickers))
+    else:
+        built = [build_one(ticker) for ticker in tickers]
+
+    rows: list[dict[str, Any]] = []
+    excluded: list[dict[str, str]] = []
+    price_dates: list[str] = []
+    for row, exclusion in built:
+        if exclusion is not None:
+            excluded.append(exclusion)
+            continue
+        assert row is not None
         if row.get("price_as_of"):
             price_dates.append(str(row["price_as_of"]))
         rows.append(row)
+
     ranked = rank_rows(rows)
-    # GICS on the stored rows too, so the static seed the frontend falls back
-    # to can still group sector tables (#43).
-    with_gics({"rows": ranked})
+    # GICS + index + SIC on the stored rows too, so the static seed the
+    # frontend falls back to can group sector tables and slice by index (#43).
+    with_gics({"rows": ranked, "excluded": excluded})
     as_of = max(price_dates) if price_dates else None
     stamp = built_at or _now_iso()
     return {
-        "universe": UNIVERSE,
+        "universe": target_universe,
         "count": len(ranked),
         "ranked": sum(1 for r in ranked if r.get("oe_yield") is not None),
         "skipped": len(excluded),
@@ -517,21 +595,131 @@ def _is_stale(built_at: datetime, *, now: datetime | None = None) -> bool:
     return built_at.astimezone(UTC) < expected
 
 
-def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
-    """Stamp GICS sector / sub-industry on each row at serve time (#41)."""
-    from app.classification import load_gics
+def _sic_for_ticker(
+    ticker: str,
+    tickers_map: Mapping[str, Any],
+    companies: Mapping[str, Any],
+) -> int | None:
+    for candidate in ticker_candidates(ticker):
+        cik = tickers_map.get(candidate)
+        co = companies.get(cik) if isinstance(cik, str) else None
+        if isinstance(co, dict) and co.get("s") is not None:
+            try:
+                return int(co["s"])
+            except (TypeError, ValueError):
+                return None
+    return None
 
+
+def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
+    """Stamp index, GICS sector / sub-industry, and offline SIC at serve time (#41)."""
+    constituents: dict[str, Constituent] | None
     try:
-        gics = load_gics()
+        constituents = load_constituents()
     except Exception:  # noqa: BLE001 - fail-soft: rows still serve without labels
-        return payload
+        constituents = None
+
+    sic_tickers: Mapping[str, Any] | None = None
+    sic_companies: Mapping[str, Any] | None = None
+    try:
+        from app import sic_peers
+
+        sic_data = sic_peers.load()
+        if isinstance(sic_data, dict):
+            raw_tickers = sic_data.get("tickers")
+            raw_companies = sic_data.get("companies")
+            if isinstance(raw_tickers, dict) and isinstance(raw_companies, dict):
+                sic_tickers = raw_tickers
+                sic_companies = raw_companies
+    except Exception:  # noqa: BLE001 - fail-soft: rows still serve without SIC
+        sic_tickers = None
+        sic_companies = None
+
     for row in payload.get("rows") or []:
         if not isinstance(row, dict):
             continue
-        hit = gics.get(str(row.get("ticker") or "").upper()) or {}
-        row.setdefault("sector", hit.get("sector"))
-        row.setdefault("sub_industry", hit.get("sub_industry"))
+        ticker = str(row.get("ticker") or "")
+        if constituents is not None:
+            constituent = lookup_constituent(ticker, constituents)
+            if row.get("index") is None:
+                row["index"] = constituent.index if constituent is not None else None
+            row.setdefault("sector", constituent.sector if constituent is not None else None)
+            row.setdefault(
+                "sub_industry",
+                constituent.sub_industry if constituent is not None else None,
+            )
+        if sic_tickers is not None and sic_companies is not None and row.get("sic") is None:
+            row["sic"] = _sic_for_ticker(ticker, sic_tickers, sic_companies)
+
+    if constituents is not None:
+        for ex in payload.get("excluded") or []:
+            if not isinstance(ex, dict):
+                continue
+            if ex.get("index") is None:
+                constituent = lookup_constituent(str(ex.get("ticker") or ""), constituents)
+                ex["index"] = constituent.index if constituent is not None else None
     return payload
+
+
+def slice_payload(payload: Mapping[str, Any], universe: UniverseId) -> dict[str, Any]:
+    """Return a derived snapshot sliced to ``universe`` without mutating ``payload``."""
+    target = parse_universe(universe)
+    allowed: set[IndexId] = set(INDEX_IDS) if target == "sp1500" else {target}
+    constituents_cache: list[dict[str, Constituent]] = []
+
+    def resolved_index(entry: Mapping[str, Any]) -> IndexId | None:
+        raw = entry.get("index")
+        if raw in INDEX_IDS:
+            return raw
+        if not constituents_cache:
+            constituents_cache.append(load_constituents())
+        hit = lookup_constituent(str(entry.get("ticker") or ""), constituents_cache[0])
+        return hit.index if hit is not None else None
+
+    rows: list[dict[str, Any]] = []
+    for raw_row in payload.get("rows") or []:
+        if not isinstance(raw_row, Mapping):
+            continue
+        idx = resolved_index(raw_row)
+        if idx not in allowed:
+            continue
+        row = dict(raw_row)
+        if row.get("index") is None:
+            row["index"] = idx
+        rows.append(row)
+
+    ranked = rank_rows(rows)
+    excluded: list[dict[str, Any]] = []
+    for raw_ex in payload.get("excluded") or []:
+        if not isinstance(raw_ex, Mapping):
+            continue
+        idx = resolved_index(raw_ex)
+        if idx not in allowed:
+            continue
+        ex = dict(raw_ex)
+        if ex.get("index") is None:
+            ex["index"] = idx
+        excluded.append(ex)
+
+    price_dates = [str(r["price_as_of"]) for r in ranked if r.get("price_as_of")]
+    meta = dict(payload.get("meta") or {}) if isinstance(payload.get("meta"), Mapping) else {}
+    meta["debt_coverage"] = debt_coverage(ranked)
+    meta["column_coverage"] = column_coverage(ranked)
+
+    out = dict(payload)
+    out.update(
+        {
+            "universe": target,
+            "count": len(ranked),
+            "ranked": sum(1 for r in ranked if r.get("oe_yield") is not None),
+            "skipped": len(excluded),
+            "excluded": excluded,
+            "price_as_of": max(price_dates) if price_dates else None,
+            "rows": ranked,
+            "meta": meta,
+        }
+    )
+    return out
 
 
 def _rows_payload(path: Path) -> dict[str, Any] | None:
@@ -562,15 +750,16 @@ def _serve(payload: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
-def load_snapshot() -> dict[str, Any] | None:
+def load_snapshot(universe: ScreenUniverse = "sp500") -> dict[str, Any] | None:
     """Cache, then committed seed, then the public seed.
 
     A cache file is used only when its ``built_at`` parses and is >= the
     backend seed's ``built_at``. A missing or unparseable cache timestamp
     loses to the seed so a stale local cache cannot hide a newer commit.
     """
-    cache = _rows_payload(CACHE_PATH)
-    seed = _rows_payload(BACKEND_SEED_PATH)
+    cache_path, backend_seed_path, public_seed_path = _artifact_paths(universe)
+    cache = _rows_payload(cache_path)
+    seed = _rows_payload(backend_seed_path)
     chosen: dict[str, Any] | None = None
     if cache is not None and seed is not None:
         cache_at = _built_at(cache)
@@ -584,25 +773,35 @@ def load_snapshot() -> dict[str, Any] | None:
     elif seed is not None:
         chosen = seed
     if chosen is None:
-        chosen = _rows_payload(PUBLIC_SEED_PATH)
+        chosen = _rows_payload(public_seed_path)
     if chosen is None:
         return None
     return _serve(chosen)
 
 
-def write_snapshot(payload: dict[str, Any], *, also_seed: bool = False) -> Path:
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+def write_snapshot(
+    payload: dict[str, Any],
+    *,
+    universe: ScreenUniverse | None = None,
+    also_seed: bool = False,
+) -> Path:
+    target = universe
+    if target is None:
+        raw_universe = payload.get("universe")
+        target = raw_universe if raw_universe in _UNIVERSES else "sp500"
+    cache_path, backend_seed_path, public_seed_path = _artifact_paths(target)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, indent=2) + "\n"
-    tmp = CACHE_PATH.with_suffix(".tmp")
+    tmp = cache_path.with_suffix(".tmp")
     tmp.write_text(text, encoding="utf-8")
-    tmp.replace(CACHE_PATH)
+    tmp.replace(cache_path)
     if also_seed:
-        for dest in (BACKEND_SEED_PATH, PUBLIC_SEED_PATH):
+        for dest in (backend_seed_path, public_seed_path):
             dest.parent.mkdir(parents=True, exist_ok=True)
             seed_tmp = dest.with_suffix(".tmp")
             seed_tmp.write_text(text, encoding="utf-8")
             seed_tmp.replace(dest)
-    return CACHE_PATH
+    return cache_path
 
 
 def _live_facts(ticker: str) -> tuple[list[int], dict[int, dict[str, Any]], str, str | None]:
@@ -620,31 +819,50 @@ def _live_quote(ticker: str) -> dict[str, Any] | None:
 def screen_build(
     tickers: list[str] | None = None,
     *,
+    universe: ScreenUniverse = "sp500",
     fail_soft: bool = True,
     also_seed: bool = False,
     fetch_facts: Callable[..., Any] | None = None,
     fetch_quote: Callable[..., Any] | None = None,
+    max_workers: int = 1,
 ) -> dict[str, Any]:
-    universe = tickers if tickers is not None else load_universe()
+    if universe not in _UNIVERSES:
+        raise ValueError(f"unknown screen universe: {universe!r}")
+    target_tickers = tickers if tickers is not None else load_universe(universe=universe)
     facts = fetch_facts or _live_facts
     quotes = fetch_quote or _live_quote
     try:
-        payload = build_payload(universe, fetch_facts=facts, fetch_quote=quotes)
+        payload = build_payload(
+            target_tickers,
+            fetch_facts=facts,
+            fetch_quote=quotes,
+            universe=universe,
+            max_workers=max_workers,
+        )
         if not payload["rows"]:
             raise ValueError("screen produced zero ranked rows")
-        write_snapshot(payload, also_seed=also_seed)
+        write_snapshot(payload, universe=universe, also_seed=also_seed)
         log_debt_coverage(payload)
+        if universe == "sp1500" and tickers is None:
+            sp500_payload = slice_payload(payload, "sp500")
+            write_snapshot(sp500_payload, universe="sp500", also_seed=also_seed)
         return payload
     except Exception as exc:
         if not fail_soft:
             raise
-        previous = load_snapshot()
+        previous = load_snapshot(universe)
         if previous is None:
             raise
         kept = _mark_stale(previous, error=f"rebuild failed: {exc}")
-        write_snapshot(kept, also_seed=False)
+        write_snapshot(kept, universe=universe, also_seed=False)
         log_debt_coverage(kept)
         return kept
+    finally:
+        if tickers is None:
+            from app import edgar, quote
+
+            edgar.clear_mem_cache()
+            quote.clear_mem_cache()
 
 
 def rebuild_token() -> str:

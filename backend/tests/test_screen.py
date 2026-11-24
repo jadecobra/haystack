@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import threading
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
@@ -10,7 +11,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from app import screen
+from app import cli, edgar, quote, screen
 from app.classification import OE_BASIS_FINANCIAL, is_financial_company
 from app.main import app
 from app.metrics import compute_year
@@ -20,6 +21,9 @@ from app.screen import (
     load_universe,
     rank_rows,
     screen_build,
+    slice_payload,
+    universe_for_slug,
+    with_gics,
     write_snapshot,
 )
 
@@ -560,6 +564,265 @@ class TestStaleSchedule(unittest.TestCase):
         self.assertTrue(
             self._served_stale(friday_build, datetime(2026, 11, 24, 10, 1, tzinfo=UTC))
         )
+
+
+class Sp1500ScreenTests(unittest.TestCase):
+    def test_universe_for_slug_and_load_universe_tiers(self):
+        self.assertEqual(universe_for_slug("sp500-oe-yield"), "sp500")
+        self.assertEqual(universe_for_slug("sp1500-oe-yield"), "sp1500")
+        with self.assertRaises(ValueError):
+            universe_for_slug("sp400-oe-yield")
+
+        sp1500 = load_universe(universe="sp1500")
+        self.assertGreaterEqual(len(sp1500), 1400)
+        self.assertIn("AAPL", sp1500)
+        self.assertIn("COLM", sp1500)
+        self.assertIn("UAA", sp1500)
+
+    def test_with_gics_stamps_index_sic_with_dot_hyphen_normalization_and_excluded(self):
+        payload = {
+            "rows": [
+                {"ticker": "BRK.B", "oe_yield": 0.05},
+                {"ticker": "COLM", "oe_yield": 0.08},
+            ],
+            "excluded": [{"ticker": "UAA", "reason": "no quote"}],
+        }
+        with_gics(payload)
+        by_t = {r["ticker"]: r for r in payload["rows"]}
+        self.assertEqual(by_t["BRK.B"]["index"], "sp500")
+        self.assertEqual(by_t["BRK.B"]["sector"], "Financials")
+        self.assertEqual(by_t["BRK.B"]["sic"], 6331)
+        self.assertEqual(by_t["COLM"]["index"], "sp400")
+        self.assertEqual(by_t["COLM"]["sic"], 2300)
+        self.assertEqual(payload["excluded"][0]["index"], "sp600")
+
+    def test_slice_payload_filters_reranks_and_recomputes_metadata(self):
+        raw = {
+            "universe": "sp1500",
+            "built_at": "2026-11-23T22:00:00+00:00",
+            "stale": False,
+            "error": None,
+            "caveat": "test",
+            "rows": [
+                {
+                    "ticker": "COLM",
+                    "index": "sp400",
+                    "oe_yield": 0.12,
+                    "price_as_of": "2026-11-23",
+                    "debt_state": "zero",
+                    "payback_years": 8.0,
+                    "ni_margin": 0.1,
+                    "debt_to_equity": 0.0,
+                    "no_debt": True,
+                },
+                {
+                    "ticker": "AAPL",
+                    "oe_yield": 0.04,
+                    "price_as_of": "2026-11-22",
+                    "debt_state": "positive",
+                    "payback_years": 25.0,
+                    "ni_margin": 0.25,
+                    "debt_to_equity": 1.5,
+                    "no_debt": False,
+                },
+                {
+                    "ticker": "JPM",
+                    "index": "sp500",
+                    "oe_yield": None,
+                    "price_as_of": "2026-11-21",
+                    "debt_state": "n/a",
+                    "payback_years": None,
+                    "ni_margin": 0.3,
+                    "debt_to_equity": None,
+                    "no_debt": None,
+                },
+            ],
+            "excluded": [
+                {"ticker": "UAA", "index": "sp600", "reason": "no facts"},
+                {"ticker": "HONA", "reason": "no facts"},
+            ],
+        }
+        sliced = slice_payload(raw, "sp500")
+        self.assertEqual(raw["universe"], "sp1500")
+        self.assertEqual(len(raw["rows"]), 3)
+        self.assertEqual(sliced["universe"], "sp500")
+        self.assertEqual([r["ticker"] for r in sliced["rows"]], ["AAPL", "JPM"])
+        self.assertEqual(sliced["rows"][0]["index"], "sp500")
+        self.assertEqual(sliced["count"], 2)
+        self.assertEqual(sliced["ranked"], 1)
+        self.assertEqual(sliced["skipped"], 1)
+        self.assertEqual([e["ticker"] for e in sliced["excluded"]], ["HONA"])
+        self.assertEqual(sliced["excluded"][0]["index"], "sp500")
+        self.assertEqual(sliced["price_as_of"], "2026-11-22")
+        self.assertEqual(sliced["meta"]["debt_coverage"]["positive"], 1)
+        self.assertEqual(sliced["meta"]["debt_coverage"]["n/a"], 1)
+        self.assertEqual(sliced["meta"]["debt_coverage"]["zero"], 0)
+        self.assertEqual(sliced["meta"]["column_coverage"]["payback_years"], {"known": 1, "unknown": 1})
+
+    def test_build_payload_parallel_workers_preserves_fail_soft(self):
+        def facts(ticker: str):
+            if ticker == "BOOM":
+                raise RuntimeError("sec error")
+            oe = 300.0 if ticker == "COLM" else 100.0
+            return [2024], {2024: _stmt(oe=oe, shares=10.0)}, "1", f"{ticker} Co"
+
+        payload = build_payload(
+            ["AAPL", "BOOM", "COLM"],
+            fetch_facts=facts,
+            fetch_quote=lambda _t: {"price": 100.0, "as_of": "2026-11-23"},
+            built_at="2026-11-23T22:00:00+00:00",
+            universe="sp1500",
+            max_workers=4,
+        )
+        self.assertEqual(payload["universe"], "sp1500")
+        self.assertEqual([r["ticker"] for r in payload["rows"]], ["COLM", "AAPL"])
+        self.assertEqual([e["ticker"] for e in payload["excluded"]], ["BOOM"])
+        self.assertEqual(payload["excluded"][0]["ticker"], "BOOM")
+
+    def test_full_sp1500_screen_build_writes_both_snapshots_and_clears_caches(self):
+        def facts(ticker: str):
+            oe = 200.0 if ticker == "AAPL" else 300.0
+            return [2024], {2024: _stmt(oe=oe, shares=10.0)}, "1", f"{ticker} Co"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            cache_dir = tmp_dir / "cache"
+            cache_500 = cache_dir / "sp500-oe-yield.json"
+            seed_500 = tmp_dir / "data" / "sp500-oe-yield.json"
+            pub_500 = tmp_dir / "public" / "sp500-oe-yield.json"
+
+            with (
+                patch("app.screen.CACHE_DIR", cache_dir),
+                patch("app.screen.CACHE_PATH", cache_500),
+                patch("app.screen.BACKEND_SEED_PATH", seed_500),
+                patch("app.screen.PUBLIC_SEED_PATH", pub_500),
+                patch("app.screen.load_universe", return_value=["AAPL", "COLM", "UAA"]),
+                patch("app.edgar.clear_mem_cache") as clear_edgar,
+                patch("app.quote.clear_mem_cache") as clear_quote,
+            ):
+                built = screen_build(
+                    universe="sp1500",
+                    also_seed=True,
+                    fetch_facts=facts,
+                    fetch_quote=lambda _t: {"price": 100.0, "as_of": "2026-11-23"},
+                    max_workers=2,
+                )
+            clear_edgar.assert_called_once()
+            clear_quote.assert_called_once()
+            self.assertEqual(built["universe"], "sp1500")
+            self.assertEqual(built["count"], 3)
+            for path in (
+                cache_dir / "sp1500-oe-yield.json",
+                tmp_dir / "data" / "sp1500-oe-yield.json",
+                tmp_dir / "public" / "sp1500-oe-yield.json",
+            ):
+                self.assertTrue(path.is_file())
+                self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["count"], 3)
+            for path in (cache_500, seed_500, pub_500):
+                self.assertTrue(path.is_file())
+                sp500 = json.loads(path.read_text(encoding="utf-8"))
+                self.assertEqual(sp500["universe"], "sp500")
+                self.assertEqual([r["ticker"] for r in sp500["rows"]], ["AAPL"])
+
+    def test_api_routes_and_cli_flags(self):
+        client = TestClient(app)
+        self.assertEqual(client.get("/screen/unknown-screen").status_code, 404)
+        self.assertEqual(client.post("/screen/unknown-screen/rebuild").status_code, 404)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            cache_dir = tmp_dir / "cache"
+            with (
+                patch("app.screen.CACHE_DIR", cache_dir),
+                patch("app.screen.CACHE_PATH", cache_dir / "sp500-oe-yield.json"),
+                patch("app.screen.BACKEND_SEED_PATH", tmp_dir / "data" / "sp500-oe-yield.json"),
+                patch("app.screen.PUBLIC_SEED_PATH", tmp_dir / "public" / "sp500-oe-yield.json"),
+            ):
+                self.assertEqual(client.get("/screen/sp1500-oe-yield").status_code, 503)
+                write_snapshot(
+                    {
+                        "universe": "sp1500",
+                        "count": 1,
+                        "skipped": 0,
+                        "built_at": "2026-11-23T22:00:00+00:00",
+                        "stale": False,
+                        "error": None,
+                        "rows": [{"ticker": "COLM", "oe_yield": 0.1}],
+                    },
+                    universe="sp1500",
+                )
+                resp = client.get("/screen/sp1500-oe-yield")
+                self.assertEqual(resp.status_code, 200)
+                self.assertEqual(resp.json()["universe"], "sp1500")
+                self.assertEqual(resp.json()["rows"][0]["index"], "sp400")
+
+                with (
+                    patch.dict(os.environ, {"SCREEN_REBUILD_TOKEN": "secret"}, clear=False),
+                    patch("app.screen._live_facts", side_effect=RuntimeError("offline")),
+                    patch("app.screen._live_quote", return_value=None),
+                ):
+                    rebuilt = client.post(
+                        "/screen/sp1500-oe-yield/rebuild",
+                        headers={"Authorization": "Bearer secret"},
+                    )
+                self.assertEqual(rebuilt.status_code, 200)
+                self.assertTrue(rebuilt.json()["stale"])
+
+        with patch(
+            "app.cli.screen_build",
+            return_value={"universe": "sp1500", "count": 1, "rows": [{"ticker": "COLM"}]},
+        ) as mock_build:
+            exit_code = cli.main(
+                ["screen-build", "--universe", "sp1500", "--tickers", "COLM", "--workers", "4"]
+            )
+        self.assertEqual(exit_code, 0)
+        mock_build.assert_called_once_with(
+            ["COLM"],
+            universe="sp1500",
+            fail_soft=True,
+            also_seed=False,
+            max_workers=4,
+        )
+
+    def test_edgar_ticker_map_thread_safe_and_clear_mem_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cache_file = Path(tmp) / "company_tickers.json"
+            calls = 0
+
+            def fake_get(_url: str):
+                nonlocal calls
+                calls += 1
+                return {"0": {"ticker": "AAPL", "cik_str": 320193}}
+
+            with (
+                patch("app.edgar._TICKERS_CACHE", cache_file),
+                patch("app.edgar._http_get_json", side_effect=fake_get),
+            ):
+                results: list[dict[str, str]] = []
+                lock = threading.Lock()
+
+                def worker():
+                    got = edgar._load_ticker_map()
+                    with lock:
+                        results.append(got)
+
+                threads = [threading.Thread(target=worker) for _ in range(4)]
+                for t in threads:
+                    t.start()
+                for t in threads:
+                    t.join()
+
+            self.assertEqual(calls, 1)
+            self.assertEqual(len(results), 4)
+            self.assertTrue(all(r == {"AAPL": "320193"} for r in results))
+            self.assertFalse(cache_file.with_suffix(".tmp").exists())
+
+        edgar._mem_cache["0000320193"] = (1.0, {"entityName": "Apple"})
+        quote._mem["AAPL"] = (1.0, {"price": 100.0})
+        edgar.clear_mem_cache()
+        quote.clear_mem_cache()
+        self.assertEqual(len(edgar._mem_cache), 0)
+        self.assertEqual(len(quote._mem), 0)
 
 
 if __name__ == "__main__":

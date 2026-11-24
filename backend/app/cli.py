@@ -12,6 +12,7 @@ import httpx
 from app.metrics import LOCKED_LABELS, SCHEMA_VERSION, TREASURY_LABEL, groups_payload
 from app.screen import screen_build
 from app.sources import analyze as analyze_local
+from app.sp1500_map import VALID_SCREEN_UNIVERSES, ScreenUniverse
 
 DEFAULT_BASE = "http://127.0.0.1:8000"
 
@@ -104,12 +105,24 @@ def cmd_analyze(
     return 1 if reason else 0
 
 
-def cmd_screen_build(tickers: str | None, also_seed: bool) -> int:
+def cmd_screen_build(
+    tickers: str | None,
+    also_seed: bool,
+    *,
+    universe: ScreenUniverse = "sp500",
+    workers: int = 1,
+) -> int:
     allowlist = None
     if tickers:
         allowlist = [part.strip().upper() for part in tickers.split(",") if part.strip()]
     try:
-        payload = screen_build(allowlist, fail_soft=True, also_seed=also_seed)
+        payload = screen_build(
+            allowlist,
+            universe=universe,
+            fail_soft=True,
+            also_seed=also_seed,
+            max_workers=workers,
+        )
     except Exception as exc:  # noqa: BLE001 - CLI reports any failure as JSON error
         _dump({"error": str(exc)})
         return 1
@@ -177,6 +190,12 @@ def main(argv: list[str] | None = None) -> int:
 
     p_screen = sub.add_parser("screen-build")
     p_screen.add_argument(
+        "--universe",
+        choices=VALID_SCREEN_UNIVERSES,
+        default="sp500",
+        help="screen universe to build (sp1500 also slices and writes sp500)",
+    )
+    p_screen.add_argument(
         "--tickers",
         default=None,
         help="comma-separated allowlist (tests / bounded live sample)",
@@ -184,7 +203,13 @@ def main(argv: list[str] | None = None) -> int:
     p_screen.add_argument(
         "--seed",
         action="store_true",
-        help="also write frontend/public/screen/sp500-oe-yield.json",
+        help="also write backend/data and frontend/public/screen seed files",
+    )
+    p_screen.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="concurrent ticker workers for screen-build",
     )
 
     p_sc = sub.add_parser("share-classes-refresh")
@@ -208,7 +233,14 @@ def main(argv: list[str] | None = None) -> int:
         _dump(share_classes.refresh_counts(limit=args.limit))
         return 0
     if args.cmd == "screen-build":
-        return cmd_screen_build(args.tickers, args.seed)
+        if args.workers < 1:
+            parser.error("--workers must be >= 1")
+        return cmd_screen_build(
+            args.tickers,
+            args.seed,
+            universe=args.universe,
+            workers=args.workers,
+        )
     parser.error("unknown command")
     return 2
 

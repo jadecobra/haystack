@@ -8,7 +8,10 @@ import unittest
 from pathlib import Path
 
 from app.sp1500_map import (
+    INDEX_IDS,
     INDEX_SPECS,
+    VALID_SCREEN_UNIVERSES,
+    VALID_UNIVERSES,
     Constituent,
     ConstituentRow,
     IndexSpec,
@@ -19,8 +22,11 @@ from app.sp1500_map import (
     fetch_index_rows,
     index_tickers,
     load_constituents,
+    lookup_constituent,
     main,
     parse_constituents,
+    parse_universe,
+    universe_tickers,
     write_map,
 )
 
@@ -200,6 +206,25 @@ class TestLoadAndWriteMap(unittest.TestCase):
             self.assertEqual(index_tickers("sp500", path=path), ["AAPL", "BRK.B"])
             self.assertEqual(index_tickers("sp400", path=path), ["COLM", "WAL"])
             self.assertEqual(index_tickers("sp600", path=path), ["UAA", "PRK", "AAMI"])
+            self.assertEqual(
+                universe_tickers("sp1500", path=path),
+                ["AAPL", "BRK.B", "COLM", "WAL", "UAA", "PRK", "AAMI"],
+            )
+            self.assertEqual(universe_tickers("sp400", path=path), ["COLM", "WAL"])
+
+            self.assertEqual(lookup_constituent("BRK-B", loaded), loaded["BRK.B"])
+            self.assertEqual(lookup_constituent(" brk.b ", loaded), loaded["BRK.B"])
+            self.assertIsNone(lookup_constituent("MISSING", loaded))
+            self.assertIsNone(lookup_constituent("", loaded))
+
+    def test_parse_universe_and_constants(self):
+        self.assertEqual(INDEX_IDS, ("sp500", "sp400", "sp600"))
+        self.assertEqual(VALID_UNIVERSES, ("sp1500", "sp500", "sp400", "sp600"))
+        self.assertEqual(VALID_SCREEN_UNIVERSES, ("sp500", "sp1500"))
+        self.assertEqual(parse_universe(" SP1500 "), "sp1500")
+        self.assertEqual(parse_universe("sp400"), "sp400")
+        with self.assertRaises(ValueError):
+            parse_universe("sp999")
 
     def test_invalid_json_schema_raises(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -12,7 +12,13 @@ from app.metrics import (
     TREASURY_LABEL,
     groups_payload,
 )
-from app.screen import load_snapshot, rebuild_token, screen_build
+from app.screen import (
+    ScreenUniverse,
+    load_snapshot,
+    rebuild_token,
+    screen_build,
+    universe_for_slug,
+)
 from app.sources import analyze
 
 dotenv.load_dotenv()
@@ -210,18 +216,28 @@ async def contract():
     }
 
 
-@app.get("/screen/sp500-oe-yield")
-async def screen_sp500_oe_yield():
-    payload = load_snapshot()
+def _screen_universe_or_404(screen_name: str) -> ScreenUniverse:
+    try:
+        return universe_for_slug(screen_name)
+    except ValueError as exc:
+        raise fastapi.HTTPException(status_code=404, detail="unknown screen") from exc
+
+
+@app.get("/screen/{screen_name}")
+async def screen_snapshot(screen_name: str):
+    universe = _screen_universe_or_404(screen_name)
+    payload = load_snapshot(universe)
     if payload is None:
         raise fastapi.HTTPException(status_code=503, detail="screen snapshot missing")
     return payload
 
 
-@app.post("/screen/sp500-oe-yield/rebuild")
-async def screen_sp500_rebuild(
+@app.post("/screen/{screen_name}/rebuild")
+async def screen_rebuild(
+    screen_name: str,
     authorization: str | None = fastapi.Header(default=None),
 ):
+    universe = _screen_universe_or_404(screen_name)
     token = rebuild_token()
     if not token:
         raise fastapi.HTTPException(status_code=403, detail="rebuild disabled")
@@ -229,7 +245,7 @@ async def screen_sp500_rebuild(
     if (authorization or "") != expected:
         raise fastapi.HTTPException(status_code=403, detail="unauthorized")
     try:
-        payload = screen_build(fail_soft=True, also_seed=False)
+        payload = screen_build(universe=universe, fail_soft=True, also_seed=False)
     except Exception as exc:
         raise fastapi.HTTPException(status_code=500, detail=str(exc)) from exc
     return {

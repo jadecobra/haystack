@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const UPSTREAM_TIMEOUT_MS = 15_000;
+const VALID_SCREENS = new Set(["sp500-oe-yield", "sp1500-oe-yield"]);
 
 function backendOrigin(): string {
   return (
@@ -19,12 +20,12 @@ function isAbortError(err: unknown): boolean {
   );
 }
 
-async function readSeed(): Promise<unknown | null> {
+async function readSeed(screen: string): Promise<unknown | null> {
   const filePath = path.join(
     process.cwd(),
     "public",
     "screen",
-    "sp500-oe-yield.json",
+    `${screen}.json`,
   );
   try {
     const text = await readFile(filePath, "utf8");
@@ -45,8 +46,16 @@ function withStale(payload: unknown, note: string): unknown {
   };
 }
 
-export async function GET() {
-  const url = `${backendOrigin()}/screen/sp500-oe-yield`;
+export async function GET(
+  _request: NextRequest,
+  context: { params: Promise<{ screen: string }> },
+) {
+  const { screen } = await context.params;
+  if (!VALID_SCREENS.has(screen)) {
+    return NextResponse.json({ error: "unknown screen" }, { status: 404 });
+  }
+
+  const url = `${backendOrigin()}/screen/${screen}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
   try {
@@ -66,13 +75,13 @@ export async function GET() {
     }
   } catch (err) {
     if (!isAbortError(err) && !(err instanceof Error)) {
-      // fall through to seed
+      // Non-Error rejection still falls back to the disk snapshot.
     }
   } finally {
     clearTimeout(timer);
   }
 
-  const seed = await readSeed();
+  const seed = await readSeed(screen);
   if (seed) {
     return NextResponse.json(withStale(seed, "serving last-good snapshot"));
   }
