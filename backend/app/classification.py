@@ -1,9 +1,10 @@
-"""Ticker sector/industry: GICS (S&P 1500) or SEC SIC (everyone else).
+"""Ticker sector/industry: GICS (S&P 1500), ICB (US taxonomy), or SEC SIC.
 
 GICS sector + sub-industry come from ``backend/data/sp1500_map.json`` via
-``app.sp1500_map``. Non-S&P names use SEC EDGAR submissions JSON (``sic``,
-``sicDescription``), cached under ``backend/.cache/submissions/``. Fail-soft:
-never raise to callers.
+``app.sp1500_map``. Other US exchange-listed names use the monthly NASDAQ ICB
+snapshot via ``app.us_taxonomy`` (sectors normalized to GICS names). Remaining
+names use SEC EDGAR submissions JSON (``sic``, ``sicDescription``), cached
+under ``backend/.cache/submissions/``. Fail-soft: never raise to callers.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from app import sp1500_map
+from app import sp1500_map, us_taxonomy
 
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "submissions"
 _CACHE_TTL_S = 30 * 24 * 3600
@@ -110,14 +111,16 @@ def _peer_sic_by_ticker() -> dict[str, int]:
 
 
 def is_financial_company(ticker: str, sic: int | None = None) -> bool:
-    """GICS Financials across S&P 1500, else SEC SIC 6000-6799 excluding REIT 6798.
-
-    Any ticker in the S&P 1500 GICS map uses only its GICS sector; SIC never
-    overrides it.
-    """
+    """GICS Financials (S&P 1500), else ICB Financials, else SEC SIC 6000-6799 excluding 6798."""
     constituent = sp1500_map.lookup_constituent(ticker)
     if constituent is not None:
         return constituent.sector == "Financials"
+    try:
+        taxonomy_entry = us_taxonomy.lookup_taxonomy(ticker)
+    except (OSError, ValueError):
+        taxonomy_entry = None
+    if taxonomy_entry is not None:
+        return taxonomy_entry.sector == "Financials"
     candidates = sp1500_map.ticker_candidates(ticker)
     if not candidates:
         return False
@@ -261,6 +264,17 @@ def classify(ticker: str, cik: str | None = None) -> dict[str, Any] | None:
                     # Sector pages live in the site nav (#65). The subtitle is text.
                     "link": None,
                 }
+
+        taxonomy_entry = us_taxonomy.lookup_taxonomy(ticker)
+        if taxonomy_entry is not None:
+            return {
+                "scheme": "icb",
+                "sector": taxonomy_entry.sector,
+                "industry": taxonomy_entry.industry,
+                "sic": None,
+                "sic_description": None,
+                "link": None,
+            }
 
         resolved = cik
         if not resolved:
