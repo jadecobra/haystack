@@ -2,10 +2,25 @@
 
 export const SECTOR_TABLE_CAP = 40;
 
+export type IndexId = "sp500" | "sp400" | "sp600";
+
+export type ScreenIndex = "sp1500" | IndexId;
+
+export type SectorScope = "sp500" | "sp1500";
+
+export type DebtCoverage = {
+  zero: number;
+  positive: number;
+  unknown: number;
+  "n/a": number;
+  unknown_tickers: string[];
+};
+
 export type SectorRow = {
   ticker: string;
   name: string | null;
   oe_yield: number | null;
+  oe_per_share?: number | null;
   /** Latest FY OE/sh ÷ price (#59). Absent on snapshots from before that. */
   oe_yield_latest?: number | null;
   oe_yield_cons?: number | null;
@@ -24,6 +39,8 @@ export type SectorRow = {
   fy: number | null;
   sector: string | null;
   sub_industry: string | null;
+  index?: IndexId | null;
+  sic?: number | null;
   /** Peers table (#56): true for the page ticker. */
   current?: boolean;
   /** Peers table (#56): set when metrics were unavailable. */
@@ -57,15 +74,66 @@ export type SectorGroup = {
 export type ExcludedTicker = {
   ticker: string;
   reason: string | null;
+  index?: IndexId | null;
 };
 
 export type SectorSnapshot = {
+  universe: ScreenIndex;
   rows: SectorRow[];
   excluded: ExcludedTicker[];
   hasExcludedList: boolean;
+  count: number;
+  ranked: number;
+  skipped?: number;
   builtAt: string | null;
   priceAsOf: string | null;
+  stale?: boolean;
+  error?: string | null;
+  caveat?: string;
+  debtCoverage?: DebtCoverage;
 };
+
+function parseIndexId(v: unknown): IndexId | null {
+  if (v === "sp500" || v === "sp400" || v === "sp600") return v;
+  return null;
+}
+
+export function parseScreenIndex(raw: string | null): ScreenIndex {
+  const norm = raw?.trim().toLowerCase();
+  if (norm === "sp500" || norm === "sp400" || norm === "sp600" || norm === "sp1500") {
+    return norm;
+  }
+  return "sp500";
+}
+
+export function parseSectorScope(raw: string | null): SectorScope | null {
+  const norm = raw?.trim().toLowerCase();
+  if (norm === "sp500" || norm === "sp1500") return norm;
+  return null;
+}
+
+export function indexLabel(index: ScreenIndex): string {
+  switch (index) {
+    case "sp500":
+      return "S&P 500";
+    case "sp400":
+      return "S&P 400";
+    case "sp600":
+      return "S&P 600";
+    case "sp1500":
+      return "S&P 1500";
+  }
+}
+
+export function tickerIndex(snap: SectorSnapshot, ticker: string): IndexId | null {
+  const target = ticker.trim().toUpperCase();
+  if (!target) return null;
+  const row = snap.rows.find((r) => r.ticker === target);
+  if (row?.index) return row.index;
+  const excl = snap.excluded.find((e) => e.ticker === target);
+  if (excl?.index) return excl.index;
+  return null;
+}
 
 /** URL slug: "Technology Hardware, Storage & Peripherals" → "technology-hardware-storage-and-peripherals". */
 export function sectorSlug(name: string): string {
@@ -155,10 +223,13 @@ export function parseSectorRow(value: unknown): SectorRow | null {
   if (typeof value !== "object" || value === null) return null;
   const r = value as Record<string, unknown>;
   if (typeof r.ticker !== "string" || num(r.fy) === null) return null;
+  const index = parseIndexId(r.index);
+  const sic = num(r.sic);
   return {
     ticker: r.ticker.toUpperCase(),
     name: typeof r.name === "string" ? r.name : null,
     oe_yield: num(r.oe_yield),
+    ...("oe_per_share" in r ? { oe_per_share: num(r.oe_per_share) } : {}),
     ...optionalConsFields(r),
     payback_years: num(r.payback_years),
     ni_margin: num(r.ni_margin),
@@ -169,6 +240,8 @@ export function parseSectorRow(value: unknown): SectorRow | null {
     fy: r.fy as number,
     sector: typeof r.sector === "string" ? r.sector : null,
     sub_industry: typeof r.sub_industry === "string" ? r.sub_industry : null,
+    ...(index ? { index } : {}),
+    ...(sic !== null ? { sic } : {}),
     ...priceFields(r),
   };
 }
@@ -192,7 +265,27 @@ function parseExcludedTicker(value: unknown): ExcludedTicker | null {
   const ticker = item.ticker.trim().toUpperCase();
   if (!ticker) return null;
   const reason = typeof item.reason === "string" && item.reason.trim() ? item.reason.trim() : null;
-  return { ticker, reason };
+  const index = parseIndexId(item.index);
+  return index ? { ticker, reason, index } : { ticker, reason };
+}
+
+function parseCoverage(value: unknown): DebtCoverage | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  const record = value as Record<string, unknown>;
+  const count = (key: string) => {
+    const n = num(record[key]);
+    return n === null ? 0 : n;
+  };
+  const tickers = Array.isArray(record.unknown_tickers)
+    ? record.unknown_tickers.filter((item): item is string => typeof item === "string")
+    : [];
+  return {
+    zero: count("zero"),
+    positive: count("positive"),
+    unknown: count("unknown"),
+    "n/a": count("n/a"),
+    unknown_tickers: tickers,
+  };
 }
 
 /** Parse the daily screen snapshot JSON; null when rows are missing. */
@@ -205,12 +298,48 @@ export function parseSectorSnapshot(body: unknown): SectorSnapshot | null {
   const excluded = hasExcludedList
     ? (record.excluded as unknown[]).map(parseExcludedTicker).filter((e): e is ExcludedTicker => e !== null)
     : [];
+  const meta =
+    typeof record.meta === "object" && record.meta !== null && !Array.isArray(record.meta)
+      ? (record.meta as Record<string, unknown>)
+      : null;
+  const count = num(record.count);
+  const ranked = num(record.ranked);
+  const skipped = num(record.skipped);
   return {
+    universe: parseScreenIndex(typeof record.universe === "string" ? record.universe : null),
     rows,
     excluded,
     hasExcludedList,
+    count: count ?? rows.length,
+    ranked: ranked ?? rows.filter((r) => r.price != null && r.oe_yield !== null).length,
+    ...(skipped !== null ? { skipped } : {}),
     builtAt: typeof record.built_at === "string" ? record.built_at : null,
     priceAsOf: typeof record.price_as_of === "string" ? record.price_as_of : null,
+    stale: record.stale === true,
+    error: typeof record.error === "string" ? record.error : null,
+    ...(typeof record.caveat === "string" ? { caveat: record.caveat } : {}),
+    ...(meta ? { debtCoverage: parseCoverage(meta.debt_coverage) } : {}),
+  };
+}
+
+/**
+ * Slice a snapshot down to one index tier. Returns the snapshot as-is when
+ * asking for S&P 1500 or when the snapshot already matches the requested
+ * universe, preserving legacy S&P 500 fallback snapshots that lack `.index`.
+ */
+export function sliceSnapshotByIndex(snap: SectorSnapshot, index: ScreenIndex): SectorSnapshot {
+  if (index === "sp1500" || snap.universe === index) return snap;
+  const rows = snap.rows.filter((r) => r.index === index);
+  const excluded = snap.excluded.filter((e) => e.index === index);
+  const ranked = rows.filter((r) => r.price != null && r.oe_yield !== null).length;
+  return {
+    ...snap,
+    universe: index,
+    rows,
+    excluded,
+    count: rows.length,
+    ranked,
+    skipped: snap.hasExcludedList ? excluded.length : snap.skipped,
   };
 }
 
@@ -240,13 +369,16 @@ export function sortPeerRows<T extends SectorRow>(rows: T[], key: PeerSortKey = 
   return [...rest, ...dash];
 }
 
-/** OE yield high to low; blank OE yields (#52) last, by ticker. */
+/** Conservative OE yield high to low; blank OE yields (#52) last, by ticker. */
 export function byOeYield(a: SectorRow, b: SectorRow): number {
-  if (a.oe_yield === null || b.oe_yield === null) {
-    if (a.oe_yield !== b.oe_yield) return a.oe_yield === null ? 1 : -1;
+  const av = metricForSort(a, "oe_yield");
+  const bv = metricForSort(b, "oe_yield");
+  if (av === null || bv === null) {
+    if (av !== bv) return av === null ? 1 : -1;
     return a.ticker.localeCompare(b.ticker);
   }
-  return b.oe_yield - a.oe_yield;
+  if (av !== bv) return bv - av;
+  return a.ticker.localeCompare(b.ticker);
 }
 
 /**
@@ -429,15 +561,19 @@ export function debtCell(row: SectorRow): { text: string; title: string | null }
   }
 }
 
-export function groupHeading(g: SectorGroup): string {
+export function groupHeading(g: SectorGroup, scope: SectorScope = "sp500"): string {
   const kind = g.level === "sector" ? "GICS sector" : "GICS sub-industry";
-  return `${g.name} (${kind}) · S&P 500, by OE yield`;
+  return `${g.name} (${kind}) · ${indexLabel(scope)}, by OE yield`;
 }
 
 /** Ticker page names the GICS universe. Standalone /sector pages keep groupHeading. */
-export function sectorTableHeading(kind: "ticker" | "slug", g: SectorGroup): string {
-  if (kind === "ticker") return `S&P 500 peers — ${g.name}`;
-  return groupHeading(g);
+export function sectorTableHeading(
+  kind: "ticker" | "slug",
+  g: SectorGroup,
+  scope: SectorScope = "sp500",
+): string {
+  if (kind === "ticker") return `${indexLabel(scope)} peers — ${g.name}`;
+  return groupHeading(g, scope);
 }
 
 /** Count plus snapshot price date. Widen stays a separate link; there is no Open table link. */
@@ -454,11 +590,12 @@ export function groupCountNote(g: SectorGroup): string {
     : `${g.total} name${g.total === 1 ? "" : "s"}`;
 }
 
-/** Missing-facts notice only for S&P 500 tickers listed in the snapshot's excluded array. */
+/** Missing-facts notice only for tickers within the active scope listed in the snapshot's excluded array. */
 export function sectorOwnMissingNote(
   snap: SectorSnapshot,
   group: SectorGroup,
   ticker: string | null,
+  scope: SectorScope = "sp500",
 ): string | null {
   if (!ticker) return null;
   const current = ticker.trim().toUpperCase();
@@ -466,7 +603,12 @@ export function sectorOwnMissingNote(
   if (group.rows.some((r) => r.ticker === current) || snap.rows.some((r) => r.ticker === current)) {
     return null;
   }
-  if (snap.hasExcludedList && snap.excluded.some((e) => e.ticker === current)) {
+  if (
+    snap.hasExcludedList &&
+    snap.excluded.some(
+      (e) => e.ticker === current && (scope === "sp1500" || !e.index || e.index === "sp500"),
+    )
+  ) {
     return `${current} is not in the snapshot: no SEC annual facts or no price for it.`;
   }
   return null;

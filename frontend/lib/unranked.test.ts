@@ -61,15 +61,47 @@ describe("listUnranked", () => {
     assert.equal(dropReason({ ticker: "X", price: 1 }), "no fiscal year");
   });
 
-  it("matches the shipped snapshot: 501 ranked rows and 2 excluded", () => {
+  it("balances ranked and unranked against the shipped snapshot", () => {
     const names = listUnranked(snapshot);
-    assert.equal(names.length, 2);
-    assert.deepEqual(
-      names.map((item) => item.ticker),
-      ["HONA", "VYLR"],
-    );
+    assert.ok(snapshot.rows.length > 0);
     assert.ok(names.every((item) => item.reason.length > 0 && item.reason.length < 120));
     assert.equal(universeBalances(snapshot), true);
     assert.equal(snapshot.ranked + names.length, snapshot.rows.length + snapshot.excluded.length);
+  });
+
+  it("filters unranked and balances per index tier", () => {
+    const sp1500Payload = {
+      universe: "sp1500",
+      ranked: 2,
+      excluded: [
+        { ticker: "HONA", reason: "no SEC annual facts", index: "sp500" },
+        { ticker: "MIDX", reason: "no SEC annual facts", index: "sp400" },
+      ],
+      rows: [
+        { ticker: "AAPL", name: "Apple", oe_yield: 0.04, price: 100, fy: 2025, index: "sp500" },
+        { ticker: "MID1", name: "Mid Rank", oe_yield: 0.05, price: 50, fy: 2025, index: "sp400" },
+        { ticker: "MID2", name: "Mid Bank", oe_yield: null, oe_note: "no owner earnings: missing", price: 20, fy: 2025, index: "sp400" },
+        { ticker: "SML1", name: "Small No Price", oe_yield: 0.08, fy: 2025, index: "sp600" },
+      ],
+    };
+
+    assert.equal(universeBalances(sp1500Payload), true);
+    assert.deepEqual(
+      listUnranked(sp1500Payload, "sp500").map((x) => x.ticker),
+      ["HONA"],
+    );
+    assert.equal(universeBalances(sp1500Payload, "sp500"), true);
+
+    assert.deepEqual(
+      listUnranked(sp1500Payload, "sp400").map((x) => x.ticker),
+      ["MIDX", "MID2"],
+    );
+    assert.equal(universeBalances(sp1500Payload, "sp400"), true);
+
+    assert.deepEqual(
+      listUnranked(sp1500Payload, "sp600").map((x) => x.ticker),
+      ["SML1"],
+    );
+    assert.equal(universeBalances(sp1500Payload, "sp600"), true);
   });
 });
