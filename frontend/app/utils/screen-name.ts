@@ -1,4 +1,4 @@
-import snapshot from '../../public/screen/sp500-oe-yield.json';
+import snapshot from '../../public/screen/sp1500-oe-yield.json';
 
 type ScreenRow = {
   ticker?: unknown;
@@ -50,7 +50,7 @@ export function screenSnapshotPriceAsOf(): string | null {
   return dateString(snapshot.price_as_of);
 }
 
-/** Bundled S&P 500 row for a ticker, or null when the snapshot has no match. */
+/** Bundled S&P 1500 row for a ticker, or null when the snapshot has no match. */
 export function screenRowForTicker(ticker: string): ScreenCardRow | null {
   const symbol = ticker.trim().toUpperCase();
   if (!symbol) return null;

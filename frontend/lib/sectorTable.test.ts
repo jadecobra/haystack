@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { readFileSync } from "node:fs";
 import {
-  groupForTicker, groupHeading, groupRows, parseSectorRow, parseSectorSnapshot, resolveSlug, sectorCells, sectorOwnMissingNote,
-  sectorSlug, groupCountNote, sectorTableHeading, sectorTableNote, debtCell, priceCell, SECTOR_TABLE_HEADERS, DEBT_CELL_INDEX,
-  DEBT_TOOLTIP_NA, DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY, type SectorRow,
+  byOeYield, groupForTicker, groupHeading, groupRows, indexLabel, parseScreenIndex,
+  parseSectorRow, parseSectorScope, parseSectorSnapshot, resolveSlug, sectorCells,
+  sectorOwnMissingNote, sectorSlug, groupCountNote, sectorTableHeading, sectorTableNote,
+  sliceSnapshotByIndex, tickerIndex, debtCell, priceCell, SECTOR_TABLE_HEADERS,
+  DEBT_CELL_INDEX, DEBT_TOOLTIP_NA, DEBT_TOOLTIP_UNKNOWN, DEBT_TOOLTIP_NO_EQUITY,
+  type SectorRow,
 } from "./sectorTable.ts";
 
 const row = (ticker: string, oe: number | null, sub: string, sector: string, extra: Partial<SectorRow> = {}): SectorRow => ({
@@ -209,5 +212,124 @@ describe("parseSectorSnapshot and sectorOwnMissingNote (#88)", () => {
 
     const legacySnap = parseSectorSnapshot({ rows: snap.rows })!;
     assert.equal(sectorOwnMissingNote(legacySnap, group, "HONA"), null);
+  });
+});
+
+describe("S&P 1500 index helpers (#150)", () => {
+  it("parses screen index, sector scope, and labels", () => {
+    assert.equal(parseScreenIndex(null), "sp500");
+    assert.equal(parseScreenIndex("bogus"), "sp500");
+    assert.equal(parseScreenIndex(" SP400 "), "sp400");
+    assert.equal(parseScreenIndex("sp600"), "sp600");
+    assert.equal(parseScreenIndex("sp1500"), "sp1500");
+
+    assert.equal(parseSectorScope("sp500"), "sp500");
+    assert.equal(parseSectorScope("sp1500"), "sp1500");
+    assert.equal(parseSectorScope("sp400"), null);
+    assert.equal(parseSectorScope(null), null);
+
+    assert.equal(indexLabel("sp500"), "S&P 500");
+    assert.equal(indexLabel("sp400"), "S&P 400");
+    assert.equal(indexLabel("sp600"), "S&P 600");
+    assert.equal(indexLabel("sp1500"), "S&P 1500");
+  });
+
+  it("looks up tickerIndex across rows and excluded entries", () => {
+    const snap = parseSectorSnapshot({
+      universe: "sp1500",
+      rows: [
+        { ticker: "AAPL", fy: 2025, index: "sp500" },
+        { ticker: "MIDX", fy: 2025, index: "sp400" },
+      ],
+      excluded: [{ ticker: "SMLX", reason: "no price", index: "sp600" }],
+    })!;
+    assert.equal(tickerIndex(snap, "aapl"), "sp500");
+    assert.equal(tickerIndex(snap, "MIDX"), "sp400");
+    assert.equal(tickerIndex(snap, "smlx"), "sp600");
+    assert.equal(tickerIndex(snap, "UNKN"), null);
+  });
+
+  it("slices sp1500 snapshot by index and preserves legacy sp500 fallback snapshots", () => {
+    const sp1500 = parseSectorSnapshot({
+      universe: "sp1500",
+      count: 3,
+      ranked: 2,
+      skipped: 2,
+      rows: [
+        { ticker: "AAPL", fy: 2025, price: 200, oe_yield: 0.03, index: "sp500" },
+        { ticker: "MIDX", fy: 2025, price: 50, oe_yield: 0.05, index: "sp400" },
+        { ticker: "BANK", fy: 2025, price: 30, oe_yield: null, index: "sp400" },
+      ],
+      excluded: [
+        { ticker: "HONA", reason: "no facts", index: "sp500" },
+        { ticker: "SMLX", reason: "no facts", index: "sp600" },
+      ],
+    })!;
+
+    assert.equal(sliceSnapshotByIndex(sp1500, "sp1500"), sp1500);
+
+    const sp400 = sliceSnapshotByIndex(sp1500, "sp400");
+    assert.equal(sp400.universe, "sp400");
+    assert.deepEqual(sp400.rows.map((r) => r.ticker), ["MIDX", "BANK"]);
+    assert.equal(sp400.count, 2);
+    assert.equal(sp400.ranked, 1);
+    assert.equal(sp400.skipped, 0);
+
+    const sp600 = sliceSnapshotByIndex(sp1500, "sp600");
+    assert.equal(sp600.count, 0);
+    assert.equal(sp600.skipped, 1);
+    assert.deepEqual(sp600.excluded.map((e) => e.ticker), ["SMLX"]);
+
+    const legacySp500 = parseSectorSnapshot({
+      universe: "sp500",
+      rows: [{ ticker: "AAPL", fy: 2025, price: 200, oe_yield: 0.03 }],
+    })!;
+    assert.equal(sliceSnapshotByIndex(legacySp500, "sp500"), legacySp500);
+    assert.equal(sliceSnapshotByIndex(legacySp500, "sp1500"), legacySp500);
+  });
+
+  it("aligns byOeYield with oe_yield_cons so the group cap matches conservative sort", () => {
+    const a = row("HIGH_AVG", 0.25, HW, IT, { oe_yield_cons: 0.02 });
+    const b = row("HIGH_CONS", 0.05, HW, IT, { oe_yield_cons: 0.15 });
+    assert.ok(byOeYield(b, a) < 0);
+    const capped = groupRows([a, b], "sector", IT, 1);
+    assert.deepEqual(capped.rows.map((r) => r.ticker), ["HIGH_CONS"]);
+  });
+
+  it("formats sectorTableHeading for sp500 and sp1500 scopes", () => {
+    const g = groupForTicker(rows, "AAPL", null, null)!;
+    assert.equal(sectorTableHeading("ticker", g, "sp1500"), `S&P 1500 peers — ${HW}`);
+    assert.equal(
+      sectorTableHeading("slug", g, "sp1500"),
+      `${HW} (GICS sub-industry) · S&P 1500, by OE yield`,
+    );
+  });
+
+  it("filters sectorOwnMissingNote excluded entries by active scope", () => {
+    const snap = parseSectorSnapshot({
+      universe: "sp1500",
+      rows: [{ ticker: "AAPL", fy: 2025, sector: IT, sub_industry: HW, index: "sp500" }],
+      excluded: [
+        { ticker: "HONA", reason: "no facts", index: "sp500" },
+        { ticker: "MIDEXCL", reason: "no facts", index: "sp400" },
+        { ticker: "SMLEXCL", reason: "no facts", index: "sp600" },
+      ],
+    })!;
+    const group = groupForTicker(snap.rows, "AAPL", HW, IT)!;
+
+    assert.equal(
+      sectorOwnMissingNote(snap, group, "HONA", "sp500"),
+      "HONA is not in the snapshot: no SEC annual facts or no price for it.",
+    );
+    assert.equal(sectorOwnMissingNote(snap, group, "MIDEXCL", "sp500"), null);
+    assert.equal(sectorOwnMissingNote(snap, group, "SMLEXCL", "sp500"), null);
+    assert.equal(
+      sectorOwnMissingNote(snap, group, "MIDEXCL", "sp1500"),
+      "MIDEXCL is not in the snapshot: no SEC annual facts or no price for it.",
+    );
+    assert.equal(
+      sectorOwnMissingNote(snap, group, "SMLEXCL", "sp1500"),
+      "SMLEXCL is not in the snapshot: no SEC annual facts or no price for it.",
+    );
   });
 });

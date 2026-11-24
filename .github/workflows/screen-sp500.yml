@@ -1,4 +1,4 @@
-# Nightly S&P 500 OE-yield snapshot after US close.
+# Nightly S&P 1500 & S&P 500 OE-yield snapshots after US close.
 # Writes ranked JSON into the repo (Vercel static fail-soft + Render seed).
 # No Redis. Does not hit live analyze for the UI.
 
@@ -22,7 +22,7 @@ jobs:
       contents: write
       actions: write
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Generate GitHub App token
         id: app-token
@@ -42,24 +42,45 @@ jobs:
       - name: Install backend
         working-directory: backend
         run: uv sync
+      - name: Screen cache date
+        id: today
+        run: echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Restore EDGAR and quote cache
+        id: screen-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            backend/.cache/companyfacts
+            backend/.cache/quotes
+          key: screen-cache-${{ steps.today.outputs.date }}
       - name: Refresh per-class share counts (multi-class issuers, #53)
         working-directory: backend
         # Fail-soft: a SEC hiccup keeps the committed seed.
         run: uv run longmuch share-classes-refresh || echo "share-classes-refresh failed; keeping seed"
       - name: Build screen snapshot
         working-directory: backend
-        run: uv run longmuch screen-build --seed
+        run: |
+          mkdir -p .cache/companyfacts .cache/quotes
+          uv run longmuch screen-build --universe sp1500 --seed --workers 4
+      - name: Save EDGAR and quote cache
+        if: always() && steps.screen-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            backend/.cache/companyfacts
+            backend/.cache/quotes
+          key: screen-cache-${{ steps.today.outputs.date }}
       - name: Commit snapshot if changed
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add frontend/public/screen/sp500-oe-yield.json backend/data/sp500-oe-yield.json backend/data/share_class_counts.json
+          git add frontend/public/screen/sp1500-oe-yield.json backend/data/sp1500-oe-yield.json frontend/public/screen/sp500-oe-yield.json backend/data/sp500-oe-yield.json backend/data/share_class_counts.json
           if git diff --cached --quiet; then
             echo "snapshot unchanged"
             exit 0
           fi
-          git commit -m "chore(screen): refresh S&P 500 OE-yield snapshot"
+          git commit -m "chore(screen): refresh S&P 1500 and S&P 500 OE-yield snapshots"
           git pull --rebase origin main
           echo "changed=true" >> "$GITHUB_OUTPUT"
       # main requires backend + frontend on the pushed sha before accepting a

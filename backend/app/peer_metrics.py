@@ -144,8 +144,8 @@ def _release_live_caches() -> None:
     """
     from app import edgar, quote
 
-    edgar._mem_cache.clear()
-    quote._mem.clear()
+    edgar.clear_mem_cache()
+    quote.clear_mem_cache()
     gc.collect()
 
 
@@ -427,6 +427,15 @@ def resolve_row(
     return out
 
 
+def excluded_screen_universe() -> list[str]:
+    """Tickers already served from a committed/cached screen snapshot."""
+    from app.screen import load_snapshot, load_universe
+
+    if load_snapshot("sp1500") is not None:
+        return load_universe(universe="sp1500")
+    return load_universe(universe="sp500")
+
+
 def with_rows(
     ticker: str,
     block: dict[str, Any],
@@ -439,7 +448,11 @@ def with_rows(
     from app.screen import load_snapshot
 
     symbol = ticker.upper().strip()
-    snap = snapshot if snapshot is not None else load_snapshot()
+    snap = (
+        snapshot
+        if snapshot is not None
+        else (load_snapshot("sp1500") or load_snapshot("sp500"))
+    )
     mets = metrics if metrics is not None else load()
     data = sic_data if sic_data is not None else sic_peers.load()
     snap_rows = _snapshot_by_ticker(snap)
@@ -473,8 +486,6 @@ def with_rows(
 def main(argv: list[str] | None = None) -> int:
     """Build peer metrics for the SIC map already on disk. Prints the refresh report."""
     import argparse
-
-    from app.screen import load_universe
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -512,7 +523,7 @@ def main(argv: list[str] | None = None) -> int:
         old_metrics = {}
 
     on_chunk, finish_cache = make_cache_saver()
-    tickers = targets(new_sic, load_universe())
+    tickers = targets(new_sic, excluded_screen_universe())
     new_metrics = build(
         tickers,
         log=log,

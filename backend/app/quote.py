@@ -34,6 +34,12 @@ _mem: dict[str, tuple[float, dict[str, Any]]] = {}
 _inflight: dict[str, Future] = {}
 
 
+def clear_mem_cache() -> None:
+    """Clear the in-memory quote cache."""
+    with _lock:
+        _mem.clear()
+
+
 class Split(NamedTuple):
     ex_date: date
     ratio: float

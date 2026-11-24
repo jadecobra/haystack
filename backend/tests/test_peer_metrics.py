@@ -1,6 +1,9 @@
 """Peer comparison rows for the ticker-page peers table (#56)."""
 
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from app import peer_metrics
 
@@ -255,6 +258,81 @@ class LoadCacheTests(unittest.TestCase):
         data = peer_metrics.load()
         self.assertIsInstance(data, dict)
         self.assertIn("rows", data)
+
+
+class SnapshotSelectionTests(unittest.TestCase):
+    def test_with_rows_prefers_sp1500_snapshot_and_falls_back_to_sp500(self):
+        block = {
+            "basis": "sic",
+            "group": "Apparel",
+            "sub_industry": "Apparel",
+            "fallback": False,
+            "total": 1,
+            "peers": [{"ticker": "AAPL", "name": "Apple", "revenue": 400e9}],
+            "sic": 2300,
+        }
+        sp1500_snap = {
+            "universe": "sp1500",
+            "rows": [_snap_row("COLM", oe_yield=0.07), _snap_row("AAPL", oe_yield=0.03)],
+        }
+        sp500_snap = {
+            "universe": "sp500",
+            "rows": [_snap_row("AAPL", oe_yield=0.03)],
+        }
+        with patch("app.screen.load_snapshot", side_effect=[sp1500_snap]):
+            out = peer_metrics.with_rows(
+                "COLM",
+                block,
+                metrics={"rows": {}},
+                sic_data={"tickers": {}, "companies": {}},
+            )
+        self.assertEqual(out["rows"][0]["ticker"], "COLM")
+        self.assertEqual(out["rows"][0]["oe_yield"], 0.07)
+        self.assertIsNone(out["rows"][0]["missing"])
+
+        with patch("app.screen.load_snapshot", side_effect=[None, sp500_snap]):
+            fallback = peer_metrics.with_rows(
+                "COLM",
+                block,
+                metrics={"rows": {}},
+                sic_data={"tickers": {}, "companies": {}},
+            )
+        self.assertEqual(fallback["rows"][0]["missing"], peer_metrics.MISSING_REASON)
+        self.assertEqual(fallback["rows"][1]["oe_yield"], 0.03)
+
+    def test_excluded_screen_universe_follows_sp1500_snapshot_presence(self):
+        with (
+            patch("app.screen.load_snapshot", return_value=None),
+            patch("app.screen.load_universe", return_value=["AAPL"]) as mock_univ,
+        ):
+            self.assertEqual(peer_metrics.excluded_screen_universe(), ["AAPL"])
+            mock_univ.assert_called_once_with(universe="sp500")
+
+        with (
+            patch("app.screen.load_snapshot", return_value={"rows": [{"ticker": "COLM"}]}),
+            patch("app.screen.load_universe", return_value=["AAPL", "COLM"]) as mock_univ,
+        ):
+            self.assertEqual(peer_metrics.excluded_screen_universe(), ["AAPL", "COLM"])
+            mock_univ.assert_called_once_with(universe="sp1500")
+
+    def test_main_uses_excluded_screen_universe(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sic_path = Path(tmp) / "sic.json"
+            metrics_path = Path(tmp) / "metrics.json"
+            sic_path.write_text(
+                '{"companies": {"1": {"t": "COLM", "s": 2300, "r": 1e9, "p": ["2"]}, "2": {"t": "PEER", "s": 2300, "r": 1e9}}}',
+                encoding="utf-8",
+            )
+            with (
+                patch("app.peer_metrics.excluded_screen_universe", return_value=["COLM"]),
+                patch("app.peer_metrics.build", return_value={"rows": {"PEER": _metric_row("PEER")}}) as mock_build,
+            ):
+                code = peer_metrics.main(
+                    ["--dry-run", "--sic-path", str(sic_path), "--metrics-path", str(metrics_path)]
+                )
+        self.assertEqual(code, 0)
+        mock_build.assert_called_once()
+        self.assertEqual(mock_build.call_args.args[0], ["PEER"])
 
 
 if __name__ == "__main__":

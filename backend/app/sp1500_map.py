@@ -6,6 +6,7 @@ import argparse
 import datetime as dt
 import json
 import sys
+import threading
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -15,6 +16,8 @@ from typing import Any, Literal
 import httpx
 
 IndexId = Literal["sp500", "sp400", "sp600"]
+ScreenUniverse = Literal["sp500", "sp1500"]
+UniverseId = Literal["sp1500", "sp500", "sp400", "sp600"]
 
 
 @dataclass(frozen=True)
@@ -46,7 +49,11 @@ INDEX_SPECS: tuple[IndexSpec, ...] = (
     ),
 )
 
+INDEX_IDS: tuple[IndexId, ...] = tuple(spec.index for spec in INDEX_SPECS)
+VALID_UNIVERSES: tuple[UniverseId, ...] = ("sp1500", *INDEX_IDS)
+VALID_SCREEN_UNIVERSES: tuple[ScreenUniverse, ...] = ("sp500", "sp1500")
 _INDEX_BY_ID: dict[str, IndexId] = {spec.index: spec.index for spec in INDEX_SPECS}
+_UNIVERSE_BY_ID: dict[str, UniverseId] = {u: u for u in VALID_UNIVERSES}
 
 _HEADER_ALIASES: dict[str, str] = {
     "symbol": "ticker",
@@ -76,20 +83,24 @@ class Constituent:
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sp1500_map.json"
 _UA = "LongMuch/1.0 (https://longmuch.com; sp1500 map refresh)"
+_lock = threading.Lock()
 _constituents_mem: dict[str, Constituent] | None = None
 
 
 def clear_cache() -> None:
     """Clear the in-memory constituent cache."""
     global _constituents_mem
-    _constituents_mem = None
+    with _lock:
+        _constituents_mem = None
 
 
 def load_constituents(path: Path | None = None) -> dict[str, Constituent]:
     """Read, validate, normalize, and cache S&P 1500 constituents from disk."""
     global _constituents_mem
-    if path is None and _constituents_mem is not None:
-        return dict(_constituents_mem)
+    if path is None:
+        with _lock:
+            if _constituents_mem is not None:
+                return dict(_constituents_mem)
     raw = json.loads((path or DATA_PATH).read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError("sp1500_map root must be a JSON object")  # noqa: TRY004 - ValueError is the documented schema contract
@@ -126,13 +137,56 @@ def load_constituents(path: Path | None = None) -> dict[str, Constituent]:
             sub_industry=sub_industry,
         )
     if path is None:
-        _constituents_mem = out
+        with _lock:
+            _constituents_mem = out
     return dict(out)
 
 
 def index_tickers(index: IndexId = "sp500", path: Path | None = None) -> list[str]:
     """Return ordered, deduplicated canonical tickers belonging to ``index``."""
     return [t for t, c in load_constituents(path).items() if c.index == index]
+
+
+def parse_universe(raw: str) -> UniverseId:
+    """Validate and normalize a universe identifier."""
+    key = str(raw).strip().lower()
+    universe = _UNIVERSE_BY_ID.get(key)
+    if universe is None:
+        raise ValueError(f"unknown universe: {raw!r}")
+    return universe
+
+
+def universe_tickers(universe: UniverseId = "sp1500", path: Path | None = None) -> list[str]:
+    """Return ordered canonical tickers for ``sp1500`` or a single index tier."""
+    target = parse_universe(universe)
+    if target == "sp1500":
+        return list(load_constituents(path))
+    return index_tickers(target, path=path)
+
+
+def ticker_candidates(ticker: str) -> list[str]:
+    """Return uppercase ticker and its ``.`` <-> ``-`` share-class variant."""
+    symbol = str(ticker).upper().strip()
+    if not symbol:
+        return []
+    alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
+    return [symbol] if alt == symbol else [symbol, alt]
+
+
+def lookup_constituent(
+    ticker: str,
+    constituents: Mapping[str, Constituent] | None = None,
+) -> Constituent | None:
+    """Return the Constituent for ``ticker``, matching ``.`` <-> ``-`` aliases."""
+    candidates = ticker_candidates(ticker)
+    if not candidates:
+        return None
+    table = load_constituents() if constituents is None else constituents
+    for candidate in candidates:
+        hit = table.get(candidate)
+        if hit is not None:
+            return hit
+    return None
 
 
 class _TableParser(HTMLParser):

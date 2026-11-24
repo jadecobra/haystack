@@ -60,6 +60,7 @@ _last_request_ts = 0.0
 _MEM_CACHE_MAX = 24
 _mem_cache: OrderedDict[str, tuple[float, dict[str, Any]]] = OrderedDict()
 _inflight: dict[str, Future] = {}
+_ticker_map_inflight: Future[dict[str, str]] | None = None
 _identity_set = False
 
 
@@ -129,28 +130,50 @@ def _cik_pad(cik: str | int) -> str:
 
 def _load_ticker_map() -> dict[str, str]:
     """ticker upper -> CIK (no leading zeros required)."""
+    global _ticker_map_inflight
     now = time.time()
-    if _TICKERS_CACHE.is_file():
-        age = now - _TICKERS_CACHE.stat().st_mtime
-        if age < _CACHE_TTL_S:
-            try:
-                data = json.loads(_TICKERS_CACHE.read_text(encoding="utf-8"))
-                return {k: str(v) for k, v in data.items()}
-            except (json.JSONDecodeError, OSError):
-                pass
-    raw = _http_get_json("https://www.sec.gov/files/company_tickers.json")
-    mapping: dict[str, str] = {}
-    if isinstance(raw, dict):
-        for row in raw.values():
-            if not isinstance(row, dict):
-                continue
-            t = str(row.get("ticker") or "").upper().strip()
-            cik = row.get("cik_str")
-            if t and cik is not None:
-                mapping[t] = str(cik)
-    _TICKERS_CACHE.parent.mkdir(parents=True, exist_ok=True)
-    _TICKERS_CACHE.write_text(json.dumps(mapping), encoding="utf-8")
-    return mapping
+    with _lock:
+        if _TICKERS_CACHE.is_file():
+            age = now - _TICKERS_CACHE.stat().st_mtime
+            if age < _CACHE_TTL_S:
+                try:
+                    data = json.loads(_TICKERS_CACHE.read_text(encoding="utf-8"))
+                    return {k: str(v) for k, v in data.items()}
+                except (json.JSONDecodeError, OSError):
+                    pass
+        waiter = _ticker_map_inflight
+        if waiter is None:
+            future: Future[dict[str, str]] = Future()
+            _ticker_map_inflight = future
+
+    if waiter is not None:
+        return dict(waiter.result())
+
+    try:
+        raw = _http_get_json("https://www.sec.gov/files/company_tickers.json")
+        mapping: dict[str, str] = {}
+        if isinstance(raw, dict):
+            for row in raw.values():
+                if not isinstance(row, dict):
+                    continue
+                t = str(row.get("ticker") or "").upper().strip()
+                cik = row.get("cik_str")
+                if t and cik is not None:
+                    mapping[t] = str(cik)
+        with _lock:
+            _TICKERS_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            tmp = _TICKERS_CACHE.with_suffix(".tmp")
+            tmp.write_text(json.dumps(mapping), encoding="utf-8")
+            tmp.replace(_TICKERS_CACHE)
+        future.set_result(mapping)
+        return dict(mapping)
+    except Exception as exc:
+        future.set_exception(exc)
+        raise
+    finally:
+        with _lock:
+            if _ticker_map_inflight is future:
+                _ticker_map_inflight = None
 
 
 def resolve_cik(ticker: str) -> str:
@@ -238,6 +261,12 @@ def _mem_cache_put(key: str, payload: dict[str, Any], now: float | None = None) 
     _mem_cache.move_to_end(key)
     while len(_mem_cache) > _MEM_CACHE_MAX:
         _mem_cache.popitem(last=False)
+
+
+def clear_mem_cache() -> None:
+    """Clear the in-memory companyfacts cache."""
+    with _lock:
+        _mem_cache.clear()
 
 
 def fetch_companyfacts(

@@ -9,6 +9,7 @@ never raise to callers.
 from __future__ import annotations
 
 import json
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,7 @@ from app import sp1500_map
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "submissions"
 _CACHE_TTL_S = 30 * 24 * 3600
 
+_lock = threading.Lock()
 _gics_mem: dict[str, dict[str, str | None]] | None = None
 _sic_mem: dict[str, tuple[float, dict[str, Any] | None]] = {}
 
@@ -65,27 +67,32 @@ _peer_sic_mem: dict[str, int] | None = None
 def clear_gics_cache() -> None:
     """Clear the in-memory GICS lookup cache."""
     global _gics_mem
-    _gics_mem = None
+    with _lock:
+        _gics_mem = None
 
 
 def _peer_sic_by_ticker() -> dict[str, int]:
     """Non-S&P ticker → 4-digit SIC from the committed ``sic_peers.json`` map."""
     global _peer_sic_mem
-    if _peer_sic_mem is not None:
-        return _peer_sic_mem
+    with _lock:
+        if _peer_sic_mem is not None:
+            return _peer_sic_mem
     out: dict[str, int] = {}
     try:
         raw = json.loads(_SIC_PEERS_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        _peer_sic_mem = out
+        with _lock:
+            _peer_sic_mem = out
         return out
     if not isinstance(raw, dict):
-        _peer_sic_mem = out
+        with _lock:
+            _peer_sic_mem = out
         return out
     tickers = raw.get("tickers") or {}
     companies = raw.get("companies") or {}
     if not isinstance(tickers, dict) or not isinstance(companies, dict):
-        _peer_sic_mem = out
+        with _lock:
+            _peer_sic_mem = out
         return out
     for ticker, cik in tickers.items():
         if not isinstance(ticker, str):
@@ -97,7 +104,8 @@ def _peer_sic_by_ticker() -> dict[str, int]:
             out[ticker.upper().strip()] = int(co["s"])
         except (TypeError, ValueError):
             continue
-    _peer_sic_mem = out
+    with _lock:
+        _peer_sic_mem = out
     return out
 
 
@@ -107,14 +115,12 @@ def is_financial_company(ticker: str, sic: int | None = None) -> bool:
     Any ticker in the S&P 1500 GICS map uses only its GICS sector; SIC never
     overrides it.
     """
-    candidates = _ticker_candidates(ticker)
+    constituent = sp1500_map.lookup_constituent(ticker)
+    if constituent is not None:
+        return constituent.sector == "Financials"
+    candidates = sp1500_map.ticker_candidates(ticker)
     if not candidates:
         return False
-    gics = load_gics()
-    for candidate in candidates:
-        hit = gics.get(candidate)
-        if hit and hit.get("sector"):
-            return hit["sector"] == "Financials"
     code = sic
     if code is None:
         peers = _peer_sic_by_ticker()
@@ -134,18 +140,23 @@ def is_financial_company(ticker: str, sic: int | None = None) -> bool:
 def load_gics(path: Path | None = None) -> dict[str, dict[str, str | None]]:
     """Ticker -> {sector, sub_industry} across S&P 1500, including '.' <-> '-' aliases."""
     global _gics_mem
-    if path is None and _gics_mem is not None:
-        return dict(_gics_mem)
+    if path is None:
+        with _lock:
+            if _gics_mem is not None:
+                return dict(_gics_mem)
     constituents = sp1500_map.load_constituents(path)
     out: dict[str, dict[str, str | None]] = {}
     for symbol, constituent in constituents.items():
-        out[symbol] = {"sector": constituent.sector, "sub_industry": constituent.sub_industry}
-    for symbol, payload in list(out.items()):
-        alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
-        if alt != symbol and alt not in out:
-            out[alt] = payload
+        payload = {"sector": constituent.sector, "sub_industry": constituent.sub_industry}
+        for candidate in sp1500_map.ticker_candidates(symbol):
+            if (
+                candidate == symbol
+                or sp1500_map.lookup_constituent(candidate, constituents) is constituent
+            ):
+                out.setdefault(candidate, payload)
     if path is None:
-        _gics_mem = out
+        with _lock:
+            _gics_mem = out
     return dict(out)
 
 
@@ -232,22 +243,11 @@ def fetch_sic(cik: str) -> dict[str, Any] | None:
         return None
 
 
-def _ticker_candidates(ticker: str) -> list[str]:
-    symbol = ticker.upper().strip()
-    if not symbol:
-        return []
-    out = [symbol]
-    alt = symbol.replace(".", "-") if "." in symbol else symbol.replace("-", ".")
-    if alt != symbol:
-        out.append(alt)
-    return out
-
-
 def classify(ticker: str, cik: str | None = None) -> dict[str, Any] | None:
     """Return classification block for analyze, or None."""
     try:
         gics = load_gics()
-        for symbol in _ticker_candidates(ticker):
+        for symbol in sp1500_map.ticker_candidates(ticker):
             hit = gics.get(symbol)
             if hit and hit.get("sector"):
                 sector = str(hit["sector"])

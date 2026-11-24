@@ -6,134 +6,26 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBuiltLabel } from "@/lib/formatBuilt";
 import { parseSicQuery, sicForTicker, sicIndustryName } from "@/lib/screenSic";
-import { listUnranked, type UnrankedName } from "@/lib/unranked";
+import {
+  indexLabel,
+  parseScreenIndex,
+  parseSectorSnapshot,
+  sliceSnapshotByIndex,
+  type ScreenIndex,
+  type SectorSnapshot,
+} from "@/lib/sectorTable";
+import { listUnranked } from "@/lib/unranked";
 
 const WAIT_STATUS = "Working…";
 const SKELETON_ROW_COUNT = 12;
-const HEADERS = ["Rank", "Ticker", "Name", "OE yield", "OE / share", "Prior close", "FY"];
+const BASE_HEADERS = ["Rank", "Ticker", "Name", "OE yield", "OE / share", "Prior close", "FY"];
+const INDEX_OPTIONS: ScreenIndex[] = ["sp500", "sp400", "sp600", "sp1500"];
+
+type ScreenSlug = "sp500-oe-yield" | "sp1500-oe-yield";
+type CachedSnapshot = { snap: SectorSnapshot; raw: unknown };
 
 function formatElapsed(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
-}
-
-type DebtState = "zero" | "positive" | "unknown" | "n/a";
-
-type DebtCoverage = {
-  zero: number;
-  positive: number;
-  unknown: number;
-  "n/a": number;
-  unknown_tickers: string[];
-};
-
-type ScreenRow = {
-  ticker: string;
-  name: string | null;
-  oe_yield: number | null;
-  oe_per_share: number | null;
-  price: number;
-  fy: number;
-  price_as_of: string | null;
-  oe_basis_note: string | null;
-  debt: number | null;
-  debt_state: DebtState;
-  sector: string | null;
-  sub_industry: string | null;
-};
-
-type ScreenPayload = {
-  universe: string;
-  count: number;
-  skipped?: number;
-  built_at: string | null;
-  price_as_of: string | null;
-  stale?: boolean;
-  error?: string | null;
-  caveat?: string;
-  rows: ScreenRow[];
-  meta?: { debt_coverage?: DebtCoverage };
-};
-
-function parseDebtState(value: unknown): DebtState {
-  if (value === "zero" || value === "positive" || value === "unknown" || value === "n/a") {
-    return value;
-  }
-  return "unknown";
-}
-
-function parseDebt(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  return null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseRow(value: unknown): ScreenRow | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.ticker !== "string") return null;
-  // Rows with a blank OE yield (banks, multi-class share counts, #52) stay in.
-  const oeYield = typeof value.oe_yield === "number" ? value.oe_yield : null;
-  const oePerShare = typeof value.oe_per_share === "number" ? value.oe_per_share : null;
-  if (typeof value.price !== "number") return null;
-  if (typeof value.fy !== "number") return null;
-  return {
-    ticker: value.ticker.toUpperCase(),
-    name: typeof value.name === "string" ? value.name : null,
-    oe_yield: oeYield,
-    oe_per_share: oePerShare,
-    price: value.price,
-    fy: value.fy,
-    price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
-    oe_basis_note:
-      typeof value.oe_basis_note === "string" && value.oe_basis_note.trim()
-        ? value.oe_basis_note.trim()
-        : null,
-    debt: parseDebt(value.debt),
-    debt_state: parseDebtState(value.debt_state),
-    sector: typeof value.sector === "string" ? value.sector : null,
-    sub_industry: typeof value.sub_industry === "string" ? value.sub_industry : null,
-  };
-}
-
-function parseCoverage(value: unknown): DebtCoverage | undefined {
-  if (!isRecord(value)) return undefined;
-  const num = (key: string) => (typeof value[key] === "number" ? value[key] : 0);
-  const tickers = Array.isArray(value.unknown_tickers)
-    ? value.unknown_tickers.filter((item): item is string => typeof item === "string")
-    : [];
-  return {
-    zero: num("zero"),
-    positive: num("positive"),
-    unknown: num("unknown"),
-    "n/a": num("n/a"),
-    unknown_tickers: tickers,
-  };
-}
-
-function parsePayload(value: unknown): ScreenPayload | null {
-  if (!isRecord(value)) return null;
-  if (!Array.isArray(value.rows)) return null;
-  const rows: ScreenRow[] = [];
-  for (const row of value.rows) {
-    const parsed = parseRow(row);
-    if (parsed) rows.push(parsed);
-  }
-  return {
-    universe: typeof value.universe === "string" ? value.universe : "sp500",
-    count: typeof value.count === "number" ? value.count : rows.length,
-    skipped: typeof value.skipped === "number" ? value.skipped : undefined,
-    built_at: typeof value.built_at === "string" ? value.built_at : null,
-    price_as_of: typeof value.price_as_of === "string" ? value.price_as_of : null,
-    stale: value.stale === true,
-    error: typeof value.error === "string" ? value.error : null,
-    caveat: typeof value.caveat === "string" ? value.caveat : undefined,
-    rows,
-    meta: isRecord(value.meta)
-      ? { debt_coverage: parseCoverage(value.meta.debt_coverage) }
-      : undefined,
-  };
 }
 
 function fmtPct(value: number | null): string {
@@ -149,8 +41,8 @@ function fmtMoney(value: number | null): string {
 const DEFAULT_CAVEAT =
   "Trailing annual owner earnings per share divided by prior close — not live, not a growth screen.";
 
-function skeletonRows(): Array<{ kind: "data"; cells: ReactNode[] }> {
-  const dash = Array.from({ length: HEADERS.length }, () => "—");
+function skeletonRows(columnCount: number): Array<{ kind: "data"; cells: ReactNode[] }> {
+  const dash = Array.from({ length: columnCount }, () => "—");
   return Array.from({ length: SKELETON_ROW_COUNT }, () => ({
     kind: "data" as const,
     cells: dash,
@@ -165,21 +57,36 @@ function ScreenPageInner() {
   const sectorFilter = searchParams.get("sector");
   const sicFilter = parseSicQuery(searchParams.get("sic"));
   const sicName = sicFilter == null ? null : sicIndustryName(sicFilter);
-  const [data, setData] = useState<ScreenPayload | null>(null);
-  const [unranked, setUnranked] = useState<UnrankedName[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [waiting, setWaiting] = useState(true);
+  const rawIndex = searchParams.get("index");
+  const activeIndex: ScreenIndex =
+    rawIndex !== null
+      ? parseScreenIndex(rawIndex)
+      : sicFilter != null
+        ? "sp1500"
+        : "sp500";
+
+  const [cache, setCache] = useState<Partial<Record<ScreenSlug, CachedSnapshot>>>({});
+  const [errors, setErrors] = useState<Partial<Record<ScreenSlug, string>>>({});
   const [elapsedMs, setElapsedMs] = useState(0);
   const elapsedTimerRef = useRef<number | null>(null);
+
+  const neededSlug: ScreenSlug =
+    activeIndex === "sp500" && !cache["sp1500-oe-yield"]
+      ? "sp500-oe-yield"
+      : "sp1500-oe-yield";
+  const cachedEntry = cache[neededSlug];
+  const loadError = errors[neededSlug] ?? null;
+  const waiting = !cachedEntry && !loadError;
 
   useEffect(() => {
     void fetch("/api/contract", { cache: "no-store" }).catch(() => {});
   }, []);
 
   useEffect(() => {
+    if (cachedEntry || loadError) return;
     let cancelled = false;
     const startedAt = Date.now();
-    // waiting=true / elapsedMs=0 are the initial state; no sync setState here.
+    // waiting / elapsedMs start ready without sync setState in the effect body.
     elapsedTimerRef.current = window.setInterval(() => {
       setElapsedMs(Date.now() - startedAt);
     }, 100);
@@ -193,45 +100,67 @@ function ScreenPageInner() {
 
     void (async () => {
       try {
-        const response = await fetch("/api/screen/sp500-oe-yield", {
+        const response = await fetch(`/api/screen/${neededSlug}`, {
           cache: "no-store",
         });
         const json: unknown = await response.json();
-        const parsed = parsePayload(json);
+        const parsed = parseSectorSnapshot(json);
         if (cancelled) return;
         stopClock();
-        setWaiting(false);
-        if (!parsed || parsed.rows.length === 0) {
-          setLoadError("Screen snapshot is empty.");
+        if (!parsed || parsed.rows.filter((r) => r.price != null).length === 0) {
+          setErrors((prev) => ({
+            ...prev,
+            [neededSlug]: "Screen snapshot is empty.",
+          }));
           return;
         }
-        setData(parsed);
-        setUnranked(listUnranked(json));
+        setCache((prev) => ({
+          ...prev,
+          [neededSlug]: { snap: parsed, raw: json },
+        }));
       } catch {
         if (cancelled) return;
         stopClock();
-        setWaiting(false);
-        setLoadError("Could not load the S&P 500 screen.");
+        setErrors((prev) => ({
+          ...prev,
+          [neededSlug]: `Could not load the ${indexLabel(activeIndex)} screen.`,
+        }));
       }
     })();
     return () => {
       cancelled = true;
       stopClock();
     };
-  }, []);
+  }, [neededSlug, cachedEntry, loadError, activeIndex]);
 
-  const shownRows = data
-    ? data.rows
-        .filter((row) => !debtNone || row.debt_state === "zero")
-        .filter((row) => !sectorFilter || row.sector === sectorFilter)
-        .filter((row) => sicFilter == null || sicForTicker(row.ticker) === sicFilter)
-    : [];
+  const data = cachedEntry ? sliceSnapshotByIndex(cachedEntry.snap, activeIndex) : null;
+  const pricedRows = data ? data.rows.filter((row) => row.price != null) : [];
+  const shownRows = pricedRows
+    .filter((row) => !debtNone || row.debt_state === "zero")
+    .filter((row) => !sectorFilter || row.sector === sectorFilter)
+    .filter((row) => sicFilter == null || (row.sic ?? sicForTicker(row.ticker)) === sicFilter);
   const filtered = debtNone || Boolean(sectorFilter) || sicFilter != null;
   const unknownExcluded = data
-    ? data.rows.length > 0
-      ? data.rows.filter((row) => row.debt_state === "unknown").length
-      : (data.meta?.debt_coverage?.unknown ?? 0)
+    ? pricedRows.length > 0
+      ? pricedRows.filter((row) => row.debt_state === "unknown").length
+      : (data.debtCoverage?.unknown ?? 0)
     : 0;
+  const unrankedIndex =
+    cachedEntry && cachedEntry.snap.universe !== activeIndex && activeIndex !== "sp1500"
+      ? activeIndex
+      : undefined;
+  const unranked = cachedEntry ? listUnranked(cachedEntry.raw, unrankedIndex) : [];
+
+  const selectIndex = (next: ScreenIndex) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "sp500" && sicFilter == null) {
+      params.delete("index");
+    } else {
+      params.set("index", next);
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   const toggleDebt = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -241,49 +170,79 @@ function ScreenPageInner() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
-  const rows =
-    shownRows.map((row, index) => ({
-      kind: "data" as const,
-      cells: [
-        String(index + 1),
-        <Link
-          key={row.ticker}
-          href={`/${row.ticker}`}
-          className="underline underline-offset-4 text-zinc-100 hover:text-white"
-        >
-          {row.ticker}
-        </Link>,
-        row.name ?? "—",
-        <span key="oe-yield" data-testid="screen-oe-yield">
-          {fmtPct(row.oe_yield)}
-          {row.oe_yield != null && row.oe_basis_note ? (
-            <span className="ml-1 text-xs text-zinc-500">{row.oe_basis_note}</span>
-          ) : null}
-        </span>,
-        fmtMoney(row.oe_per_share),
-        fmtMoney(row.price),
-        String(row.fy),
-      ],
-    })) ?? skeletonRows();
+  const showIndexCol = activeIndex === "sp1500";
+  const headers = showIndexCol ? [...BASE_HEADERS, "Index"] : BASE_HEADERS;
+
+  const rows = shownRows.map((row, index) => {
+    const cells: ReactNode[] = [
+      String(index + 1),
+      <Link
+        key={row.ticker}
+        href={`/${row.ticker}`}
+        className="underline underline-offset-4 text-zinc-100 hover:text-white"
+      >
+        {row.ticker}
+      </Link>,
+      row.name ?? "—",
+      <span key="oe-yield" data-testid="screen-oe-yield">
+        {fmtPct(row.oe_yield)}
+        {row.oe_yield != null && row.oe_basis_note ? (
+          <span className="ml-1 text-xs text-zinc-500">{row.oe_basis_note}</span>
+        ) : null}
+      </span>,
+      fmtMoney(row.oe_per_share ?? null),
+      fmtMoney(row.price ?? null),
+      String(row.fy ?? "—"),
+    ];
+    if (showIndexCol) {
+      cells.push(row.index ? indexLabel(row.index) : "—");
+    }
+    return { kind: "data" as const, cells };
+  });
 
   const showTable = waiting || data !== null;
+  const heading =
+    activeIndex === "sp500"
+      ? "S&P 500 owner-earnings yield"
+      : `${indexLabel(activeIndex)} owner-earnings yield`;
 
   return (
     <PageShell maxWidth="wide" textAlign="start">
       <p className="mb-6 text-sm text-zinc-500">
         <TextLink href="/">Back to LongMuch</TextLink>
       </p>
-      <h1 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-4">
-        S&P 500 owner-earnings yield
-      </h1>
+      <h1 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-4">{heading}</h1>
+      <div
+        className="flex flex-wrap items-center gap-1.5 mb-4"
+        role="group"
+        aria-label="Index universe"
+        data-testid="screen-index-toggle"
+      >
+        {INDEX_OPTIONS.map((idx) => (
+          <button
+            key={idx}
+            type="button"
+            aria-pressed={activeIndex === idx}
+            data-testid={`screen-index-${idx}`}
+            onClick={() => selectIndex(idx)}
+            className={`text-sm rounded border px-2.5 py-1 ${
+              activeIndex === idx
+                ? "border-zinc-400 bg-zinc-800 text-zinc-100"
+                : "border-zinc-600 text-zinc-300 hover:text-zinc-100"
+            }`}
+          >
+            {indexLabel(idx)}
+          </button>
+        ))}
+      </div>
       {data && !waiting ? (
         <p
           className="text-xl sm:text-3xl text-zinc-200 mb-3"
           data-testid="screen-as-of"
         >
-          Prices as of {data.price_as_of ?? "—"}
+          Prices as of {data.priceAsOf ?? "—"}
           <span className="block text-base sm:text-xl text-zinc-400 mt-1">
-            {formatBuiltLabel(data.built_at)}
+            {formatBuiltLabel(data.builtAt)}
           </span>
         </p>
       ) : waiting ? (
@@ -314,9 +273,9 @@ function ScreenPageInner() {
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-sm text-zinc-400">
                   {filtered
-                    ? `${shownRows.length} of ${data.count} names`
-                    : `${data.count} names`}
-                  {" · S&P 500 constituents (list may lag index changes)"}
+                    ? `${shownRows.length} of ${pricedRows.length} names`
+                    : `${pricedRows.length} names`}
+                  {` · ${indexLabel(activeIndex)} constituents (list may lag index changes)`}
                   {typeof data.skipped === "number" && data.skipped > 0
                     ? ` · ${data.skipped} skipped`
                     : ""}
@@ -362,7 +321,10 @@ function ScreenPageInner() {
               {sicName ? ` (SIC ${sicFilter})` : ""} · <TextLink href="/screen">clear</TextLink>
             </p>
           ) : null}
-          <DataTable headers={HEADERS} rows={waiting ? skeletonRows() : rows} />
+          <DataTable
+            headers={headers}
+            rows={waiting ? skeletonRows(headers.length) : rows}
+          />
         </Card>
       )}
       {data && !waiting && unranked.length > 0 ? (
@@ -407,7 +369,7 @@ function ScreenFallback() {
       </p>
       <p className="text-zinc-400 mb-6 text-sm sm:text-base">{DEFAULT_CAVEAT}</p>
       <Card variant="raised" className="overflow-hidden text-left">
-        <DataTable headers={HEADERS} rows={skeletonRows()} />
+        <DataTable headers={BASE_HEADERS} rows={skeletonRows(BASE_HEADERS.length)} />
       </Card>
     </PageShell>
   );
