@@ -6,14 +6,16 @@
   "excluded": [
     {
       "ticker": "HONA",
-      "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): unknown ticker / no annual us-gaap facts for HONA"
+      "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): unknown ticker / no annual us-gaap facts for HONA",
+      "index": "sp500"
     },
     {
       "ticker": "VYLR",
-      "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): unknown ticker / no annual us-gaap facts for VYLR"
+      "reason": "no SEC annual us-gaap facts (new registrant or not yet in SEC ticker map): unknown ticker / no annual us-gaap facts for VYLR",
+      "index": "sp500"
     }
   ],
-  "built_at": "2026-11-23T22:46:34+00:00",
+  "built_at": "2026-11-24T13:57:12+00:00",
   "price_as_of": "2026-11-23",
   "stale": false,
   "error": null,
@@ -44,8 +46,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 2.708932821908842,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Cable & Satellite"
+      "sub_industry": "Cable & Satellite",
+      "sic": 4841
     },
     {
       "ticker": "LYB",
@@ -72,8 +76,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 20.625244840550458,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 2860
     },
     {
       "ticker": "MOS",
@@ -100,8 +106,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Fertilizers & Agricultural Chemicals"
+      "sub_industry": "Fertilizers & Agricultural Chemicals",
+      "sic": 2870
     },
     {
       "ticker": "CMCSA",
@@ -128,8 +136,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 5.886985349198168,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Cable & Satellite"
+      "sub_industry": "Cable & Satellite",
+      "sic": 4841
     },
     {
       "ticker": "AES",
@@ -156,8 +166,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 6.002039679455723,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Independent Power Producers & Energy Traders"
+      "sub_industry": "Independent Power Producers & Energy Traders",
+      "sic": 4991
     },
     {
       "ticker": "F",
@@ -184,8 +196,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 6.0429165822407205,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automobile Manufacturers"
+      "sub_industry": "Automobile Manufacturers",
+      "sic": 3711
     },
     {
       "ticker": "DVN",
@@ -212,8 +226,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 8.430529015710164,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "APA",
@@ -240,8 +256,10 @@
       "ni_margin_basis": null,
       "payback_cons": 7.213641231593039,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "OXY",
@@ -268,8 +286,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.131641900121803,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "HPQ",
@@ -296,8 +316,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 9.516385714285715,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3570
     },
     {
       "ticker": "T",
@@ -324,8 +346,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 8.23801512190104,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Integrated Telecommunication Services"
+      "sub_industry": "Integrated Telecommunication Services",
+      "sic": 4813
     },
     {
       "ticker": "MGM",
@@ -352,8 +376,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 8.158322539170863,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Casinos & Gaming"
+      "sub_industry": "Casinos & Gaming",
+      "sic": 7011
     },
     {
       "ticker": "UAL",
@@ -380,8 +406,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 8.438294794753464,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Passenger Airlines"
+      "sub_industry": "Passenger Airlines",
+      "sic": 4512
     },
     {
       "ticker": "DOW",
@@ -408,8 +436,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Commodity Chemicals"
+      "sub_industry": "Commodity Chemicals",
+      "sic": 2821
     },
     {
       "ticker": "APTV",
@@ -436,8 +466,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 8.483555644070387,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automotive Parts & Equipment"
+      "sub_industry": "Automotive Parts & Equipment",
+      "sic": 3714
     },
     {
       "ticker": "GIS",
@@ -464,8 +496,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 11.816637766709711,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2040
     },
     {
       "ticker": "GDDY",
@@ -492,8 +526,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 8.88353419866709,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Internet Services & Infrastructure"
+      "sub_industry": "Internet Services & Infrastructure",
+      "sic": 7373
     },
     {
       "ticker": "CNC",
@@ -520,8 +556,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 8.924802224392959,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Managed Health Care"
+      "sub_industry": "Managed Health Care",
+      "sic": 6324
     },
     {
       "ticker": "LEN",
@@ -548,8 +586,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 738.4030103253734,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Homebuilding"
+      "sub_industry": "Homebuilding",
+      "sic": 1520
     },
     {
       "ticker": "GM",
@@ -576,8 +616,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 9.052457517039725,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automobile Manufacturers"
+      "sub_industry": "Automobile Manufacturers",
+      "sic": 3711
     },
     {
       "ticker": "SYF",
@@ -604,8 +646,10 @@
       "ni_margin_basis": null,
       "payback_cons": 9.114312076240228,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Consumer Finance"
+      "sub_industry": "Consumer Finance",
+      "sic": 6199
     },
     {
       "ticker": "BG",
@@ -632,8 +676,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 107.3180485531915,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Agricultural Products & Services"
+      "sub_industry": "Agricultural Products & Services",
+      "sic": 2070
     },
     {
       "ticker": "FANG",
@@ -660,8 +706,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.657428561827956,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "BMY",
@@ -688,8 +736,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 9.33384196185286,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "CF",
@@ -716,8 +766,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 10.10731715210356,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Fertilizers & Agricultural Chemicals"
+      "sub_industry": "Fertilizers & Agricultural Chemicals",
+      "sic": 2870
     },
     {
       "ticker": "LULU",
@@ -744,8 +796,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 11.045215100759414,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel, Accessories & Luxury Goods"
+      "sub_industry": "Apparel, Accessories & Luxury Goods",
+      "sic": 2300
     },
     {
       "ticker": "VZ",
@@ -772,8 +826,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 10.467153502235469,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Integrated Telecommunication Services"
+      "sub_industry": "Integrated Telecommunication Services",
+      "sic": 4813
     },
     {
       "ticker": "KHC",
@@ -800,8 +856,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 9.724980249661442,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2030
     },
     {
       "ticker": "CVS",
@@ -828,8 +886,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.160963238119637,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Services"
+      "sub_industry": "Health Care Services",
+      "sic": 5912
     },
     {
       "ticker": "PFE",
@@ -856,8 +916,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.249168044077134,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "ADM",
@@ -884,8 +946,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 10.240752038342457,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Agricultural Products & Services"
+      "sub_industry": "Agricultural Products & Services",
+      "sic": 2070
     },
     {
       "ticker": "VTRS",
@@ -912,8 +976,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 12.155603221310207,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "SWKS",
@@ -940,8 +1006,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 42.79298312883436,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "OMC",
@@ -968,8 +1036,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 10.532294880494916,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Advertising"
+      "sub_industry": "Advertising",
+      "sic": 7311
     },
     {
       "ticker": "TROW",
@@ -996,8 +1066,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 10.70494865777142,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "HBAN",
@@ -1024,8 +1096,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 10.743178438862163,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6021
     },
     {
       "ticker": "IBKR",
@@ -1052,8 +1126,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 10.746444226098912,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "STZ",
@@ -1080,8 +1156,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 11.075069879946643,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Distillers & Vintners"
+      "sub_industry": "Distillers & Vintners",
+      "sic": 2080
     },
     {
       "ticker": "UPS",
@@ -1108,8 +1186,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.56642201834862,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Air Freight & Logistics"
+      "sub_industry": "Air Freight & Logistics",
+      "sic": 4210
     },
     {
       "ticker": "EXE",
@@ -1136,8 +1216,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 11.049854649773943,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "WY",
@@ -1164,8 +1246,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 267.44674584905664,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Timber REITs"
+      "sub_industry": "Timber REITs",
+      "sic": 6798
     },
     {
       "ticker": "DVA",
@@ -1192,8 +1276,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 11.208486616527225,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Services"
+      "sub_industry": "Health Care Services",
+      "sic": 8090
     },
     {
       "ticker": "RF",
@@ -1220,8 +1306,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 11.386482341279484,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6021
     },
     {
       "ticker": "VICI",
@@ -1248,8 +1336,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 11.497401074279635,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Hotel & Resort REITs"
+      "sub_industry": "Hotel & Resort REITs",
+      "sic": 6798
     },
     {
       "ticker": "EG",
@@ -1276,8 +1366,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 11.604216689011889,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Reinsurance"
+      "sub_industry": "Reinsurance",
+      "sic": 6331
     },
     {
       "ticker": "NKE",
@@ -1304,8 +1396,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.323498168498173,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel, Accessories & Luxury Goods"
+      "sub_industry": "Apparel, Accessories & Luxury Goods",
+      "sic": 3021
     },
     {
       "ticker": "COF",
@@ -1332,8 +1426,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 39.42464655523848,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Consumer Finance"
+      "sub_industry": "Consumer Finance",
+      "sic": 6021
     },
     {
       "ticker": "CI",
@@ -1360,8 +1456,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 12.033444251644,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Services"
+      "sub_industry": "Health Care Services",
+      "sic": 6324
     },
     {
       "ticker": "NUE",
@@ -1388,8 +1486,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.56584661354582,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Steel"
+      "sub_industry": "Steel",
+      "sic": 3312
     },
     {
       "ticker": "DAL",
@@ -1416,8 +1516,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 12.289248172050133,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Passenger Airlines"
+      "sub_industry": "Passenger Airlines",
+      "sic": 4512
     },
     {
       "ticker": "ACGL",
@@ -1444,8 +1546,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 12.358873832800763,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "AIG",
@@ -1472,8 +1576,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.678774884961241,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Multi-line Insurance"
+      "sub_industry": "Multi-line Insurance",
+      "sic": 6331
     },
     {
       "ticker": "FISV",
@@ -1500,8 +1606,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 12.368221439839001,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "EOG",
@@ -1528,8 +1636,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.532616872649115,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "ADBE",
@@ -1556,8 +1666,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 12.699717911843166,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "SKYD",
@@ -1584,8 +1696,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 12.891073778443745,
       "payback_basis": "2y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
+      "sub_industry": "Movies & Entertainment",
+      "sic": 4833
     },
     {
       "ticker": "USB",
@@ -1612,8 +1726,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 12.934900587390082,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "EXPE",
@@ -1640,8 +1756,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 12.952197834681918,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 4700
     },
     {
       "ticker": "IT",
@@ -1668,8 +1786,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.044838637846823,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "IT Consulting & Other Services"
+      "sub_industry": "IT Consulting & Other Services",
+      "sic": 8741
     },
     {
       "ticker": "PFG",
@@ -1696,8 +1816,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.91705847607797,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Life & Health Insurance"
+      "sub_industry": "Life & Health Insurance",
+      "sic": 6321
     },
     {
       "ticker": "BAC",
@@ -1724,8 +1846,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.228918216783612,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "KEY",
@@ -1752,8 +1876,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 13.296088107084653,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6021
     },
     {
       "ticker": "NVR",
@@ -1780,8 +1906,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.30068778251879,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Homebuilding"
+      "sub_industry": "Homebuilding",
+      "sic": 1531
     },
     {
       "ticker": "CTSH",
@@ -1808,8 +1936,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.51854892228179,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "IT Consulting & Other Services"
+      "sub_industry": "IT Consulting & Other Services",
+      "sic": 7371
     },
     {
       "ticker": "COP",
@@ -1836,8 +1966,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 20.56642593056895,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 2911
     },
     {
       "ticker": "INTU",
@@ -1864,8 +1996,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 13.567682460494863,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "IP",
@@ -1892,8 +2026,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Paper & Plastic Packaging Products & Materials"
+      "sub_industry": "Paper & Plastic Packaging Products & Materials",
+      "sic": 2621
     },
     {
       "ticker": "MTB",
@@ -1920,8 +2056,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 13.630979594004115,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6022
     },
     {
       "ticker": "ELV",
@@ -1948,8 +2086,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.115397521449,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Managed Health Care"
+      "sub_industry": "Managed Health Care",
+      "sic": 6324
     },
     {
       "ticker": "FITB",
@@ -1976,8 +2116,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 13.759722273499724,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6022
     },
     {
       "ticker": "ALB",
@@ -2004,8 +2146,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 13.80301461298907,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 2821
     },
     {
       "ticker": "TFC",
@@ -2032,8 +2176,10 @@
       "ni_margin_basis": null,
       "payback_cons": 13.986504605326394,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "GEN",
@@ -2060,8 +2206,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.008948976628803,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 7372
     },
     {
       "ticker": "OKE",
@@ -2088,8 +2236,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.13848334686263,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Storage & Transportation"
+      "sub_industry": "Oil & Gas Storage & Transportation",
+      "sic": 4923
     },
     {
       "ticker": "PYPL",
@@ -2116,8 +2266,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.145000088149041,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "CFG",
@@ -2144,8 +2296,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.21165664816411,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Regional Banks"
+      "sub_industry": "Regional Banks",
+      "sic": 6022
     },
     {
       "ticker": "PNC",
@@ -2172,8 +2326,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.225007046591186,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "ACN",
@@ -2200,8 +2356,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.244269046315805,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "IT Consulting & Other Services"
+      "sub_industry": "IT Consulting & Other Services",
+      "sic": 7389
     },
     {
       "ticker": "HAL",
@@ -2228,8 +2386,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.548653631284916,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Equipment & Services"
+      "sub_industry": "Oil & Gas Equipment & Services",
+      "sic": 1389
     },
     {
       "ticker": "SJM",
@@ -2256,8 +2416,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.38163053344545,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2033
     },
     {
       "ticker": "HON",
@@ -2284,8 +2446,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.404659695953551,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Conglomerates"
+      "sub_industry": "Industrial Conglomerates",
+      "sic": 3724
     },
     {
       "ticker": "PRU",
@@ -2312,8 +2476,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.548393476779703,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Life & Health Insurance"
+      "sub_industry": "Life & Health Insurance",
+      "sic": 6311
     },
     {
       "ticker": "UHS",
@@ -2340,8 +2506,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.723959307265215,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Facilities"
+      "sub_industry": "Health Care Facilities",
+      "sic": 8062
     },
     {
       "ticker": "LDOS",
@@ -2368,8 +2536,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.804577178573973,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Diversified Support Services"
+      "sub_industry": "Diversified Support Services",
+      "sic": 7373
     },
     {
       "ticker": "C",
@@ -2396,8 +2566,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 14.883689897563057,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "GL",
@@ -2424,8 +2596,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.931741025837155,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Life & Health Insurance"
+      "sub_industry": "Life & Health Insurance",
+      "sic": 6311
     },
     {
       "ticker": "EQT",
@@ -2452,8 +2626,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 14.941495337434594,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 1311
     },
     {
       "ticker": "VLO",
@@ -2480,8 +2656,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.91803227485685,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Refining & Marketing"
+      "sub_industry": "Oil & Gas Refining & Marketing",
+      "sic": 2911
     },
     {
       "ticker": "FOX",
@@ -2508,8 +2686,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.798371794871795,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Broadcasting"
+      "sub_industry": "Broadcasting",
+      "sic": 4833
     },
     {
       "ticker": "WFC",
@@ -2536,8 +2716,10 @@
       "ni_margin_basis": null,
       "payback_cons": 15.055669565044612,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "UNH",
@@ -2564,8 +2746,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.259928460342145,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Managed Health Care"
+      "sub_industry": "Managed Health Care",
+      "sic": 6324
     },
     {
       "ticker": "ETR",
@@ -2592,8 +2776,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 16.515108224231067,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "DG",
@@ -2620,8 +2806,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.200153728546796,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Consumer Staples Merchandise Retail"
+      "sub_industry": "Consumer Staples Merchandise Retail",
+      "sic": 5331
     },
     {
       "ticker": "AMCR",
@@ -2648,8 +2836,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.982042310821807,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Paper & Plastic Packaging Products & Materials"
+      "sub_industry": "Paper & Plastic Packaging Products & Materials",
+      "sic": 3990
     },
     {
       "ticker": "MO",
@@ -2676,8 +2866,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 15.313012412018082,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Tobacco"
+      "sub_industry": "Tobacco",
+      "sic": 2111
     },
     {
       "ticker": "MCHP",
@@ -2704,8 +2896,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 34.41457634902411,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "HIG",
@@ -2732,8 +2926,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 15.538143866179016,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "KR",
@@ -2760,8 +2956,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.903346939776934,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Food Retail"
+      "sub_industry": "Food Retail",
+      "sic": 5411
     },
     {
       "ticker": "ZBH",
@@ -2788,8 +2986,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 15.904889490565129,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3842
     },
     {
       "ticker": "KMB",
@@ -2816,8 +3016,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 17.974551724137932,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Household Products"
+      "sub_industry": "Household Products",
+      "sic": 2670
     },
     {
       "ticker": "STLD",
@@ -2844,8 +3046,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 34.03161167919621,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Steel"
+      "sub_industry": "Steel",
+      "sic": 3312
     },
     {
       "ticker": "HRL",
@@ -2872,8 +3076,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.290661116367076,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2011
     },
     {
       "ticker": "AKAM",
@@ -2900,8 +3106,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.10304305089107,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Internet Services & Infrastructure"
+      "sub_industry": "Internet Services & Infrastructure",
+      "sic": 7389
     },
     {
       "ticker": "PCAR",
@@ -2928,8 +3136,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.125538274912355,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction Machinery & Heavy Transportation Equipment"
+      "sub_industry": "Construction Machinery & Heavy Transportation Equipment",
+      "sic": 3711
     },
     {
       "ticker": "URI",
@@ -2956,8 +3166,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.204591997904085,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Trading Companies & Distributors"
+      "sub_industry": "Trading Companies & Distributors",
+      "sic": 7359
     },
     {
       "ticker": "SBAC",
@@ -2984,8 +3196,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 16.24197469771783,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Telecom Tower REITs"
+      "sub_industry": "Telecom Tower REITs",
+      "sic": 6798
     },
     {
       "ticker": "BAX",
@@ -3012,8 +3226,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 39.23213855421687,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "DECK",
@@ -3040,8 +3256,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 16.352356616579243,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Footwear"
+      "sub_industry": "Footwear",
+      "sic": 3021
     },
     {
       "ticker": "FCX",
@@ -3068,8 +3286,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.71585561497326,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Copper"
+      "sub_industry": "Copper",
+      "sic": 1000
     },
     {
       "ticker": "QCOM",
@@ -3096,8 +3316,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 16.908630583289543,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3663
     },
     {
       "ticker": "CINF",
@@ -3124,8 +3346,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 16.536422624748685,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "BBY",
@@ -3152,8 +3376,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.573925220136438,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Computer & Electronics Retail"
+      "sub_industry": "Computer & Electronics Retail",
+      "sic": 5731
     },
     {
       "ticker": "SLB",
@@ -3180,8 +3406,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.66570922579115,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Equipment & Services"
+      "sub_industry": "Oil & Gas Equipment & Services",
+      "sic": 1389
     },
     {
       "ticker": "AFL",
@@ -3208,8 +3436,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 18.238078156884256,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Life & Health Insurance"
+      "sub_industry": "Life & Health Insurance",
+      "sic": 6321
     },
     {
       "ticker": "FOXA",
@@ -3236,8 +3466,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.70351923076923,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Broadcasting"
+      "sub_industry": "Broadcasting",
+      "sic": 4833
     },
     {
       "ticker": "TXT",
@@ -3264,8 +3496,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 16.89718918728966,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3720
     },
     {
       "ticker": "DHI",
@@ -3292,8 +3526,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.093929498340874,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Homebuilding"
+      "sub_industry": "Homebuilding",
+      "sic": 1531
     },
     {
       "ticker": "SNDK",
@@ -3320,8 +3556,10 @@
       "ni_margin_basis": "2y avg",
       "payback_cons": 17.181579129847538,
       "payback_basis": "2y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3572
     },
     {
       "ticker": "CLX",
@@ -3348,8 +3586,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 17.229900396131054,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Household Products"
+      "sub_industry": "Household Products",
+      "sic": 2842
     },
     {
       "ticker": "AMP",
@@ -3376,8 +3616,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 17.332510003989675,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "BIIB",
@@ -3404,8 +3646,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.90261800273064,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2836
     },
     {
       "ticker": "L",
@@ -3432,8 +3676,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 17.700438627720175,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Multi-line Insurance"
+      "sub_industry": "Multi-line Insurance",
+      "sic": 6331
     },
     {
       "ticker": "ON",
@@ -3460,8 +3706,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.806247800938557,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "MKC",
@@ -3488,8 +3736,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 17.835538864375483,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2090
     },
     {
       "ticker": "CVX",
@@ -3516,8 +3766,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.308505303760846,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Integrated Oil & Gas"
+      "sub_industry": "Integrated Oil & Gas",
+      "sic": 2911
     },
     {
       "ticker": "JPM",
@@ -3544,8 +3796,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 17.98897372676328,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Diversified Banks"
+      "sub_industry": "Diversified Banks",
+      "sic": 6021
     },
     {
       "ticker": "XOM",
@@ -3572,8 +3826,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 26.514106709781732,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Integrated Oil & Gas"
+      "sub_industry": "Integrated Oil & Gas",
+      "sic": 2911
     },
     {
       "ticker": "KMI",
@@ -3600,8 +3856,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 19.483337182448036,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Storage & Transportation"
+      "sub_industry": "Oil & Gas Storage & Transportation",
+      "sic": 4922
     },
     {
       "ticker": "ORCL",
@@ -3628,8 +3886,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.207561603952144,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "CB",
@@ -3656,8 +3916,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.220044336346977,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "IBM",
@@ -3684,8 +3946,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.225920351205527,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "IT Consulting & Other Services"
+      "sub_industry": "IT Consulting & Other Services",
+      "sic": 3570
     },
     {
       "ticker": "ZTS",
@@ -3712,8 +3976,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.268612201037396,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "ALGN",
@@ -3740,8 +4006,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.95025441238197,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Supplies"
+      "sub_industry": "Health Care Supplies",
+      "sic": 3842
     },
     {
       "ticker": "LOW",
@@ -3768,8 +4036,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 18.273945151617568,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Home Improvement Retail"
+      "sub_industry": "Home Improvement Retail",
+      "sic": 5211
     },
     {
       "ticker": "ATO",
@@ -3796,8 +4066,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.01693142189304,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Gas Utilities"
+      "sub_industry": "Gas Utilities",
+      "sic": 4924
     },
     {
       "ticker": "CRM",
@@ -3824,8 +4096,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.326165059094283,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "CRH",
@@ -3852,8 +4126,10 @@
       "ni_margin_basis": "3y avg",
       "payback_cons": 18.352964402961042,
       "payback_basis": "3y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Construction Materials"
+      "sub_industry": "Construction Materials",
+      "sic": 3241
     },
     {
       "ticker": "TSN",
@@ -3880,8 +4156,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 18.394635071064428,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2015
     },
     {
       "ticker": "CCI",
@@ -3908,8 +4186,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.492412201441354,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Telecom Tower REITs"
+      "sub_industry": "Telecom Tower REITs",
+      "sic": 6798
     },
     {
       "ticker": "GS",
@@ -3936,8 +4216,10 @@
       "ni_margin_basis": null,
       "payback_cons": 18.495285063296087,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "FDX",
@@ -3964,8 +4246,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.496947348673796,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Air Freight & Logistics"
+      "sub_industry": "Air Freight & Logistics",
+      "sic": 4513
     },
     {
       "ticker": "TGT",
@@ -3992,8 +4276,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.039716452742123,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Consumer Staples Merchandise Retail"
+      "sub_industry": "Consumer Staples Merchandise Retail",
+      "sic": 5331
     },
     {
       "ticker": "RJF",
@@ -4020,8 +4306,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 18.663649065141716,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "GPC",
@@ -4048,8 +4336,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 39.20545632940864,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Distributors"
+      "sub_industry": "Distributors",
+      "sic": 5013
     },
     {
       "ticker": "HSY",
@@ -4076,8 +4366,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.527856521279716,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2060
     },
     {
       "ticker": "HCA",
@@ -4104,8 +4396,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 18.87698234112918,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Facilities"
+      "sub_industry": "Health Care Facilities",
+      "sic": 8062
     },
     {
       "ticker": "DTE",
@@ -4132,8 +4426,10 @@
       "ni_margin_basis": null,
       "payback_cons": 18.90403668039109,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4911
     },
     {
       "ticker": "BEN",
@@ -4160,8 +4456,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 18.957073404372757,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "MPC",
@@ -4188,8 +4486,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.46304278288685,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Refining & Marketing"
+      "sub_industry": "Oil & Gas Refining & Marketing",
+      "sic": 2911
     },
     {
       "ticker": "AOS",
@@ -4216,8 +4516,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 19.18386701210838,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3630
     },
     {
       "ticker": "BRK.B",
@@ -4244,8 +4546,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.39454181955536,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Multi-Sector Holdings"
+      "sub_industry": "Multi-Sector Holdings",
+      "sic": 6331
     },
     {
       "ticker": "STT",
@@ -4272,8 +4576,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 19.397578087259713,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6022
     },
     {
       "ticker": "PHM",
@@ -4300,8 +4606,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.424701820081655,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Homebuilding"
+      "sub_industry": "Homebuilding",
+      "sic": 1531
     },
     {
       "ticker": "CDW",
@@ -4328,8 +4636,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.676269792054978,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Distributors"
+      "sub_industry": "Technology Distributors",
+      "sic": 5961
     },
     {
       "ticker": "BKNG",
@@ -4356,8 +4666,10 @@
       "ni_margin_basis": null,
       "payback_cons": 19.74126048216358,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 4700
     },
     {
       "ticker": "PNR",
@@ -4384,8 +4696,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 19.745630135168838,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3550
     },
     {
       "ticker": "HSIC",
@@ -4412,8 +4726,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.898936687544545,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Distributors"
+      "sub_industry": "Health Care Distributors",
+      "sic": 5047
     },
     {
       "ticker": "MET",
@@ -4440,8 +4756,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 19.93944260130098,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Life & Health Insurance"
+      "sub_industry": "Life & Health Insurance",
+      "sic": 6311
     },
     {
       "ticker": "SNA",
@@ -4468,8 +4786,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 20.444051595771953,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3420
     },
     {
       "ticker": "MAS",
@@ -4496,8 +4816,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 20.476484129878497,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3430
     },
     {
       "ticker": "BF.B",
@@ -4524,8 +4846,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 20.92832125812179,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Distillers & Vintners"
+      "sub_industry": "Distillers & Vintners",
+      "sic": 2080
     },
     {
       "ticker": "OTIS",
@@ -4552,8 +4876,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 20.953032588318006,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3600
     },
     {
       "ticker": "NWSA",
@@ -4580,8 +4906,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 20.974417310085812,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Publishing"
+      "sub_industry": "Publishing",
+      "sic": 2711
     },
     {
       "ticker": "AVY",
@@ -4608,8 +4936,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.0912150186872,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Paper & Plastic Packaging Products & Materials"
+      "sub_industry": "Paper & Plastic Packaging Products & Materials",
+      "sic": 2670
     },
     {
       "ticker": "MS",
@@ -4636,8 +4966,10 @@
       "ni_margin_basis": null,
       "payback_cons": 21.158625634574747,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "GEHC",
@@ -4664,8 +4996,10 @@
       "ni_margin_basis": "3y avg",
       "payback_cons": 21.725364705882352,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3844
     },
     {
       "ticker": "NTRS",
@@ -4692,8 +5026,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 21.216662197945006,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6022
     },
     {
       "ticker": "TSCO",
@@ -4720,8 +5056,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.289501677332023,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Other Specialty Retail"
+      "sub_industry": "Other Specialty Retail",
+      "sic": 5200
     },
     {
       "ticker": "LMT",
@@ -4748,8 +5086,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.336652602237816,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3760
     },
     {
       "ticker": "HUM",
@@ -4776,8 +5116,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 125.65904,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Managed Health Care"
+      "sub_industry": "Managed Health Care",
+      "sic": 6324
     },
     {
       "ticker": "LII",
@@ -4804,8 +5146,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 21.364976820303166,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3585
     },
     {
       "ticker": "PEP",
@@ -4832,8 +5176,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.34384205650764,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Soft Drinks & Non-alcoholic Beverages"
+      "sub_industry": "Soft Drinks & Non-alcoholic Beverages",
+      "sic": 2080
     },
     {
       "ticker": "TMUS",
@@ -4860,8 +5206,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 21.54328623081456,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Wireless Telecommunication Services"
+      "sub_industry": "Wireless Telecommunication Services",
+      "sic": 4812
     },
     {
       "ticker": "FTV",
@@ -4888,8 +5236,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 21.948610571516202,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3823
     },
     {
       "ticker": "REGN",
@@ -4916,8 +5266,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.54395156926407,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2834
     },
     {
       "ticker": "SYY",
@@ -4944,8 +5296,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.771353816828455,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Food Distributors"
+      "sub_industry": "Food Distributors",
+      "sic": 5140
     },
     {
       "ticker": "HII",
@@ -4972,8 +5326,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 21.778345732914218,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3730
     },
     {
       "ticker": "WRB",
@@ -5000,8 +5356,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 21.86684669314451,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "Q",
@@ -5028,8 +5386,10 @@
       "ni_margin_basis": "1y avg",
       "payback_cons": 21.97166599190283,
       "payback_basis": "1y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductor Materials & Equipment"
+      "sub_industry": "Semiconductor Materials & Equipment",
+      "sic": 3674
     },
     {
       "ticker": "GILD",
@@ -5056,8 +5416,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.02155788795733,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2836
     },
     {
       "ticker": "AIZ",
@@ -5084,8 +5446,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.100120932558426,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Multi-line Insurance"
+      "sub_industry": "Multi-line Insurance",
+      "sic": 6399
     },
     {
       "ticker": "TRV",
@@ -5112,8 +5476,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.192463444505865,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "TEL",
@@ -5140,8 +5506,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.33243099600055,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Manufacturing Services"
+      "sub_industry": "Electronic Manufacturing Services",
+      "sic": 5065
     },
     {
       "ticker": "LHX",
@@ -5168,8 +5536,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.493652216933683,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3812
     },
     {
       "ticker": "DLTR",
@@ -5196,8 +5566,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.629173481558244,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Consumer Staples Merchandise Retail"
+      "sub_industry": "Consumer Staples Merchandise Retail",
+      "sic": 5331
     },
     {
       "ticker": "MCD",
@@ -5224,8 +5596,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.639000489141363,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5812
     },
     {
       "ticker": "DPZ",
@@ -5252,8 +5626,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.73402156556993,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5140
     },
     {
       "ticker": "LH",
@@ -5280,8 +5656,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.510359867330017,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Services"
+      "sub_industry": "Health Care Services",
+      "sic": 8071
     },
     {
       "ticker": "FE",
@@ -5308,8 +5686,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.900879605077193,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "META",
@@ -5336,8 +5716,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 22.906744697767756,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Interactive Media & Services"
+      "sub_industry": "Interactive Media & Services",
+      "sic": 7370
     },
     {
       "ticker": "BXP",
@@ -5364,8 +5746,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.21057666729717,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Office REITs"
+      "sub_industry": "Office REITs",
+      "sic": 6798
     },
     {
       "ticker": "EXR",
@@ -5392,8 +5776,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.470336296623124,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Self-Storage REITs"
+      "sub_industry": "Self-Storage REITs",
+      "sic": 6798
     },
     {
       "ticker": "D",
@@ -5420,8 +5806,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 22.986929158251503,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4911
     },
     {
       "ticker": "CPRT",
@@ -5448,8 +5836,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.21378690808291,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Diversified Support Services"
+      "sub_industry": "Diversified Support Services",
+      "sic": 5500
     },
     {
       "ticker": "CAH",
@@ -5476,8 +5866,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.2367521296478,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Distributors"
+      "sub_industry": "Health Care Distributors",
+      "sic": 5122
     },
     {
       "ticker": "DD",
@@ -5504,8 +5896,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 89.73547675256644,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Conglomerates"
+      "sub_industry": "Industrial Conglomerates",
+      "sic": 2821
     },
     {
       "ticker": "MRK",
@@ -5532,8 +5926,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.96730766366277,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "NWS",
@@ -5560,8 +5956,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.33560919888589,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Publishing"
+      "sub_industry": "Publishing",
+      "sic": 2711
     },
     {
       "ticker": "AZO",
@@ -5588,8 +5986,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.366540975435704,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automotive Retail"
+      "sub_industry": "Automotive Retail",
+      "sic": 5531
     },
     {
       "ticker": "PAYX",
@@ -5616,8 +6016,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.422872242110216,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Human Resource & Employment Services"
+      "sub_industry": "Human Resource & Employment Services",
+      "sic": 8700
     },
     {
       "ticker": "ABT",
@@ -5644,8 +6046,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.43296062238359,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 2834
     },
     {
       "ticker": "SPG",
@@ -5672,8 +6076,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.48562910277768,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Retail REITs"
+      "sub_industry": "Retail REITs",
+      "sic": 6798
     },
     {
       "ticker": "FDS",
@@ -5700,8 +6106,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.518269170433516,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 7370
     },
     {
       "ticker": "PPG",
@@ -5728,8 +6136,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.54392109795982,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 2851
     },
     {
       "ticker": "HD",
@@ -5756,8 +6166,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 26.33243306533448,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Home Improvement Retail"
+      "sub_industry": "Home Improvement Retail",
+      "sic": 5211
     },
     {
       "ticker": "CHRW",
@@ -5784,8 +6196,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.599561129725082,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Air Freight & Logistics"
+      "sub_industry": "Air Freight & Logistics",
+      "sic": 4731
     },
     {
       "ticker": "GPN",
@@ -5812,8 +6226,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.657566273107786,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "WDAY",
@@ -5840,8 +6256,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.699761423292752,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7374
     },
     {
       "ticker": "IQV",
@@ -5868,8 +6286,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.854072699377813,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 8731
     },
     {
       "ticker": "DRI",
@@ -5896,8 +6316,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 23.90727765909202,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5812
     },
     {
       "ticker": "ALL",
@@ -5924,8 +6346,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 23.959981115201792,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "ARE",
@@ -5952,8 +6376,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 107.70106657437705,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Office REITs"
+      "sub_industry": "Office REITs",
+      "sic": 6798
     },
     {
       "ticker": "AMT",
@@ -5980,8 +6406,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.14998400617876,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Telecom Tower REITs"
+      "sub_industry": "Telecom Tower REITs",
+      "sic": 6798
     },
     {
       "ticker": "ABBV",
@@ -6008,8 +6436,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.777129406612655,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2834
     },
     {
       "ticker": "DGX",
@@ -6036,8 +6466,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 24.297599933257374,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Services"
+      "sub_industry": "Health Care Services",
+      "sic": 8071
     },
     {
       "ticker": "PSX",
@@ -6064,8 +6496,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 57.077337516072475,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Refining & Marketing"
+      "sub_industry": "Oil & Gas Refining & Marketing",
+      "sic": 2911
     },
     {
       "ticker": "TPR",
@@ -6092,8 +6526,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.415480864726632,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel, Accessories & Luxury Goods"
+      "sub_industry": "Apparel, Accessories & Luxury Goods",
+      "sic": 3100
     },
     {
       "ticker": "COR",
@@ -6120,8 +6556,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 24.42651100780845,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Distributors"
+      "sub_industry": "Health Care Distributors",
+      "sic": 5122
     },
     {
       "ticker": "PGR",
@@ -6148,8 +6586,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.492969743696506,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Property & Casualty Insurance"
+      "sub_industry": "Property & Casualty Insurance",
+      "sic": 6331
     },
     {
       "ticker": "BKR",
@@ -6176,8 +6616,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.560318656232525,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Equipment & Services"
+      "sub_industry": "Oil & Gas Equipment & Services",
+      "sic": 3533
     },
     {
       "ticker": "WSM",
@@ -6204,8 +6646,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.56764143180696,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Homefurnishing Retail"
+      "sub_industry": "Homefurnishing Retail",
+      "sic": 5700
     },
     {
       "ticker": "AXP",
@@ -6232,8 +6676,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.59119418093657,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Consumer Finance"
+      "sub_industry": "Consumer Finance",
+      "sic": 6199
     },
     {
       "ticker": "PNW",
@@ -6260,8 +6706,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 24.630517425951183,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4911
     },
     {
       "ticker": "BR",
@@ -6288,8 +6736,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.6541341535799,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Data Processing & Outsourced Services"
+      "sub_industry": "Data Processing & Outsourced Services",
+      "sic": 7389
     },
     {
       "ticker": "WTW",
@@ -6316,8 +6766,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 24.723723415691396,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "NTAP",
@@ -6344,8 +6796,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.765104904722307,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3572
     },
     {
       "ticker": "NI",
@@ -6372,8 +6826,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.92051983526811,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "EVRG",
@@ -6400,8 +6856,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.92083665031995,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "WMB",
@@ -6428,8 +6886,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.945482470937225,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Storage & Transportation"
+      "sub_industry": "Oil & Gas Storage & Transportation",
+      "sic": 4922
     },
     {
       "ticker": "FICO",
@@ -6456,8 +6916,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 24.953289334441738,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7389
     },
     {
       "ticker": "MDT",
@@ -6484,8 +6946,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 24.983476997030426,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3845
     },
     {
       "ticker": "NXPI",
@@ -6512,8 +6976,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.08062302311678,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "JBHT",
@@ -6540,8 +7006,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.097069397070477,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Cargo Ground Transportation"
+      "sub_industry": "Cargo Ground Transportation",
+      "sic": 4213
     },
     {
       "ticker": "WEC",
@@ -6568,8 +7036,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.133498015348994,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "BRO",
@@ -6596,8 +7066,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.220739521429838,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "SRE",
@@ -6624,8 +7096,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.337500000218796,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4932
     },
     {
       "ticker": "FFIV",
@@ -6652,8 +7126,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.337967620940542,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3576
     },
     {
       "ticker": "SCHW",
@@ -6680,8 +7156,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.355016399421945,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "ZBRA",
@@ -6708,8 +7186,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.35958681084493,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Equipment & Instruments"
+      "sub_industry": "Electronic Equipment & Instruments",
+      "sic": 3560
     },
     {
       "ticker": "DHR",
@@ -6736,8 +7216,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.850299329332863,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3823
     },
     {
       "ticker": "TRMB",
@@ -6764,8 +7246,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 33.87290108063175,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 3829
     },
     {
       "ticker": "DIS",
@@ -6792,8 +7276,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.666465207296792,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
+      "sub_industry": "Movies & Entertainment",
+      "sic": 7990
     },
     {
       "ticker": "KKR",
@@ -6820,8 +7306,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 33.29693240002481,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "GD",
@@ -6848,8 +7336,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.76847633529598,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3730
     },
     {
       "ticker": "PKG",
@@ -6876,8 +7366,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.825370459225844,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Paper & Plastic Packaging Products & Materials"
+      "sub_industry": "Paper & Plastic Packaging Products & Materials",
+      "sic": 2650
     },
     {
       "ticker": "AEP",
@@ -6904,8 +7396,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.884544492021583,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "WYNN",
@@ -6932,8 +7426,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 25.9330071311281,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Casinos & Gaming"
+      "sub_industry": "Casinos & Gaming",
+      "sic": 7011
     },
     {
       "ticker": "ROP",
@@ -6960,8 +7456,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 25.986466550278465,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Equipment & Instruments"
+      "sub_industry": "Electronic Equipment & Instruments",
+      "sic": 3823
     },
     {
       "ticker": "UNP",
@@ -6988,8 +7486,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 26.299818992045758,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Rail Transportation"
+      "sub_industry": "Rail Transportation",
+      "sic": 4011
     },
     {
       "ticker": "EL",
@@ -7016,8 +7516,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.570674772036472,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Personal Care Products"
+      "sub_industry": "Personal Care Products",
+      "sic": 2844
     },
     {
       "ticker": "JBL",
@@ -7044,8 +7546,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 26.48941683296347,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Manufacturing Services"
+      "sub_industry": "Electronic Manufacturing Services",
+      "sic": 3672
     },
     {
       "ticker": "KDP",
@@ -7072,8 +7576,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.911427083333336,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Soft Drinks & Non-alcoholic Beverages"
+      "sub_industry": "Soft Drinks & Non-alcoholic Beverages",
+      "sic": 2080
     },
     {
       "ticker": "NSC",
@@ -7100,8 +7606,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 26.584528622862088,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Rail Transportation"
+      "sub_industry": "Rail Transportation",
+      "sic": 4011
     },
     {
       "ticker": "CSCO",
@@ -7128,8 +7636,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 26.81469763300438,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3576
     },
     {
       "ticker": "EXPD",
@@ -7156,8 +7666,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.51846805118523,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Air Freight & Logistics"
+      "sub_industry": "Air Freight & Logistics",
+      "sic": 4731
     },
     {
       "ticker": "APO",
@@ -7184,8 +7696,10 @@
       "ni_margin_basis": "4y avg",
       "payback_cons": 26.890288921567972,
       "payback_basis": "4y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "ULTA",
@@ -7212,8 +7726,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 26.929674391253467,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Other Specialty Retail"
+      "sub_industry": "Other Specialty Retail",
+      "sic": 5990
     },
     {
       "ticker": "CL",
@@ -7240,8 +7756,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 26.996243449471343,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Household Products"
+      "sub_industry": "Household Products",
+      "sic": 2844
     },
     {
       "ticker": "COIN",
@@ -7268,8 +7786,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.026244755262994,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 6199
     },
     {
       "ticker": "MDLZ",
@@ -7296,8 +7816,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.1300290300988,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Packaged Foods & Meats"
+      "sub_industry": "Packaged Foods & Meats",
+      "sic": 2000
     },
     {
       "ticker": "MAA",
@@ -7324,8 +7846,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.057819075319742,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Multi-Family Residential REITs"
+      "sub_industry": "Multi-Family Residential REITs",
+      "sic": 6798
     },
     {
       "ticker": "PG",
@@ -7352,8 +7876,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 27.41017098004808,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Personal Care Products"
+      "sub_industry": "Personal Care Products",
+      "sic": 2840
     },
     {
       "ticker": "HPE",
@@ -7380,8 +7906,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 86.38730462519935,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3570
     },
     {
       "ticker": "CSX",
@@ -7408,8 +7936,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.355028980565972,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Rail Transportation"
+      "sub_industry": "Rail Transportation",
+      "sic": 4011
     },
     {
       "ticker": "LUV",
@@ -7436,8 +7966,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 87.22212765957447,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Passenger Airlines"
+      "sub_industry": "Passenger Airlines",
+      "sic": 4512
     },
     {
       "ticker": "HAS",
@@ -7464,8 +7996,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.573537777297453,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Leisure Products"
+      "sub_industry": "Leisure Products",
+      "sic": 3944
     },
     {
       "ticker": "PSA",
@@ -7492,8 +8026,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.134166731789744,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Self-Storage REITs"
+      "sub_industry": "Self-Storage REITs",
+      "sic": 6798
     },
     {
       "ticker": "BNY",
@@ -7520,8 +8056,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 27.67669546304508,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6022
     },
     {
       "ticker": "AMGN",
@@ -7548,8 +8086,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.150232098765432,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2836
     },
     {
       "ticker": "COO",
@@ -7576,8 +8116,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 27.841209974197728,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Supplies"
+      "sub_industry": "Health Care Supplies",
+      "sic": 3851
     },
     {
       "ticker": "AON",
@@ -7604,8 +8146,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 27.890309298711433,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "BX",
@@ -7632,8 +8176,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.632590086293984,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "PPL",
@@ -7660,8 +8206,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 28.00282678687137,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "J",
@@ -7688,8 +8236,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 33.63827447771016,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction & Engineering"
+      "sub_industry": "Construction & Engineering",
+      "sic": 1600
     },
     {
       "ticker": "DE",
@@ -7716,8 +8266,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.327386435060678,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Agricultural & Farm Machinery"
+      "sub_industry": "Agricultural & Farm Machinery",
+      "sic": 3523
     },
     {
       "ticker": "MRSH",
@@ -7744,8 +8296,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.40503675305281,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "PM",
@@ -7772,8 +8326,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 28.490545497498175,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Tobacco"
+      "sub_industry": "Tobacco",
+      "sic": 2111
     },
     {
       "ticker": "CARR",
@@ -7800,8 +8356,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.512268876515652,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3585
     },
     {
       "ticker": "CMS",
@@ -7828,8 +8386,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 28.630512510253304,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "BLK",
@@ -7856,8 +8416,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.91605681903836,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6211
     },
     {
       "ticker": "DOV",
@@ -7884,8 +8446,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.036569009156327,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3530
     },
     {
       "ticker": "MCK",
@@ -7912,8 +8476,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.081382016962444,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Distributors"
+      "sub_industry": "Health Care Distributors",
+      "sic": 5122
     },
     {
       "ticker": "VST",
@@ -7940,8 +8506,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.142484183944998,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "IVZ",
@@ -7968,8 +8536,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "RVTY",
@@ -7996,8 +8566,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 33.23824161629803,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3826
     },
     {
       "ticker": "AWK",
@@ -8024,8 +8596,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.402923122786543,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Water Utilities"
+      "sub_industry": "Water Utilities",
+      "sic": 4941
     },
     {
       "ticker": "DUK",
@@ -8052,8 +8626,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.42335295420444,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "IEX",
@@ -8080,8 +8656,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.457165799934973,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3561
     },
     {
       "ticker": "ES",
@@ -8108,8 +8686,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.46928645549954,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "NOW",
@@ -8136,8 +8716,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.53907857568964,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 7372
     },
     {
       "ticker": "ABNB",
@@ -8164,8 +8746,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.60636067162419,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 7340
     },
     {
       "ticker": "CAT",
@@ -8192,8 +8776,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 29.71127062627347,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction Machinery & Heavy Transportation Equipment"
+      "sub_industry": "Construction Machinery & Heavy Transportation Equipment",
+      "sic": 3531
     },
     {
       "ticker": "BSX",
@@ -8220,8 +8806,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 29.893750273312158,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "NEM",
@@ -8248,8 +8836,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 30.00518612459754,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Gold"
+      "sub_industry": "Gold",
+      "sic": 1040
     },
     {
       "ticker": "MMM",
@@ -8276,8 +8866,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 69.01575000000001,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Conglomerates"
+      "sub_industry": "Industrial Conglomerates",
+      "sic": 3841
     },
     {
       "ticker": "JKHY",
@@ -8304,8 +8896,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 30.16069768699666,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7373
     },
     {
       "ticker": "ADSK",
@@ -8332,8 +8926,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.315171821514546,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "YUM",
@@ -8360,8 +8956,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.501310423987352,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5812
     },
     {
       "ticker": "KIM",
@@ -8388,8 +8986,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.52396253526183,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Retail REITs"
+      "sub_industry": "Retail REITs",
+      "sic": 6798
     },
     {
       "ticker": "BDX",
@@ -8416,8 +9016,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.60505332805575,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "CHD",
@@ -8444,8 +9046,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 30.683212499612992,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Household Products"
+      "sub_industry": "Household Products",
+      "sic": 2840
     },
     {
       "ticker": "ALLE",
@@ -8472,8 +9076,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 30.810506096944263,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 7381
     },
     {
       "ticker": "APD",
@@ -8500,8 +9106,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.84580038571479,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Industrial Gases"
+      "sub_industry": "Industrial Gases",
+      "sic": 2810
     },
     {
       "ticker": "FERG",
@@ -8528,8 +9136,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.926272822300206,
       "payback_basis": "4y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Trading Companies & Distributors"
+      "sub_industry": "Trading Companies & Distributors",
+      "sic": 5070
     },
     {
       "ticker": "ITW",
@@ -8556,8 +9166,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 30.933173155263457,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3560
     },
     {
       "ticker": "EFX",
@@ -8584,8 +9196,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.257413242591465,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Research & Consulting Services"
+      "sub_industry": "Research & Consulting Services",
+      "sic": 7320
     },
     {
       "ticker": "ODFL",
@@ -8612,8 +9226,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.3747156198717,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Cargo Ground Transportation"
+      "sub_industry": "Cargo Ground Transportation",
+      "sic": 4213
     },
     {
       "ticker": "IR",
@@ -8640,8 +9256,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.48644745883319,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3560
     },
     {
       "ticker": "NOC",
@@ -8668,8 +9286,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.55447294619748,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3812
     },
     {
       "ticker": "VRSK",
@@ -8696,8 +9316,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 31.59881817689099,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Research & Consulting Services"
+      "sub_industry": "Research & Consulting Services",
+      "sic": 7374
     },
     {
       "ticker": "SBUX",
@@ -8724,8 +9346,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.706806976983724,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5810
     },
     {
       "ticker": "VLTO",
@@ -8752,8 +9376,10 @@
       "ni_margin_basis": "3y avg",
       "payback_cons": 31.75178115745728,
       "payback_basis": "3y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Environmental & Facilities Services"
+      "sub_industry": "Environmental & Facilities Services",
+      "sic": 3825
     },
     {
       "ticker": "ED",
@@ -8780,8 +9406,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.81701619189457,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "FLEX",
@@ -8808,8 +9436,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 31.868423885893144,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Manufacturing Services"
+      "sub_industry": "Electronic Manufacturing Services",
+      "sic": 3672
     },
     {
       "ticker": "NEE",
@@ -8836,8 +9466,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 31.976789541917483,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4911
     },
     {
       "ticker": "RMD",
@@ -8864,8 +9496,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.05304595397452,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "CBRE",
@@ -8892,8 +9526,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 32.33665685617096,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Real Estate Services"
+      "sub_industry": "Real Estate Services",
+      "sic": 6500
     },
     {
       "ticker": "ERIE",
@@ -8920,8 +9556,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.352844050683245,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "SW",
@@ -8948,8 +9586,10 @@
       "ni_margin_basis": "2y avg",
       "payback_cons": 32.35757077480002,
       "payback_basis": "2y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Paper & Plastic Packaging Products & Materials"
+      "sub_industry": "Paper & Plastic Packaging Products & Materials",
+      "sic": 2650
     },
     {
       "ticker": "TRGP",
@@ -8976,8 +9616,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.4450339707078,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Storage & Transportation"
+      "sub_industry": "Oil & Gas Storage & Transportation",
+      "sic": 4922
     },
     {
       "ticker": "NDSN",
@@ -9004,8 +9646,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 32.48421082153489,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3569
     },
     {
       "ticker": "ADP",
@@ -9032,8 +9676,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.53914488023091,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Human Resource & Employment Services"
+      "sub_industry": "Human Resource & Employment Services",
+      "sic": 7374
     },
     {
       "ticker": "HUBB",
@@ -9060,8 +9706,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.54527188455593,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3670
     },
     {
       "ticker": "EBAY",
@@ -9088,8 +9736,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.173029908972694,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Broadline Retail"
+      "sub_industry": "Broadline Retail",
+      "sic": 7389
     },
     {
       "ticker": "REG",
@@ -9116,8 +9766,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 32.79136590107056,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Retail REITs"
+      "sub_industry": "Retail REITs",
+      "sic": 6798
     },
     {
       "ticker": "ORLY",
@@ -9144,8 +9796,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.23289451177223,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automotive Retail"
+      "sub_industry": "Automotive Retail",
+      "sic": 5531
     },
     {
       "ticker": "CMI",
@@ -9172,8 +9826,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 33.086087998648836,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction Machinery & Heavy Transportation Equipment"
+      "sub_industry": "Construction Machinery & Heavy Transportation Equipment",
+      "sic": 3510
     },
     {
       "ticker": "CPAY",
@@ -9200,8 +9856,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 33.254573574169505,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "XYL",
@@ -9228,8 +9886,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 33.439654675758355,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3561
     },
     {
       "ticker": "PTC",
@@ -9256,8 +9916,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 33.44955278238602,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "EIX",
@@ -9284,8 +9946,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 33.519470399369084,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "RL",
@@ -9312,8 +9976,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 33.63288778458419,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel, Accessories & Luxury Goods"
+      "sub_industry": "Apparel, Accessories & Luxury Goods",
+      "sic": 2320
     },
     {
       "ticker": "LYV",
@@ -9340,8 +10006,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 53.62390174024779,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
+      "sub_industry": "Movies & Entertainment",
+      "sic": 7900
     },
     {
       "ticker": "TMO",
@@ -9368,8 +10036,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 37.39452127659574,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3829
     },
     {
       "ticker": "SHW",
@@ -9396,8 +10066,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.03449994118336,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 5200
     },
     {
       "ticker": "EME",
@@ -9424,8 +10096,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.190311787075046,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction & Engineering"
+      "sub_industry": "Construction & Engineering",
+      "sic": 1731
     },
     {
       "ticker": "CME",
@@ -9452,8 +10126,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.2428024960864,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 6200
     },
     {
       "ticker": "INCY",
@@ -9480,8 +10156,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.274233379107564,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 8731
     },
     {
       "ticker": "HST",
@@ -9508,8 +10186,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.37231960309526,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Hotel & Resort REITs"
+      "sub_industry": "Hotel & Resort REITs",
+      "sic": 6798
     },
     {
       "ticker": "UBER",
@@ -9536,8 +10216,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.40174011492826,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Passenger Ground Transportation"
+      "sub_industry": "Passenger Ground Transportation",
+      "sic": 7389
     },
     {
       "ticker": "ICE",
@@ -9564,8 +10246,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 34.69747642186573,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 6200
     },
     {
       "ticker": "CMG",
@@ -9592,8 +10276,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.80339609309154,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Restaurants"
+      "sub_industry": "Restaurants",
+      "sic": 5812
     },
     {
       "ticker": "MSFT",
@@ -9620,8 +10306,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.87796181494663,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 7372
     },
     {
       "ticker": "TDY",
@@ -9648,8 +10336,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 34.970460423225596,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Equipment & Instruments"
+      "sub_industry": "Electronic Equipment & Instruments",
+      "sic": 3812
     },
     {
       "ticker": "RDDT",
@@ -9676,8 +10366,10 @@
       "ni_margin_basis": "2y avg",
       "payback_cons": 35.05214525409018,
       "payback_basis": "2y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Interactive Media & Services"
+      "sub_industry": "Interactive Media & Services",
+      "sic": 7374
     },
     {
       "ticker": "GOOG",
@@ -9704,8 +10396,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 35.186605657703275,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Interactive Media & Services"
+      "sub_industry": "Interactive Media & Services",
+      "sic": 7370
     },
     {
       "ticker": "GOOGL",
@@ -9732,8 +10426,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 35.35854020807614,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Interactive Media & Services"
+      "sub_industry": "Interactive Media & Services",
+      "sic": 7370
     },
     {
       "ticker": "BALL",
@@ -9760,8 +10456,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.411044429390834,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Metal, Glass & Plastic Containers"
+      "sub_industry": "Metal, Glass & Plastic Containers",
+      "sic": 3411
     },
     {
       "ticker": "WM",
@@ -9788,8 +10486,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.58829861102136,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Environmental & Facilities Services"
+      "sub_industry": "Environmental & Facilities Services",
+      "sic": 4953
     },
     {
       "ticker": "CRL",
@@ -9816,8 +10516,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 35.828274858044324,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 8731
     },
     {
       "ticker": "MLM",
@@ -9844,8 +10546,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 36.15943511051671,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Construction Materials"
+      "sub_industry": "Construction Materials",
+      "sic": 1400
     },
     {
       "ticker": "VRSN",
@@ -9872,8 +10576,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 36.25087786021565,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Internet Services & Infrastructure"
+      "sub_industry": "Internet Services & Infrastructure",
+      "sic": 7371
     },
     {
       "ticker": "JNJ",
@@ -9900,8 +10606,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.3118790242068,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "ROL",
@@ -9928,8 +10636,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.38281578678667,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Environmental & Facilities Services"
+      "sub_industry": "Environmental & Facilities Services",
+      "sic": 7340
     },
     {
       "ticker": "IFF",
@@ -9956,8 +10666,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 79.62,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 2860
     },
     {
       "ticker": "EXC",
@@ -9984,8 +10696,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.65148564960887,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "EMR",
@@ -10012,8 +10726,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 36.71281598920369,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3600
     },
     {
       "ticker": "AME",
@@ -10040,8 +10756,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.736379692640696,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3823
     },
     {
       "ticker": "PH",
@@ -10068,8 +10786,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.828039152523495,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3490
     },
     {
       "ticker": "ROK",
@@ -10096,8 +10816,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.83925447130841,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3829
     },
     {
       "ticker": "MU",
@@ -10124,8 +10846,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 36.90897948026623,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "SOLV",
@@ -10152,8 +10876,10 @@
       "ni_margin_basis": "2y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Technology"
+      "sub_industry": "Health Care Technology",
+      "sic": 3841
     },
     {
       "ticker": "CSGP",
@@ -10180,8 +10906,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 74.59237724550898,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Real Estate Services"
+      "sub_industry": "Real Estate Services",
+      "sic": 7389
     },
     {
       "ticker": "AMAT",
@@ -10208,8 +10936,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 37.75893661775431,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductor Materials & Equipment"
+      "sub_industry": "Semiconductor Materials & Equipment",
+      "sic": 3674
     },
     {
       "ticker": "RSG",
@@ -10236,8 +10966,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 37.79656018251053,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Environmental & Facilities Services"
+      "sub_industry": "Environmental & Facilities Services",
+      "sic": 4953
     },
     {
       "ticker": "CNP",
@@ -10264,8 +10996,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 37.903036327002475,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4911
     },
     {
       "ticker": "SYK",
@@ -10292,8 +11026,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 38.00270443766209,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "GNRC",
@@ -10320,8 +11056,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 42.71566716202709,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Heavy Electrical Equipment"
+      "sub_industry": "Heavy Electrical Equipment",
+      "sic": 3621
     },
     {
       "ticker": "TJX",
@@ -10348,8 +11086,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 38.176630771248306,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel Retail"
+      "sub_industry": "Apparel Retail",
+      "sic": 5651
     },
     {
       "ticker": "A",
@@ -10376,8 +11116,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 38.21429524425068,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3826
     },
     {
       "ticker": "ROST",
@@ -10404,8 +11146,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 38.97152945384076,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Apparel Retail"
+      "sub_industry": "Apparel Retail",
+      "sic": 5651
     },
     {
       "ticker": "TXN",
@@ -10432,8 +11176,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 45.99880611270296,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "ESS",
@@ -10460,8 +11206,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 39.44046665578998,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Multi-Family Residential REITs"
+      "sub_industry": "Multi-Family Residential REITs",
+      "sic": 6798
     },
     {
       "ticker": "WAB",
@@ -10488,8 +11236,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.07605478439077,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction Machinery & Heavy Transportation Equipment"
+      "sub_industry": "Construction Machinery & Heavy Transportation Equipment",
+      "sic": 3743
     },
     {
       "ticker": "FRT",
@@ -10516,8 +11266,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.1377536466427,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Retail REITs"
+      "sub_industry": "Retail REITs",
+      "sic": 6798
     },
     {
       "ticker": "STE",
@@ -10544,8 +11296,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.15150030774486,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3842
     },
     {
       "ticker": "TYL",
@@ -10572,8 +11326,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.17540404118764,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "CASY",
@@ -10600,8 +11356,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.198335467889656,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Food Retail"
+      "sub_industry": "Food Retail",
+      "sic": 5500
     },
     {
       "ticker": "INVH",
@@ -10628,8 +11386,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.61463050616502,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Single-Family Residential REITs"
+      "sub_industry": "Single-Family Residential REITs",
+      "sic": 6510
     },
     {
       "ticker": "TT",
@@ -10656,8 +11416,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 40.84026712109018,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3822
     },
     {
       "ticker": "KEYS",
@@ -10684,8 +11446,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 40.88867665247753,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Equipment & Instruments"
+      "sub_industry": "Electronic Equipment & Instruments",
+      "sic": 3823
     },
     {
       "ticker": "LIN",
@@ -10712,8 +11476,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 41.29947748954847,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Industrial Gases"
+      "sub_industry": "Industrial Gases",
+      "sic": 2810
     },
     {
       "ticker": "MTD",
@@ -10740,8 +11506,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 41.43767788130789,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3826
     },
     {
       "ticker": "O",
@@ -10768,8 +11536,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 41.45245321684079,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Retail REITs"
+      "sub_industry": "Retail REITs",
+      "sic": 6798
     },
     {
       "ticker": "INTC",
@@ -10796,8 +11566,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "DELL",
@@ -10824,8 +11596,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 41.639509657620955,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3571
     },
     {
       "ticker": "LVS",
@@ -10852,8 +11626,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 41.78570162390494,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Casinos & Gaming"
+      "sub_industry": "Casinos & Gaming",
+      "sic": 7011
     },
     {
       "ticker": "SPGI",
@@ -10880,8 +11656,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 42.04445792884335,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 7320
     },
     {
       "ticker": "TDG",
@@ -10908,8 +11686,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 42.21687055981968,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3728
     },
     {
       "ticker": "V",
@@ -10936,8 +11716,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 42.26231475600553,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "VMRK",
@@ -10964,8 +11746,10 @@
       "ni_margin_basis": null,
       "payback_cons": 42.419283784603365,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Multi-Family Residential REITs"
+      "sub_industry": "Multi-Family Residential REITs",
+      "sic": 6798
     },
     {
       "ticker": "SNPS",
@@ -10992,8 +11776,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 48.6437704813535,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "JCI",
@@ -11020,8 +11806,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 43.82681424823571,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Building Products"
+      "sub_industry": "Building Products",
+      "sic": 3585
     },
     {
       "ticker": "NDAQ",
@@ -11048,8 +11836,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 43.93937458810124,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 6200
     },
     {
       "ticker": "MCO",
@@ -11076,8 +11866,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 44.13322754083655,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 7320
     },
     {
       "ticker": "ADI",
@@ -11104,8 +11896,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 44.372291838216675,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "WAT",
@@ -11132,8 +11926,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 46.59283341394835,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3826
     },
     {
       "ticker": "VEEV",
@@ -11160,8 +11956,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 44.74831244426556,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Technology"
+      "sub_industry": "Health Care Technology",
+      "sic": 7372
     },
     {
       "ticker": "NRG",
@@ -11188,8 +11986,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 44.82927014784892,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Independent Power Producers & Energy Traders"
+      "sub_industry": "Independent Power Producers & Energy Traders",
+      "sic": 4911
     },
     {
       "ticker": "VMC",
@@ -11216,8 +12016,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 45.315044585327776,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Construction Materials"
+      "sub_industry": "Construction Materials",
+      "sic": 1400
     },
     {
       "ticker": "TPL",
@@ -11244,8 +12046,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 45.5558551559936,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Energy",
-      "sub_industry": "Oil & Gas Exploration & Production"
+      "sub_industry": "Oil & Gas Exploration & Production",
+      "sic": 6792
     },
     {
       "ticker": "ETN",
@@ -11272,8 +12076,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 46.02355491879964,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3590
     },
     {
       "ticker": "MSI",
@@ -11300,8 +12106,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 46.103510257997264,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3663
     },
     {
       "ticker": "GRMN",
@@ -11328,8 +12136,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 46.23649756643684,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Consumer Electronics"
+      "sub_industry": "Consumer Electronics",
+      "sic": 3812
     },
     {
       "ticker": "TECH",
@@ -11356,8 +12166,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 46.61258274260664,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 2836
     },
     {
       "ticker": "GWW",
@@ -11384,8 +12196,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 47.28136079231187,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 5000
     },
     {
       "ticker": "AAPL",
@@ -11412,8 +12226,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 47.474166082097774,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3571
     },
     {
       "ticker": "ECL",
@@ -11440,8 +12256,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 47.553052087842055,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Materials",
-      "sub_industry": "Specialty Chemicals"
+      "sub_industry": "Specialty Chemicals",
+      "sic": 2840
     },
     {
       "ticker": "MSCI",
@@ -11468,8 +12286,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 48.041442378666424,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 7389
     },
     {
       "ticker": "KO",
@@ -11496,8 +12316,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 65.79393991821327,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Soft Drinks & Non-alcoholic Beverages"
+      "sub_industry": "Soft Drinks & Non-alcoholic Beverages",
+      "sic": 2080
     },
     {
       "ticker": "PLD",
@@ -11524,8 +12346,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 49.198969445174335,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Industrial REITs"
+      "sub_industry": "Industrial REITs",
+      "sic": 6798
     },
     {
       "ticker": "RTX",
@@ -11552,8 +12376,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 48.409768710085025,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3724
     },
     {
       "ticker": "NFLX",
@@ -11580,8 +12406,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 48.76807599479154,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
+      "sub_industry": "Movies & Entertainment",
+      "sic": 7841
     },
     {
       "ticker": "DXCM",
@@ -11608,8 +12436,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 48.84529039230996,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "DOC",
@@ -11636,8 +12466,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 49.56010581402867,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Health Care REITs"
+      "sub_industry": "Health Care REITs",
+      "sic": 6798
     },
     {
       "ticker": "MAR",
@@ -11664,8 +12496,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 50.1767612891083,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 7011
     },
     {
       "ticker": "MA",
@@ -11692,8 +12526,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 51.08821725022973,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     },
     {
       "ticker": "COST",
@@ -11720,8 +12556,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 51.43450402360886,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Consumer Staples Merchandise Retail"
+      "sub_industry": "Consumer Staples Merchandise Retail",
+      "sic": 5331
     },
     {
       "ticker": "P",
@@ -11748,8 +12586,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 51.47756740586473,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3572
     },
     {
       "ticker": "KLAC",
@@ -11776,8 +12616,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 51.834385318449876,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductor Materials & Equipment"
+      "sub_industry": "Semiconductor Materials & Equipment",
+      "sic": 3827
     },
     {
       "ticker": "MRNA",
@@ -11804,8 +12646,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2836
     },
     {
       "ticker": "FTNT",
@@ -11832,8 +12676,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 51.98121589058939,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 3577
     },
     {
       "ticker": "LRCX",
@@ -11860,8 +12706,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 52.18443983390181,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductor Materials & Equipment"
+      "sub_industry": "Semiconductor Materials & Equipment",
+      "sic": 3559
     },
     {
       "ticker": "AJG",
@@ -11888,8 +12736,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 52.1974063403434,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Insurance Brokers"
+      "sub_industry": "Insurance Brokers",
+      "sic": 6411
     },
     {
       "ticker": "WST",
@@ -11916,8 +12766,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 52.34411123948762,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Supplies"
+      "sub_industry": "Health Care Supplies",
+      "sic": 3841
     },
     {
       "ticker": "VRTX",
@@ -11944,8 +12796,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 53.10965605353452,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Biotechnology"
+      "sub_industry": "Biotechnology",
+      "sic": 2834
     },
     {
       "ticker": "CPT",
@@ -11972,8 +12826,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 54.129349448951835,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Multi-Family Residential REITs"
+      "sub_industry": "Multi-Family Residential REITs",
+      "sic": 6798
     },
     {
       "ticker": "CBOE",
@@ -12000,8 +12856,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 55.851887974451685,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Financial Exchanges & Data"
+      "sub_industry": "Financial Exchanges & Data",
+      "sic": 6200
     },
     {
       "ticker": "DASH",
@@ -12028,8 +12886,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 56.84656044853932,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Specialized Consumer Services"
+      "sub_industry": "Specialized Consumer Services",
+      "sic": 7389
     },
     {
       "ticker": "XYZ",
@@ -12056,8 +12916,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 57.457502648706324,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7372
     },
     {
       "ticker": "CTAS",
@@ -12084,8 +12946,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 57.62625933151686,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Diversified Support Services"
+      "sub_industry": "Diversified Support Services",
+      "sic": 2320
     },
     {
       "ticker": "TER",
@@ -12112,8 +12976,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 59.8178249340268,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductor Materials & Equipment"
+      "sub_industry": "Semiconductor Materials & Equipment",
+      "sic": 3825
     },
     {
       "ticker": "PODD",
@@ -12140,8 +13006,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 58.66475873685057,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3841
     },
     {
       "ticker": "EW",
@@ -12168,8 +13036,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 59.26713846629742,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3842
     },
     {
       "ticker": "RCL",
@@ -12196,8 +13066,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 59.461168311298664,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 4400
     },
     {
       "ticker": "TKO",
@@ -12224,8 +13096,10 @@
       "ni_margin_basis": "3y avg",
       "payback_cons": 59.96744837077031,
       "payback_basis": "3y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Movies & Entertainment"
+      "sub_industry": "Movies & Entertainment",
+      "sic": 7900
     },
     {
       "ticker": "MNST",
@@ -12252,8 +13126,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 60.591256557655235,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Soft Drinks & Non-alcoholic Beverages"
+      "sub_industry": "Soft Drinks & Non-alcoholic Beverages",
+      "sic": 2086
     },
     {
       "ticker": "FAST",
@@ -12280,8 +13156,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 60.988256213757595,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Trading Companies & Distributors"
+      "sub_industry": "Trading Companies & Distributors",
+      "sic": 5200
     },
     {
       "ticker": "HLT",
@@ -12308,8 +13186,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 62.96128043442402,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 7011
     },
     {
       "ticker": "FIX",
@@ -12336,8 +13216,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 63.07234934079981,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction & Engineering"
+      "sub_industry": "Construction & Engineering",
+      "sic": 1731
     },
     {
       "ticker": "CDNS",
@@ -12364,8 +13246,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 63.29880952793973,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "GEV",
@@ -12392,8 +13276,10 @@
       "ni_margin_basis": "2y avg",
       "payback_cons": 63.70376660319028,
       "payback_basis": "2y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Heavy Electrical Equipment"
+      "sub_industry": "Heavy Electrical Equipment",
+      "sic": 3600
     },
     {
       "ticker": "ILMN",
@@ -12420,8 +13306,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 63.741496509087014,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Life Sciences Tools & Services"
+      "sub_industry": "Life Sciences Tools & Services",
+      "sic": 3826
     },
     {
       "ticker": "GLW",
@@ -12448,8 +13336,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 64.513639869555,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Components"
+      "sub_industry": "Electronic Components",
+      "sic": 3357
     },
     {
       "ticker": "AMZN",
@@ -12476,8 +13366,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 69.34241180239194,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Broadline Retail"
+      "sub_industry": "Broadline Retail",
+      "sic": 5961
     },
     {
       "ticker": "EQIX",
@@ -12504,8 +13396,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 69.44579189681632,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Data Center REITs"
+      "sub_industry": "Data Center REITs",
+      "sic": 6798
     },
     {
       "ticker": "PWR",
@@ -12532,8 +13426,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 70.18888222609522,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Construction & Engineering"
+      "sub_industry": "Construction & Engineering",
+      "sic": 1731
     },
     {
       "ticker": "OKTA",
@@ -12560,8 +13456,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 72.45194431357459,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "AVGO",
@@ -12588,8 +13486,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 73.49717751522782,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "APH",
@@ -12616,8 +13516,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 74.31343378780548,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Components"
+      "sub_industry": "Electronic Components",
+      "sic": 3678
     },
     {
       "ticker": "STX",
@@ -12644,8 +13546,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 74.85785190907838,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3572
     },
     {
       "ticker": "IDXX",
@@ -12672,8 +13576,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 75.47811810621826,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 2835
     },
     {
       "ticker": "NVDA",
@@ -12700,8 +13606,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 77.0809663745653,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "APP",
@@ -12728,8 +13636,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 78.75299326704055,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Advertising"
+      "sub_industry": "Advertising",
+      "sic": 7370
     },
     {
       "ticker": "WMT",
@@ -12756,8 +13666,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 79.28559371770643,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Consumer Staples",
-      "sub_industry": "Consumer Staples Merchandise Retail"
+      "sub_industry": "Consumer Staples Merchandise Retail",
+      "sic": 5331
     },
     {
       "ticker": "UDR",
@@ -12784,8 +13696,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 79.40803041981955,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Multi-Family Residential REITs"
+      "sub_industry": "Multi-Family Residential REITs",
+      "sic": 6798
     },
     {
       "ticker": "PANW",
@@ -12812,8 +13726,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 79.72144591609975,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 3577
     },
     {
       "ticker": "GE",
@@ -12840,8 +13756,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 80.4411196534097,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3600
     },
     {
       "ticker": "ISRG",
@@ -12868,8 +13786,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 81.45232228610772,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Health Care Equipment"
+      "sub_industry": "Health Care Equipment",
+      "sic": 3842
     },
     {
       "ticker": "MRVL",
@@ -12896,8 +13816,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 87.3153531039818,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "DDOG",
@@ -12924,8 +13846,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 88.04631503398114,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "VRT",
@@ -12952,8 +13876,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 88.36800914052576,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3679
     },
     {
       "ticker": "TWLO",
@@ -12980,8 +13906,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 90.47143357789456,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 7372
     },
     {
       "ticker": "ARES",
@@ -13008,8 +13936,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 93.24349386687398,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Asset Management & Custody Banks"
+      "sub_industry": "Asset Management & Custody Banks",
+      "sic": 6282
     },
     {
       "ticker": "ANET",
@@ -13036,8 +13966,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 93.89159449379228,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3576
     },
     {
       "ticker": "MPWR",
@@ -13064,8 +13996,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 105.08166085036588,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "HWM",
@@ -13092,8 +14026,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 105.31308746353352,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3350
     },
     {
       "ticker": "AXON",
@@ -13120,8 +14056,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 187.09296291095194,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3480
     },
     {
       "ticker": "TSLA",
@@ -13148,8 +14086,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 125.55860450756407,
       "payback_basis": "latest",
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automobile Manufacturers"
+      "sub_industry": "Automobile Manufacturers",
+      "sic": 3711
     },
     {
       "ticker": "IRM",
@@ -13176,8 +14116,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 116.20739738397651,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Other Specialized REITs"
+      "sub_industry": "Other Specialized REITs",
+      "sic": 6798
     },
     {
       "ticker": "SWK",
@@ -13204,8 +14146,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 121.48797528471636,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Industrial Machinery & Supplies & Components"
+      "sub_industry": "Industrial Machinery & Supplies & Components",
+      "sic": 3420
     },
     {
       "ticker": "CIEN",
@@ -13232,8 +14176,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 123.63697328003889,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3661
     },
     {
       "ticker": "LNT",
@@ -13260,8 +14206,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 142.69828891410148,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "WDC",
@@ -13288,8 +14236,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 147.4146410634605,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3572
     },
     {
       "ticker": "LLY",
@@ -13316,8 +14266,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 169.6937599766371,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Health Care",
-      "sub_industry": "Pharmaceuticals"
+      "sub_industry": "Pharmaceuticals",
+      "sic": 2834
     },
     {
       "ticker": "LITE",
@@ -13344,8 +14296,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 169.97105464093457,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Communications Equipment"
+      "sub_industry": "Communications Equipment",
+      "sic": 3669
     },
     {
       "ticker": "AMD",
@@ -13372,8 +14326,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 187.0822982713665,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "DLR",
@@ -13400,8 +14356,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 213.47742365602042,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Data Center REITs"
+      "sub_industry": "Data Center REITs",
+      "sic": 6798
     },
     {
       "ticker": "VTR",
@@ -13428,8 +14386,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 213.99444126113548,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Health Care REITs"
+      "sub_industry": "Health Care REITs",
+      "sic": 6798
     },
     {
       "ticker": "CRWD",
@@ -13456,8 +14416,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": 254.57568891663647,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Systems Software"
+      "sub_industry": "Systems Software",
+      "sic": 7372
     },
     {
       "ticker": "COHR",
@@ -13484,8 +14446,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Electronic Components"
+      "sub_industry": "Electronic Components",
+      "sic": 3827
     },
     {
       "ticker": "WELL",
@@ -13512,8 +14476,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 377.6929052521761,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Real Estate",
-      "sub_industry": "Health Care REITs"
+      "sub_industry": "Health Care REITs",
+      "sic": 6798
     },
     {
       "ticker": "PLTR",
@@ -13540,8 +14506,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 386.6853798496334,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Application Software"
+      "sub_industry": "Application Software",
+      "sic": 7372
     },
     {
       "ticker": "TTWO",
@@ -13568,8 +14536,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": 817.8364934246473,
       "payback_basis": "5y avg",
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Interactive Home Entertainment"
+      "sub_industry": "Interactive Home Entertainment",
+      "sic": 7372
     },
     {
       "ticker": "ECHO",
@@ -13596,8 +14566,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Communication Services",
-      "sub_industry": "Wireless Telecommunication Services"
+      "sub_industry": "Wireless Telecommunication Services",
+      "sic": 4899
     },
     {
       "ticker": "FSLR",
@@ -13624,8 +14596,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Semiconductors"
+      "sub_industry": "Semiconductors",
+      "sic": 3674
     },
     {
       "ticker": "BE",
@@ -13652,8 +14626,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Electrical Components & Equipment"
+      "sub_industry": "Electrical Components & Equipment",
+      "sic": 3620
     },
     {
       "ticker": "FDXF",
@@ -13680,8 +14656,10 @@
       "ni_margin_basis": "1y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Cargo Ground Transportation"
+      "sub_industry": "Cargo Ground Transportation",
+      "sic": 4513
     },
     {
       "ticker": "SO",
@@ -13708,8 +14686,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "PEG",
@@ -13736,8 +14716,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4931
     },
     {
       "ticker": "HOOD",
@@ -13764,8 +14746,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Investment Banking & Brokerage"
+      "sub_industry": "Investment Banking & Brokerage",
+      "sic": 6211
     },
     {
       "ticker": "CCL",
@@ -13792,8 +14776,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 4400
     },
     {
       "ticker": "BA",
@@ -13820,8 +14806,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Industrials",
-      "sub_industry": "Aerospace & Defense"
+      "sub_industry": "Aerospace & Defense",
+      "sic": 3721
     },
     {
       "ticker": "CVNA",
@@ -13848,8 +14836,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Automotive Retail"
+      "sub_industry": "Automotive Retail",
+      "sic": 5500
     },
     {
       "ticker": "CEG",
@@ -13876,8 +14866,10 @@
       "ni_margin_basis": "4y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Electric Utilities"
+      "sub_industry": "Electric Utilities",
+      "sic": 4911
     },
     {
       "ticker": "AEE",
@@ -13904,8 +14896,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "NCLH",
@@ -13932,8 +14926,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Consumer Discretionary",
-      "sub_industry": "Hotels, Resorts & Cruise Lines"
+      "sub_industry": "Hotels, Resorts & Cruise Lines",
+      "sic": 4400
     },
     {
       "ticker": "XEL",
@@ -13960,8 +14956,10 @@
       "ni_margin_basis": null,
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "SMCI",
@@ -13988,8 +14986,10 @@
       "ni_margin_basis": "latest",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Information Technology",
-      "sub_industry": "Technology Hardware, Storage & Peripherals"
+      "sub_industry": "Technology Hardware, Storage & Peripherals",
+      "sic": 3571
     },
     {
       "ticker": "PCG",
@@ -14016,8 +15016,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Utilities",
-      "sub_industry": "Multi-Utilities"
+      "sub_industry": "Multi-Utilities",
+      "sic": 4931
     },
     {
       "ticker": "FIS",
@@ -14044,8 +15046,10 @@
       "ni_margin_basis": "5y avg",
       "payback_cons": null,
       "payback_basis": null,
+      "index": "sp500",
       "sector": "Financials",
-      "sub_industry": "Transaction & Payment Processing Services"
+      "sub_industry": "Transaction & Payment Processing Services",
+      "sic": 7389
     }
   ],
   "meta": {
