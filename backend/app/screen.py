@@ -533,10 +533,10 @@ def build_payload(
     ranked = rank_rows(rows)
     # GICS + index + SIC on the stored rows too, so the static seed the
     # frontend falls back to can group sector tables and slice by index (#43).
-    with_gics({"rows": ranked, "excluded": excluded})
+    stamped = with_gics({"rows": ranked, "excluded": excluded})
     as_of = max(price_dates) if price_dates else None
     stamp = built_at or _now_iso()
-    return {
+    out: dict[str, Any] = {
         "universe": target_universe,
         "count": len(ranked),
         "ranked": sum(1 for r in ranked if r.get("oe_yield") is not None),
@@ -553,6 +553,9 @@ def build_payload(
             "column_coverage": column_coverage(ranked),
         },
     }
+    if "sic_names" in stamped:
+        out["sic_names"] = stamped["sic_names"]
+    return out
 
 
 def _read_json(path: Path) -> dict[str, Any] | None:
