@@ -223,7 +223,14 @@ function parsePeers(value: unknown): PeersBlock | null | undefined {
   if (value === null) return null;
   if (!isRecord(value)) return undefined;
   const { basis, group, sub_industry, fallback, total, peers } = value;
-  if (basis !== 'sub_industry' && basis !== 'industry_group' && basis !== 'sic' && basis !== 'sic3') {
+  if (
+    basis !== 'sub_industry' &&
+    basis !== 'industry_group' &&
+    basis !== 'icb' &&
+    basis !== 'icb_sector' &&
+    basis !== 'sic' &&
+    basis !== 'sic3'
+  ) {
     return undefined;
   }
   if (typeof group !== 'string' || typeof sub_industry !== 'string') return undefined;
@@ -250,7 +257,7 @@ function parseClassification(value: unknown): ClassificationBlock | null | undef
   if (value === undefined) return undefined;
   if (value === null) return null;
   if (!isRecord(value)) return undefined;
-  if (value.scheme !== 'gics' && value.scheme !== 'sic') return undefined;
+  if (value.scheme !== 'gics' && value.scheme !== 'icb' && value.scheme !== 'sic') return undefined;
   const str = (field: unknown) => (typeof field === 'string' ? field : null);
   return {
     scheme: value.scheme,

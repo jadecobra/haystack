@@ -21,6 +21,26 @@ describe("classificationLabel", () => {
     assert.equal(classificationSchemeLabel(block), "GICS");
   });
 
+  it("formats ICB sector and industry", () => {
+    const withIndustry: ClassificationBlock = {
+      scheme: "icb",
+      sector: "Information Technology",
+      industry: "Computer Software: Prepackaged Software",
+      link: null,
+    };
+    assert.equal(
+      classificationLabel(withIndustry),
+      "Information Technology · Computer Software: Prepackaged Software",
+    );
+    const sectorOnly: ClassificationBlock = {
+      scheme: "icb",
+      sector: "Information Technology",
+    };
+    assert.equal(classificationLabel(sectorOnly), "Information Technology");
+    assert.equal(classificationSchemeLabel(sectorOnly), "ICB");
+    assert.equal(classificationLabel({ scheme: "icb" }), null);
+  });
+
   it("formats SIC with division and description", () => {
     const block: ClassificationBlock = {
       scheme: "sic",

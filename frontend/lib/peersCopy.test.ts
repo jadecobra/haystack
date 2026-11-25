@@ -97,3 +97,62 @@ describe("SEC SIC peers (#54)", () => {
     assert.equal(peerRevenue({ ticker: "ROST" }), null);
   });
 });
+
+describe("ICB peers (#89)", () => {
+  const icb: PeersBlock = {
+    basis: "icb",
+    group: "Computer Software: Prepackaged Software",
+    sub_industry: "Computer Software: Prepackaged Software",
+    fallback: false,
+    total: 12,
+    peers: [{ ticker: "PANW", revenue: 8.03e9, revenue_fy: 2024 }, { ticker: "CRWD" }],
+  };
+
+  it("labels the same ICB industry", () => {
+    assert.equal(
+      peersHeading(icb),
+      "Industry peers — all US filers (Computer Software: Prepackaged Software)",
+    );
+    assert.equal(
+      peersNote(icb),
+      "Top 2 of 12 US SEC filers in Computer Software: Prepackaged Software (ICB) with annual revenue of at least $10M, ranked by latest revenue and sorted by OE yield.",
+    );
+    assert.equal(peersWiden(icb), null);
+  });
+
+  it("explains sector widening", () => {
+    const wide: PeersBlock = {
+      ...icb,
+      basis: "icb_sector",
+      group: "Information Technology",
+      sub_industry: "Specialty Semiconductors",
+      fallback: true,
+      total: 8,
+    };
+    assert.equal(
+      peersHeading(wide),
+      "Industry peers — all US filers (Information Technology sector, widened from Specialty Semiconductors)",
+    );
+    assert.equal(
+      peersNote(wide),
+      "Fewer than 5 peers in Specialty Semiconductors cleared $10M revenue; widened to 2 of 8 US SEC filers in Information Technology (ICB), sorted by OE yield.",
+    );
+    assert.equal(peersWiden(wide), null);
+  });
+
+  it("gives a reason when blank", () => {
+    const blank: PeersBlock = {
+      ...icb,
+      peers: [],
+      total: 0,
+      reason: "no other SEC filer in this ICB industry reports annual revenue",
+    };
+    assert.equal(peersHeading(blank), "Industry peers — all US filers");
+    assert.equal(peersNote(blank), null);
+    assert.equal(
+      peersReason(blank),
+      "No peers listed: no other SEC filer in this ICB industry reports annual revenue.",
+    );
+    assert.equal(peersReason(icb), null);
+  });
+});

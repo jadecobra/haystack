@@ -2,7 +2,7 @@
 
 import unittest
 
-from app import sic_peers
+from app import sic_peers, us_taxonomy
 from app.sources import _safe_peers
 
 
@@ -145,11 +145,12 @@ class RuntimeTests(unittest.TestCase):
         for t in ("CRWV", "GME"):
             b = _safe_peers(t)
             self.assertIsNotNone(b, t)
-            self.assertIn(b["basis"], ("sic", "sic3"))
+            self.assertIn(b["basis"], ("icb", "icb_sector"))
             self.assertGreaterEqual(len(b["peers"]), 1)
             self.assertLessEqual(len(b["peers"]), sic_peers.MAX_PEERS)
-        for t in ("LULU", "AAPL", "JPM", "BRK.B"):  # S&P 500 too: SIC, not GICS
-            self.assertIn(_safe_peers(t)["basis"], ("sic", "sic3"), t)
+        for t in ("LULU", "AAPL", "JPM"):
+            self.assertIn(_safe_peers(t)["basis"], ("icb", "icb_sector"), t)
+        self.assertIn(_safe_peers("BRK.B")["basis"], ("sic", "sic3"))
 
     def test_no_network_at_lookup(self):
         from app import edgar
@@ -208,11 +209,152 @@ class ApiContractTests(unittest.TestCase):
             r = TestClient(app).get("/analyze/AAPL")
         self.assertEqual(r.status_code, 200)
         p = r.json()["peers"]
-        self.assertEqual(p["basis"], "sic")
+        self.assertIn(p["basis"], ("icb", "icb_sector"))
         self.assertEqual(p["sic"], 3571)
         self.assertEqual(p["total"], len(p["peers"]))
         self.assertNotIn("AAPL", [x["ticker"] for x in p["peers"]])
         self.assertTrue(all(x["revenue"] >= sic_peers.MIN_REVENUE for x in p["peers"]))
+
+
+def _entry(t, sector, industry):
+    return us_taxonomy.TaxonomyEntry(
+        ticker=t, sector=sector, industry=industry, raw_sector=sector
+    )
+
+
+class IcbRankTests(unittest.TestCase):
+    def test_same_icb_industry_by_revenue_excludes_self_and_caps_at_max_peers(self):
+        cos = {
+            str(i): _co(f"SW{i}", 7372, (i + 1) * 100_000_000)
+            for i in range(12)
+        }
+        cos["99"] = _co("OTHER_IND", 7372, 99_000_000_000)
+        cos["98"] = _co("LOW_REV", 7372, 5_000_000)
+        tax = {
+            f"SW{i}": _entry(f"SW{i}", "Information Technology", "Computer Software")
+            for i in range(12)
+        }
+        tax["OTHER_IND"] = _entry("OTHER_IND", "Information Technology", "Semiconductors")
+        tax["LOW_REV"] = _entry("LOW_REV", "Information Technology", "Computer Software")
+
+        sic_peers.rank_peers(cos, taxonomy=tax)
+
+        self.assertEqual(cos["0"]["b"], "icb")
+        self.assertEqual(len(cos["0"]["p"]), sic_peers.MAX_PEERS)
+        self.assertEqual(cos["0"]["p"], [str(i) for i in range(11, 1, -1)])
+        self.assertNotIn("0", cos["0"]["p"])
+        self.assertNotIn("99", cos["0"]["p"])
+        self.assertNotIn("98", cos["0"]["p"])
+
+    def test_widens_to_normalized_icb_sector_when_fewer_than_min_peers(self):
+        cos = {
+            "1": _co("A1", 7372, 50_000_000),
+            "2": _co("A2", 7372, 40_000_000),
+            "3": _co("A3", 7372, 30_000_000),
+            "4": _co("B1", 3674, 90_000_000),
+        }
+        tax = {
+            "A1": _entry("A1", "Information Technology", "Niche Software"),
+            "A2": _entry("A2", "Information Technology", "Niche Software"),
+            "A3": _entry("A3", "Information Technology", "Niche Software"),
+            "B1": _entry("B1", "Information Technology", "Semiconductors"),
+        }
+        sic_peers.rank_peers(cos, taxonomy=tax)
+        self.assertEqual(cos["1"]["b"], "icb_sector")
+        self.assertEqual(cos["1"]["p"], ["4", "2", "3"])
+
+        data = {
+            "tickers": {"A1": "1"},
+            "companies": cos,
+            "sics": {"7372": "Prepackaged Software"},
+        }
+        block = sic_peers.sic_peers_for("A1", data, taxonomy=tax)
+        self.assertEqual(block["basis"], "icb_sector")
+        self.assertEqual(block["group"], "Information Technology")
+        self.assertEqual(block["sub_industry"], "Niche Software")
+        self.assertTrue(block["fallback"])
+        self.assertEqual(block["sic"], 7372)
+        self.assertEqual([x["ticker"] for x in block["peers"]], ["B1", "A2", "A3"])
+
+    def test_miscellaneous_sector_does_not_widen_and_falls_back_to_sic_or_why(self):
+        cos = {
+            "1": _co("M1", 5999, 20_000_000),
+            "2": _co("M2", 5999, 30_000_000),
+            "3": _co("M_OTHER", 1000, 900_000_000),
+            "4": _co("M_NOSIC", None, 20_000_000),
+        }
+        del cos["4"]["s"]
+        tax = {
+            "M1": _entry("M1", "Miscellaneous", "Misc Retail A"),
+            "M2": _entry("M2", "Miscellaneous", "Misc Retail B"),
+            "M_OTHER": _entry("M_OTHER", "Miscellaneous", "Misc Mining"),
+            "M_NOSIC": _entry("M_NOSIC", "Miscellaneous", "Misc Solo"),
+        }
+        sic_peers.rank_peers(cos, taxonomy=tax)
+
+        self.assertEqual(cos["1"]["b"], "sic")
+        self.assertEqual(cos["1"]["p"], ["2"])
+        self.assertNotIn("3", cos["1"]["p"])
+        self.assertNotIn("p", cos["4"])
+        self.assertIn("$10M", cos["4"]["why"])
+
+    def test_absent_from_taxonomy_falls_back_to_sic_and_sees_icb_peers_by_sic(self):
+        cos = {
+            "1": _co("NOICB", 3571, 20_000_000),
+            "2": _co("HASICB", 3571, 90_000_000),
+        }
+        tax = {
+            "HASICB": _entry("HASICB", "Information Technology", "Computer Manufacturing"),
+        }
+        sic_peers.rank_peers(cos, taxonomy=tax)
+        self.assertEqual(cos["1"]["b"], "sic")
+        self.assertEqual(cos["1"]["p"], ["2"])
+
+    def test_sic_peers_for_icb_exact_match_fields(self):
+        cos = {
+            str(i): _co(f"P{i}", 7372, (i + 1) * 10_000_000)
+            for i in range(6)
+        }
+        tax = {
+            f"P{i}": _entry(f"P{i}", "Information Technology", "Computer Software")
+            for i in range(6)
+        }
+        sic_peers.rank_peers(cos, taxonomy=tax)
+        data = {
+            "tickers": {"P0": "0"},
+            "companies": cos,
+            "sics": {"7372": "Prepackaged Software"},
+        }
+        block = sic_peers.sic_peers_for("P0", data, taxonomy=tax)
+        self.assertEqual(block["basis"], "icb")
+        self.assertEqual(block["group"], "Computer Software")
+        self.assertEqual(block["sub_industry"], "Computer Software")
+        self.assertFalse(block["fallback"])
+        self.assertEqual(block["sic"], 7372)
+        self.assertEqual(len(block["peers"]), 5)
+
+    def test_sic_peers_for_icb_falls_back_to_sic_when_taxonomy_unavailable(self):
+        cos = {
+            "1": _co("CRWV", 7372, 100_000_000),
+            "2": _co("PEER1", 7372, 200_000_000),
+        }
+        cos["1"]["p"] = ["2"]
+        cos["1"]["b"] = "icb"
+        data = {
+            "tickers": {"CRWV": "1"},
+            "companies": cos,
+            "sics": {"7372": "Prepackaged Software"},
+        }
+        with unittest.mock.patch(
+            "app.us_taxonomy.lookup_taxonomy",
+            side_effect=OSError("missing taxonomy"),
+        ):
+            block = sic_peers.sic_peers_for("CRWV", data)
+        self.assertIsNotNone(block)
+        self.assertEqual(block["basis"], "sic")
+        self.assertEqual(block["group"], "Prepackaged Software")
+        self.assertEqual(block["sub_industry"], "Prepackaged Software")
+        self.assertFalse(block["fallback"])
 
 
 class SecDiskCacheTests(unittest.TestCase):

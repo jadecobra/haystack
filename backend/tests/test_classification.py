@@ -157,14 +157,38 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(uaa["industry"], "Apparel, Accessories & Luxury Goods")
         self.assertIsNone(uaa["sic"])
 
+    def test_icb_path_offline(self):
+        with mock.patch("app.edgar.resolve_cik", side_effect=AssertionError("offline")):
+            block = classify("CRWV")
+        assert block is not None
+        self.assertEqual(block["scheme"], "icb")
+        self.assertEqual(block["sector"], "Information Technology")
+        self.assertEqual(
+            block["industry"], "Computer Software: Prepackaged Software"
+        )
+        self.assertIsNone(block["sic"])
+        self.assertIsNone(block["sic_description"])
+        self.assertIsNone(block["link"])
+
     def test_is_financial_company_sp1500_and_sic_fallback(self):
         self.assertTrue(is_financial_company("JPM"))
         self.assertTrue(is_financial_company("WAL"))
         self.assertTrue(is_financial_company("AAMI"))
         self.assertFalse(is_financial_company("COLM", sic=6021))
         self.assertFalse(is_financial_company("UAA", sic=6021))
+        self.assertTrue(is_financial_company("SOFI"))
+        self.assertFalse(is_financial_company("O"))
+        self.assertFalse(is_financial_company("CRWV", sic=6021))
         self.assertTrue(is_financial_company("NOTIN1500", sic=6021))
         self.assertFalse(is_financial_company("NOTIN1500", sic=6798))
+
+    def test_is_financial_company_fails_soft_when_taxonomy_unavailable(self):
+        with mock.patch(
+            "app.us_taxonomy.lookup_taxonomy",
+            side_effect=OSError("missing taxonomy"),
+        ):
+            self.assertTrue(is_financial_company("NOTIN1500", sic=6021))
+            self.assertFalse(is_financial_company("NOTIN1500", sic=7372))
 
     def test_sic_path(self):
         body = {"sic": "3711", "sicDescription": "Motor Vehicles & Passenger Car Bodies"}
@@ -239,6 +263,58 @@ class TestAnalyzeClassificationContract(unittest.TestCase):
         model = AnalysisResponse.model_validate(payload)
         self.assertEqual(model.classification.scheme, "sic")
         self.assertEqual(model.classification.sic, 3711)
+
+    def test_analyze_icb_shape(self):
+        from app.main import AnalysisResponse
+
+        base = {
+            "ticker": "CRWV",
+            "company_name": "CoreWeave, Inc.",
+            "years": ["2024"],
+            "rows": [],
+            "source": "edgar",
+            "status": "success",
+            "message": "ok",
+            "treasury_label": "Owner Earnings / 30 Year Treasury per Share",
+            "treasury_dgs30_pct": 5.0,
+            "treasury_dgs30_as_of": "2026-10-01",
+            "previous_close": 10.0,
+            "previous_close_as_of": None,
+            "groups": [],
+            "schema_version": "8",
+            "labels": [],
+            "cik": "1769628",
+            "classification": {
+                "scheme": "icb",
+                "sector": "Information Technology",
+                "industry": "Computer Software: Prepackaged Software",
+                "sic": None,
+                "sic_description": None,
+                "link": None,
+            },
+            "payback": None,
+        }
+        for basis, fallback in (("icb", False), ("icb_sector", True)):
+            payload = {
+                **base,
+                "peers": {
+                    "basis": basis,
+                    "group": (
+                        "Information Technology"
+                        if fallback
+                        else "Computer Software: Prepackaged Software"
+                    ),
+                    "sub_industry": "Computer Software: Prepackaged Software",
+                    "fallback": fallback,
+                    "total": 0,
+                    "peers": [],
+                    "sic": 7372,
+                    "reason": None,
+                },
+            }
+            model = AnalysisResponse.model_validate(payload)
+            self.assertEqual(model.classification.scheme, "icb")
+            self.assertEqual(model.peers.basis, basis)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,114 @@
+# Monthly refresh of backend/data/us_taxonomy.json and backend/data/sic_peers.json (#89).
+# NO auto-merge: a human reviews and merges. GITHUB_TOKEN PRs do not trigger CI;
+# the reviewer re-runs checks (close/reopen or push) before merging.
+
+name: US ICB taxonomy refresh
+
+on:
+  schedule:
+    - cron: "0 13 1 * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report the diff; never push or open a PR"
+        type: boolean
+        default: false
+      base:
+        description: "Base branch to diff against and target the PR at"
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: us-taxonomy
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BASE: ${{ inputs.base || 'main' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.BASE }}
+      - uses: astral-sh/setup-uv@v10.4.0
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install backend
+        working-directory: backend
+        run: uv sync
+      - name: Regenerate taxonomy
+        id: gen
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          args=()
+          [ "$DRY_RUN" = "true" ] && args+=(--dry-run)
+          uv run python -m app.us_taxonomy "${args[@]}" | tee /tmp/us-taxonomy.txt
+          grep -q '^changed=true$' /tmp/us-taxonomy.txt && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+      - name: Re-rank peer map
+        if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          uv run python -m app.sic_peers --rerank-only --skip-metrics | tee /tmp/us-taxonomy-rerank.txt
+      - name: Summary
+        run: |
+          {
+            echo "### US ICB taxonomy refresh (base: $BASE, dry_run: $DRY_RUN)"
+            echo '```'
+            cat /tmp/us-taxonomy.txt
+            if [ -f /tmp/us-taxonomy-rerank.txt ]; then
+              echo "---"
+              cat /tmp/us-taxonomy-rerank.txt
+            fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Open PR if changed
+        if: steps.gen.outputs.changed == 'true' && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="bot/us-taxonomy-$BASE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add backend/data/us_taxonomy.json backend/data/sic_peers.json
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "chore(data): refresh US ICB taxonomy from NASDAQ screener"
+          git push --force origin "HEAD:refs/heads/$branch"
+          {
+            echo "Automated monthly refresh of US equity ICB classifications from NASDAQ Screener and offline re-ranking of non-S&P peers (#89). Review diff before merging; no auto-merge."
+            echo
+            echo "GITHUB_TOKEN PRs do not trigger CI: close/reopen this PR."
+            echo
+            echo '```'
+            cat /tmp/us-taxonomy.txt
+            if [ -f /tmp/us-taxonomy-rerank.txt ]; then
+              echo "---"
+              cat /tmp/us-taxonomy-rerank.txt
+            fi
+            echo '```'
+          } > /tmp/pr-body.md
+          existing=$(gh pr list --head "$branch" --base "$BASE" --state open --json number -q '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "chore(data): US ICB taxonomy refresh ($(date -u +%Y-%m))" --body-file /tmp/pr-body.md
+            echo "updated PR #$existing"
+          else
+            gh pr create --base "$BASE" --head "$branch" --title "chore(data): US ICB taxonomy refresh ($(date -u +%Y-%m))" --body-file /tmp/pr-body.md
+          fi

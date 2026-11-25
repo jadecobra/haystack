@@ -98,7 +98,7 @@ class PaybackBlock(pydantic.BaseModel):
 
 
 class Classification(pydantic.BaseModel):
-    scheme: Literal["gics", "sic"]
+    scheme: Literal["gics", "icb", "sic"]
     sector: str | None = None
     industry: str | None = None
     sic: int | None = None
@@ -148,8 +148,9 @@ class PeerRow(pydantic.BaseModel):
 
 class Peers(pydantic.BaseModel):
     # sub_industry / industry_group: S&P 500 by GICS (#42).
-    # sic / sic3: non-S&P by SEC SIC, 4-digit or widened 3-digit group (#54).
-    basis: Literal["sub_industry", "industry_group", "sic", "sic3"]
+    # icb / icb_sector: US exchange-listed by FTSE Russell ICB (#89).
+    # sic / sic3: SEC SIC fallback, 4-digit or widened 3-digit group (#54).
+    basis: Literal["sub_industry", "industry_group", "icb", "icb_sector", "sic", "sic3"]
     group: str
     sub_industry: str
     fallback: bool
