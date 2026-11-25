@@ -8,8 +8,9 @@ from unittest import mock
 
 from fastapi.testclient import TestClient
 
-from app.main import AnalysisResponse, app
-from app.metrics import LOCKED_LABELS
+from app.main import AnalysisResponse, PeerRow, app
+from app.metrics import LOCKED_LABELS, SCHEMA_VERSION
+from app.peer_metrics import ROW_KEYS
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = (ROOT / "spec.md").read_text()
@@ -82,3 +83,30 @@ class TestDocsContract(unittest.TestCase):
         cik = response.json().get("cik")
         self.assertIsInstance(cik, str)
         self.assertTrue(cik)
+
+    def test_main_red_issue_watches_real_workflows(self):
+        wf_dir = ROOT / ".github" / "workflows"
+        actual_names: set[str] = set()
+        for wf_path in wf_dir.glob("*.yml"):
+            for line in wf_path.read_text(encoding="utf-8").splitlines():
+                if line.startswith("name:"):
+                    actual_names.add(line.split("name:", 1)[1].strip().strip("\"'"))
+                    break
+        main_red_text = (wf_dir / "main-red-issue.yml").read_text(encoding="utf-8")
+        match = re.search(r"^\s*workflows:\s*\[([^\]]+)\]", main_red_text, re.MULTILINE)
+        self.assertIsNotNone(match)
+        watched = _ts_string_literals(match.group(1))
+        missing = [name for name in watched if name not in actual_names]
+        self.assertEqual(missing, [])
+        self.assertIn("S&P 1500 GICS map refresh", watched)
+        self.assertIn("US ICB taxonomy refresh", watched)
+
+    def test_peer_row_keys_match_pydantic_model(self):
+        self.assertEqual(set(ROW_KEYS), set(PeerRow.model_fields) - {"current", "missing"})
+
+    def test_verify_haystack_http_matches_schema_version_and_row_count(self):
+        http_helper = (
+            ROOT / ".cursor" / "skills" / "verify-haystack" / "helpers" / "http"
+        ).read_text(encoding="utf-8")
+        self.assertIn(f'"schema_version":"{SCHEMA_VERSION}"', http_helper)
+        self.assertIn(f'"row_count":{len(LOCKED_LABELS)}', http_helper)
