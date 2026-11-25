@@ -1,7 +1,7 @@
 name: Main red issue
 on:
   workflow_run:
-    workflows: ["CI", "Deploy website", "Deploy catch-up", "S&P 500 OE-yield screen", "S&P 500 map refresh", "SIC peers map refresh", "click-through prod"]
+    workflows: ["CI", "Deploy website", "Deploy catch-up", "S&P 500 OE-yield screen", "S&P 1500 GICS map refresh", "US ICB taxonomy refresh", "SIC peers map refresh", "click-through prod"]
     types: [completed]
     branches: [main]
 permissions: {}

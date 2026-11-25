@@ -824,6 +824,35 @@ class Sp1500ScreenTests(unittest.TestCase):
         self.assertEqual(len(edgar._mem_cache), 0)
         self.assertEqual(len(quote._mem), 0)
 
+    def test_with_gics_stamps_sic_names_from_sic_peers(self):
+        payload = {
+            "universe": "sp1500",
+            "rows": [
+                {"ticker": "AAPL", "oe_yield": 0.05, "price_as_of": "2026-11-23"},
+                {"ticker": "COLM", "oe_yield": 0.08, "price_as_of": "2026-11-23"},
+            ],
+            "excluded": [],
+        }
+        stamped = with_gics(payload)
+        self.assertEqual(stamped["sic_names"]["3571"], "Electronic Computers")
+        colm_sic = str(stamped["rows"][1]["sic"])
+        self.assertIn(colm_sic, stamped["sic_names"])
+
+        sliced = slice_payload(stamped, "sp500")
+        self.assertEqual([r["ticker"] for r in sliced["rows"]], ["AAPL"])
+        self.assertEqual(sliced["sic_names"], {"3571": "Electronic Computers"})
+        self.assertNotIn(colm_sic, sliced["sic_names"])
+
+    def test_build_payload_includes_sic_names(self):
+        payload = build_payload(
+            ["AAPL"],
+            fetch_facts=lambda ticker: ([2024], {2024: _stmt(oe=100.0, shares=10.0)}, "1", f"{ticker} Co"),
+            fetch_quote=lambda _t: {"price": 100.0, "as_of": "2026-11-23"},
+            built_at="2026-11-23T22:00:00+00:00",
+            universe="sp1500",
+        )
+        self.assertEqual(payload["sic_names"]["3571"], "Electronic Computers")
+
 
 if __name__ == "__main__":
     unittest.main()

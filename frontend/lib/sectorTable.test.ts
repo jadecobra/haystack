@@ -332,4 +332,13 @@ describe("S&P 1500 index helpers (#150)", () => {
       "SMLEXCL is not in the snapshot: no SEC annual facts or no price for it.",
     );
   });
+
+  it("parses sic_names lookup from snapshot payload", () => {
+    const snap = parseSectorSnapshot({
+      universe: "sp1500",
+      rows: [{ ticker: "AAPL", fy: 2025, sector: IT, sub_industry: HW, sic: 3571 }],
+      sic_names: { "3571": "Electronic Computers" },
+    })!;
+    assert.equal(snap.sicNames?.["3571"], "Electronic Computers");
+  });
 });

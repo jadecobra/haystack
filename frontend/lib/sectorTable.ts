@@ -91,6 +91,7 @@ export type SectorSnapshot = {
   error?: string | null;
   caveat?: string;
   debtCoverage?: DebtCoverage;
+  sicNames?: Record<string, string>;
 };
 
 function parseIndexId(v: unknown): IndexId | null {
@@ -305,6 +306,16 @@ export function parseSectorSnapshot(body: unknown): SectorSnapshot | null {
   const count = num(record.count);
   const ranked = num(record.ranked);
   const skipped = num(record.skipped);
+  const sicNames: Record<string, string> = {};
+  if (
+    typeof record.sic_names === "object" &&
+    record.sic_names !== null &&
+    !Array.isArray(record.sic_names)
+  ) {
+    for (const [k, v] of Object.entries(record.sic_names)) {
+      if (typeof v === "string" && v) sicNames[k] = v;
+    }
+  }
   return {
     universe: parseScreenIndex(typeof record.universe === "string" ? record.universe : null),
     rows,
@@ -319,6 +330,7 @@ export function parseSectorSnapshot(body: unknown): SectorSnapshot | null {
     error: typeof record.error === "string" ? record.error : null,
     ...(typeof record.caveat === "string" ? { caveat: record.caveat } : {}),
     ...(meta ? { debtCoverage: parseCoverage(meta.debt_coverage) } : {}),
+    ...(Object.keys(sicNames).length > 0 ? { sicNames } : {}),
   };
 }
 

@@ -56,7 +56,6 @@ function ScreenPageInner() {
   const debtNone = searchParams.get("debt") === "none";
   const sectorFilter = searchParams.get("sector");
   const sicFilter = parseSicQuery(searchParams.get("sic"));
-  const sicName = sicFilter == null ? null : sicIndustryName(sicFilter);
   const rawIndex = searchParams.get("index");
   const activeIndex: ScreenIndex =
     rawIndex !== null
@@ -134,6 +133,10 @@ function ScreenPageInner() {
   }, [neededSlug, cachedEntry, loadError, activeIndex]);
 
   const data = cachedEntry ? sliceSnapshotByIndex(cachedEntry.snap, activeIndex) : null;
+  const sicName =
+    sicFilter == null
+      ? null
+      : (data?.sicNames?.[String(sicFilter)] ?? sicIndustryName(sicFilter));
   const pricedRows = data ? data.rows.filter((row) => row.price != null) : [];
   const shownRows = pricedRows
     .filter((row) => !debtNone || row.debt_state === "zero")
