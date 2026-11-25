@@ -843,6 +843,16 @@ class Sp1500ScreenTests(unittest.TestCase):
         self.assertEqual(sliced["sic_names"], {"3571": "Electronic Computers"})
         self.assertNotIn(colm_sic, sliced["sic_names"])
 
+    def test_build_payload_includes_sic_names(self):
+        payload = build_payload(
+            ["AAPL"],
+            fetch_facts=lambda ticker: ([2024], {2024: _stmt(oe=100.0, shares=10.0)}, "1", f"{ticker} Co"),
+            fetch_quote=lambda _t: {"price": 100.0, "as_of": "2026-11-23"},
+            built_at="2026-11-23T22:00:00+00:00",
+            universe="sp1500",
+        )
+        self.assertEqual(payload["sic_names"]["3571"], "Electronic Computers")
+
 
 if __name__ == "__main__":
     unittest.main()
