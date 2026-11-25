@@ -621,6 +621,7 @@ def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
 
     sic_tickers: Mapping[str, Any] | None = None
     sic_companies: Mapping[str, Any] | None = None
+    raw_sics: Mapping[str, Any] | None = None
     try:
         from app import sic_peers
 
@@ -628,12 +629,16 @@ def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
         if isinstance(sic_data, dict):
             raw_tickers = sic_data.get("tickers")
             raw_companies = sic_data.get("companies")
+            maybe_sics = sic_data.get("sics")
             if isinstance(raw_tickers, dict) and isinstance(raw_companies, dict):
                 sic_tickers = raw_tickers
                 sic_companies = raw_companies
+            if isinstance(maybe_sics, dict):
+                raw_sics = maybe_sics
     except Exception:  # noqa: BLE001 - fail-soft: rows still serve without SIC
         sic_tickers = None
         sic_companies = None
+        raw_sics = None
 
     for row in payload.get("rows") or []:
         if not isinstance(row, dict):
@@ -650,6 +655,20 @@ def with_gics(payload: dict[str, Any]) -> dict[str, Any]:
             )
         if sic_tickers is not None and sic_companies is not None and row.get("sic") is None:
             row["sic"] = _sic_for_ticker(ticker, sic_tickers, sic_companies)
+
+    if raw_sics is not None:
+        sic_names: dict[str, str] = {}
+        for row in payload.get("rows") or []:
+            if not isinstance(row, dict):
+                continue
+            sic_val = row.get("sic")
+            if sic_val is None:
+                continue
+            key = str(sic_val)
+            name = raw_sics.get(key)
+            if isinstance(name, str) and name:
+                sic_names[key] = name
+        payload["sic_names"] = sic_names
 
     if constituents is not None:
         for ex in payload.get("excluded") or []:
@@ -719,6 +738,16 @@ def slice_payload(payload: Mapping[str, Any], universe: UniverseId) -> dict[str,
             "meta": meta,
         }
     )
+    raw_sic_names = payload.get("sic_names")
+    if isinstance(raw_sic_names, Mapping):
+        present_sics = {
+            str(r["sic"]) for r in ranked if r.get("sic") is not None
+        }
+        out["sic_names"] = {
+            k: str(v)
+            for k, v in raw_sic_names.items()
+            if str(k) in present_sics and isinstance(v, str) and v
+        }
     return out
 
 
