@@ -9,6 +9,7 @@ The statement years still have to keep OCF, capex and D&A.
 from __future__ import annotations
 
 import unittest
+from collections.abc import Sequence
 
 from app.edgar import map_companyfacts_to_statements, rescale_share_facts
 
@@ -29,7 +30,7 @@ def _fact(start: str, end: str, val: float) -> dict:
     }
 
 
-def _series(periods: list[tuple[str, str, float]]) -> dict:
+def _series(periods: Sequence[tuple[str, str, float]]) -> dict:
     return {"units": {"USD": [_fact(*row) for row in periods]}}
 
 

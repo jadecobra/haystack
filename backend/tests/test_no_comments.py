@@ -94,9 +94,11 @@ def _compile_re(spec: dict[str, str]) -> re.Pattern[str]:
 
 
 SHARED_POLICY = _load_shared_comment_policy()
-POLICY_RE = {
-    k: (tuple(_compile_re(x) for x in v) if isinstance(v, list) else _compile_re(v))
-    for k, v in SHARED_POLICY.items()
+POLICY_RE: dict[str, re.Pattern[str]] = {
+    k: _compile_re(v) for k, v in SHARED_POLICY.items() if isinstance(v, dict)
+}
+POLICY_PATTERN_LISTS: dict[str, tuple[re.Pattern[str], ...]] = {
+    k: tuple(_compile_re(x) for x in v) for k, v in SHARED_POLICY.items() if isinstance(v, list)
 }
 EXTENSION_LANGUAGE = {
     ".py": Language.PYTHON, ".ts": Language.JS_TS, ".tsx": Language.JS_TS,
@@ -651,7 +653,7 @@ def _is_commented_code_line(line: CommentLine, language: Language) -> bool:
     if not stripped or POLICY_RE["PROSE_PREFIX_RE"].match(stripped):
         return False
     if language == Language.JS_TS:
-        return any(p.search(stripped) for p in POLICY_RE["JS_CODE_PATTERNS"]) or _is_complete_js_call(stripped)
+        return any(p.search(stripped) for p in POLICY_PATTERN_LISTS["JS_CODE_PATTERNS"]) or _is_complete_js_call(stripped)
     return any(p.search(stripped) for p in SHELL_CODE_PATTERNS)
 
 
