@@ -42,6 +42,8 @@ jobs:
           uv run pytest tests/
       - name: Lint (ruff)
         run: uv run ruff check .
+      - name: Typecheck (mypy)
+        run: uv run mypy app/
       # Required-check bridge: checks from workflow_dispatch runs never satisfy
       # branch protection (GitHub only evaluates push/pull_request-type job
       # checks). The nightly screen job lands GITHUB_TOKEN commits that can't

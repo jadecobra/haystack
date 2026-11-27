@@ -69,9 +69,9 @@ def analyze(
     t0 = time.perf_counter()
     use_fixture = prefer_fixture or _env_force_fixture()
     if use_fixture:
-        years, statements, treasury = fixture.statements_for(ticker)
-        prev_close = 100.0
-        rows = build_table(years, statements, treasury, previous_close=prev_close)
+        years, fixture_statements, treasury = fixture.statements_for(ticker)
+        fixture_prev_close = 100.0
+        rows = build_table(years, fixture_statements, treasury, previous_close=fixture_prev_close)
         pct, as_of = _fixture_dgs30_meta(treasury)
         fixture_rate = float(treasury[max(treasury)]) if treasury else None
         year_labels = [str(y) for y in years]
@@ -87,14 +87,14 @@ def analyze(
             "treasury_label": TREASURY_LABEL,
             "treasury_dgs30_pct": pct,
             "treasury_dgs30_as_of": as_of,
-            "previous_close": prev_close,
+            "previous_close": fixture_prev_close,
             "previous_close_as_of": None,
             "groups": groups_payload(),
             "schema_version": SCHEMA_VERSION,
             "labels": list(LOCKED_LABELS),
             "cik": "320193" if ticker == "AAPL" else None,
             "payback": build_payback(
-                price=prev_close,
+                price=fixture_prev_close,
                 years=year_labels,
                 rows=rows,
                 treasury_rate_decimal=fixture_rate,

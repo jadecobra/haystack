@@ -81,17 +81,17 @@ def parse_instance(xml_bytes: bytes) -> dict[str, Any]:
     """
     root = ET.fromstring(xml_bytes)
     contexts: dict[str, tuple[str | None, str | None, str | None, bool]] = {}
-    for ctx in root.iter(_XBRLI + "context"):
-        period = ctx.find(_XBRLI + "period")
+    for ctx_el in root.iter(_XBRLI + "context"):
+        period = ctx_el.find(_XBRLI + "period")
         if period is None:
             continue
-        start = period.findtext(_XBRLI + "startDate")
-        end = period.findtext(_XBRLI + "endDate") or period.findtext(_XBRLI + "instant")
-        members = [(m.get("dimension") or "", (m.text or "").strip()) for m in ctx.iter(_XBRLDI + "explicitMember")]
-        typed = list(ctx.iter(_XBRLDI + "typedMember"))
-        cls = [v for d, v in members if d.endswith(_CLASS_AXIS)]
-        other = typed or [d for d, _ in members if not d.endswith(_CLASS_AXIS)]
-        contexts[ctx.get("id") or ""] = (start, end, cls[0] if cls else "", bool(other) or len(cls) > 1)
+        ctx_start = period.findtext(_XBRLI + "startDate")
+        ctx_end = period.findtext(_XBRLI + "endDate") or period.findtext(_XBRLI + "instant")
+        members = [(m.get("dimension") or "", (m.text or "").strip()) for m in ctx_el.iter(_XBRLDI + "explicitMember")]
+        typed = list(ctx_el.iter(_XBRLDI + "typedMember"))
+        classes = [v for d, v in members if d.endswith(_CLASS_AXIS)]
+        has_other = bool(typed) or any(not d.endswith(_CLASS_AXIS) for d, _ in members)
+        contexts[ctx_el.get("id") or ""] = (ctx_start, ctx_end, classes[0] if classes else "", has_other or len(classes) > 1)
     period_end: str | None = None
     for el in root:
         if el.tag.endswith("}DocumentPeriodEndDate") and el.text:
@@ -105,10 +105,10 @@ def parse_instance(xml_bytes: bytes) -> dict[str, Any]:
         local = el.tag.rsplit("}", 1)[-1]
         if local != "EntityCommonStockSharesOutstanding" and local not in _FLOW_TAGS:
             continue
-        ctx = contexts.get(el.get("contextRef") or "")
-        if ctx is None or ctx[3] or el.text is None:
+        ctx_info = contexts.get(el.get("contextRef") or "")
+        if ctx_info is None or ctx_info[3] or el.text is None:
             continue
-        start, end, cls, _ = ctx
+        start, end, cls, _ = ctx_info
         try:
             val = float(el.text.strip())
         except ValueError:
