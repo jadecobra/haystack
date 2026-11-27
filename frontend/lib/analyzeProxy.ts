@@ -14,8 +14,10 @@ export interface AnalyzeProxyOptions {
 
 function isAbortError(err: unknown): boolean {
   return (
-    (err instanceof DOMException && err.name === "AbortError") ||
-    (err instanceof Error && err.name === "AbortError")
+    (err instanceof DOMException &&
+      (err.name === "AbortError" || err.name === "TimeoutError")) ||
+    (err instanceof Error &&
+      (err.name === "AbortError" || err.name === "TimeoutError"))
   );
 }
 
@@ -28,12 +30,10 @@ export async function fetchAnalyzeWithRetry(
   const maxAttempts = Math.max(1, options.maxAttempts ?? MAX_UPSTREAM_ATTEMPTS);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const upstream = await fetchFn(url, {
         cache: "no-store",
-        signal: controller.signal,
+        signal: AbortSignal.timeout(timeoutMs),
       });
       const body = await upstream.text();
       return {
@@ -53,8 +53,6 @@ export async function fetchAnalyzeWithRetry(
       const message =
         err instanceof Error ? err.message : "backend unreachable";
       return { kind: "unreachable", detail: message };
-    } finally {
-      clearTimeout(timer);
     }
   }
 
