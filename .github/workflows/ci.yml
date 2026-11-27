@@ -83,6 +83,8 @@ jobs:
           pnpm run build
         env:
           BACKEND_ORIGIN: https://example.invalid
+      - name: Test
+        run: pnpm test
       - name: Lint (eslint)
         # Warnings (the logo <img>) don't fail; errors do.
         run: pnpm run lint
