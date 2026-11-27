@@ -380,7 +380,7 @@ const noCommentsPlugin = {
 };
 
 export const EFFECT_AND_TIMER_ALLOWLIST = {
-  "app/analyze-page.tsx": { useEffect: 2, setTimeout: 1, setInterval: 0 },
+  "app/analyze-page.tsx": { useEffect: 2, setTimeout: 0, setInterval: 0 },
   "app/screen/page.tsx": { useEffect: 2, setTimeout: 0, setInterval: 0 },
   "app/sector-table.tsx": { useEffect: 1, setTimeout: 0, setInterval: 0 },
   "app/components/google-analytics.tsx": {

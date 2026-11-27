@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
 import {
-  ANALYZE_RETRY_DELAY_MS,
   ANALYZE_TIMEOUT_MESSAGE,
   ANALYZE_TIMEOUT_MS,
   analyzeErrorMessage,
@@ -357,10 +356,6 @@ function formatElapsed(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
 function headingWithCompany(ticker: string, companyName?: string | null): string {
   const name = companyName?.trim();
   return name ? `${ticker} · ${name}` : ticker;
@@ -514,7 +509,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           if (!parsedBody.ok) {
             if (!retried) {
               retried = true;
-              await delay(ANALYZE_RETRY_DELAY_MS);
               continue;
             }
             fail(ANALYZE_TIMEOUT_MESSAGE);
@@ -525,7 +519,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           if (!response.ok) {
             if (shouldRetryAnalyzeStatus(response.status) && !retried) {
               retried = true;
-              await delay(ANALYZE_RETRY_DELAY_MS);
               continue;
             }
             fail(analyzeErrorMessage({ raw, ticker: symbol }));
@@ -549,7 +542,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
               (err.name === 'AbortError' || err.name === 'TimeoutError'));
           if (!retried) {
             retried = true;
-            await delay(ANALYZE_RETRY_DELAY_MS);
             continue;
           }
           fail(ANALYZE_TIMEOUT_MESSAGE);
