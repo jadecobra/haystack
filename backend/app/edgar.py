@@ -454,10 +454,10 @@ def _pick_annual_by_year(entries: list[dict[str, Any]]) -> dict[int, float]:
                 days = _duration_days(entry)
                 if days is None or not (350 <= days <= 380):
                     continue
-                end = _parse_iso_date(entry.get("end"))
-                if end is None:
+                end_date = _parse_iso_date(entry.get("end"))
+                if end_date is None:
                     continue
-                label = fiscal_year_label(end)
+                label = fiscal_year_label(end_date)
                 if label in out:
                     continue
                 current = released.get(label)
@@ -511,8 +511,11 @@ def _anchor_end_for_year(entries: list[dict[str, Any]], year: int) -> tuple[date
     for entry in entries:
         if not isinstance(entry, dict) or not _fy_or_10k(entry):
             continue
+        fy = entry.get("fy")
+        if fy is None:
+            continue
         try:
-            if int(entry.get("fy")) != year:
+            if int(fy) != year:
                 continue
         except (TypeError, ValueError):
             continue
@@ -608,6 +611,8 @@ def _sum_contiguous_fy_quarters(entries: list[dict[str, Any]]) -> dict[int, floa
         if not isinstance(entry, dict) or not _fy_or_10k(entry):
             continue
         fy = entry.get("fy")
+        if fy is None:
+            continue
         try:
             year = int(fy)
         except (TypeError, ValueError):
@@ -633,8 +638,8 @@ def _sum_contiguous_fy_quarters(entries: list[dict[str, Any]]) -> dict[int, floa
         best_key: tuple[str, str] | None = None
         best_sum: float | None = None
         for filed, period_map in filings.items():
-            periods = [(start, end, val) for (start, end), val in period_map.items()]
-            chain = _best_four_quarter_chain(periods)
+            quarter_periods = [(start, end, val) for (start, end), val in period_map.items()]
+            chain = _best_four_quarter_chain(quarter_periods)
             if chain is None:
                 continue
             end, total = chain
@@ -688,8 +693,11 @@ def _short_context_annual_by_year(
         if start is None or end is None:
             continue
         days = (end - start).days
+        val = entry.get("val")
+        if val is None:
+            continue
         try:
-            num = float(entry.get("val"))
+            num = float(val)
         except (TypeError, ValueError):
             continue
         parsed.append((entry, start, end, days, num, str(entry.get("filed") or "")))
@@ -705,8 +713,11 @@ def _short_context_annual_by_year(
         for entry, start, end, days, num, filed in parsed:
             if not _fy_or_10k(entry) or not (80 <= days <= 100):
                 continue
+            fy = entry.get("fy")
+            if fy is None:
+                continue
             try:
-                if int(entry.get("fy")) != year:
+                if int(fy) != year:
                     continue
             except (TypeError, ValueError):
                 continue
@@ -814,8 +825,11 @@ def _series_for_tags(
             for entry in entries:
                 if not isinstance(entry, dict):
                     continue
+                fy = entry.get("fy")
+                if fy is None:
+                    continue
                 try:
-                    year = int(entry.get("fy"))
+                    year = int(fy)
                 except (TypeError, ValueError):
                     continue
                 if year not in out:
@@ -1167,10 +1181,10 @@ def _split_adjusted_shares_for_tag(
                 days = _duration_days(entry)
                 if days is None or not (350 <= days <= 380):
                     continue
-                end = _parse_iso_date(entry.get("end"))
-                if end is None:
+                end_date = _parse_iso_date(entry.get("end"))
+                if end_date is None:
                     continue
-                label = fiscal_year_label(end)
+                label = fiscal_year_label(end_date)
                 if label in out:
                     continue
                 current = released.get(label)
@@ -1205,8 +1219,11 @@ def _cover_shares_by_accn(dei: dict[str, Any]) -> dict[str, float]:
         if not isinstance(entry, dict):
             continue
         accn = entry.get("accn")
+        raw_val = entry.get("val")
+        if raw_val is None:
+            continue
         try:
-            val = float(entry.get("val"))
+            val = float(raw_val)
         except (TypeError, ValueError):
             continue
         if accn and val > 0:
@@ -1268,6 +1285,10 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
             [*TAG_PREFS["shares"], "WeightedAverageNumberOfSharesOutstandingBasic"]
         )
     )
+
+    def _nearest_ref(refs: list[tuple[date, float]], target: date) -> float:
+        return min(refs, key=lambda item: abs((item[0] - target).days))[1]
+
     for tag in tags:
         node = us_gaap.get(tag)
         if not isinstance(node, dict):
@@ -1281,8 +1302,11 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
         for idx, entry in enumerate(entries):
             if not isinstance(entry, dict):
                 continue
+            raw_val = entry.get("val")
+            if raw_val is None:
+                continue
             try:
-                val = float(entry.get("val"))
+                val = float(raw_val)
             except (TypeError, ValueError):
                 continue
             if entry.get("accn") not in cover:
@@ -1290,9 +1314,9 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
                 continue
             exps.append((idx, _share_scale_exponent(val, cover[entry["accn"]])))
         refs = [
-            (end, float(entries[idx]["val"]))
+            (ref_end, float(entries[idx]["val"]))
             for idx, k in exps
-            if k == 0 and (end := _parse_iso_date(entries[idx].get("end"))) is not None
+            if k == 0 and (ref_end := _parse_iso_date(entries[idx].get("end"))) is not None
         ]
         if not refs:
             continue
@@ -1301,10 +1325,10 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
         # No cover count for the filing (BRK's FY2011 10-K tags only per-class
         # cover counts): scale against the nearest cover-verified fact itself.
         for idx in uncovered:
-            end = _parse_iso_date(entries[idx].get("end"))
-            if end is None:
+            uncovered_end = _parse_iso_date(entries[idx].get("end"))
+            if uncovered_end is None:
                 continue
-            ref = min(refs, key=lambda item: abs((item[0] - end).days))[1]
+            ref = _nearest_ref(refs, uncovered_end)
             k = _share_scale_exponent(float(entries[idx]["val"]), ref)
             if k:
                 fixed[idx] = {
@@ -1315,11 +1339,11 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
         for idx, k in exps:
             if not k:
                 continue
-            end = _parse_iso_date(entries[idx].get("end"))
-            if end is None:
+            scaled_end = _parse_iso_date(entries[idx].get("end"))
+            if scaled_end is None:
                 continue
             corrected = float(entries[idx]["val"]) / (10 ** (3 * k))
-            ref = min(refs, key=lambda item: abs((item[0] - end).days))[1]
+            ref = _nearest_ref(refs, scaled_end)
             lo, hi = _SHARE_SCALE_CONTINUITY_BAND
             if ref > 0 and lo <= corrected / ref <= hi:
                 fixed[idx] = {**entries[idx], "val": corrected}
@@ -1330,11 +1354,13 @@ def rescale_share_facts(companyfacts: dict[str, Any]) -> dict[str, Any]:
 
 
 def _continuation_entry_matches_year(entry: dict[str, Any], year: int) -> bool:
-    try:
-        if int(entry.get("fy")) == year:
-            return True
-    except (TypeError, ValueError):
-        pass
+    fy = entry.get("fy")
+    if fy is not None:
+        try:
+            if int(fy) == year:
+                return True
+        except (TypeError, ValueError):
+            pass
     end = _parse_iso_date(entry.get("end"))
     return end is not None and fiscal_year_label(end) == year
 
@@ -1515,8 +1541,11 @@ def _net_income_period_ends(us_gaap: dict[str, Any]) -> dict[int, date]:
                 continue
             if not _is_annual(entry):
                 continue
+            fy = entry.get("fy")
+            if fy is None:
+                continue
             try:
-                year = int(entry.get("fy"))
+                year = int(fy)
             except (TypeError, ValueError):
                 continue
             if year in ends:
@@ -1585,8 +1614,11 @@ def _dps_series_for_tag(
         for entry in entries:
             if not isinstance(entry, dict) or not _fy_or_10k(entry):
                 continue
+            fy = entry.get("fy")
+            if fy is None:
+                continue
             try:
-                if int(entry.get("fy")) != year:
+                if int(fy) != year:
                     continue
             except (TypeError, ValueError):
                 continue
@@ -2133,8 +2165,11 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
                     accn_form.setdefault(accn, str(e.get("form")).upper())
                 start = _parse_iso_date(e.get("start"))
                 end = _parse_iso_date(e.get("end"))
+                raw_fy = e.get("fy")
+                if raw_fy is None:
+                    continue
                 try:
-                    fy = int(e.get("fy"))
+                    fy = int(raw_fy)
                 except (TypeError, ValueError):
                     continue
                 filed = _parse_iso_date(e.get("filed"))
@@ -2174,7 +2209,10 @@ def normalize_fiscal_years(companyfacts: dict[str, Any]) -> dict[str, Any]:
         return companyfacts
 
     def _is_stub(e: dict[str, Any]) -> bool:
-        cutoff = stubs.get(e.get("accn"))
+        accn = e.get("accn")
+        if accn is None:
+            return False
+        cutoff = stubs.get(accn)
         if cutoff is None:
             return False
         end = _parse_iso_date(e.get("end"))

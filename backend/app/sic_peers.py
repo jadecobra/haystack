@@ -216,18 +216,19 @@ def rank_peers(
             if picked is not None:
                 co["p"], co["b"] = picked
                 continue
-        sic = co.get("s")
-        if sic is None:
+        raw_sic = co.get("s")
+        if raw_sic is None:
             co["why"] = (
                 "no other SEC filer in this industry group reports annual revenue of at least $10M"
                 if entry is not None
                 else "no SIC code in SEC submissions"
             )
             continue
+        sic_code = int(raw_sic)
         picked = _pick_peers(
             cik,
-            by_sic.get(int(sic), []),
-            by_sic3.get(int(sic) // 10, []),
+            by_sic.get(sic_code, []),
+            by_sic3.get(sic_code // 10, []),
             "sic",
             "sic3",
         )
