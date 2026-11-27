@@ -15,8 +15,10 @@ function backendOrigin(): string {
 
 function isAbortError(err: unknown): boolean {
   return (
-    (err instanceof DOMException && err.name === "AbortError") ||
-    (err instanceof Error && err.name === "AbortError")
+    (err instanceof DOMException &&
+      (err.name === "AbortError" || err.name === "TimeoutError")) ||
+    (err instanceof Error &&
+      (err.name === "AbortError" || err.name === "TimeoutError"))
   );
 }
 
@@ -56,12 +58,10 @@ export async function GET(
   }
 
   const url = `${backendOrigin()}/screen/${screen}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
   try {
     const upstream = await fetch(url, {
       cache: "no-store",
-      signal: controller.signal,
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
     if (upstream.ok) {
       const body = await upstream.text();
@@ -77,8 +77,6 @@ export async function GET(
     if (!isAbortError(err) && !(err instanceof Error)) {
       // Non-Error rejection still falls back to the disk snapshot.
     }
-  } finally {
-    clearTimeout(timer);
   }
 
   const seed = await readSeed(screen);

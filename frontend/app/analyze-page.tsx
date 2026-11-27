@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { Button, Card, DataTable, Input, PageShell, TextLink } from './components';
 import {
-  ANALYZE_RETRY_DELAY_MS,
   ANALYZE_TIMEOUT_MESSAGE,
   ANALYZE_TIMEOUT_MS,
   analyzeErrorMessage,
@@ -38,6 +37,7 @@ import {
   type PeerSortKey,
 } from '../lib/sectorTable';
 import { SectorTable } from './sector-table';
+import { useElapsedMs } from './hooks/use-elapsed-ms';
 import { normalizeTickerSegment } from './utils/ticker';
 import Link from 'next/link';
 
@@ -380,7 +380,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
     : '';
   const [ticker, setTicker] = useState(seeded);
   const [view, setView] = useState<View>({ kind: 'idle' });
-  const [elapsedMs, setElapsedMs] = useState(0);
+  const elapsedMs = useElapsedMs(view.kind === 'waiting');
 
   const groupsCacheRef = useRef<MetricGroup[]>([]);
   // Render-safe mirror of groupsCacheRef (react-hooks/refs: no ref reads in render).
@@ -388,24 +388,9 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const [peerSort, setPeerSort] = useState<PeerSortKey>('oe_yield');
   const yearsCacheRef = useRef<string[]>([]);
   const contractPromiseRef = useRef<Promise<MetricGroup[]> | null>(null);
-  const waitTimersRef = useRef<number[]>([]);
-  const elapsedTimerRef = useRef<number | null>(null);
   const requestIdRef = useRef(0);
   const analyzeAbortRef = useRef<AbortController | null>(null);
   const autoRanRef = useRef(false);
-
-  const clearWaitTimers = useCallback(() => {
-    for (const id of waitTimersRef.current) {
-      window.clearTimeout(id);
-    }
-    waitTimersRef.current = [];
-    if (elapsedTimerRef.current != null) {
-      window.clearInterval(elapsedTimerRef.current);
-      elapsedTimerRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => () => clearWaitTimers(), [clearWaitTimers]);
 
   const loadContractGroups = useCallback((): Promise<MetricGroup[]> => {
     if (groupsCacheRef.current.length > 0) {
@@ -444,7 +429,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
 
   const startWaitChrome = useCallback(
     (symbol: string) => {
-      clearWaitTimers();
       const startedAt = Date.now();
       const skeleton: SkeletonSpec = {
         groups: groupsCacheRef.current,
@@ -453,17 +437,12 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
             ? yearsCacheRef.current
             : [...PLACEHOLDER_YEARS],
       };
-      setElapsedMs(0);
       setView({
         kind: 'waiting',
         ticker: symbol,
         startedAt,
         skeleton,
       });
-
-      elapsedTimerRef.current = window.setInterval(() => {
-        setElapsedMs(Date.now() - startedAt);
-      }, 100);
 
       void loadContractGroups().then((groups) => {
         if (groups.length === 0) return;
@@ -477,7 +456,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
         );
       });
     },
-    [clearWaitTimers, loadContractGroups],
+    [loadContractGroups],
   );
 
   const runAnalyze = useCallback(
@@ -495,7 +474,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
 
       const fail = (message: string) => {
         if (!stillCurrent()) return;
-        clearWaitTimers();
         setView({ kind: 'error', message });
       };
 
@@ -505,7 +483,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           setCachedGroups(result.groups);
         }
         yearsCacheRef.current = result.years;
-        clearWaitTimers();
         const displayTicker = result.ticker.toUpperCase().trim() || symbol;
         setView({ kind: 'ready', data: { ...result, ticker: displayTicker } });
         syncSharePath(displayTicker);
@@ -515,14 +492,14 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
       while (stillCurrent()) {
         const controller = new AbortController();
         analyzeAbortRef.current = controller;
-        const timeoutId = window.setTimeout(
-          () => controller.abort(),
-          ANALYZE_TIMEOUT_MS,
-        );
+        const signal = AbortSignal.any([
+          controller.signal,
+          AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
+        ]);
         try {
           const response = await fetch(
             `/api/analyze/${encodeURIComponent(symbol)}`,
-            { signal: controller.signal },
+            { signal },
           );
           if (!stillCurrent()) return;
           const text = await response.text();
@@ -532,9 +509,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           if (!parsedBody.ok) {
             if (!retried) {
               retried = true;
-              await new Promise((resolve) =>
-                window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
-              );
               continue;
             }
             fail(ANALYZE_TIMEOUT_MESSAGE);
@@ -545,9 +519,6 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           if (!response.ok) {
             if (shouldRetryAnalyzeStatus(response.status) && !retried) {
               retried = true;
-              await new Promise((resolve) =>
-                window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
-              );
               continue;
             }
             fail(analyzeErrorMessage({ raw, ticker: symbol }));
@@ -565,13 +536,12 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           if (!stillCurrent()) return;
           const aborted =
             controller.signal.aborted ||
-            (err instanceof DOMException && err.name === 'AbortError') ||
-            (err instanceof Error && err.name === 'AbortError');
+            (err instanceof DOMException &&
+              (err.name === 'AbortError' || err.name === 'TimeoutError')) ||
+            (err instanceof Error &&
+              (err.name === 'AbortError' || err.name === 'TimeoutError'));
           if (!retried) {
             retried = true;
-            await new Promise((resolve) =>
-              window.setTimeout(resolve, ANALYZE_RETRY_DELAY_MS),
-            );
             continue;
           }
           fail(ANALYZE_TIMEOUT_MESSAGE);
@@ -580,14 +550,13 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           }
           return;
         } finally {
-          window.clearTimeout(timeoutId);
           if (analyzeAbortRef.current === controller) {
             analyzeAbortRef.current = null;
           }
         }
       }
     },
-    [clearWaitTimers, startWaitChrome],
+    [startWaitChrome],
   );
 
   useEffect(() => {

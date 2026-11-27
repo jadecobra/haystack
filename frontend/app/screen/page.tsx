@@ -3,7 +3,8 @@
 import { Card, DataTable, PageShell, TextLink } from "../components";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
+import { useElapsedMs } from "../hooks/use-elapsed-ms";
 import { formatBuiltLabel } from "@/lib/formatBuilt";
 import { parseSicQuery, sicForTicker, sicIndustryName } from "@/lib/screenSic";
 import {
@@ -66,8 +67,6 @@ function ScreenPageInner() {
 
   const [cache, setCache] = useState<Partial<Record<ScreenSlug, CachedSnapshot>>>({});
   const [errors, setErrors] = useState<Partial<Record<ScreenSlug, string>>>({});
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const elapsedTimerRef = useRef<number | null>(null);
 
   const neededSlug: ScreenSlug =
     activeIndex === "sp500" && !cache["sp1500-oe-yield"]
@@ -76,6 +75,7 @@ function ScreenPageInner() {
   const cachedEntry = cache[neededSlug];
   const loadError = errors[neededSlug] ?? null;
   const waiting = !cachedEntry && !loadError;
+  const elapsedMs = useElapsedMs(waiting);
 
   useEffect(() => {
     void fetch("/api/contract", { cache: "no-store" }).catch(() => {});
@@ -84,18 +84,6 @@ function ScreenPageInner() {
   useEffect(() => {
     if (cachedEntry || loadError) return;
     let cancelled = false;
-    const startedAt = Date.now();
-    // waiting / elapsedMs start ready without sync setState in the effect body.
-    elapsedTimerRef.current = window.setInterval(() => {
-      setElapsedMs(Date.now() - startedAt);
-    }, 100);
-
-    const stopClock = () => {
-      if (elapsedTimerRef.current != null) {
-        window.clearInterval(elapsedTimerRef.current);
-        elapsedTimerRef.current = null;
-      }
-    };
 
     void (async () => {
       try {
@@ -105,7 +93,6 @@ function ScreenPageInner() {
         const json: unknown = await response.json();
         const parsed = parseSectorSnapshot(json);
         if (cancelled) return;
-        stopClock();
         if (!parsed || parsed.rows.filter((r) => r.price != null).length === 0) {
           setErrors((prev) => ({
             ...prev,
@@ -119,7 +106,6 @@ function ScreenPageInner() {
         }));
       } catch {
         if (cancelled) return;
-        stopClock();
         setErrors((prev) => ({
           ...prev,
           [neededSlug]: `Could not load the ${indexLabel(activeIndex)} screen.`,
@@ -128,7 +114,6 @@ function ScreenPageInner() {
     })();
     return () => {
       cancelled = true;
-      stopClock();
     };
   }, [neededSlug, cachedEntry, loadError, activeIndex]);
 

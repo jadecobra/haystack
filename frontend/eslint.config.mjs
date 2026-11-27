@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -378,6 +379,97 @@ const noCommentsPlugin = {
   },
 };
 
+export const EFFECT_AND_TIMER_ALLOWLIST = {
+  "app/analyze-page.tsx": { useEffect: 2, setTimeout: 0, setInterval: 0 },
+  "app/screen/page.tsx": { useEffect: 2, setTimeout: 0, setInterval: 0 },
+  "app/sector-table.tsx": { useEffect: 1, setTimeout: 0, setInterval: 0 },
+  "app/components/google-analytics.tsx": {
+    useEffect: 1,
+    setTimeout: 0,
+    setInterval: 0,
+  },
+  "app/hooks/use-elapsed-ms.ts": { useEffect: 1, setTimeout: 0, setInterval: 1 },
+};
+
+const ZERO_EFFECT_TIMER_BUDGET = {
+  useEffect: 0,
+  setTimeout: 0,
+  setInterval: 0,
+};
+
+function classifyEffectOrTimerCall(node) {
+  const { callee } = node;
+  if (callee.type === "Identifier") {
+    if (
+      callee.name === "useEffect" ||
+      callee.name === "setTimeout" ||
+      callee.name === "setInterval"
+    ) {
+      return callee.name;
+    }
+    return null;
+  }
+  if (
+    callee.type === "MemberExpression" &&
+    !callee.computed &&
+    callee.object.type === "Identifier" &&
+    callee.property.type === "Identifier"
+  ) {
+    if (callee.object.name === "React" && callee.property.name === "useEffect") {
+      return "useEffect";
+    }
+    if (
+      (callee.object.name === "window" || callee.object.name === "globalThis") &&
+      (callee.property.name === "setTimeout" ||
+        callee.property.name === "setInterval")
+    ) {
+      return callee.property.name;
+    }
+  }
+  return null;
+}
+
+const haystackPlugin = {
+  rules: {
+    "no-unapproved-effects-or-timers": {
+      meta: {
+        type: "problem",
+        docs: {
+          description:
+            "Enforce explicit per-file caps on useEffect, setTimeout, and setInterval calls.",
+        },
+        schema: [],
+      },
+      create(context) {
+        const relPath = path
+          .relative(context.cwd, context.filename)
+          .replace(/\\/g, "/");
+        const budget =
+          EFFECT_AND_TIMER_ALLOWLIST[relPath] ?? ZERO_EFFECT_TIMER_BUDGET;
+        const counts = { useEffect: 0, setTimeout: 0, setInterval: 0 };
+
+        return {
+          CallExpression(node) {
+            const kind = classifyEffectOrTimerCall(node);
+            if (!kind) return;
+            counts[kind] += 1;
+            const limit = budget[kind];
+            if (counts[kind] > limit) {
+              context.report({
+                node,
+                message:
+                  limit === 0
+                    ? `${kind} is not allowlisted in ${relPath}; prefer state transitions, server/pure helpers, or AbortSignal.timeout.`
+                    : `${kind} count (${counts[kind]}) exceeds allowlist cap (${limit}) in ${relPath}.`,
+              });
+            }
+          },
+        };
+      },
+    },
+  },
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -385,9 +477,45 @@ const eslintConfig = defineConfig([
     files: ["**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"],
     plugins: {
       "no-comments": noCommentsPlugin,
+      haystack: haystackPlugin,
     },
     rules: {
       "no-comments/no-bad-comments": "error",
+      "haystack/no-unapproved-effects-or-timers": "error",
+    },
+  },
+  {
+    files: ["lib/**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react",
+              message:
+                "frontend/lib/ must remain framework-free; do not import react.",
+            },
+            {
+              name: "react-dom",
+              message:
+                "frontend/lib/ must remain framework-free; do not import react-dom.",
+            },
+            {
+              name: "next",
+              message:
+                "frontend/lib/ must remain framework-free; do not import next.",
+            },
+          ],
+          patterns: [
+            {
+              group: ["react/*", "react-dom/*", "next/*"],
+              message:
+                "frontend/lib/ must remain framework-free; do not import react or next.",
+            },
+          ],
+        },
+      ],
     },
   },
   globalIgnores([
