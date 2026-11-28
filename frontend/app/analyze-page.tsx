@@ -39,6 +39,13 @@ import {
 import { SectorTable } from './sector-table';
 import { useElapsedMs } from './hooks/use-elapsed-ms';
 import { normalizeTickerSegment } from './utils/ticker';
+import {
+  createInitialAnalyzeFlowState,
+  reduceAnalyzeFlow,
+  type AnalyzeFlowEvent,
+  type AnalyzeFlowState,
+  type AnalyzeSkeleton,
+} from '../lib/analyzeFlow';
 import Link from 'next/link';
 
 import {
@@ -85,19 +92,6 @@ type Analysis = {
 };
 
 const WAIT_STATUS = 'Working…';
-
-type SkeletonSpec = { groups: MetricGroup[]; years: string[] };
-
-type View =
-  | { kind: 'idle' }
-  | {
-      kind: 'waiting';
-      ticker: string;
-      startedAt: number;
-      skeleton: SkeletonSpec;
-    }
-  | { kind: 'ready'; data: Analysis }
-  | { kind: 'error'; message: string };
 
 type ContractPayload = {
   schema_version: string;
@@ -379,7 +373,13 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
     ? normalizeTickerSegment(initialTicker) ?? ''
     : '';
   const [ticker, setTicker] = useState(seeded);
-  const [view, setView] = useState<View>({ kind: 'idle' });
+  const flowRef = useRef<AnalyzeFlowState<Analysis, MetricGroup>>(
+    createInitialAnalyzeFlowState(),
+  );
+  const [flow, setFlow] = useState<AnalyzeFlowState<Analysis, MetricGroup>>(
+    createInitialAnalyzeFlowState,
+  );
+  const view = flow.view;
   const elapsedMs = useElapsedMs(view.kind === 'waiting');
 
   const groupsCacheRef = useRef<MetricGroup[]>([]);
@@ -388,9 +388,20 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
   const [peerSort, setPeerSort] = useState<PeerSortKey>('oe_yield');
   const yearsCacheRef = useRef<string[]>([]);
   const contractPromiseRef = useRef<Promise<MetricGroup[]> | null>(null);
-  const requestIdRef = useRef(0);
   const analyzeAbortRef = useRef<AbortController | null>(null);
   const autoRanRef = useRef(false);
+
+  const dispatchFlow = useCallback(
+    (
+      event: AnalyzeFlowEvent<Analysis, MetricGroup>,
+    ): AnalyzeFlowState<Analysis, MetricGroup> => {
+      const next = reduceAnalyzeFlow(flowRef.current, event);
+      flowRef.current = next;
+      setFlow(next);
+      return next;
+    },
+    [],
+  );
 
   const loadContractGroups = useCallback((): Promise<MetricGroup[]> => {
     if (groupsCacheRef.current.length > 0) {
@@ -427,68 +438,35 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
     void loadContractGroups();
   }, [loadContractGroups]);
 
-  const startWaitChrome = useCallback(
-    (symbol: string) => {
-      const startedAt = Date.now();
-      const skeleton: SkeletonSpec = {
-        groups: groupsCacheRef.current,
-        years:
-          yearsCacheRef.current.length > 0
-            ? yearsCacheRef.current
-            : [...PLACEHOLDER_YEARS],
-      };
-      setView({
-        kind: 'waiting',
-        ticker: symbol,
-        startedAt,
-        skeleton,
-      });
-
-      void loadContractGroups().then((groups) => {
-        if (groups.length === 0) return;
-        setView((current) =>
-          current.kind === 'waiting' && current.startedAt === startedAt
-            ? {
-                ...current,
-                skeleton: { ...current.skeleton, groups },
-              }
-            : current,
-        );
-      });
-    },
-    [loadContractGroups],
-  );
-
   const runAnalyze = useCallback(
     async (rawSymbol: string) => {
       const symbol = normalizeTickerSegment(rawSymbol);
       if (!symbol) return;
 
       setTicker(symbol);
-      const requestId = requestIdRef.current + 1;
-      requestIdRef.current = requestId;
       analyzeAbortRef.current?.abort();
-      startWaitChrome(symbol);
-
-      const stillCurrent = () => requestIdRef.current === requestId;
-
-      const fail = (message: string) => {
-        if (!stillCurrent()) return;
-        setView({ kind: 'error', message });
+      const startedAt = Date.now();
+      const skeleton: AnalyzeSkeleton<MetricGroup> = {
+        groups: groupsCacheRef.current,
+        years:
+          yearsCacheRef.current.length > 0
+            ? yearsCacheRef.current
+            : [...PLACEHOLDER_YEARS],
       };
+      const started = dispatchFlow({
+        type: 'start',
+        ticker: symbol,
+        startedAt,
+        skeleton,
+      });
+      const requestId = started.requestId;
 
-      const succeed = (result: Analysis) => {
-        if (result.groups?.length) {
-          groupsCacheRef.current = result.groups;
-          setCachedGroups(result.groups);
-        }
-        yearsCacheRef.current = result.years;
-        const displayTicker = result.ticker.toUpperCase().trim() || symbol;
-        setView({ kind: 'ready', data: { ...result, ticker: displayTicker } });
-        syncSharePath(displayTicker);
-      };
+      void loadContractGroups().then((groups) => {
+        dispatchFlow({ type: 'contract_groups', startedAt, groups });
+      });
 
-      let retried = false;
+      const stillCurrent = () => flowRef.current.requestId === requestId;
+
       while (stillCurrent()) {
         const controller = new AbortController();
         analyzeAbortRef.current = controller;
@@ -507,30 +485,55 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
           const parsedBody = parseAnalyzeBody(text);
 
           if (!parsedBody.ok) {
-            if (!retried) {
-              retried = true;
-              continue;
-            }
-            fail(ANALYZE_TIMEOUT_MESSAGE);
+            const next = dispatchFlow({
+              type: 'reply_transient',
+              requestId,
+              message: ANALYZE_TIMEOUT_MESSAGE,
+            });
+            if (next.view.kind === 'waiting') continue;
             return;
           }
 
           const raw = parsedBody.raw;
           if (!response.ok) {
-            if (shouldRetryAnalyzeStatus(response.status) && !retried) {
-              retried = true;
-              continue;
+            const message = analyzeErrorMessage({ raw, ticker: symbol });
+            if (shouldRetryAnalyzeStatus(response.status)) {
+              const next = dispatchFlow({
+                type: 'reply_transient',
+                requestId,
+                message,
+              });
+              if (next.view.kind === 'waiting') continue;
+              return;
             }
-            fail(analyzeErrorMessage({ raw, ticker: symbol }));
+            dispatchFlow({ type: 'reply_product_error', requestId, message });
             return;
           }
 
           const result = parseAnalysis(raw);
-          if (!result || !result.rows.length || !result.years.length) {
-            fail('Backend returned no metric table');
+          if (!result) {
+            dispatchFlow({
+              type: 'reply_product_error',
+              requestId,
+              message: 'Backend returned no metric table',
+            });
             return;
           }
-          succeed(result);
+          const displayTicker = result.ticker.toUpperCase().trim() || symbol;
+          const next = dispatchFlow({
+            type: 'reply_ok',
+            requestId,
+            data: { ...result, ticker: displayTicker },
+            fallbackMessage: 'Backend returned no metric table',
+          });
+          if (next.view.kind === 'ready') {
+            if (result.groups?.length) {
+              groupsCacheRef.current = result.groups;
+              setCachedGroups(result.groups);
+            }
+            yearsCacheRef.current = result.years;
+            syncSharePath(displayTicker);
+          }
           return;
         } catch (err) {
           if (!stillCurrent()) return;
@@ -540,11 +543,12 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
               (err.name === 'AbortError' || err.name === 'TimeoutError')) ||
             (err instanceof Error &&
               (err.name === 'AbortError' || err.name === 'TimeoutError'));
-          if (!retried) {
-            retried = true;
-            continue;
-          }
-          fail(ANALYZE_TIMEOUT_MESSAGE);
+          const next = dispatchFlow({
+            type: 'timeout',
+            requestId,
+            message: ANALYZE_TIMEOUT_MESSAGE,
+          });
+          if (next.view.kind === 'waiting') continue;
           if (!aborted) {
             console.error('Error fetching data:', err);
           }
@@ -556,7 +560,7 @@ export function AnalyzePage({ initialTicker }: AnalyzePageProps) {
         }
       }
     },
-    [startWaitChrome],
+    [dispatchFlow, loadContractGroups],
   );
 
   useEffect(() => {
