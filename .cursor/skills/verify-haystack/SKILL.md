@@ -95,7 +95,7 @@ FEATURE=analyze-results node scripts/click-through/browser.cjs analyze AAPL
 - visually hidden `h1` text `LongMuch` (logo `alt` is also `LongMuch`; no visible duplicate wordmark)
 - no page subtitle paragraph; tagline is in the SVG lockup; document title still `LongMuch - How much? How long?`
 - `input[placeholder="enter stock ticker e.g. AAPL"]`
-- `button` text `Analyze` (stays `Analyze` while waiting; status line carries stages + elapsed); disabled when waiting or ticker is blank, so it is disabled on the empty SSR homepage
+- `button` text `Analyze` (stays `Analyze` while waiting; status line carries stages + elapsed); disabled when waiting or ticker is blank, so it is disabled on the empty SSR homepage. Playwright scripts driving `/` must confirm client hydration binds the controlled input (`button:not([disabled])` after filling) before clicking `Analyze` rather than racing `domcontentloaded` or relying on `networkidle`.
 - footer `All available annual 10-K years. No login. No ads. No bloat.` plus `nav[data-testid="site-nav"]` (`How metrics are calculated` → `/docs`, then `OE Comparison:` `S&P 500` → `/screen` and 11 `/sector/<slug>` links), `© 2026 JadeCobra LLC`, and the maker line (`data-testid="maker-line"`) from PageShell
 - `/screen` ranked OE-yield table with `data-testid="screen-index-toggle"` (`S&P 500` / `S&P 400` / `S&P 600` / `S&P 1500` over `sp500-oe-yield` and `sp1500-oe-yield` JSON snapshots; not live)
 - `/screen` `button[data-testid="screen-debt-toggle"]` text `No debt` (`aria-pressed`); on syncs `?debt=none` and shows only `debt_state=zero` rows (`n/a` and `unknown` stay excluded). Caveat `data-testid="screen-debt-caveat"`: `debt-free per reported XBRL; N unknown excluded; financials excluded`
